@@ -3,23 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>科技风 CSS 长度单位探索器</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="description" content="交互式探索 CSS 长度单位：基准调节、单位演示、两两对比与单位对照表。" />
+    <meta name="theme-color" content="#121110" />
+    <title>CSS 长度单位探索器</title>
+    <link rel="icon" href="./favicon.ico" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
-        /* --- 科技风主题变量 --- */
         :root {
-            --color-primary: #00eeff; /* 霓虹蓝 */
-            --color-secondary: #ff00ea; /* 霓虹粉 */
-            --color-accent: #00ff9d; /* 霓虹绿 */
-            --color-background: #0a0e17; /* 深蓝黑 */
-            --color-surface: #131c2e; /* 卡片背景 */
-            --color-text: #e0f7ff; /* 主要文字 */
-            --color-text-secondary: #a0c8e0; /* 次要文字 */
-            --color-border: rgba(0, 238, 255, 0.3); /* 霓虹蓝边框 */
-            --color-glow-primary: 0 0 8px var(--color-primary), 0 0 16px rgba(0, 238, 255, 0.5);
-            --color-glow-secondary: 0 0 8px var(--color-secondary), 0 0 16px rgba(255, 0, 234, 0.5);
-            --transition-speed: 0.4s;
-            --border-radius: 10px;
+            --font-sans: "Noto Sans SC", system-ui, -apple-system, sans-serif;
+            --font-serif: "Noto Serif SC", "Songti SC", Georgia, serif;
+            --font-mono: "SF Mono", "Cascadia Code", ui-monospace, monospace;
+            --color-primary: #c9a06c;
+            --color-secondary: #8b9aac;
+            --color-accent: #a8b89a;
+            --color-background: #121110;
+            --color-surface: #1c1b19;
+            --color-surface-raised: #252320;
+            --color-text: #f2ebe3;
+            --color-text-secondary: #9a9288;
+            --color-border: rgba(242, 235, 227, 0.09);
+            --color-border-focus: rgba(201, 160, 108, 0.45);
+            --shadow-soft: 0 18px 48px rgba(0, 0, 0, 0.35);
+            --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 12px 40px rgba(0, 0, 0, 0.25);
+            --transition-speed: 0.28s;
+            --border-radius: 14px;
+            --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
 
         /* --- 基础重置与全局样式 --- */
@@ -29,15 +54,20 @@
             padding: 0;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif, 'Courier New';
+            font-family: var(--font-sans);
             background-color: var(--color-background);
             color: var(--color-text);
-            line-height: 1.6;
-            padding: 20px;
+            line-height: 1.65;
+            letter-spacing: 0.01em;
+            padding: clamp(16px, 4vw, 32px);
             background-image:
-                    radial-gradient(circle at 10% 20%, rgba(0, 100, 150, 0.1) 0%, transparent 20%),
-                    radial-gradient(circle at 90% 80%, rgba(150, 0, 150, 0.1) 0%, transparent 20%);
+                radial-gradient(ellipse 120% 80% at 50% -30%, rgba(201, 160, 108, 0.07), transparent 55%),
+                radial-gradient(ellipse 70% 50% at 100% 100%, rgba(139, 154, 172, 0.05), transparent 45%);
             min-height: 100vh;
             overflow-x: hidden;
         }
@@ -47,11 +77,264 @@
             margin: 0 auto;
         }
 
+        .skip-link {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            z-index: 9999;
+            padding: 12px 20px;
+            background: var(--color-surface);
+            color: var(--color-primary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .skip-link:focus {
+            left: 12px;
+            top: 12px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: 1px solid var(--color-border);
+            background: var(--color-surface);
+            transition: color var(--transition-speed) var(--ease-out), border-color var(--transition-speed), background var(--transition-speed);
+        }
+
+        .back-link:hover,
+        .back-link:focus-visible {
+            color: var(--color-text);
+            border-color: var(--color-border-focus);
+            background: var(--color-surface-raised);
+            outline: none;
+        }
+
+        .shell-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px 20px;
+            margin-bottom: 24px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .shell-tag {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--color-text-secondary);
+            opacity: 0.85;
+        }
+
+        .hero {
+            display: grid;
+            gap: 20px 32px;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.85s var(--ease-out) both;
+        }
+
+        @media (min-width: 768px) {
+            .hero {
+                grid-template-columns: minmax(0, 1fr) auto;
+                align-items: end;
+            }
+        }
+
+        .hero__body {
+            min-width: 0;
+        }
+
+        .hero__aside {
+            justify-self: start;
+        }
+
+        @media (min-width: 768px) {
+            .hero__aside {
+                justify-self: end;
+                text-align: right;
+            }
+        }
+
+        .toc {
+            margin-bottom: 28px;
+            animation: fadeInUp 0.75s var(--ease-out) 0.05s both;
+        }
+
+        .toc__list {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 4px 0 20px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .toc__list a {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 0.84rem;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            border: 1px solid transparent;
+            background: transparent;
+            transition: color var(--transition-speed), border-color var(--transition-speed), background var(--transition-speed);
+        }
+
+        .toc__list a:hover,
+        .toc__list a:focus-visible {
+            color: var(--color-text);
+            border-color: var(--color-border);
+            background: var(--color-surface);
+            outline: none;
+        }
+
+        .page-grid {
+            display: grid;
+            gap: 28px;
+            align-items: start;
+        }
+
+        @media (min-width: 1100px) {
+            .page-grid {
+                grid-template-columns: minmax(300px, 340px) minmax(0, 1fr);
+                gap: 32px 40px;
+            }
+        }
+
+        .sidebar-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        @media (min-width: 1100px) {
+            .sidebar-inner {
+                position: sticky;
+                top: 20px;
+                max-height: calc(100vh - 40px);
+                overflow-y: auto;
+                padding-right: 6px;
+            }
+
+            .sidebar-inner::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .sidebar-inner::-webkit-scrollbar-thumb {
+                background: var(--color-border);
+                border-radius: 99px;
+            }
+        }
+
+        .panel {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            padding: clamp(18px, 3vw, 22px);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset;
+        }
+
+        .panel__eyebrow {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--color-primary);
+            opacity: 0.9;
+            margin-bottom: 6px;
+        }
+
+        .panel__title {
+            font-family: var(--font-serif);
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 16px;
+            letter-spacing: 0.02em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel__title i {
+            color: var(--color-primary);
+            opacity: 0.85;
+            font-size: 0.95em;
+        }
+
+        .main-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            min-width: 0;
+        }
+
+        .section-block {
+            scroll-margin-top: 88px;
+        }
+
+        .section-head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px 16px;
+            margin-bottom: 16px;
+        }
+
+        .section-head__label {
+            flex-shrink: 0;
+            width: 2.25rem;
+            height: 2.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--color-primary);
+            background: var(--color-surface-raised);
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+        }
+
+        .section-head__title {
+            font-family: var(--font-serif);
+            font-size: clamp(1.2rem, 2.4vw, 1.4rem);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+            margin: 0;
+        }
+
+        .section-head__title i {
+            color: var(--color-primary);
+            opacity: 0.85;
+        }
+
         /* --- 动画定义 --- */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(12px);
             }
             to {
                 opacity: 1;
@@ -59,109 +342,53 @@
             }
         }
 
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 5px var(--color-primary), 0 0 10px rgba(0, 238, 255, 0.3); }
-            50% { box-shadow: 0 0 15px var(--color-primary), 0 0 30px rgba(0, 238, 255, 0.6); }
-            100% { box-shadow: 0 0 5px var(--color-primary), 0 0 10px rgba(0, 238, 255, 0.3); }
-        }
-
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-
-        /* --- 标题与副标题 --- */
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-            animation: fadeInUp 1s ease-out;
-            position: relative;
-        }
-
-        header::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 4px;
-            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
-            border-radius: 2px;
+        @keyframes pulseSoft {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(201, 160, 108, 0.25); }
+            50% { box-shadow: 0 0 0 6px rgba(201, 160, 108, 0.08); }
         }
 
         h1 {
+            font-family: var(--font-serif);
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 10px;
+            font-size: clamp(1.55rem, 4vw, 2.15rem);
+            letter-spacing: 0.03em;
+            font-feature-settings: "kern" 1;
+            line-height: 1.25;
+        }
+
+        h1 i {
             color: var(--color-primary);
-            margin-bottom: 15px;
-            font-size: 2.8rem;
-            text-shadow: var(--color-glow-primary);
-            letter-spacing: 1px;
+            margin-right: 0.3em;
+            opacity: 0.9;
+            font-size: 0.88em;
+            vertical-align: 0.05em;
         }
 
         .subtitle {
             color: var(--color-text-secondary);
-            font-size: 1.2rem;
-        }
-
-        /* --- 卡片与布局 --- */
-        .dashboard {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            margin-bottom: 35px;
-        }
-
-        @media (max-width: 900px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
+            font-size: clamp(0.92rem, 2vw, 1.02rem);
+            font-weight: 400;
+            max-width: 42em;
+            line-height: 1.75;
         }
 
         .card {
             background-color: var(--color-surface);
             border-radius: var(--border-radius);
-            padding: 25px;
-            transition: all var(--transition-speed) ease;
+            padding: clamp(20px, 4vw, 28px);
+            transition: transform var(--transition-speed) var(--ease-out), box-shadow var(--transition-speed) var(--ease-out), border-color var(--transition-speed);
             border: 1px solid var(--color-border);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--shadow-card);
             position: relative;
-            overflow: hidden;
-            animation: fadeInUp 0.8s ease-out;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 238, 255, 0.1), transparent);
-            transition: 0.5s;
+            animation: fadeInUp 0.75s var(--ease-out) both;
         }
 
         .card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), var(--color-glow-primary);
-        }
-
-        .card:hover::before {
-            left: 100%;
-        }
-
-        .card-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 25px;
-            color: var(--color-primary);
-            font-size: 1.5rem;
-            text-shadow: var(--color-glow-primary);
-        }
-
-        .card-title i {
-            font-size: 1.7rem;
+            transform: translateY(-2px);
+            border-color: rgba(201, 160, 108, 0.18);
+            box-shadow: var(--shadow-card), var(--shadow-soft);
         }
 
         /* --- 控件样式 --- */
@@ -176,117 +403,401 @@
             min-width: 180px;
         }
 
+        .controls--stack {
+            flex-direction: column;
+        }
+
+        .controls--stack .control-group {
+            min-width: 0;
+            width: 100%;
+        }
+
         label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-weight: 500;
             color: var(--color-text-secondary);
-            font-size: 0.95rem;
+            font-size: 0.88rem;
+        }
+
+        #font-size-value,
+        #container-width-value {
+            display: block;
+            margin-top: 8px;
+            font-size: 0.82rem;
+            color: var(--color-text-secondary);
+            font-variant-numeric: tabular-nums;
+            opacity: 0.9;
         }
 
         input[type="range"] {
             -webkit-appearance: none;
             width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: linear-gradient(90deg, var(--color-surface), var(--color-primary));
+            height: 5px;
+            border-radius: 999px;
+            background: var(--color-surface-raised);
             outline: none;
         }
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
-            background: var(--color-primary);
+            background: var(--color-text);
+            border: 2px solid var(--color-primary);
             cursor: pointer;
-            box-shadow: var(--color-glow-primary);
-            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+            transition: transform 0.2s var(--ease-out), background 0.2s;
         }
 
         input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-            box-shadow: var(--color-glow-primary), 0 0 20px var(--color-primary);
+            transform: scale(1.08);
+            background: var(--color-primary);
         }
 
-        input[type="number"], select, button {
+        input[type="range"]::-moz-range-track {
+            height: 5px;
+            border-radius: 999px;
+            background: var(--color-surface-raised);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--color-primary);
+            border-radius: 50%;
+            background: var(--color-text);
+            cursor: pointer;
+        }
+
+        /* 数字输入：外层容器 + 右侧主题化步进按钮（隐藏浏览器原生 spinner） */
+        .number-field {
+            display: flex;
+            align-items: stretch;
             width: 100%;
-            padding: 12px 15px;
+            min-height: 44px;
             border: 1px solid var(--color-border);
-            border-radius: var(--border-radius);
-            font-size: 16px;
-            background-color: rgba(10, 20, 35, 0.7);
+            border-radius: 10px;
+            background-color: var(--color-surface-raised);
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        .number-field:focus-within {
+            border-color: var(--color-border-focus);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                0 0 0 3px rgba(201, 160, 108, 0.12);
+        }
+
+        .number-field__input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            margin: 0;
+            padding: 10px 12px 10px 14px;
+            border: none;
+            border-radius: 0;
+            font-size: 15px;
+            font-family: inherit;
+            font-weight: 500;
+            font-variant-numeric: tabular-nums;
             color: var(--color-text);
-            transition: var(--transition-speed);
+            background: transparent;
+            box-shadow: none;
+            transition: none;
         }
 
-        input[type="number"]:focus, select:focus {
+        .number-field__input:focus {
             outline: none;
-            border-color: var(--color-primary);
-            box-shadow: 0 0 0 2px rgba(0, 238, 255, 0.3), var(--color-glow-primary);
         }
 
-        select {
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300eeff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-            padding-right: 40px;
+        .number-field__input::placeholder {
+            color: var(--color-text-secondary);
+            opacity: 0.75;
+        }
+
+        input.number-field__input::-webkit-outer-spin-button,
+        input.number-field__input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input.number-field__input {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        .number-field__spin {
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            width: 40px;
+            border-left: 1px solid var(--color-border);
+            background: rgba(201, 160, 108, 0.06);
+        }
+
+        button.number-field__step {
+            flex: 1;
+            min-height: 21px;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1;
+            font-family: inherit;
+            letter-spacing: 0;
+            text-transform: none;
+            color: var(--color-primary);
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.15s ease, color 0.15s ease;
+            box-shadow: none;
+        }
+
+        button.number-field__step:hover {
+            background: rgba(201, 160, 108, 0.16);
+            color: #dfc9a8;
+            transform: none;
+        }
+
+        button.number-field__step:active {
+            background: rgba(201, 160, 108, 0.26);
+        }
+
+        button.number-field__step:focus {
+            outline: none;
+        }
+
+        button.number-field__step:focus-visible {
+            position: relative;
+            z-index: 1;
+            box-shadow: inset 0 0 0 2px var(--color-border-focus);
+        }
+
+        button.number-field__step--up {
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        input[type="range"]:focus-visible {
+            outline: 2px solid var(--color-border-focus);
+            outline-offset: 6px;
+        }
+
+        /* 隐藏原生 select，由 .custom-select 呈现 UI（值仍同步到原生控件） */
+        .custom-select__native {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        .custom-select {
+            position: relative;
+            width: 100%;
+        }
+
+        button.custom-select__trigger {
+            width: 100%;
+            min-height: 44px;
+            padding: 10px 14px 10px 16px;
+            margin: 0;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            text-align: left;
+            font-size: 15px;
+            font-weight: 500;
+            font-family: inherit;
+            line-height: 1.4;
+            letter-spacing: 0.01em;
+            text-transform: none;
+            color: var(--color-text);
+            background-color: var(--color-surface-raised);
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: border-color var(--transition-speed), box-shadow var(--transition-speed), background-color var(--transition-speed);
+        }
+
+        button.custom-select__trigger:hover {
+            background-color: var(--color-surface);
+            border-color: rgba(201, 160, 108, 0.28);
+            transform: none;
+        }
+
+        button.custom-select__trigger:focus {
+            outline: none;
+        }
+
+        button.custom-select__trigger:focus-visible {
+            border-color: var(--color-border-focus);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                0 0 0 3px rgba(201, 160, 108, 0.14);
+        }
+
+        .custom-select.is-open button.custom-select__trigger {
+            border-color: var(--color-border-focus);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                0 0 0 3px rgba(201, 160, 108, 0.12);
+        }
+
+        .custom-select__value {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .custom-select__chevron {
+            flex-shrink: 0;
+            width: 34px;
+            height: 100%;
+            min-height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-left: 1px solid var(--color-border);
+            margin: -10px -14px -10px 0;
+            padding-left: 8px;
+            padding-right: 8px;
+            color: var(--color-primary);
+            transition: transform var(--transition-speed) var(--ease-out);
+        }
+
+        .custom-select.is-open .custom-select__chevron {
+            transform: rotate(180deg);
+        }
+
+        .custom-select__chevron svg {
+            display: block;
+            width: 18px;
+            height: 18px;
+        }
+
+        .custom-select__list {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: calc(100% + 6px);
+            z-index: 80;
+            margin: 0;
+            padding: 6px;
+            list-style: none;
+            max-height: min(280px, 52vh);
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: var(--color-surface-raised);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            box-shadow: var(--shadow-soft), 0 0 0 1px rgba(0, 0, 0, 0.2);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .custom-select__list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-select__list::-webkit-scrollbar-thumb {
+            background: var(--color-border);
+            border-radius: 99px;
+        }
+
+        .custom-select__option {
+            margin: 0;
+            padding: 10px 12px 10px 14px;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.45;
+            color: var(--color-text);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.15s ease, color 0.15s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .custom-select__option:hover,
+        .custom-select__option:focus {
+            outline: none;
+            background: rgba(201, 160, 108, 0.12);
+            color: var(--color-text);
+        }
+
+        .custom-select__option.is-selected {
+            background: rgba(201, 160, 108, 0.18);
+            border-left-color: var(--color-primary);
+            color: var(--color-text);
+        }
+
+        .custom-select__option.is-selected:hover {
+            background: rgba(201, 160, 108, 0.24);
         }
 
         button {
-            background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
-            color: var(--color-background);
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--color-primary);
+            color: #1a1512;
             border: none;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            box-shadow: var(--color-glow-primary);
+            gap: 8px;
+            letter-spacing: 0.06em;
+            font-size: 0.88rem;
             position: relative;
-            overflow: hidden;
-        }
-
-        button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            transition: 0.5s;
+            border-radius: 10px;
+            font-family: inherit;
+            transition: background-color var(--transition-speed), transform var(--transition-speed);
         }
 
         button:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--color-glow-primary), 0 5px 15px rgba(0, 0, 0, 0.4);
-        }
-
-        button:hover::before {
-            left: 100%;
+            background: #d4ae7a;
+            transform: translateY(-1px);
         }
 
         button:active {
-            transform: translateY(1px);
+            transform: translateY(0);
+        }
+
+        button:focus-visible {
+            outline: 2px solid var(--color-secondary);
+            outline-offset: 3px;
         }
 
         /* --- 演示区 --- */
         .demo-area {
-            text-align: center;
+            text-align: left;
         }
 
         #demo-bar-container {
-            height: 60px;
-            background-color: rgba(20, 30, 50, 0.7);
-            border-radius: var(--border-radius);
-            margin: 25px 0;
+            height: 56px;
+            background-color: var(--color-background);
+            border-radius: 10px;
+            margin: 24px 0 8px;
             overflow: hidden;
             position: relative;
             border: 1px solid var(--color-border);
@@ -294,84 +805,180 @@
 
         #demo-bar {
             height: 100%;
-            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            background: linear-gradient(105deg, #b8895a 0%, var(--color-primary) 45%, #dfc9a8 100%);
             width: 0;
-            transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: var(--color-glow-primary);
+            transition: width 0.85s var(--ease-out);
+            border-radius: 0 8px 8px 0;
         }
 
         #demo-text {
             font-weight: 500;
-            margin-top: 20px;
+            margin-top: 16px;
             min-height: 1.6em;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+            color: var(--color-text);
+            opacity: 0.88;
+            font-size: 0.98rem;
+            line-height: 1.55;
+            font-variant-numeric: tabular-nums;
         }
 
         /* --- 对比器 --- */
-        .comparison-tool {
+        .compare-card {
             display: flex;
             flex-direction: column;
-            gap: 25px;
+            gap: 22px;
         }
 
-        .comparison-row {
-            display: flex;
+        .compare-inputs {
+            display: grid;
+            gap: 16px;
             align-items: end;
-            gap: 20px;
+            grid-template-columns: 1fr 1fr;
         }
 
-        .comparison-input {
-            flex: 4; /* 增大占比 */
-            display: flex;
-            gap: 15px;
+        @media (min-width: 900px) {
+            .compare-inputs {
+                grid-template-columns: 1fr 1fr minmax(100px, 120px);
+            }
+        }
+
+        .compare-slot {
+            display: grid;
+            gap: 10px;
+        }
+
+        .compare-slot__row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
             align-items: end;
         }
 
-        .comparison-input > div {
-            flex: 1;
+        .compare-slot__row > div {
+            min-width: 0;
+        }
+
+        #compare-btn {
+            grid-column: 1 / -1;
+            width: 100%;
+            min-height: 44px;
+            font-size: 0.86rem;
+        }
+
+        @media (min-width: 900px) {
+            #compare-btn {
+                grid-column: auto;
+                align-self: end;
+                width: auto;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .compare-inputs {
+                grid-template-columns: 1fr;
+            }
+
+            .compare-slot__row {
+                grid-template-columns: 1fr;
+            }
         }
 
         .comparison-result {
-            flex: 4;
+            background: var(--color-background);
+            padding: 18px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .comparison-result__head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
             justify-content: space-between;
-            background: rgba(20, 50, 80, 0.3);
-            padding: 20px;
-            border-radius: var(--border-radius);
+            gap: 12px 20px;
+        }
+
+        #compare-result-text {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            font-variant-numeric: tabular-nums;
+            line-height: 1.5;
+            flex: 1;
+            min-width: 12rem;
+        }
+
+        #compare-result-ratio {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--color-primary);
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        .comparison-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .comparison-bar-slot {
+            display: grid;
+            grid-template-columns: 28px 1fr;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .comparison-bar-label {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            text-align: center;
+            line-height: 1;
+            padding: 6px 0;
+            border-radius: 8px;
+            background: var(--color-surface-raised);
             border: 1px solid var(--color-border);
         }
 
         .bar-visual {
-            height: 25px;
-            border-radius: 12px;
-            transition: width 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+            height: 22px;
+            border-radius: 999px;
+            transition: width 0.55s var(--ease-out);
         }
 
-        .bar-visual:nth-child(1) {
-            background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
-            box-shadow: var(--color-glow-primary);
-        }
-        .bar-visual:nth-child(2) {
-            background: linear-gradient(90deg, var(--color-secondary), var(--color-primary));
-            box-shadow: var(--color-glow-secondary);
+        .comparison-bar-slot:first-of-type .bar-visual {
+            background: linear-gradient(90deg, #a67c52, var(--color-primary));
         }
 
-        /* 调整扫描按钮样式 */
-        #compare-btn {
-            flex: 1; /* 减小占比 */
-            max-width: 120px; /* 限制最大宽度 */
-            padding: 12px 5px; /* 调整内边距 */
-            font-size: 0.85rem; /* 调整字体大小 */
+        .comparison-bar-slot:last-of-type .bar-visual {
+            background: linear-gradient(90deg, #6d7a8a, var(--color-secondary));
         }
 
         /* --- 表格 --- */
         .unit-table-container {
             overflow-x: auto;
             border-radius: var(--border-radius);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: var(--shadow-card);
             border: 1px solid var(--color-border);
-            animation: fadeInUp 1s ease-out 0.2s both;
+            animation: fadeInUp 0.8s var(--ease-out) 0.12s both;
+            -webkit-overflow-scrolling: touch;
+            background: var(--color-surface);
+        }
+
+        .unit-table caption {
+            caption-side: top;
+            text-align: left;
+            padding: 20px 22px 12px;
+            font-family: var(--font-serif);
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--color-text);
+            letter-spacing: 0.02em;
+            line-height: 1.5;
         }
 
         .unit-table {
@@ -381,61 +988,56 @@
             background-color: var(--color-surface);
         }
 
-        /* 修改表头样式 */
         .unit-table thead th.category {
-            background: linear-gradient(135deg, var(--color-secondary), var(--color-accent));
-            color: var(--color-background);
+            background: var(--color-surface-raised);
+            color: var(--color-text);
             text-align: left;
-            padding: 25px 20px; /* 调整内边距 */
+            padding: 18px 22px;
+            font-family: var(--font-serif);
             font-weight: 600;
-            font-size: 1.4rem; /* 稍小字体 */
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            font-size: 1.05rem;
+            letter-spacing: 0.03em;
+            border-bottom: 1px solid var(--color-border);
+            box-shadow: inset 3px 0 0 var(--color-primary);
+        }
+
+        .unit-table thead:first-of-type th.category {
             border-top-left-radius: var(--border-radius);
             border-top-right-radius: var(--border-radius);
-            position: relative;
-            overflow: hidden;
-        }
-        /* 为表头添加轻微的发光效果 */
-        .unit-table thead th.category::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            opacity: 0.3;
         }
 
         .unit-table th:not(.category) {
-            background-color: rgba(0, 100, 150, 0.2); /* 更柔和的背景 */
-            color: var(--color-primary);
+            background-color: var(--color-background);
+            color: var(--color-text-secondary);
             text-align: left;
-            padding: 18px 20px;
+            padding: 14px 22px;
             font-weight: 500;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
             border-bottom: 1px solid var(--color-border);
         }
 
-
         .unit-table td {
-            padding: 18px 20px;
-            border-bottom: 1px solid rgba(0, 238, 255, 0.1);
+            padding: 16px 22px;
+            border-bottom: 1px solid var(--color-border);
+            vertical-align: middle;
         }
 
         .unit-table tr:last-child td {
             border-bottom: none;
         }
 
-        .unit-table tr:hover td {
-            background-color: rgba(0, 238, 255, 0.05);
+        .unit-table tbody tr:hover td {
+            background-color: rgba(201, 160, 108, 0.04);
         }
 
         .unit-name {
             font-weight: 600;
             color: var(--color-primary);
             width: 12%;
-            text-shadow: 0 0 5px rgba(0, 238, 255, 0.5);
+            font-family: var(--font-mono);
+            font-size: 0.92rem;
         }
 
         .unit-description {
@@ -447,9 +1049,9 @@
         }
 
         .visual-bar-container {
-            height: 30px;
-            background-color: rgba(20, 30, 50, 0.7);
-            border-radius: 15px;
+            height: 26px;
+            background-color: var(--color-background);
+            border-radius: 999px;
             overflow: hidden;
             position: relative;
             border: 1px solid var(--color-border);
@@ -457,214 +1059,281 @@
 
         .visual-bar {
             height: 100%;
-            background: linear-gradient(90deg, var(--color-accent), var(--color-primary));
+            background: linear-gradient(90deg, #8a9a7e, var(--color-primary));
             width: 0;
-            transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: width 0.75s var(--ease-out);
+            border-radius: 0 999px 999px 0;
         }
 
         .unit-value {
             width: 18%;
             text-align: right;
-            font-family: 'Courier New', monospace;
-            font-weight: 600;
+            font-family: var(--font-mono);
+            font-weight: 500;
+            font-size: 0.88rem;
             color: var(--color-accent);
         }
 
         .unit-value.error {
-            color: var(--color-secondary);
-            font-style: italic;
+            color: #c08072;
+            font-style: normal;
         }
 
         /* --- 页脚 --- */
         footer {
             text-align: center;
-            margin-top: 50px;
-            padding: 25px;
+            margin-top: 48px;
+            padding: 28px 16px 8px;
             color: var(--color-text-secondary);
-            font-size: 0.9rem;
-            animation: fadeInUp 1s ease-out 0.4s both;
+            font-size: 0.88rem;
+            animation: fadeInUp 0.85s var(--ease-out) 0.2s both;
+            border-top: 1px solid var(--color-border);
         }
 
-        /* --- 工具类 --- */
+        footer a {
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
         .pulse-glow {
-            animation: pulseGlow 2s infinite;
+            animation: pulseSoft 2.2s ease-in-out infinite;
         }
 
-        .float {
-            animation: float 3s ease-in-out infinite;
-        }
-        /* 在样式部分添加以下CSS代码 */
         .blog-badge {
-            background: linear-gradient(135deg, var(--color-secondary), var(--color-accent));
-            color: var(--color-background);
-            padding: 10px 15px;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            box-shadow: var(--color-glow-secondary);
-            z-index: 1000;
-            transition: all var(--transition-speed) ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: transparent;
+            color: var(--color-text-secondary);
+            padding: 0;
+            margin-top: 20px;
             display: inline-block;
-            margin-top: 15px;
+            border-bottom: 1px solid var(--color-border);
+            transition: color var(--transition-speed), border-color var(--transition-speed);
         }
 
         .blog-badge:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: var(--color-glow-secondary), 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-color: var(--color-border-focus);
         }
 
         .blog-badge a {
-            color: var(--color-background);
+            color: inherit;
             text-decoration: none;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
+            padding: 8px 2px 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .blog-badge a:hover {
+            color: var(--color-primary);
+        }
+
+        .blog-badge a:focus-visible {
+            outline: 2px solid var(--color-border-focus);
+            outline-offset: 4px;
+            border-radius: 4px;
         }
 
         .blog-badge i {
             font-size: 1.1rem;
         }
 
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
     </style>
 </head>
 <body>
+<a class="skip-link" href="#main-content">跳到主要内容</a>
 <div class="container">
-    <header>
-        <link rel="icon" href="./favicon.ico" type="image/x-icon">
-        <h1><i class="fas fa-microchip"></i> 量子 CSS 长度单位探索器</h1>
-        <p class="subtitle">穿越数字维度，洞悉像素与视口的奥秘</p>
-        <div class="blog-badge">
-            <a href="https://www.cnblogs.com/zktww" target="_blank">
-                <i class="fas fa-blog"></i> 丿似锦
-            </a>
+    <div class="shell-bar">
+        <a class="back-link" href="index.html"><i class="fas fa-arrow-left" aria-hidden="true"></i> 返回 Demo 索引</a>
+        <span class="shell-tag" aria-hidden="true">CSS units lab</span>
+    </div>
+
+    <div class="hero">
+        <div class="hero__body">
+            <h1><i class="fas fa-ruler-horizontal" aria-hidden="true"></i> CSS 长度单位探索器</h1>
+            <p class="subtitle">在浏览器里对照绝对单位与相对单位，用同一套基准观察它们如何换算、如何随字体与视口变化。</p>
         </div>
-    </header>
-
-    <main>
-        <!-- 控制面板 -->
-        <div class="dashboard">
-            <div class="card">
-                <h2 class="card-title"><i class="fas fa-cogs"></i> 宇宙参数</h2>
-                <div class="controls">
-                    <div class="control-group">
-                        <label for="font-size-control"><i class="fas fa-font"></i> 基准字体大小 (px)</label>
-                        <input type="range" id="font-size-control" min="10" max="30" value="16">
-                        <span id="font-size-value">16 px</span>
-                    </div>
-                    <div class="control-group">
-                        <label for="container-width-control"><i class="fas fa-expand-arrows-alt"></i> 容器宽度 (px)</label>
-                        <input type="range" id="container-width-control" min="200" max="2000" value="800">
-                        <span id="container-width-value">800 px</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 演示台 -->
-            <div class="card demo-area">
-                <h2 class="card-title"><i class="fas fa-flask"></i> 单位反应堆</h2>
-                <div class="controls">
-                    <div class="control-group">
-                        <label for="demo-unit-select"><i class="fas fa-ruler"></i> 选择单位</label>
-                        <select id="demo-unit-select">
-                            <option value="px">px (像素)</option>
-                            <option value="em">em (相对于字体)</option>
-                            <option value="rem">rem (相对于根)</option>
-                            <option value="vw">vw (视口宽度)</option>
-                            <option value="vh">vh (视口高度)</option>
-                            <option value="cm">cm (厘米)</option>
-                            <option value="in">in (英寸)</option>
-                            <option value="rlh">rlh (根行高)</option>
-                        </select>
-                    </div>
-                    <div class="control-group">
-                        <label for="demo-value-control"><i class="fas fa-sort-numeric-up"></i> 数值</label>
-                        <input type="number" id="demo-value-control" min="0.1" max="100" step="0.1" value="2">
-                    </div>
-                    <div class="control-group">
-                        <label>&nbsp;</label>
-                        <button id="apply-demo-btn" class="pulse-glow"><i class="fas fa-bolt"></i> 启动</button>
-                    </div>
-                </div>
-                <div id="demo-bar-container">
-                    <div id="demo-bar"></div>
-                </div>
-                <p id="demo-text">等待能量注入...</p>
+        <div class="hero__aside">
+            <div class="blog-badge">
+                <a href="https://www.cnblogs.com/zktww" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-blog" aria-hidden="true"></i> 博客 · 丿似锦
+                </a>
             </div>
         </div>
+    </div>
 
-        <!-- 对比器 -->
-        <div class="card comparison-tool">
-            <h2 class="card-title"><i class="fas fa-balance-scale"></i> 时空对比仪</h2>
-            <div class="comparison-row">
-                <div class="comparison-input">
-                    <div>
-                        <label for="compare-value-1"><i class="fas fa-ruler"></i> 单位 A</label>
-                        <input type="number" id="compare-value-1" min="0.001" step="0.1" value="1" placeholder="数值">
-                    </div>
-                    <div>
-                        <label for="compare-unit-1">&nbsp;</label>
-                        <select id="compare-unit-1">
-                            <option value="px">px</option>
-                            <option value="em" selected>em</option>
-                            <option value="rem">rem</option>
-                            <option value="vw">vw</option>
-                            <option value="vh">vh</option>
-                            <option value="%">%</option>
-                            <option value="cm">cm</option>
-                            <option value="in">in</option>
-                            <option value="pt">pt</option>
-                            <option value="pc">pc</option>
-                            <option value="rlh">rlh</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="comparison-input">
-                    <div>
-                        <label for="compare-value-2"><i class="fas fa-ruler"></i> 单位 B</label>
-                        <input type="number" id="compare-value-2" min="0.001" step="0.1" value="16" placeholder="数值">
-                    </div>
-                    <div>
-                        <label for="compare-unit-2">&nbsp;</label>
-                        <select id="compare-unit-2">
-                            <option value="px" selected>px</option>
-                            <option value="em">em</option>
-                            <option value="rem">rem</option>
-                            <option value="vw">vw</option>
-                            <option value="vh">vh</option>
-                            <option value="%">%</option>
-                            <option value="cm">cm</option>
-                            <option value="in">in</option>
-                            <option value="pt">pt</option>
-                            <option value="pc">pc</option>
-                            <option value="rlh">rlh</option>
-                        </select>
-                    </div>
-                </div>
-                <button id="compare-btn" class="float"><i class="fas fa-exchange-alt"></i> 扫描</button>
-            </div>
-            <div class="comparison-row">
-                <div class="comparison-result">
-                    <span id="compare-result-text">-</span>
-                    <div style="flex:1; margin: 0 20px;">
-                        <div class="visual-bar-container">
-                            <div id="compare-bar-1" class="bar-visual"></div>
+    <nav class="toc" aria-label="本页分区">
+        <ul class="toc__list">
+            <li><a href="#section-lab">基准与演示</a></li>
+            <li><a href="#section-compare">单位对比</a></li>
+            <li><a href="#section-table">对照表</a></li>
+        </ul>
+    </nav>
+
+    <main id="main-content" class="page-grid">
+        <aside class="sidebar" id="section-lab" aria-label="显示基准与单位演示">
+            <div class="sidebar-inner">
+                <div class="panel">
+                    <p class="panel__eyebrow">01 · 环境</p>
+                    <h2 class="panel__title"><i class="fas fa-sliders" aria-hidden="true"></i> 显示基准</h2>
+                    <div class="controls controls--stack">
+                        <div class="control-group">
+                            <label for="font-size-control"><i class="fas fa-font" aria-hidden="true"></i> 基准字体大小 (px)</label>
+                            <input type="range" id="font-size-control" min="10" max="30" value="16">
+                            <span id="font-size-value">16 px</span>
                         </div>
-                        <div class="visual-bar-container" style="margin-top: 10px;">
-                            <div id="compare-bar-2" class="bar-visual"></div>
+                        <div class="control-group">
+                            <label for="container-width-control"><i class="fas fa-arrows-alt-h" aria-hidden="true"></i> 参考容器宽度 (px)</label>
+                            <input type="range" id="container-width-control" min="200" max="2000" value="800">
+                            <span id="container-width-value">800 px</span>
                         </div>
                     </div>
-                    <span id="compare-result-ratio">-</span>
+                </div>
+
+                <div class="panel demo-area">
+                    <p class="panel__eyebrow">同一环境下</p>
+                    <h2 class="panel__title"><i class="fas fa-eye" aria-hidden="true"></i> 单位演示</h2>
+                    <div class="controls controls--stack">
+                        <div class="control-group">
+                            <label for="demo-unit-select"><i class="fas fa-ruler" aria-hidden="true"></i> 选择单位</label>
+                            <select id="demo-unit-select">
+                                <option value="px">px (像素)</option>
+                                <option value="em">em (相对于字体)</option>
+                                <option value="rem">rem (相对于根)</option>
+                                <option value="vw">vw (视口宽度)</option>
+                                <option value="vh">vh (视口高度)</option>
+                                <option value="cm">cm (厘米)</option>
+                                <option value="in">in (英寸)</option>
+                                <option value="rlh">rlh (根行高)</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label for="demo-value-control"><i class="fas fa-hashtag" aria-hidden="true"></i> 数值</label>
+                            <input type="number" id="demo-value-control" min="0.1" max="100" step="0.1" value="16">
+                        </div>
+                        <div class="control-group">
+                            <button type="button" id="apply-demo-btn" class="pulse-glow" aria-label="应用当前演示" aria-describedby="demo-text"><i class="fas fa-check" aria-hidden="true"></i> 应用</button>
+                        </div>
+                    </div>
+                    <div id="demo-bar-container">
+                        <div id="demo-bar"></div>
+                    </div>
+                    <p id="demo-text" aria-live="polite">当前长度：—</p>
                 </div>
             </div>
-        </div>
+        </aside>
 
-        <!-- 单位图鉴 -->
+        <div class="main-stack">
+            <section id="section-compare" class="section-block" aria-labelledby="heading-compare">
+                <div class="section-head">
+                    <span class="section-head__label" aria-hidden="true">02</span>
+                    <h2 id="heading-compare" class="section-head__title"><i class="fas fa-balance-scale" aria-hidden="true"></i> 单位对比</h2>
+                </div>
+                <div class="card compare-card">
+                    <div class="compare-inputs">
+                        <div class="compare-slot">
+                            <span class="visually-hidden">第一组</span>
+                            <div class="compare-slot__row">
+                                <div>
+                                    <label for="compare-value-1"><i class="fas fa-ruler" aria-hidden="true"></i> 单位 A · 数值</label>
+                                    <input type="number" id="compare-value-1" min="0.001" step="0.1" value="1" placeholder="数值">
+                                </div>
+                                <div>
+                                    <label for="compare-unit-1">单位</label>
+                                    <select id="compare-unit-1">
+                                        <option value="px">px</option>
+                                        <option value="em" selected>em</option>
+                                        <option value="rem">rem</option>
+                                        <option value="vw">vw</option>
+                                        <option value="vh">vh</option>
+                                        <option value="%">%</option>
+                                        <option value="cm">cm</option>
+                                        <option value="in">in</option>
+                                        <option value="pt">pt</option>
+                                        <option value="pc">pc</option>
+                                        <option value="rlh">rlh</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="compare-slot">
+                            <span class="visually-hidden">第二组</span>
+                            <div class="compare-slot__row">
+                                <div>
+                                    <label for="compare-value-2"><i class="fas fa-ruler" aria-hidden="true"></i> 单位 B · 数值</label>
+                                    <input type="number" id="compare-value-2" min="0.001" step="0.1" value="16" placeholder="数值">
+                                </div>
+                                <div>
+                                    <label for="compare-unit-2">单位</label>
+                                    <select id="compare-unit-2">
+                                        <option value="px" selected>px</option>
+                                        <option value="em">em</option>
+                                        <option value="rem">rem</option>
+                                        <option value="vw">vw</option>
+                                        <option value="vh">vh</option>
+                                        <option value="%">%</option>
+                                        <option value="cm">cm</option>
+                                        <option value="in">in</option>
+                                        <option value="pt">pt</option>
+                                        <option value="pc">pc</option>
+                                        <option value="rlh">rlh</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" id="compare-btn"><i class="fas fa-equals" aria-hidden="true"></i> 对比</button>
+                    </div>
+                    <div class="comparison-result">
+                        <div class="comparison-result__head">
+                            <span id="compare-result-text">-</span>
+                            <span id="compare-result-ratio">-</span>
+                        </div>
+                        <div class="comparison-bars">
+                            <div class="comparison-bar-slot">
+                                <span class="comparison-bar-label" aria-hidden="true">A</span>
+                                <div class="visual-bar-container" role="img" aria-label="单位 A 相对长度">
+                                    <div id="compare-bar-1" class="bar-visual"></div>
+                                </div>
+                            </div>
+                            <div class="comparison-bar-slot">
+                                <span class="comparison-bar-label" aria-hidden="true">B</span>
+                                <div class="visual-bar-container" role="img" aria-label="单位 B 相对长度">
+                                    <div id="compare-bar-2" class="bar-visual"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-table" class="section-block" aria-labelledby="heading-table">
+                <div class="section-head">
+                    <span class="section-head__label" aria-hidden="true">03</span>
+                    <h2 id="heading-table" class="section-head__title"><i class="fas fa-table" aria-hidden="true"></i> 单位对照表</h2>
+                </div>
         <div class="unit-table-container">
             <table class="unit-table">
+                <caption>各列出 1 单位量的示意条与约略像素；ex、ch 等为浏览器内估算。</caption>
                 <thead>
                 <tr>
-                    <th class="category" colspan="4"><i class="fas fa-infinity"></i> 绝对维度 (Absolute)</th>
+                    <th class="category" colspan="4"><i class="fas fa-anchor" aria-hidden="true"></i> 绝对单位</th>
                 </tr>
                 <tr>
                     <th>单位</th>
@@ -685,7 +1354,7 @@
 
                 <thead>
                 <tr>
-                    <th class="category" colspan="4"><i class="fas fa-link"></i> 相对维度 (Relative)</th>
+                    <th class="category" colspan="4"><i class="fas fa-percent" aria-hidden="true"></i> 相对单位</th>
                 </tr>
                 <tr>
                     <th>单位</th>
@@ -713,11 +1382,13 @@
                 </tbody>
             </table>
         </div>
+            </section>
+        </div>
     </main>
 
     <footer>
-        <p>量子 CSS 长度单位探索器 v2.0 | 实时计算 | 动态可视化 | 多维对比</p>
-        <p>我的博客：<a href="https://www.cnblogs.com/zktww" target="_blank">丿似锦</a></p>
+        <p>CSS 长度单位探索 · 本地实时换算 · 仅供学习参考</p>
+        <p>我的博客：<a href="https://www.cnblogs.com/zktww" target="_blank" rel="noopener noreferrer">丿似锦</a></p>
     </footer>
 </div>
 
@@ -730,25 +1401,275 @@
         demoValue: 2
     };
 
+    function debounce(fn, ms) {
+        let t;
+        return function () {
+            clearTimeout(t);
+            const args = arguments;
+            const self = this;
+            t = setTimeout(function () { fn.apply(self, args); }, ms);
+        };
+    }
+
+    const chevronSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>';
+
+    let customSelectOpen = null;
+
+    function closeCustomSelect(wrap) {
+        if (!wrap || !wrap.classList.contains('is-open')) return;
+        wrap.classList.remove('is-open');
+        const list = wrap.querySelector('.custom-select__list');
+        const trigger = wrap.querySelector('.custom-select__trigger');
+        if (list) list.hidden = true;
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        document.removeEventListener('click', wrap._docClose);
+        document.removeEventListener('keydown', wrap._keyClose);
+        if (customSelectOpen === wrap) customSelectOpen = null;
+    }
+
+    function openCustomSelect(wrap) {
+        if (customSelectOpen && customSelectOpen !== wrap) {
+            closeCustomSelect(customSelectOpen);
+        }
+        customSelectOpen = wrap;
+        wrap.classList.add('is-open');
+        const list = wrap.querySelector('.custom-select__list');
+        const trigger = wrap.querySelector('.custom-select__trigger');
+        list.hidden = false;
+        trigger.setAttribute('aria-expanded', 'true');
+        const selected = list.querySelector('.custom-select__option.is-selected');
+        if (selected) selected.scrollIntoView({ block: 'nearest' });
+
+        wrap._docClose = function (e) {
+            if (!wrap.contains(e.target)) closeCustomSelect(wrap);
+        };
+        wrap._keyClose = function (e) {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closeCustomSelect(wrap);
+                trigger.focus();
+            }
+        };
+        setTimeout(function () {
+            document.addEventListener('click', wrap._docClose);
+            document.addEventListener('keydown', wrap._keyClose);
+        }, 0);
+    }
+
+    function syncCustomSelectUi(select) {
+        const wrap = select.closest('.custom-select');
+        if (!wrap) return;
+        const valueSpan = wrap.querySelector('.custom-select__value');
+        const list = wrap.querySelector('.custom-select__list');
+        if (!valueSpan || !list) return;
+        const opt = select.options[select.selectedIndex];
+        valueSpan.textContent = opt ? opt.textContent : '';
+        Array.from(list.querySelectorAll('.custom-select__option')).forEach(function (li, i) {
+            const o = select.options[i];
+            const on = o && o.selected;
+            li.classList.toggle('is-selected', on);
+            li.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+    }
+
+    function initCustomSelects() {
+        document.querySelectorAll('main select').forEach(function (select) {
+            if (select.dataset.enhanced === '1') return;
+            select.dataset.enhanced = '1';
+
+            const id = select.id;
+            if (!id) return;
+
+            const triggerId = id + '-trigger';
+            const listId = id + '-listbox';
+
+            const wrap = document.createElement('div');
+            wrap.className = 'custom-select';
+
+            const trigger = document.createElement('button');
+            trigger.type = 'button';
+            trigger.className = 'custom-select__trigger';
+            trigger.id = triggerId;
+            trigger.setAttribute('aria-haspopup', 'listbox');
+            trigger.setAttribute('aria-expanded', 'false');
+            trigger.setAttribute('aria-controls', listId);
+
+            const valueSpan = document.createElement('span');
+            valueSpan.className = 'custom-select__value';
+
+            const chevron = document.createElement('span');
+            chevron.className = 'custom-select__chevron';
+            chevron.innerHTML = chevronSvg;
+
+            trigger.appendChild(valueSpan);
+            trigger.appendChild(chevron);
+
+            const list = document.createElement('ul');
+            list.className = 'custom-select__list';
+            list.id = listId;
+            list.setAttribute('role', 'listbox');
+            list.hidden = true;
+
+            function buildList() {
+                list.innerHTML = '';
+                Array.from(select.options).forEach(function (opt, idx) {
+                    const li = document.createElement('li');
+                    li.className = 'custom-select__option';
+                    li.setAttribute('role', 'option');
+                    li.setAttribute('data-value', opt.value);
+                    li.setAttribute('id', id + '-opt-' + idx);
+                    li.textContent = opt.textContent;
+                    if (opt.selected) {
+                        li.classList.add('is-selected');
+                        li.setAttribute('aria-selected', 'true');
+                    } else {
+                        li.setAttribute('aria-selected', 'false');
+                    }
+                    li.addEventListener('mousedown', function (e) {
+                        e.preventDefault();
+                    });
+                    li.addEventListener('click', function () {
+                        select.value = opt.value;
+                        select.dispatchEvent(new Event('change', { bubbles: true }));
+                        syncCustomSelectUi(select);
+                        closeCustomSelect(wrap);
+                        trigger.focus();
+                    });
+                    list.appendChild(li);
+                });
+            }
+
+            buildList();
+            select.classList.add('custom-select__native');
+            select.setAttribute('tabindex', '-1');
+            select.setAttribute('aria-hidden', 'true');
+
+            const parent = select.parentNode;
+            parent.insertBefore(wrap, select);
+            wrap.appendChild(trigger);
+            wrap.appendChild(list);
+            wrap.appendChild(select);
+
+            const lbl = document.querySelector('label[for="' + id + '"]');
+            if (lbl) lbl.setAttribute('for', triggerId);
+
+            trigger.addEventListener('click', function (e) {
+                e.stopPropagation();
+                if (wrap.classList.contains('is-open')) {
+                    closeCustomSelect(wrap);
+                } else {
+                    openCustomSelect(wrap);
+                }
+            });
+
+            syncCustomSelectUi(select);
+        });
+    }
+
+    function stepNumberInput(input, direction) {
+        const stepAttr = input.getAttribute('step');
+        const step = stepAttr && stepAttr !== 'any' ? parseFloat(stepAttr) : NaN;
+        const s = !isNaN(step) && step > 0 ? step : 1;
+        let v = parseFloat(input.value);
+        if (isNaN(v)) v = 0;
+        let next = v + direction * s;
+        next = Math.round(next / s) * s;
+        if (input.min !== '') {
+            const mn = parseFloat(input.min);
+            if (!isNaN(mn)) next = Math.max(mn, next);
+        }
+        if (input.max !== '') {
+            const mx = parseFloat(input.max);
+            if (!isNaN(mx)) next = Math.min(mx, next);
+        }
+        const decPart = String(s).split('.')[1];
+        const dec = decPart ? decPart.length : 0;
+        input.value = dec ? next.toFixed(dec) : String(Math.round(next));
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    function initNumberFields() {
+        document.querySelectorAll('main input[type="number"]').forEach(function (input) {
+            if (input.dataset.numberEnhanced === '1') return;
+            input.dataset.numberEnhanced = '1';
+
+            const wrap = document.createElement('div');
+            wrap.className = 'number-field';
+
+            const spin = document.createElement('div');
+            spin.className = 'number-field__spin';
+
+            const btnUp = document.createElement('button');
+            btnUp.type = 'button';
+            btnUp.className = 'number-field__step number-field__step--up';
+            btnUp.setAttribute('aria-label', '增大数值');
+            btnUp.textContent = '+';
+
+            const btnDown = document.createElement('button');
+            btnDown.type = 'button';
+            btnDown.className = 'number-field__step number-field__step--down';
+            btnDown.setAttribute('aria-label', '减小数值');
+            btnDown.textContent = '\u2212';
+
+            spin.appendChild(btnUp);
+            spin.appendChild(btnDown);
+
+            const parent = input.parentNode;
+            parent.insertBefore(wrap, input);
+            wrap.appendChild(input);
+            input.classList.add('number-field__input');
+            wrap.appendChild(spin);
+
+            btnUp.addEventListener('click', function () {
+                stepNumberInput(input, 1);
+            });
+            btnDown.addEventListener('click', function () {
+                stepNumberInput(input, -1);
+            });
+
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    stepNumberInput(input, 1);
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    stepNumberInput(input, -1);
+                }
+            });
+        });
+    }
+
     // --- Helper Functions ---
     function getRootElementFontSize() {
         return parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
     }
 
+    /** 将 line-height 计算为 px（支持 normal、px、无单位倍数） */
+    function parseLineHeightToPx(lineHeightStr, fontSizePx) {
+        if (!lineHeightStr || lineHeightStr === 'normal') {
+            return fontSizePx * 1.2;
+        }
+        if (lineHeightStr.endsWith('px')) {
+            return parseFloat(lineHeightStr) || fontSizePx * 1.2;
+        }
+        const n = parseFloat(lineHeightStr);
+        if (!isNaN(n)) {
+            return n * fontSizePx;
+        }
+        return fontSizePx * 1.2;
+    }
+
     function getRootElementLineHeight() {
         const htmlStyles = getComputedStyle(document.documentElement);
-        const lineHeightStr = htmlStyles.lineHeight;
         const fontSize = parseFloat(htmlStyles.fontSize) || 16;
+        return parseLineHeightToPx(htmlStyles.lineHeight, fontSize);
+    }
 
-        if (lineHeightStr && !isNaN(lineHeightStr) && lineHeightStr > 0) {
-            return parseFloat(lineHeightStr) * fontSize;
-        }
-
-        if (lineHeightStr && lineHeightStr.endsWith('px')) {
-            return parseFloat(lineHeightStr);
-        }
-
-        return fontSize * 1.2;
+    function getBodyLineHeightPx() {
+        const cs = getComputedStyle(document.body);
+        const fontSize = parseFloat(cs.fontSize) || state.baseFontSize;
+        return parseLineHeightToPx(cs.lineHeight, fontSize);
     }
 
     function getContainerSize() {
@@ -758,14 +1679,27 @@
         };
     }
 
+    /** vi / vb：随 writing-mode 取视口内联轴、块轴尺寸（与水平排版下 vw/vh 对应关系一致） */
+    function getViVbScale(containerSize) {
+        const wm = (getComputedStyle(document.documentElement).writingMode || 'horizontal-tb').toLowerCase();
+        const vertical = wm.indexOf('vertical') === 0 || wm.indexOf('sideways') === 0;
+        const w = containerSize.width;
+        const h = containerSize.height;
+        if (vertical) {
+            return { vi: h / 100, vb: w / 100 };
+        }
+        return { vi: w / 100, vb: h / 100 };
+    }
+
     function calculateUnitValue(unit, value) {
         const rootFontSize = getRootElementFontSize();
         const rootLineHeight = getRootElementLineHeight();
         const containerSize = getContainerSize();
+        const { vi: viPx, vb: vbPx } = getViVbScale(containerSize);
         const smallerViewportDimension = Math.min(containerSize.width, containerSize.height);
         const largerViewportDimension = Math.max(containerSize.width, containerSize.height);
-        const elementFontSize = parseFloat(getComputedStyle(document.body).fontSize || state.baseFontSize);
-        const elementLineHeight = parseFloat(getComputedStyle(document.body).lineHeight || (elementFontSize * 1.2));
+        const elementFontSize = parseFloat(getComputedStyle(document.body).fontSize) || state.baseFontSize;
+        const elementLineHeight = getBodyLineHeightPx();
 
         let result;
         switch (unit) {
@@ -789,8 +1723,8 @@
             case 'ic': result = value * (elementFontSize * 1.2); break;
             case 'lh': result = value * elementLineHeight; break;
             case 'rlh': result = value * rootLineHeight; break;
-            case 'vi': result = value * containerSize.width / 100; break;
-            case 'vb': result = value * containerSize.height / 100; break;
+            case 'vi': result = value * viPx; break;
+            case 'vb': result = value * vbPx; break;
             default: result = NaN;
         }
 
@@ -848,7 +1782,14 @@
             } else {
                 demoText.style.fontSize = `${Math.min(pixelValue / 20, 24) || 16}px`;
             }
-            demoText.textContent = `能量注入: ${state.demoValue} ${state.demoUnit}`;
+            const pxLabel = formatPixelValue(pixelValue);
+            if (pxLabel.isError) {
+                demoText.textContent = `当前长度：${state.demoValue} ${state.demoUnit}（换算异常）`;
+            } else if (state.demoUnit === 'px') {
+                demoText.textContent = `当前长度：${state.demoValue} px`;
+            } else {
+                demoText.textContent = `当前长度：${state.demoValue} ${state.demoUnit}，折合约 ${pxLabel.text}`;
+            }
         }
     }
 
@@ -875,13 +1816,15 @@
         document.getElementById('compare-bar-2').style.width = `${width2}%`;
 
         let ratioText = '-';
-        if (isFinite(px1) && isFinite(px2) && px2 !== 0) {
+        if (px1 === 0 && px2 === 0) {
+            ratioText = '比例: 均为 0';
+        } else if (isFinite(px1) && isFinite(px2) && px2 !== 0) {
             const ratio = (px1 / px2).toFixed(4);
             ratioText = `比例: 1 : ${ratio}`;
         } else if (px2 === 0 && px1 !== 0) {
-            ratioText = `比例: 1 : ∞`;
+            ratioText = '比例: 1 : ∞';
         } else {
-            ratioText = `比例: 计算错误`;
+            ratioText = '比例: 无法计算';
         }
         document.getElementById('compare-result-ratio').textContent = ratioText;
     }
@@ -904,31 +1847,53 @@
         updateComparison();
     });
 
-    document.getElementById('demo-unit-select').addEventListener('change', function() {
-        state.demoUnit = this.value;
-    });
+    function syncDemoStateFromInputs() {
+        state.demoUnit = document.getElementById('demo-unit-select').value;
+        const v = parseFloat(document.getElementById('demo-value-control').value);
+        if (!isNaN(v) && v >= 0) {
+            state.demoValue = v;
+        }
+    }
 
-    document.getElementById('demo-value-control').addEventListener('change', function() {
-        state.demoValue = parseFloat(this.value) || 1;
-    });
+    function refreshDemoFromInputs() {
+        syncDemoStateFromInputs();
+        updateDemo();
+    }
+
+    const debouncedCompare = debounce(updateComparison, 80);
+
+    document.getElementById('demo-unit-select').addEventListener('change', refreshDemoFromInputs);
+
+    document.getElementById('demo-value-control').addEventListener('input', refreshDemoFromInputs);
+    document.getElementById('demo-value-control').addEventListener('change', refreshDemoFromInputs);
 
     document.getElementById('apply-demo-btn').addEventListener('click', function() {
         this.classList.remove('pulse-glow');
         void this.offsetWidth;
         this.classList.add('pulse-glow');
+        syncDemoStateFromInputs();
         updateDemo();
     });
 
     document.getElementById('compare-btn').addEventListener('click', updateComparison);
 
+    ['compare-value-1', 'compare-value-2', 'compare-unit-1', 'compare-unit-2'].forEach(function (id) {
+        document.getElementById(id).addEventListener('input', debouncedCompare);
+        document.getElementById(id).addEventListener('change', updateComparison);
+    });
+
     // --- Initialize on load ---
     document.addEventListener('DOMContentLoaded', () => {
+        initCustomSelects();
+        initNumberFields();
+
         document.documentElement.style.lineHeight = '1.5';
 
         document.body.style.fontSize = `${state.baseFontSize}px`;
         document.getElementById('font-size-value').textContent = `${state.baseFontSize} px`;
         document.getElementById('container-width-value').textContent = `${state.containerWidth} px`;
 
+        syncDemoStateFromInputs();
         updateVisuals();
         updateDemo();
         updateComparison();

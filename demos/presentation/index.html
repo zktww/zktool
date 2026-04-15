@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>架构师的成长 · 演示文稿</title>
+    <meta name="theme-color" content="#040814" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        /* VIEWPORT FITTING + Deep Space theme */
+        :root {
+            --bg: #040814;
+            --bg-elevated: #0c1428;
+            --text: #e8f0ff;
+            --text-muted: rgba(224, 236, 255, 0.62);
+            --accent: #5ee7ff;
+            --accent-mid: #38bdf8;
+            --accent-violet: #a78bfa;
+            --accent-deep: #312e81;
+            --accent-soft: rgba(94, 231, 255, 0.12);
+            --title-size: clamp(1.5rem, 5vw, 3.25rem);
+            --h2-size: clamp(1.2rem, 3.2vw, 2rem);
+            --h3-size: clamp(1rem, 2.2vw, 1.35rem);
+            --body-size: clamp(0.8rem, 1.35vw, 1.05rem);
+            --small-size: clamp(0.68rem, 1.05vw, 0.85rem);
+            --slide-padding: clamp(1rem, 4vw, 3rem);
+            --content-gap: clamp(0.5rem, 2vw, 1.25rem);
+            --element-gap: clamp(0.35rem, 1.2vw, 0.85rem);
+            --font-display: "Space Grotesk", system-ui, sans-serif;
+            --font-body: "IBM Plex Sans", system-ui, sans-serif;
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            overscroll-behavior: none;
+        }
+
+        html {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            display: none;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.45;
+            -webkit-font-smoothing: antialiased;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        /* 深空：星云渐变，无 filter / 无动画 */
+        .bg-deep {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                    radial-gradient(ellipse 90% 55% at 100% -10%, rgba(88, 28, 135, 0.35) 0%, transparent 52%),
+                    radial-gradient(ellipse 70% 50% at -5% 105%, rgba(14, 116, 144, 0.28) 0%, transparent 50%),
+                    radial-gradient(ellipse 55% 45% at 70% 85%, rgba(67, 56, 202, 0.18) 0%, transparent 45%),
+                    radial-gradient(circle at 25% 35%, rgba(56, 189, 248, 0.06) 0%, transparent 42%),
+                    linear-gradient(165deg, #030712 0%, #060d1c 38%, #040814 72%, #020617 100%);
+        }
+
+        /* 静态星点：多层 1px 径向，无 SVG 噪声 */
+        .starfield {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.42;
+            background-image:
+                    radial-gradient(1px 1px at 6% 11%, rgba(255, 255, 255, 0.9), transparent),
+                    radial-gradient(1px 1px at 14% 36%, rgba(200, 230, 255, 0.75), transparent),
+                    radial-gradient(1px 1px at 27% 74%, rgba(255, 255, 255, 0.45), transparent),
+                    radial-gradient(1.2px 1.2px at 41% 16%, rgba(255, 255, 255, 0.85), transparent),
+                    radial-gradient(1px 1px at 54% 48%, rgba(180, 210, 255, 0.6), transparent),
+                    radial-gradient(1px 1px at 67% 9%, rgba(255, 255, 255, 0.7), transparent),
+                    radial-gradient(1px 1px at 79% 63%, rgba(255, 255, 255, 0.5), transparent),
+                    radial-gradient(1px 1px at 93% 26%, rgba(200, 220, 255, 0.8), transparent),
+                    radial-gradient(1px 1px at 9% 89%, rgba(255, 255, 255, 0.4), transparent),
+                    radial-gradient(1px 1px at 32% 94%, rgba(255, 255, 255, 0.55), transparent),
+                    radial-gradient(1px 1px at 58% 96%, rgba(180, 200, 255, 0.45), transparent),
+                    radial-gradient(1px 1px at 86% 81%, rgba(255, 255, 255, 0.65), transparent),
+                    radial-gradient(1.5px 1.5px at 49% 31%, rgba(255, 255, 255, 0.95), transparent),
+                    radial-gradient(1px 1px at 72% 41%, rgba(255, 255, 255, 0.38), transparent),
+                    radial-gradient(1px 1px at 21% 56%, rgba(167, 139, 250, 0.55), transparent),
+                    radial-gradient(1px 1px at 90% 58%, rgba(94, 231, 255, 0.45), transparent),
+                    radial-gradient(1px 1px at 18% 62%, rgba(255, 255, 255, 0.35), transparent),
+                    radial-gradient(1px 1px at 63% 22%, rgba(255, 255, 255, 0.5), transparent),
+                    radial-gradient(1px 1px at 44% 78%, rgba(180, 230, 255, 0.4), transparent),
+                    radial-gradient(1.2px 1.2px at 76% 91%, rgba(255, 255, 255, 0.7), transparent);
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+        }
+
+        /* 弱极光锥光：青 / 紫 */
+        .aura-ring {
+            position: fixed;
+            inset: -40%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.14;
+            background: conic-gradient(
+                    from 210deg,
+                    transparent 0deg,
+                    rgba(94, 231, 255, 0.09) 55deg,
+                    transparent 110deg,
+                    transparent 180deg,
+                    rgba(167, 139, 250, 0.08) 250deg,
+                    transparent 310deg
+            );
+        }
+
+        /* 方案 B：整页不滚动文档，用轨道 translateY 换页（空格/键盘 100% 可靠） */
+        .deck-root {
+            position: relative;
+            z-index: 1;
+        }
+
+        .deck-viewport {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            z-index: 1;
+            box-shadow:
+                    inset 0 0 0 1px rgba(94, 231, 255, 0.12),
+                    inset 0 0 min(90px, 16vw) rgba(0, 0, 0, 0.45);
+        }
+
+        .deck-viewport::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background: radial-gradient(ellipse 60% 50% at 50% 50%, transparent 0%, rgba(2, 6, 23, 0.55) 100%);
+            opacity: 0.85;
+        }
+
+        .deck-track {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .deck-track {
+                transition: none;
+            }
+        }
+
+        .slide {
+            flex: 0 0 auto;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            isolation: isolate;
+            box-sizing: border-box;
+        }
+
+        /* Per-slide decorative layers (structure injected by script) */
+        .slide-visual {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .slide-visual__grid {
+            position: absolute;
+            inset: 0;
+            opacity: 0.45;
+            background-image:
+                    linear-gradient(rgba(94, 231, 255, 0.06) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(94, 231, 255, 0.05) 1px, transparent 1px);
+            background-size: min(11vw, 52px) min(11vw, 52px);
+            mask-image: radial-gradient(ellipse 75% 65% at 50% 42%, black 0%, transparent 72%);
+            -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 42%, black 0%, transparent 72%);
+        }
+
+        .slide-visual__num {
+            position: absolute;
+            right: clamp(0.25rem, 2.5vw, 1.75rem);
+            bottom: 12%;
+            font-family: var(--font-display);
+            font-size: clamp(3.5rem, 18vw, 11rem);
+            line-height: 0.85;
+            color: rgba(94, 231, 255, 0.07);
+            font-weight: 600;
+            user-select: none;
+            letter-spacing: -0.04em;
+        }
+
+        .slide--title .slide-visual__num {
+            bottom: 22%;
+            font-size: clamp(4rem, 22vw, 13rem);
+            color: rgba(167, 139, 250, 0.09);
+        }
+
+        .slide-visual__arc {
+            position: absolute;
+            width: min(58vmin, 440px);
+            height: min(58vmin, 440px);
+            border-radius: 50%;
+            border: 1px solid rgba(94, 231, 255, 0.14);
+            box-shadow:
+                    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+                    0 0 min(8vw, 80px) rgba(56, 189, 248, 0.08);
+            transition: transform 1s var(--ease-out), opacity 0.8s ease;
+        }
+
+        .slide-visual__arc--a {
+            top: -32%;
+            left: -22%;
+            transform: rotate(-12deg);
+        }
+
+        .slide-visual__arc--b {
+            bottom: -38%;
+            right: -24%;
+            transform: rotate(18deg);
+        }
+
+        .slide.is-active .slide-visual__arc--a {
+            transform: rotate(-8deg) scale(1.02);
+        }
+
+        .slide.is-active .slide-visual__arc--b {
+            transform: rotate(14deg) scale(1.02);
+        }
+
+        .slide-visual__shard {
+            position: absolute;
+            width: 2px;
+            height: min(35vh, 200px);
+            top: 50%;
+            left: clamp(0.5rem, 2vw, 1.25rem);
+            transform: translateY(-50%) rotate(12deg);
+            background: linear-gradient(
+                    180deg,
+                    transparent 0%,
+                    rgba(94, 231, 255, 0.4) 35%,
+                    rgba(167, 139, 250, 0.15) 100%
+            );
+            border-radius: 2px;
+            opacity: 0.75;
+        }
+
+        .slide-visual__shard--alt {
+            left: auto;
+            right: clamp(0.5rem, 2vw, 1.25rem);
+            transform: translateY(-50%) rotate(-10deg);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .slide.is-active .slide-visual__arc--a {
+                transform: rotate(-12deg);
+            }
+            .slide.is-active .slide-visual__arc--b {
+                transform: rotate(18deg);
+            }
+        }
+
+        .slide-content {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+            max-width: min(92vw, 920px);
+            margin: 0 auto;
+            width: 100%;
+            transform: translateZ(0);
+        }
+
+        .slide.is-active .slide-content {
+            animation: deck-slide-enter 0.48s var(--ease-out) both;
+        }
+
+        @keyframes deck-slide-enter {
+            from {
+                transform: translateY(12px);
+                opacity: 0.92;
+            }
+            to {
+                transform: translateZ(0);
+                opacity: 1;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .slide.is-active .slide-content {
+                animation: none;
+            }
+        }
+
+        .slide--title .slide-content {
+            text-align: center;
+            align-items: center;
+        }
+
+        .eyebrow {
+            font-size: var(--small-size);
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: var(--content-gap);
+        }
+
+        .slide.is-active .eyebrow {
+            position: relative;
+        }
+
+        .slide.is-active .eyebrow::after {
+            content: "";
+            display: block;
+            width: 100%;
+            max-width: 3.5rem;
+            height: 2px;
+            margin-top: 0.45rem;
+            border-radius: 1px;
+            background: linear-gradient(90deg, var(--accent), transparent 95%);
+            transform-origin: left center;
+            animation: deck-eyebrow-line 0.65s var(--ease-out) 0.08s both;
+        }
+
+        .slide.slide--title.is-active .eyebrow::after {
+            margin-left: auto;
+            margin-right: auto;
+            transform-origin: center center;
+        }
+
+        @keyframes deck-eyebrow-line {
+            from {
+                transform: scaleX(0);
+                opacity: 0;
+            }
+            to {
+                transform: scaleX(1);
+                opacity: 1;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .slide.is-active .eyebrow::after {
+                animation: none;
+                transform: scaleX(1);
+                opacity: 0.85;
+            }
+        }
+
+        .slide h1 {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: var(--title-size);
+            line-height: 1.08;
+            letter-spacing: -0.02em;
+        }
+
+        .slide h1 em {
+            font-style: italic;
+            color: var(--accent);
+            text-shadow: 0 0 28px rgba(94, 231, 255, 0.45), 0 0 56px rgba(56, 189, 248, 0.2);
+        }
+
+        .slide h2 {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: var(--h2-size);
+            line-height: 1.15;
+            margin-bottom: var(--content-gap);
+        }
+
+        .slide h3 {
+            font-size: var(--h3-size);
+            font-weight: 600;
+            margin-bottom: var(--element-gap);
+            color: var(--text);
+        }
+
+        .lead {
+            font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+            color: var(--text-muted);
+            max-width: 42ch;
+            margin-top: var(--content-gap);
+        }
+
+        .slide--title .lead {
+            max-width: 36ch;
+        }
+
+        .bullet-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: var(--element-gap);
+            margin-top: var(--content-gap);
+        }
+
+        .bullet-list li {
+            font-size: var(--body-size);
+            color: var(--text-muted);
+            padding-left: 1.1rem;
+            position: relative;
+            line-height: 1.4;
+        }
+
+        .bullet-list li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.55em;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        /* Time split donut: 40 / 30 / 20 / 10 */
+        .time-split {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: clamp(1rem, 3vw, 1.75rem);
+            margin-top: var(--content-gap);
+        }
+
+        .time-donut {
+            position: relative;
+            width: clamp(100px, 28vw, 148px);
+            height: clamp(100px, 28vw, 148px);
+            border-radius: 50%;
+            flex-shrink: 0;
+            background: conic-gradient(
+                    var(--accent) 0deg 144deg,
+                    var(--accent-mid) 144deg 252deg,
+                    var(--accent-violet) 252deg 324deg,
+                    rgba(224, 236, 255, 0.14) 324deg 360deg
+            );
+            box-shadow:
+                    0 0 0 1px rgba(255, 255, 255, 0.06),
+                    0 min(2vw, 16px) min(4vw, 32px) rgba(0, 0, 0, 0.35);
+        }
+
+        .time-donut::after {
+            content: "";
+            position: absolute;
+            inset: 28%;
+            border-radius: 50%;
+            background: var(--bg);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+        }
+
+        .time-legend {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.35rem 1rem;
+            font-size: var(--small-size);
+            color: var(--text-muted);
+            flex: 1;
+            min-width: min(100%, 220px);
+        }
+
+        .time-legend li {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            line-height: 1.35;
+        }
+
+        .time-legend i {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .time-legend i.c1 { background: var(--accent); }
+        .time-legend i.c2 { background: var(--accent-mid); }
+        .time-legend i.c3 { background: var(--accent-violet); }
+        .time-legend i.c4 { background: rgba(224, 236, 255, 0.22); }
+
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--small-size);
+            margin-top: var(--content-gap);
+        }
+
+        .compare-table th,
+        .compare-table td {
+            padding: 0.5rem 0.65rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            vertical-align: top;
+        }
+
+        .compare-table th {
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-size: 0.72rem;
+        }
+
+        .compare-table td:first-child {
+            color: rgba(224, 236, 255, 0.42);
+            width: 42%;
+        }
+
+        .compare-table tbody tr {
+            background: linear-gradient(90deg, rgba(94, 231, 255, 0.05), transparent 55%);
+        }
+
+        .compare-table tbody tr:nth-child(even) {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.03), transparent 50%);
+        }
+
+        .pull-quote {
+            position: relative;
+            margin-top: var(--content-gap);
+            padding: 0.85rem 0 0.85rem 1.15rem;
+            border-left: 2px solid var(--accent);
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+            color: rgba(224, 236, 255, 0.82);
+            line-height: 1.45;
+            max-width: 48ch;
+            background: radial-gradient(ellipse 120% 100% at 0% 50%, var(--accent-soft), transparent 65%);
+        }
+
+        .pull-quote::before {
+            content: "“";
+            position: absolute;
+            left: 0.15rem;
+            top: -0.1rem;
+            font-size: 2.5rem;
+            line-height: 1;
+            font-family: var(--font-display);
+            color: rgba(94, 231, 255, 0.22);
+            pointer-events: none;
+        }
+
+        .card {
+            margin-top: var(--content-gap);
+            padding: clamp(1rem, 2.5vw, 1.35rem);
+            border-radius: 14px;
+            background: linear-gradient(155deg, rgba(56, 189, 248, 0.08), rgba(99, 102, 241, 0.04));
+            border: 1px solid rgba(94, 231, 255, 0.12);
+            max-width: min(90vw, 100%);
+        }
+
+        .card p {
+            font-size: var(--body-size);
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .link-out {
+            margin-top: var(--content-gap);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: var(--body-size);
+        }
+
+        .link-out:hover {
+            text-decoration: underline;
+            color: var(--accent);
+        }
+
+        /* Reveal */
+        [data-reveal] {
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.52s var(--ease-out), transform 0.52s var(--ease-out);
+        }
+
+        .slide.is-active [data-reveal] {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            [data-reveal] {
+                opacity: 1;
+                transform: none;
+                transition: none;
+            }
+        }
+
+        .slide.is-active [data-reveal][data-delay="1"] { transition-delay: 0.05s; }
+        .slide.is-active [data-reveal][data-delay="2"] { transition-delay: 0.1s; }
+        .slide.is-active [data-reveal][data-delay="3"] { transition-delay: 0.15s; }
+        .slide.is-active [data-reveal][data-delay="4"] { transition-delay: 0.2s; }
+        .slide.is-active [data-reveal][data-delay="5"] { transition-delay: 0.25s; }
+
+        /* Right rail: slide index (replaces native scrollbar affordance) */
+        .deck-rail {
+            position: fixed;
+            z-index: 11;
+            top: 50%;
+            right: clamp(10px, 2vw, 20px);
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: clamp(4px, 1vh, 9px);
+            max-height: min(78vh, 560px);
+            padding: 6px 4px;
+            pointer-events: auto;
+        }
+
+        .deck-rail__seg {
+            flex-shrink: 0;
+            width: 6px;
+            height: 6px;
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+            background: rgba(224, 236, 255, 0.16);
+            cursor: pointer;
+            transition:
+                    width 0.28s var(--ease-out),
+                    height 0.28s var(--ease-out),
+                    border-radius 0.26s var(--ease-out),
+                    background 0.22s ease,
+                    box-shadow 0.28s ease,
+                    transform 0.26s var(--ease-out);
+        }
+
+        .deck-rail__seg:hover {
+            background: rgba(94, 231, 255, 0.4);
+            transform: scaleX(1.15);
+        }
+
+        .deck-rail__seg:focus {
+            outline: none;
+        }
+
+        .deck-rail__seg:focus-visible {
+            box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+        }
+
+        .deck-rail__seg.is-active {
+            width: 11px;
+            height: clamp(26px, 4.2vh, 36px);
+            border-radius: 6px;
+            background: linear-gradient(180deg, #a5f3fc 0%, var(--accent-mid) 42%, var(--accent-deep) 100%);
+            box-shadow:
+                    0 0 0 1px rgba(255, 255, 255, 0.2) inset,
+                    0 0 18px rgba(56, 189, 248, 0.55),
+                    0 4px 14px rgba(0, 0, 0, 0.45);
+            transform: translateX(calc(-1 * 2px));
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .deck-rail__seg {
+                transition-duration: 0.15s;
+            }
+        }
+
+        /* Bottom hints only */
+        .deck-ui {
+            position: fixed;
+            z-index: 10;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .slide-counter {
+            position: absolute;
+            bottom: 1rem;
+            right: calc(var(--slide-padding) + clamp(28px, 4vw, 40px));
+            font-size: var(--small-size);
+            color: var(--text-muted);
+            font-variant-numeric: tabular-nums;
+            padding: 0.2rem 0.55rem;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(94, 231, 255, 0.2);
+        }
+
+        .keyboard-hint {
+            position: absolute;
+            bottom: 1rem;
+            left: var(--slide-padding);
+            font-size: 0.7rem;
+            color: rgba(224, 236, 255, 0.32);
+            letter-spacing: 0.04em;
+        }
+
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 3vw, 2rem);
+                --content-gap: clamp(0.35rem, 1.5vw, 0.85rem);
+                --title-size: clamp(1.35rem, 4.5vw, 2.5rem);
+                --h2-size: clamp(1.05rem, 2.8vw, 1.65rem);
+            }
+        }
+
+        @media (max-height: 600px) {
+            .keyboard-hint {
+                display: none;
+            }
+
+            .deck-rail {
+                gap: 3px;
+                max-height: 70vh;
+                right: 6px;
+            }
+
+            .deck-rail__seg.is-active {
+                height: 22px;
+            }
+        }
+
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2vw, 1rem);
+                --body-size: clamp(0.72rem, 1.1vw, 0.9rem);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="bg-deep" aria-hidden="true"></div>
+<div class="starfield" aria-hidden="true"></div>
+<div class="aura-ring" aria-hidden="true"></div>
+
+<main id="deck" class="deck-root" aria-label="架构师的成长 演示文稿">
+    <div class="deck-viewport" id="deckViewport">
+        <div class="deck-track" id="deckTrack">
+            <section class="slide slide--title" id="s1" aria-label="封面">
+                <div class="slide-content">
+                    <p class="eyebrow" data-reveal>博客园 · 丿似锦</p>
+                    <h1 data-reveal data-delay="1">架构师的<em>成长</em></h1>
+                    <p class="lead" data-reveal data-delay="2">根据随笔《架构师的成长》整理的演示文稿 · 本地 HTML，零依赖</p>
+                </div>
+            </section>
+
+            <section class="slide" id="s2" aria-label="核心观点">
+                <div class="slide-content">
+                    <p class="eyebrow" data-reveal>导言</p>
+                    <h2 data-reveal data-delay="1">做管理时，什么最重要？</h2>
+                    <ul class="bullet-list">
+                        <li data-reveal data-delay="2">核心能力不是技术多强，而是<strong style="color: var(--text); font-weight: 600;">把技术价值翻译成业务价值</strong>。</li>
+                        <li data-reveal data-delay="3">以及在混乱中<strong style="color: var(--text); font-weight: 600;">快速建立秩序</strong>的能力。</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="slide" id="s3" aria-label="角色与时间">
+                <div class="slide-content">
+                    <p class="eyebrow" data-reveal>一、角色定位</p>
+                    <h2 data-reveal data-delay="1">从技术专家到团队领导者</h2>
+                    <p class="lead" data-reveal data-delay="2" style="margin-top: 0;">
+                        最大的坑是还在写代码里出不来。转变：从「我来解决技术问题」→「我来让团队能解决技术问题」。
+                    </p>
+                    <div class="time-split" data-reveal data-delay="3">
+                        <div class="time-donut" role="img" aria-label="时间分配比例：40% 沟通，30% 技术方向，20% 团队，10% 编码"></div>
+                        <ul class="time-legend">
+                            <li><i class="c1" aria-hidden="true"></i><span>40% 对外沟通（产品、业务、上级）</span></li>
+                            <li><i class="c2" aria-hidden="true"></i><span>30% 技术方向（架构、评审、方案）</span></li>
+                            <li><i class="c3" aria-hidden="true"></i><span>20% 团队建设（招人、带人、流程）</span></li>
+                            <li><i class="c4" aria-hidden="true"></i><span>10% 写代码（保持手感，勿成瓶颈）</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="slide" id="s4" aria-label="说人话">
+                <div class="slide-content">
+                    <p class="eyebrow" data-reveal>二、与产品和业务沟通</p>
+                    <h2 data-reveal data-delay="1">说人话，别说技术话</h2>
+                    <p class="lead" data-reveal data-delay="2" style="margin-top: 0;">原则：翻译成业务语言——钱、时间、风险、用户体验。</p>
+                    <table class="compare-table" data-reveal data-delay="3">
+                        <thead>
+                        <tr><th>避免</th><th>更好</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr><td>要用 Redis 做缓存层</td><td>可以做到秒开，用户不用等</td></tr>
+                        <tr><td>需要重构微服务架构</td><td>现在加功能要改 3 个系统，重构后只改 1 个，上线快一倍</td></tr>
+                        <tr><td>技术债太多</td><td>每做一个需求要多花约 30% 时间处理历史问题</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="slide" id="s5" aria-label="主动与信任">
+                <div class="slide-content">
+                    <p class="eyebrow" data-reveal>二（续）</p>
+                    <h2 data-reveal data-delay="1">主动参与 · 建立信任</h2>
+                    <ul class="bullet-list">
+                        <li data-reveal data-delay="2">产品规划阶段就介入，带着技术视角给建议，别等 PRD 来了再估工期。</li>
+                        <li data-reveal data-delay="3">定期和业务方做技术简报：讲趋势与风险，不讲细节堆砌。</li>
+                        <li data-reveal data-delay="4">用数据说话：稳定性、性能瓶颈、哪些改动影响最大。</li>
+                    </ul>
+                    <p class="pull-quote" data-reveal data-delay="5">
+                        说「不」时给替代方案：「按目前方案三周做不完；若砍掉 X 先上核心流程，一周可交付，X 下期补上。」别只说不行，给路径。
+                    </p>
+                </div>
+            </section>
+
+            <section class="slide" id="s6" aria-label="七天1">
+                <div class="slide-content">
+                    <p class="eyebrow" data-reveal>三、接手新项目 · 7 天速通</p>
+                    <h2 data-reveal data-delay="1">Day 1–4：是什么、为什么</h2>
+                    <ul class="bullet-list">
+                        <li data-reveal data-delay="2"><strong style="color: var(--text);">Day 1–2 · 是什么：</strong>本地先跑起来；看 README、架构图；画出数据流（请求从哪进、经哪些模块、存哪里）。</li>
+                        <li data-reveal data-delay="3"><strong style="color: var(--text);">Day 3–4 · 为什么：</strong>问前任/核心开发当初为何这样设计；看近 3 个月故障与 PR；改最多、bug 最多的模块即核心与痛点。</li>
+                    </ul>
+                    <p class="pull-quote" data-reveal data-delay="4">
+                        不要试图理解所有代码——理解业务流程与数据流就够了。代码是实现，业务才是本质。
+                    </p>
+                </div>
+            </section>
+
+            <section class="slide" id="s7" aria-label="七天2">
+                <div class="slide-content">
+                    <p class="eyebrow" data-reveal>三（续）</p>
+                    <h2 data-reveal data-delay="1">Day 5–7：怎么样、交付</h2>
+                    <ul class="bullet-list">
+                        <li data-reveal data-delay="2"><strong style="color: var(--text);">Day 5–6 · 怎么样：</strong>核心链路 QPS、延迟、错误率；依赖与第三方；部署、监控告警、回滚机制。</li>
+                        <li data-reveal data-delay="3"><strong style="color: var(--text);">Day 7 · 输出：</strong>一页架构图；核心模块清单 + 负责人；Top 3 风险 + Top 3 优化机会；与团队、产品对齐一次。</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="slide" id="s8" aria-label="融入团队">
+                <div class="slide-content">
+                    <p class="eyebrow" data-reveal>四、融入团队</p>
+                    <h2 data-reveal data-delay="1">前两周：少说多听</h2>
+                    <p class="lead" data-reveal data-delay="2" style="margin-top: 0;">
+                        <strong style="color: var(--text);">1v1 比开会有用十倍。</strong>入团队第一周，找每人单独聊 30 分钟，问三个问题：
+                    </p>
+                    <ul class="bullet-list">
+                        <li data-reveal data-delay="3">你现在最忙的是什么？</li>
+                        <li data-reveal data-delay="4">团队你觉得做得好的是什么？</li>
+                        <li data-reveal data-delay="5">如果你能改一件事，你想改什么？</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="slide" id="s9" aria-label="三个人">
+                <div class="slide-content">
+                    <p class="eyebrow" data-reveal>四（续）</p>
+                    <h2 data-reveal data-delay="1">找到三个人</h2>
+                    <table class="compare-table" data-reveal data-delay="2">
+                        <thead>
+                        <tr><th>角色</th><th>作用</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr><td>信息枢纽</td><td>消息最灵通（未必技术最强），帮你看清团队真实状态</td></tr>
+                        <tr><td>意见领袖</td><td>说话大家会听；搞定他，团队就搞定一半</td></tr>
+                        <tr><td>最强执行者</td><td>活干得最好但可能不善表达，是核心产出保障</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="slide" id="s10" aria-label="别急着证明">
+                <div class="slide-content">
+                    <p class="eyebrow" data-reveal>四（续）</p>
+                    <h2 data-reveal data-delay="1">不要急着证明自己</h2>
+                    <div class="card" data-reveal data-delay="2">
+                        <p>新人忌讳：上来就说「我以前在 XX 公司是这么做的」。</p>
+                    </div>
+                    <p class="pull-quote" data-reveal data-delay="3">
+                        正确姿势：「我看到咱们现在是这样做的，能给我讲讲当时为什么选这个方案吗？」先理解，再建议。尊重历史决策，即使你觉得有问题。
+                    </p>
+                </div>
+            </section>
+
+            <section class="slide" id="s11" aria-label="协调配合">
+                <div class="slide-content">
+                    <p class="eyebrow" data-reveal>五、协调配合</p>
+                    <h2 data-reveal data-delay="1">别用权力，用价值</h2>
+                    <ul class="bullet-list">
+                        <li data-reveal data-delay="2">给面子、给舞台：「这块你最熟，方案你来主导，我给你打下手。」</li>
+                        <li data-reveal data-delay="3">帮他解决他解决不了的问题：争取资源、挡需求、为新技术背书。</li>
+                        <li data-reveal data-delay="4">私下认可，公开表扬——周会一次点名认可，胜过十次私下夸。</li>
+                        <li data-reveal data-delay="5">初来乍到少动核心地盘；新需求增量上证明价值，老系统慢慢过渡。</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="slide" id="s12" aria-label="树立威信">
+                <div class="slide-content">
+                    <p class="eyebrow" data-reveal>五（续）</p>
+                    <h2 data-reveal data-delay="1">树立威信</h2>
+                    <ul class="bullet-list">
+                        <li data-reveal data-delay="2">不挑最老的，挑一件确实有问题、大家也有同感的事。</li>
+                        <li data-reveal data-delay="3">就事论事，不人身攻击；先私下沟通，避免公开处刑。</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="slide" id="s13" aria-label="向上">
+                <div class="slide-content">
+                    <p class="eyebrow" data-reveal>六、快速进入管理岗 · 向上</p>
+                    <h2 data-reveal data-delay="1">让老板看到管理潜力</h2>
+                    <ul class="bullet-list">
+                        <li data-reveal data-delay="2">主动承担「没人管的事」：跨团队协调、技术评审、oncall 排班等灰色地带。</li>
+                        <li data-reveal data-delay="3">带小项目做到闭环：从 2–3 人的小需求开始，按时交付、过程透明、结果可衡量。</li>
+                        <li data-reveal data-delay="4">定期同步、管理预期：周报写思考与判断；主动报风险，别等老板来问。</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="slide" id="s14" aria-label="向下">
+                <div class="slide-content">
+                    <p class="eyebrow" data-reveal>六（续）· 向下</p>
+                    <h2 data-reveal data-delay="1">积累团队影响力</h2>
+                    <ul class="bullet-list">
+                        <li data-reveal data-delay="2">做团队的「乘法者」：文档、分享、规范；帮新人、帮老开发解难。</li>
+                        <li data-reveal data-delay="3">建立技术品牌：内部分享、博客；关键决策上有观点、有论证。</li>
+                    </ul>
+                    <p class="pull-quote" data-reveal data-delay="4">
+                        反直觉：你越能被替代，越容易升职。若你走了活没人接、系统就崩，反而难被提拔。
+                    </p>
+                </div>
+            </section>
+
+            <section class="slide slide--title" id="s15" aria-label="收束">
+                <div class="slide-content">
+                    <p class="eyebrow" data-reveal>收束</p>
+                    <h1 data-reveal data-delay="1">成就<em>人</em></h1>
+                    <p class="lead" data-reveal data-delay="2">
+                        管理的本质不是管人，是成就人。你成就了团队，团队就成就了你。
+                    </p>
+                    <a class="link-out" data-reveal data-delay="3" href="https://www.cnblogs.com/zktww/p/19797638" target="_blank" rel="noopener noreferrer">阅读原文《架构师的成长》</a>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+
+<nav class="deck-rail" id="deckRail" aria-label="幻灯片进度"></nav>
+
+<div class="deck-ui" aria-hidden="true">
+    <span class="slide-counter" id="slideCounter">1 / 15</span>
+    <span class="keyboard-hint">↑↓←→ / PgUp·Dn / 空格 下一页 · 滚轮 · 触控 · 右侧点选</span>
+</div>
+
+<script>
+    (function () {
+        var deckViewport = document.getElementById("deckViewport");
+        var track = document.getElementById("deckTrack");
+        var slides = Array.from(document.querySelectorAll("#deckTrack .slide"));
+
+        slides.forEach(function (s, i) {
+            var visual = document.createElement("div");
+            visual.className = "slide-visual";
+            visual.setAttribute("aria-hidden", "true");
+            var arcMod = i % 2 === 0 ? "slide-visual__arc--a" : "slide-visual__arc--b";
+            var shardMod =
+                i % 2 === 0 ? "slide-visual__shard" : "slide-visual__shard slide-visual__shard--alt";
+            visual.innerHTML =
+                '<span class="slide-visual__grid"></span>' +
+                '<span class="slide-visual__num">' +
+                String(i + 1).padStart(2, "0") +
+                "</span>" +
+                '<span class="slide-visual__arc ' +
+                arcMod +
+                '"></span>' +
+                '<span class="' +
+                shardMod +
+                '"></span>';
+            s.insertBefore(visual, s.firstChild);
+        });
+
+        var total = slides.length;
+        var counter = document.getElementById("slideCounter");
+        var rail = document.getElementById("deckRail");
+        var index = 0;
+        var wheelLock = false;
+        var railSegs = [];
+        var slideH = 0;
+
+        slides.forEach(function (_s, i) {
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "deck-rail__seg";
+            btn.setAttribute("aria-label", "第 " + (i + 1) + " 页，共 " + total + " 页");
+            rail.appendChild(btn);
+            railSegs.push(btn);
+        });
+
+        function measureDeck() {
+            slideH = Math.max(1, deckViewport.clientHeight || window.innerHeight);
+            slides.forEach(function (s) {
+                s.style.height = slideH + "px";
+                s.style.minHeight = slideH + "px";
+            });
+            track.style.height = total * slideH + "px";
+        }
+
+        function applyTransform() {
+            track.style.transform = "translate3d(0," + (-index * slideH) + "px,0)";
+        }
+
+        function setActive(i) {
+            i = Math.max(0, Math.min(total - 1, i));
+            index = i;
+            applyTransform();
+            for (var k = 0; k < total; k++) {
+                slides[k].classList.toggle("is-active", k === i);
+            }
+            for (var j = 0; j < total; j++) {
+                var on = j === i;
+                railSegs[j].classList.toggle("is-active", on);
+                if (on) railSegs[j].setAttribute("aria-current", "true");
+                else railSegs[j].removeAttribute("aria-current");
+            }
+            counter.textContent = i + 1 + " / " + total;
+        }
+
+        function goTo(raw) {
+            setActive(Math.max(0, Math.min(total - 1, raw)));
+        }
+
+        function isTypingFocus(el) {
+            if (!el || el.nodeType !== 1) return false;
+            var tag = el.tagName;
+            if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
+            if (el.closest && el.closest("[contenteditable='true']")) return true;
+            return false;
+        }
+
+        function isSpaceOnLink(e) {
+            if (e.key !== " ") return false;
+            return e.target && e.target.closest && e.target.closest("a[href]");
+        }
+
+        function armWheelLock() {
+            wheelLock = true;
+            setTimeout(function () {
+                wheelLock = false;
+            }, 320);
+        }
+
+        window.addEventListener("resize", function () {
+            measureDeck();
+            setActive(index);
+        });
+
+        railSegs.forEach(function (btn, i) {
+            btn.addEventListener("click", function () {
+                goTo(i);
+            });
+        });
+
+        document.addEventListener(
+            "keydown",
+            function (e) {
+                if (isTypingFocus(e.target)) return;
+
+                if (
+                    e.key === "ArrowDown" ||
+                    e.key === "PageDown" ||
+                    e.key === "ArrowRight" ||
+                    (e.key === " " && !isSpaceOnLink(e))
+                ) {
+                    e.preventDefault();
+                    goTo(index + 1);
+                } else if (e.key === "ArrowUp" || e.key === "PageUp" || e.key === "ArrowLeft") {
+                    e.preventDefault();
+                    goTo(index - 1);
+                } else if (e.key === "Home") {
+                    e.preventDefault();
+                    goTo(0);
+                } else if (e.key === "End") {
+                    e.preventDefault();
+                    goTo(total - 1);
+                }
+            },
+            true
+        );
+
+        document.addEventListener(
+            "wheel",
+            function (e) {
+                if (wheelLock) return;
+                var dy = e.deltaY;
+                if (Math.abs(dy) < 20) return;
+                e.preventDefault();
+                armWheelLock();
+                if (dy > 0) goTo(index + 1);
+                else goTo(index - 1);
+            },
+            { passive: false }
+        );
+
+        var touchStartY = null;
+        document.addEventListener(
+            "touchstart",
+            function (e) {
+                if (e.changedTouches.length) touchStartY = e.changedTouches[0].clientY;
+            },
+            { passive: true }
+        );
+        document.addEventListener(
+            "touchend",
+            function (e) {
+                if (touchStartY === null || !e.changedTouches.length) return;
+                var dy = e.changedTouches[0].clientY - touchStartY;
+                touchStartY = null;
+                if (Math.abs(dy) < 48) return;
+                if (dy < 0) goTo(index + 1);
+                else goTo(index - 1);
+            },
+            { passive: true }
+        );
+
+        measureDeck();
+        setActive(0);
+        requestAnimationFrame(function () {
+            measureDeck();
+            setActive(index);
+        });
+    })();
+</script>
+</body>
+</html>

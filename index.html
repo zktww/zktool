@@ -1,242 +1,302 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>zkdome · 个人 Demo 索引</title>
-  <meta name="description" content="个人实验与前端小作品索引页" />
-  <meta name="theme-color" content="#0a0e17" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <style>
-    :root {
-      --bg: #0a0e17;
-      --surface: #131c2e;
-      --text: #e0f7ff;
-      --muted: #a0c8e0;
-      --primary: #00eeff;
-      --secondary: #ff00ea;
-      --accent: #00ff9d;
-      --border: rgba(0, 238, 255, 0.25);
-      --glow: 0 0 20px rgba(0, 238, 255, 0.15);
-      --radius: 14px;
-      --ease: cubic-bezier(0.16, 1, 0.3, 1);
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>zkdome · 个人 Demo 索引</title>
+    <meta name="description" content="个人实验与前端小作品索引页" />
+    <meta name="theme-color" content="#0a0e17" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        :root {
+            --bg: #0a0e17;
+            --surface: #131c2e;
+            --text: #e0f7ff;
+            --muted: #a0c8e0;
+            --primary: #00eeff;
+            --secondary: #ff00ea;
+            --accent: #00ff9d;
+            --border: rgba(0, 238, 255, 0.25);
+            --glow: 0 0 20px rgba(0, 238, 255, 0.15);
+            --radius: 14px;
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    html {
-      scroll-behavior: smooth;
-    }
+        html {
+            scroll-behavior: smooth;
+        }
 
-    body {
-      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      line-height: 1.6;
-      background-image:
-        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 238, 255, 0.12), transparent),
-        radial-gradient(circle at 100% 100%, rgba(255, 0, 234, 0.06), transparent 40%);
-    }
+        body {
+            font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+            background-image:
+                    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 238, 255, 0.12), transparent),
+                    radial-gradient(circle at 100% 100%, rgba(255, 0, 234, 0.06), transparent 40%);
+        }
 
-    .wrap {
-      max-width: 880px;
-      margin: 0 auto;
-      padding: clamp(1.5rem, 5vw, 3rem) clamp(1rem, 4vw, 2rem) 4rem;
-    }
+        .wrap {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: clamp(1.5rem, 5vw, 3rem) clamp(1rem, 4vw, 2rem) 4rem;
+        }
 
-    header {
-      text-align: center;
-      margin-bottom: clamp(2rem, 6vw, 3.5rem);
-      animation: rise 0.8s var(--ease) both;
-    }
+        header {
+            text-align: center;
+            margin-bottom: clamp(2rem, 6vw, 3.5rem);
+            animation: rise 0.8s var(--ease) both;
+        }
 
-    @keyframes rise {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+        @keyframes rise {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 0.75rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 1rem;
-    }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 1rem;
+        }
 
-    .badge i {
-      color: var(--primary);
-    }
+        .badge i {
+            color: var(--primary);
+        }
 
-    h1 {
-      font-size: clamp(1.75rem, 5vw, 2.5rem);
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.75rem;
-      background: linear-gradient(120deg, var(--text) 0%, var(--primary) 45%, var(--secondary) 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
+        h1 {
+            font-size: clamp(1.75rem, 5vw, 2.5rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(120deg, var(--text) 0%, var(--primary) 45%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
 
-    .lead {
-      color: var(--muted);
-      font-size: clamp(0.95rem, 2.2vw, 1.1rem);
-      max-width: 36em;
-      margin: 0 auto;
-    }
+        .lead {
+            color: var(--muted);
+            font-size: clamp(0.95rem, 2.2vw, 1.1rem);
+            max-width: 36em;
+            margin: 0 auto;
+        }
 
-    .list {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
+        .group {
+            margin-bottom: clamp(1.75rem, 4vw, 2.5rem);
+        }
 
-    .card {
-      display: block;
-      text-decoration: none;
-      color: inherit;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.35rem 1.5rem;
-      transition: transform 0.35s var(--ease), border-color 0.35s, box-shadow 0.35s;
-      animation: rise 0.8s var(--ease) both;
-    }
+        .group:last-of-type {
+            margin-bottom: 0;
+        }
 
-    .card:nth-child(1) { animation-delay: 0.1s; }
-    .card:nth-child(2) { animation-delay: 0.18s; }
+        .section-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 0.85rem;
+            padding-left: 0.15rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-    .card:hover,
-    .card:focus-visible {
-      outline: none;
-      transform: translateY(-3px);
-      border-color: rgba(0, 238, 255, 0.5);
-      box-shadow: var(--glow);
-    }
+        .section-title i {
+            color: var(--secondary);
+            font-size: 0.85rem;
+        }
 
-    .card-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 1rem;
-      margin-bottom: 0.5rem;
-    }
+        .list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
 
-    .card-title {
-      font-size: 1.15rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
+        .card {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.35rem 1.5rem;
+            transition: transform 0.35s var(--ease), border-color 0.35s, box-shadow 0.35s;
+            animation: rise 0.8s var(--ease) both;
+        }
 
-    .card-title i {
-      color: var(--primary);
-      font-size: 1rem;
-      opacity: 0.9;
-    }
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.16s; }
+        .card:nth-child(3) { animation-delay: 0.22s; }
+        .card:nth-child(4) { animation-delay: 0.28s; }
+        .card:nth-child(5) { animation-delay: 0.34s; }
+        .card:nth-child(6) { animation-delay: 0.4s; }
 
-    .tag {
-      flex-shrink: 0;
-      font-size: 0.7rem;
-      padding: 0.2rem 0.55rem;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      color: var(--muted);
-    }
+        .card:hover,
+        .card:focus-visible {
+            outline: none;
+            transform: translateY(-3px);
+            border-color: rgba(0, 238, 255, 0.5);
+            box-shadow: var(--glow);
+        }
 
-    .card-desc {
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
+        .card-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
 
-    .card-cta {
-      margin-top: 0.85rem;
-      font-size: 0.85rem;
-      color: var(--accent);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
 
-    .card:hover .card-cta,
-    .card:focus-visible .card-cta {
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
+        .card-title i {
+            color: var(--primary);
+            font-size: 1rem;
+            opacity: 0.9;
+        }
 
-    footer {
-      margin-top: 3rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--border);
-      text-align: center;
-      font-size: 0.85rem;
-      color: var(--muted);
-      animation: rise 0.8s var(--ease) 0.25s both;
-    }
+        .tag {
+            flex-shrink: 0;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            color: var(--muted);
+        }
 
-    footer code {
-      font-size: 0.8em;
-      color: var(--primary);
-      background: rgba(0, 238, 255, 0.08);
-      padding: 0.15rem 0.45rem;
-      border-radius: 6px;
-    }
-  </style>
+        .card-desc {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .card-cta {
+            margin-top: 0.85rem;
+            font-size: 0.85rem;
+            color: var(--accent);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .card:hover .card-cta,
+        .card:focus-visible .card-cta {
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--muted);
+            animation: rise 0.8s var(--ease) 0.25s both;
+        }
+
+        footer code {
+            font-size: 0.8em;
+            color: var(--primary);
+            background: rgba(0, 238, 255, 0.08);
+            padding: 0.15rem 0.45rem;
+            border-radius: 6px;
+        }
+    </style>
 </head>
 <body>
-  <div class="wrap">
+<div class="wrap">
     <header>
-      <p class="badge"><i class="fa-solid fa-cube" aria-hidden="true"></i> Personal playground</p>
-      <h1>zkdome</h1>
-      <p class="lead">
-        这里是我随手做的实验页、小工具和演示文稿的入口。均为静态 HTML，本地双击或通过任意静态服务器打开即可。
-      </p>
+        <p class="badge"><i class="fa-solid fa-cube" aria-hidden="true"></i> Personal playground</p>
+        <h1>zkdome</h1>
+        <p class="lead">
+            实验页与实用小工具的入口：<strong>演示</strong>侧重交互与展示，<strong>工具</strong>侧重日常开发辅助。均为静态 HTML，本地双击或通过任意静态服务器打开即可。
+        </p>
     </header>
 
-    <nav class="list" aria-label="Demo 列表">
-      <a class="card" href="cssLengthUnit.html">
-        <div class="card-head">
-          <span class="card-title"><i class="fa-solid fa-ruler-combined" aria-hidden="true"></i> CSS 长度单位探索器</span>
-          <span class="tag">CSS / 交互</span>
-        </div>
-        <p class="card-desc">
-          科技风界面下对比 px、rem、vw 等单位的实时效果，含反应堆、对比仪与单位图鉴。
-        </p>
-        <span class="card-cta">打开页面 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-      </a>
+    <div class="group">
+        <h2 class="section-title" id="demos-heading"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> 演示</h2>
+        <nav class="list" aria-labelledby="demos-heading">
+            <a class="card" href="demos/css-length-unit/">
+                <div class="card-head">
+                    <span class="card-title"><i class="fa-solid fa-ruler-combined" aria-hidden="true"></i> CSS 长度单位探索器</span>
+                    <span class="tag">CSS / 交互</span>
+                </div>
+                <p class="card-desc">
+                    暖色深色主题下对照 px、rem、vw 等单位，含基准调节、演示条、两两对比与单位表。
+                </p>
+                <span class="card-cta">打开页面 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+            </a>
 
-      <a class="card" href="presentation.html">
-        <div class="card-head">
-          <span class="card-title"><i class="fa-solid fa-person-chalkboard" aria-hidden="true"></i> 架构师的成长 · 演示文稿</span>
-          <span class="tag">Slides</span>
-        </div>
-        <p class="card-desc">
-          全屏幻灯片式 HTML 演示，深空主题与键盘导航，适合分享或复盘。
-        </p>
-        <span class="card-cta">打开页面 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
-      </a>
-    </nav>
+            <a class="card" href="demos/presentation/">
+                <div class="card-head">
+                    <span class="card-title"><i class="fa-solid fa-person-chalkboard" aria-hidden="true"></i> 架构师的成长 · 演示文稿</span>
+                    <span class="tag">Slides</span>
+                </div>
+                <p class="card-desc">
+                    全屏幻灯片式 HTML 演示，深空主题与键盘导航，适合分享或复盘。
+                </p>
+                <span class="card-cta">打开页面 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="group">
+        <h2 class="section-title" id="tools-heading"><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> 工具</h2>
+        <nav class="list" aria-labelledby="tools-heading">
+            <a class="card" href="tools/timestamp-converter/">
+                <div class="card-head">
+                    <span class="card-title"><i class="fa-regular fa-clock" aria-hidden="true"></i> 时间戳转换工具</span>
+                    <span class="tag">时间</span>
+                </div>
+                <p class="card-desc">
+                    Unix 时间与日期互转，秒/毫秒切换、本地与 UTC、实时当前时间戳与一键复制。
+                </p>
+                <span class="card-cta">打开页面 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+            </a>
+
+            <a class="card" href="tools/json-formatter/">
+                <div class="card-head">
+                    <span class="card-title"><i class="fa-solid fa-code" aria-hidden="true"></i> JSON 格式化工具</span>
+                    <span class="tag">JSON</span>
+                </div>
+                <p class="card-desc">
+                    校验与美化 / 压缩 JSON，缩进与键排序可选，双栏对照与复制。
+                </p>
+                <span class="card-cta">打开页面 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+            </a>
+        </nav>
+    </div>
 
     <footer>
-      <p>新增 Demo 时在本页加一条卡片，并在 <code>README.md</code> 里补一句说明即可。</p>
+        <p>新增内容时：在 <code>demos/</code> 或 <code>tools/</code> 下建模块文件夹并放 <code>index.html</code>，再更新本页与 <code>README.md</code>。</p>
     </footer>
-  </div>
+</div>
 </body>
 </html>

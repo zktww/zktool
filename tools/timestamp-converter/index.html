@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>时间戳转换工具 · zkdome</title>
+    <meta name="description" content="Unix 时间戳与日期时间互转，支持秒/毫秒、本地与 UTC、一键复制。" />
+    <meta name="theme-color" content="#0a0e17" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #0a0e17;
+            --surface: #131c2e;
+            --surface2: #1a2540;
+            --text: #e0f7ff;
+            --muted: #a0c8e0;
+            --primary: #00eeff;
+            --secondary: #ff00ea;
+            --accent: #00ff9d;
+            --danger: #ff6b8a;
+            --border: rgba(0, 238, 255, 0.22);
+            --radius: 14px;
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
+            --mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.55;
+            background-image:
+                    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 238, 255, 0.1), transparent),
+                    radial-gradient(circle at 100% 100%, rgba(255, 0, 234, 0.06), transparent 40%);
+        }
+
+        .wrap {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: clamp(1rem, 4vw, 2rem) clamp(1rem, 3vw, 1.5rem) 3rem;
+        }
+
+        .top {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 0.5rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            transition: color 0.25s var(--ease), border-color 0.25s, transform 0.25s var(--ease);
+        }
+
+        .back:hover, .back:focus-visible {
+            color: var(--text);
+            border-color: rgba(0, 238, 255, 0.45);
+            outline: none;
+            transform: translateX(-2px);
+        }
+
+        .live {
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            color: var(--muted);
+            text-align: right;
+        }
+
+        .live strong {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: clamp(1.35rem, 4vw, 1.85rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(120deg, var(--text) 0%, var(--primary) 50%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .lead {
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem 1.35rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .panel h2 {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.65rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .row:last-child { margin-bottom: 0; }
+
+        label {
+            font-size: 0.88rem;
+            color: var(--muted);
+            min-width: 5.5rem;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            min-width: 0;
+            font-family: var(--mono);
+            font-size: 0.9rem;
+            padding: 0.65rem 0.85rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: rgba(0, 238, 255, 0.55);
+            box-shadow: 0 0 0 3px rgba(0, 238, 255, 0.12);
+        }
+
+        input::placeholder {
+            color: rgba(160, 200, 224, 0.45);
+        }
+
+        .dt-native-hide {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        .dt-custom {
+            position: relative;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .dt-trigger {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.65rem;
+            font-family: var(--mono);
+            font-size: 0.9rem;
+            padding: 0.65rem 0.85rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            cursor: pointer;
+            text-align: left;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+
+        .dt-trigger:hover {
+            border-color: rgba(0, 238, 255, 0.4);
+            background: rgba(26, 37, 64, 0.95);
+        }
+
+        .dt-trigger:focus-visible {
+            outline: none;
+            border-color: rgba(0, 238, 255, 0.55);
+            box-shadow: 0 0 0 3px rgba(0, 238, 255, 0.12);
+        }
+
+        .dt-trigger[aria-expanded="true"] {
+            border-color: rgba(0, 238, 255, 0.5);
+            box-shadow: 0 0 0 3px rgba(0, 238, 255, 0.1);
+        }
+
+        .dt-trigger-text {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: var(--accent);
+        }
+
+        .dt-trigger-text.is-placeholder {
+            color: var(--muted);
+            font-weight: 400;
+        }
+
+        .dt-trigger .fa-calendar {
+            flex-shrink: 0;
+            color: var(--primary);
+            opacity: 0.85;
+        }
+
+        .dt-popover {
+            position: absolute;
+            z-index: 40;
+            left: 0;
+            right: 0;
+            top: calc(100% + 0.45rem);
+            padding: 1rem 1.05rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: linear-gradient(165deg, #152038 0%, var(--surface) 100%);
+            box-shadow:
+                    0 0 0 1px rgba(0, 238, 255, 0.06),
+                    0 20px 50px rgba(0, 0, 0, 0.55);
+        }
+
+        .dt-popover[hidden] {
+            display: none !important;
+        }
+
+        .dt-pop-inner {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1rem 1.15rem;
+            align-items: start;
+        }
+
+        @media (max-width: 560px) {
+            .dt-pop-inner {
+                grid-template-columns: 1fr;
+            }
+
+            .dt-time {
+                border-left: none !important;
+                padding-left: 0 !important;
+                border-top: 1px solid var(--border);
+                padding-top: 1rem;
+            }
+        }
+
+        .dt-cal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-bottom: 0.55rem;
+        }
+
+        .dt-nav {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.1rem;
+            height: 2.1rem;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            background: rgba(0, 238, 255, 0.06);
+            color: var(--muted);
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s, background 0.2s;
+        }
+
+        .dt-nav:hover,
+        .dt-nav:focus-visible {
+            color: var(--primary);
+            border-color: rgba(0, 238, 255, 0.45);
+            background: rgba(0, 238, 255, 0.1);
+            outline: none;
+        }
+
+        .dt-cal-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: 0.02em;
+        }
+
+        .dt-cal-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            margin-bottom: 0.35rem;
+            font-size: 0.68rem;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .dt-cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .dt-day {
+            min-height: 2.05rem;
+            border-radius: 9px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 0.82rem;
+            font-variant-numeric: tabular-nums;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+
+        .dt-day:hover {
+            border-color: rgba(0, 238, 255, 0.35);
+            background: rgba(0, 238, 255, 0.08);
+        }
+
+        .dt-day:focus-visible {
+            outline: none;
+            border-color: rgba(0, 238, 255, 0.55);
+            background: rgba(0, 238, 255, 0.12);
+        }
+
+        .dt-day.is-out {
+            opacity: 0.38;
+        }
+
+        .dt-day.is-today:not(.is-selected) {
+            border-color: rgba(160, 200, 224, 0.35);
+        }
+
+        .dt-day.is-selected {
+            background: rgba(0, 238, 255, 0.16);
+            border-color: rgba(0, 238, 255, 0.5);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .dt-time {
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            min-width: 8.5rem;
+            padding-left: 1rem;
+            border-left: 1px solid var(--border);
+        }
+
+        .dt-time-row {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .dt-time-lab {
+            flex-shrink: 0;
+            width: 1.35rem;
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+
+        .dt-num {
+            flex: 1;
+            min-width: 0;
+            font-family: var(--mono);
+            font-size: 0.88rem;
+            padding: 0.5rem 0.4rem;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            text-align: center;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .dt-num:focus {
+            outline: none;
+            border-color: rgba(0, 238, 255, 0.55);
+            box-shadow: 0 0 0 2px rgba(0, 238, 255, 0.1);
+        }
+
+        input[type="number"].dt-num::-webkit-outer-spin-button,
+        input[type="number"].dt-num::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"].dt-num {
+            appearance: textfield;
+            -moz-appearance: textfield;
+        }
+
+        .dt-pop-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.45rem;
+            margin-top: 0.95rem;
+            padding-top: 0.85rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .dt-pop-actions .btn {
+            padding: 0.45rem 0.85rem;
+            font-size: 0.82rem;
+        }
+
+        .seg {
+            display: inline-flex;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            background: var(--surface2);
+        }
+
+        .seg button {
+            font: inherit;
+            font-size: 0.82rem;
+            padding: 0.5rem 0.85rem;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .seg button[aria-pressed="true"] {
+            background: rgba(0, 238, 255, 0.12);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .seg button:hover:not([aria-pressed="true"]) {
+            color: var(--text);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.55rem 1rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: rgba(0, 238, 255, 0.08);
+            color: var(--primary);
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, transform 0.2s var(--ease);
+        }
+
+        .btn:hover, .btn:focus-visible {
+            background: rgba(0, 238, 255, 0.15);
+            border-color: rgba(0, 238, 255, 0.45);
+            outline: none;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn--ghost {
+            background: transparent;
+            color: var(--muted);
+        }
+
+        .btn--ghost:hover, .btn--ghost:focus-visible {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .out {
+            font-family: var(--mono);
+            font-size: 0.82rem;
+            padding: 0.75rem 0.9rem;
+            border-radius: 10px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--accent);
+            word-break: break-all;
+            margin-top: 0.35rem;
+        }
+
+        .out-wrap {
+            margin-top: 0.75rem;
+        }
+
+        .out-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .out-head span {
+            font-size: 0.75rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .copy {
+            font-size: 0.75rem;
+            padding: 0.35rem 0.6rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        .copy:hover, .copy:focus-visible {
+            color: var(--primary);
+            border-color: rgba(0, 238, 255, 0.4);
+            outline: none;
+        }
+
+        .err {
+            font-size: 0.85rem;
+            color: var(--danger);
+            margin-top: 0.5rem;
+        }
+
+        .hint {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .seq-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 0.5rem 0.35rem;
+            margin-top: 0.35rem;
+        }
+
+        @media (max-width: 640px) {
+            .seq-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        .seq-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.55rem 0.35rem;
+            border-radius: 10px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .seq-l {
+            font-size: 0.68rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .seq-v {
+            font-family: var(--mono);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .seq-meta {
+            margin-top: 0.85rem;
+            font-size: 0.82rem;
+            color: var(--muted);
+            font-family: var(--mono);
+            word-break: break-all;
+        }
+
+        .seq-meta strong {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        footer {
+            margin-top: 2rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.82rem;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="top">
+        <a class="back" href="../../index.html"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> 返回索引</a>
+        <p class="live" id="liveClock" aria-live="polite"></p>
+    </div>
+
+    <h1><i class="fa-regular fa-clock" aria-hidden="true"></i> 时间戳转换</h1>
+    <p class="lead">Unix 时间与可读日期互转；支持秒 / 毫秒；结果含本地时区与 UTC ISO。</p>
+
+    <section class="panel" aria-labelledby="sec-live-seq">
+        <h2 id="sec-live-seq">当前时区</h2>
+        <p class="hint" style="margin-top:0">按本地时钟分解的当前时刻（年 → 毫秒），与页眉时间戳同步刷新。</p>
+        <div class="seq-grid" id="seqGrid" aria-live="polite"></div>
+        <p class="seq-meta" id="seqMeta"></p>
+    </section>
+
+    <section class="panel" aria-labelledby="sec-ts">
+        <h2 id="sec-ts">时间戳 → 日期</h2>
+        <div class="row">
+            <label for="unixInput">Unix</label>
+            <input type="text" id="unixInput" inputmode="numeric" placeholder="例如 1713206400 或 1713206400000" autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="row">
+        <span class="seg" role="group" aria-label="单位">
+          <button type="button" id="unitSec" aria-pressed="true">秒</button>
+          <button type="button" id="unitMs" aria-pressed="false">毫秒</button>
+        </span>
+            <button type="button" class="btn" id="btnNow"><i class="fa-solid fa-bolt" aria-hidden="true"></i> 填入当前</button>
+            <button type="button" class="btn btn--ghost" id="btnParseUnix">转换</button>
+        </div>
+        <div id="unixErr" class="err" hidden></div>
+        <div class="out-wrap">
+            <div class="out-head"><span>本地</span><button type="button" class="copy" data-copy="localStr">复制</button></div>
+            <div class="out" id="localStr">—</div>
+        </div>
+        <div class="out-wrap">
+            <div class="out-head"><span>UTC ISO</span><button type="button" class="copy" data-copy="utcStr">复制</button></div>
+            <div class="out" id="utcStr">—</div>
+        </div>
+        <p class="hint">实时预览与「转换」均遵循上方「秒 / 毫秒」选择。</p>
+    </section>
+
+    <section class="panel" aria-labelledby="sec-dt">
+        <h2 id="sec-dt">日期 → 时间戳</h2>
+        <div class="row">
+            <label for="isoInput">文本</label>
+            <input type="text" id="isoInput" placeholder="2025-04-15T12:00:00 或 ISO / 常见格式" autocomplete="off" />
+        </div>
+        <div class="row">
+            <label for="dtTrigger">选择器</label>
+            <div class="dt-custom" id="dtCustom">
+                <input type="datetime-local" id="dtLocal" class="dt-native-hide" step="1" tabindex="-1" aria-hidden="true" />
+                <button type="button" class="dt-trigger" id="dtTrigger" aria-expanded="false" aria-haspopup="dialog" aria-controls="dtPopover">
+                    <span class="dt-trigger-text is-placeholder" id="dtTriggerText">点击选择日期与时间</span>
+                    <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                </button>
+                <div class="dt-popover" id="dtPopover" hidden role="dialog" aria-label="选择本地日期与时间">
+                    <div class="dt-pop-inner">
+                        <div class="dt-cal">
+                            <div class="dt-cal-head">
+                                <button type="button" class="dt-nav" id="dtPrev" aria-label="上一月"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+                                <span class="dt-cal-title" id="dtCalTitle"></span>
+                                <button type="button" class="dt-nav" id="dtNext" aria-label="下一月"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+                            </div>
+                            <div class="dt-cal-weekdays">
+                                <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+                            </div>
+                            <div class="dt-cal-grid" id="dtCalGrid"></div>
+                        </div>
+                        <div class="dt-time">
+                            <div class="dt-time-row">
+                                <span class="dt-time-lab">时</span>
+                                <input type="number" class="dt-num" id="dtHour" min="0" max="23" step="1" inputmode="numeric" aria-label="小时" />
+                            </div>
+                            <div class="dt-time-row">
+                                <span class="dt-time-lab">分</span>
+                                <input type="number" class="dt-num" id="dtMin" min="0" max="59" step="1" inputmode="numeric" aria-label="分钟" />
+                            </div>
+                            <div class="dt-time-row">
+                                <span class="dt-time-lab">秒</span>
+                                <input type="number" class="dt-num" id="dtSec" min="0" max="59" step="1" inputmode="numeric" aria-label="秒" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dt-pop-actions">
+                        <button type="button" class="btn btn--ghost" id="dtClear">清除</button>
+                        <button type="button" class="btn btn--ghost" id="dtToday">今天</button>
+                        <button type="button" class="btn" id="dtApply">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <button type="button" class="btn" id="btnParseIso">从文本解析</button>
+            <button type="button" class="btn btn--ghost" id="btnFromPicker">从选择器转换</button>
+        </div>
+        <div id="isoErr" class="err" hidden></div>
+        <div class="out-wrap">
+            <div class="out-head"><span>秒 / 毫秒</span><button type="button" class="copy" data-copy="outSec">复制秒</button></div>
+            <div class="out" id="outSec">—</div>
+        </div>
+        <div class="out-wrap">
+            <div class="out-head"><span></span><button type="button" class="copy" data-copy="outMs">复制毫秒</button></div>
+            <div class="out" id="outMs">—</div>
+        </div>
+    </section>
+
+    <footer>
+        在浏览器中运行；解析依赖本机时区。若文本无时区信息，按本地时间理解。
+    </footer>
+</div>
+
+<script>
+    (function () {
+        var unitSec = document.getElementById("unitSec");
+        var unitMs = document.getElementById("unitMs");
+        var unixInput = document.getElementById("unixInput");
+        var btnNow = document.getElementById("btnNow");
+        var btnParseUnix = document.getElementById("btnParseUnix");
+        var unixErr = document.getElementById("unixErr");
+        var localStr = document.getElementById("localStr");
+        var utcStr = document.getElementById("utcStr");
+        var isoInput = document.getElementById("isoInput");
+        var dtLocal = document.getElementById("dtLocal");
+        var dtTrigger = document.getElementById("dtTrigger");
+        var dtTriggerText = document.getElementById("dtTriggerText");
+        var dtPopover = document.getElementById("dtPopover");
+        var dtPrev = document.getElementById("dtPrev");
+        var dtNext = document.getElementById("dtNext");
+        var dtCalTitle = document.getElementById("dtCalTitle");
+        var dtCalGrid = document.getElementById("dtCalGrid");
+        var dtHour = document.getElementById("dtHour");
+        var dtMin = document.getElementById("dtMin");
+        var dtSec = document.getElementById("dtSec");
+        var dtClear = document.getElementById("dtClear");
+        var dtToday = document.getElementById("dtToday");
+        var dtApply = document.getElementById("dtApply");
+        var btnParseIso = document.getElementById("btnParseIso");
+        var btnFromPicker = document.getElementById("btnFromPicker");
+        var isoErr = document.getElementById("isoErr");
+        var outSec = document.getElementById("outSec");
+        var outMs = document.getElementById("outMs");
+        var liveClock = document.getElementById("liveClock");
+        var seqGrid = document.getElementById("seqGrid");
+        var seqMeta = document.getElementById("seqMeta");
+
+        var unitMode = "sec";
+
+        function setUnit(mode) {
+            unitMode = mode;
+            unitSec.setAttribute("aria-pressed", mode === "sec" ? "true" : "false");
+            unitMs.setAttribute("aria-pressed", mode === "ms" ? "true" : "false");
+        }
+
+        unitSec.addEventListener("click", function () {
+            setUnit("sec");
+            if (trimNum(unixInput.value)) renderFromUnix();
+        });
+        unitMs.addEventListener("click", function () {
+            setUnit("ms");
+            if (trimNum(unixInput.value)) renderFromUnix();
+        });
+
+        function showErr(el, msg) {
+            if (!msg) {
+                el.hidden = true;
+                el.textContent = "";
+                return;
+            }
+            el.hidden = false;
+            el.textContent = msg;
+        }
+
+        function trimNum(s) {
+            return String(s).replace(/^\s+|\s+$/g, "").replace(/,/g, "");
+        }
+
+        function parseUnixToMs(raw) {
+            var s = trimNum(raw);
+            if (!s) return { ok: false, err: "请输入数字时间戳。" };
+            if (!/^\d+$/.test(s)) return { ok: false, err: "仅支持非负整数时间戳。" };
+            var n = parseInt(s, 10);
+            if (unitMode === "sec") return { ok: true, ms: n * 1000 };
+            return { ok: true, ms: n };
+        }
+
+        function renderFromUnix() {
+            showErr(unixErr, "");
+            var r = parseUnixToMs(unixInput.value);
+            if (!r.ok) {
+                localStr.textContent = "—";
+                utcStr.textContent = "—";
+                showErr(unixErr, r.err);
+                return;
+            }
+            var d = new Date(r.ms);
+            if (isNaN(d.getTime())) {
+                showErr(unixErr, "无法解析为有效日期。");
+                return;
+            }
+            localStr.textContent = d.toLocaleString("zh-CN", { hour12: false });
+            utcStr.textContent = d.toISOString();
+        }
+
+        function tryAutoOnInput() {
+            var r = parseUnixToMs(unixInput.value);
+            if (!r.ok) return;
+            var d = new Date(r.ms);
+            if (isNaN(d.getTime())) return;
+            localStr.textContent = d.toLocaleString("zh-CN", { hour12: false });
+            utcStr.textContent = d.toISOString();
+            showErr(unixErr, "");
+        }
+
+        unixInput.addEventListener("input", tryAutoOnInput);
+        btnParseUnix.addEventListener("click", renderFromUnix);
+        unixInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") renderFromUnix();
+        });
+
+        btnNow.addEventListener("click", function () {
+            var ms = Date.now();
+            unixInput.value = unitMode === "sec" ? String(Math.floor(ms / 1000)) : String(ms);
+            renderFromUnix();
+        });
+
+        function pad2(n) {
+            return n < 10 ? "0" + n : String(n);
+        }
+
+        function pad3(n) {
+            if (n < 10) return "00" + n;
+            if (n < 100) return "0" + n;
+            return String(n);
+        }
+
+        function formatUtcOffset(d) {
+            var offMin = -d.getTimezoneOffset();
+            var sign = offMin >= 0 ? "+" : "-";
+            var abs = Math.abs(offMin);
+            var h = Math.floor(abs / 60);
+            var m = abs % 60;
+            return "UTC" + sign + pad2(h) + ":" + pad2(m);
+        }
+
+        function getTimeZoneId() {
+            try {
+                return Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+            } catch (e) {
+                return "";
+            }
+        }
+
+        function renderSeq(d) {
+            var y = d.getFullYear();
+            var mo = pad2(d.getMonth() + 1);
+            var day = pad2(d.getDate());
+            var h = pad2(d.getHours());
+            var min = pad2(d.getMinutes());
+            var s = pad2(d.getSeconds());
+            var ms = pad3(d.getMilliseconds());
+            var cells = [
+                { label: "年", value: String(y) },
+                { label: "月", value: mo },
+                { label: "日", value: day },
+                { label: "时", value: h },
+                { label: "分", value: min },
+                { label: "秒", value: s },
+                { label: "毫秒", value: ms }
+            ];
+            seqGrid.innerHTML = cells
+                .map(function (c) {
+                    return (
+                        '<div class="seq-cell"><span class="seq-l">' +
+                        c.label +
+                        '</span><span class="seq-v">' +
+                        c.value +
+                        "</span></div>"
+                    );
+                })
+                .join("");
+            var tz = getTimeZoneId();
+            var off = formatUtcOffset(d);
+            seqMeta.innerHTML =
+                (tz ? "<strong>" + tz + "</strong> · " : "") + "<strong>" + off + "</strong>（相对 UTC）";
+        }
+
+        function toDatetimeLocalValue(d) {
+            var y = d.getFullYear();
+            var m = pad2(d.getMonth() + 1);
+            var day = pad2(d.getDate());
+            var h = pad2(d.getHours());
+            var min = pad2(d.getMinutes());
+            var sec = pad2(d.getSeconds());
+            return y + "-" + m + "-" + day + "T" + h + ":" + min + ":" + sec;
+        }
+
+        var pick = { y: 2026, m: 0, d: 15, hh: 0, mm: 0, ss: 0 };
+        var viewY = 2026;
+        var viewM = 0;
+
+        function updateDtDisplay() {
+            var v = dtLocal.value;
+            if (!v) {
+                dtTriggerText.textContent = "点击选择日期与时间";
+                dtTriggerText.classList.add("is-placeholder");
+                return;
+            }
+            var d = new Date(v);
+            if (isNaN(d.getTime())) {
+                dtTriggerText.textContent = "—";
+                dtTriggerText.classList.remove("is-placeholder");
+                return;
+            }
+            dtTriggerText.textContent =
+                d.getFullYear() +
+                "-" +
+                pad2(d.getMonth() + 1) +
+                "-" +
+                pad2(d.getDate()) +
+                "  " +
+                pad2(d.getHours()) +
+                ":" +
+                pad2(d.getMinutes()) +
+                ":" +
+                pad2(d.getSeconds());
+            dtTriggerText.classList.remove("is-placeholder");
+        }
+
+        function syncPickFromHidden() {
+            var v = dtLocal.value;
+            var d = v ? new Date(v) : new Date();
+            if (isNaN(d.getTime())) d = new Date();
+            pick.y = d.getFullYear();
+            pick.m = d.getMonth();
+            pick.d = d.getDate();
+            pick.hh = d.getHours();
+            pick.mm = d.getMinutes();
+            pick.ss = d.getSeconds();
+            viewY = pick.y;
+            viewM = pick.m;
+        }
+
+        function buildMonthCells(y, m0) {
+            var cells = [];
+            var first = new Date(y, m0, 1);
+            var start = (first.getDay() + 6) % 7;
+            var dim = new Date(y, m0 + 1, 0).getDate();
+            var prevDim = new Date(y, m0, 0).getDate();
+            var py = m0 === 0 ? y - 1 : y;
+            var pm = m0 === 0 ? 11 : m0 - 1;
+            var i;
+            for (i = 0; i < start; i++) {
+                cells.push({ y: py, m: pm, d: prevDim - start + i + 1, out: true });
+            }
+            for (i = 1; i <= dim; i++) {
+                cells.push({ y: y, m: m0, d: i, out: false });
+            }
+            var cy = y;
+            var cm = m0 + 1;
+            if (cm > 11) {
+                cm = 0;
+                cy++;
+            }
+            var cd = 1;
+            while (cells.length < 42) {
+                cells.push({ y: cy, m: cm, d: cd, out: true });
+                cd++;
+                var maxD = new Date(cy, cm + 1, 0).getDate();
+                if (cd > maxD) {
+                    cd = 1;
+                    cm++;
+                    if (cm > 11) {
+                        cm = 0;
+                        cy++;
+                    }
+                }
+            }
+            return cells;
+        }
+
+        function renderCalGrid() {
+            dtCalTitle.textContent = viewY + "年" + (viewM + 1) + "月";
+            var cells = buildMonthCells(viewY, viewM);
+            var now = new Date();
+            dtCalGrid.innerHTML = cells
+                .map(function (c) {
+                    var cls = "dt-day";
+                    if (c.out) cls += " is-out";
+                    if (c.y === now.getFullYear() && c.m === now.getMonth() && c.d === now.getDate()) {
+                        cls += " is-today";
+                    }
+                    if (c.y === pick.y && c.m === pick.m && c.d === pick.d) cls += " is-selected";
+                    return (
+                        '<button type="button" class="' +
+                        cls +
+                        '" data-y="' +
+                        c.y +
+                        '" data-m="' +
+                        c.m +
+                        '" data-d="' +
+                        c.d +
+                        '">' +
+                        c.d +
+                        "</button>"
+                    );
+                })
+                .join("");
+        }
+
+        function readTimeInputs() {
+            pick.hh = Math.min(23, Math.max(0, parseInt(dtHour.value, 10) || 0));
+            pick.mm = Math.min(59, Math.max(0, parseInt(dtMin.value, 10) || 0));
+            pick.ss = Math.min(59, Math.max(0, parseInt(dtSec.value, 10) || 0));
+        }
+
+        function closeDtPopover() {
+            dtPopover.hidden = true;
+            dtTrigger.setAttribute("aria-expanded", "false");
+        }
+
+        function openDtPopover() {
+            syncPickFromHidden();
+            viewY = pick.y;
+            viewM = pick.m;
+            dtHour.value = String(pick.hh);
+            dtMin.value = String(pick.mm);
+            dtSec.value = String(pick.ss);
+            renderCalGrid();
+            dtPopover.hidden = false;
+            dtTrigger.setAttribute("aria-expanded", "true");
+        }
+
+        dtCalGrid.addEventListener("click", function (e) {
+            var btn = e.target.closest(".dt-day");
+            if (!btn) return;
+            pick.y = parseInt(btn.getAttribute("data-y"), 10);
+            pick.m = parseInt(btn.getAttribute("data-m"), 10);
+            pick.d = parseInt(btn.getAttribute("data-d"), 10);
+            viewY = pick.y;
+            viewM = pick.m;
+            renderCalGrid();
+        });
+
+        dtPrev.addEventListener("click", function (e) {
+            e.stopPropagation();
+            if (viewM === 0) {
+                viewM = 11;
+                viewY--;
+            } else {
+                viewM--;
+            }
+            renderCalGrid();
+        });
+
+        dtNext.addEventListener("click", function (e) {
+            e.stopPropagation();
+            if (viewM === 11) {
+                viewM = 0;
+                viewY++;
+            } else {
+                viewM++;
+            }
+            renderCalGrid();
+        });
+
+        dtTrigger.addEventListener("click", function (e) {
+            e.stopPropagation();
+            if (!dtPopover.hidden) closeDtPopover();
+            else openDtPopover();
+        });
+
+        document.addEventListener("click", function () {
+            if (!dtPopover.hidden) closeDtPopover();
+        });
+
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape" && !dtPopover.hidden) {
+                closeDtPopover();
+                dtTrigger.focus();
+            }
+        });
+
+        dtPopover.addEventListener("click", function (e) {
+            e.stopPropagation();
+        });
+
+        dtClear.addEventListener("click", function (e) {
+            e.stopPropagation();
+            dtLocal.value = "";
+            updateDtDisplay();
+            closeDtPopover();
+        });
+
+        dtToday.addEventListener("click", function (e) {
+            e.stopPropagation();
+            var n = new Date();
+            pick.y = n.getFullYear();
+            pick.m = n.getMonth();
+            pick.d = n.getDate();
+            pick.hh = n.getHours();
+            pick.mm = n.getMinutes();
+            pick.ss = n.getSeconds();
+            dtLocal.value = toDatetimeLocalValue(n);
+            updateDtDisplay();
+            viewY = pick.y;
+            viewM = pick.m;
+            dtHour.value = String(pick.hh);
+            dtMin.value = String(pick.mm);
+            dtSec.value = String(pick.ss);
+            renderCalGrid();
+        });
+
+        dtApply.addEventListener("click", function (e) {
+            e.stopPropagation();
+            readTimeInputs();
+            var d = new Date(pick.y, pick.m, pick.d, pick.hh, pick.mm, pick.ss);
+            dtLocal.value = toDatetimeLocalValue(d);
+            updateDtDisplay();
+            closeDtPopover();
+        });
+
+        function parseUserDate(str) {
+            var t = Date.parse(str);
+            if (!isNaN(t)) return new Date(t);
+            var s = String(str).replace(/^\s+|\s+$/g, "");
+            if (!s) return null;
+            var normalized = s.replace(/(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})/, "$1T$2");
+            t = Date.parse(normalized);
+            if (!isNaN(t)) return new Date(t);
+            return null;
+        }
+
+        function renderFromDate(d) {
+            showErr(isoErr, "");
+            if (!d || isNaN(d.getTime())) {
+                showErr(isoErr, "无法解析该日期。");
+                outSec.textContent = "—";
+                outMs.textContent = "—";
+                return;
+            }
+            var ms = d.getTime();
+            outSec.textContent = String(Math.floor(ms / 1000));
+            outMs.textContent = String(ms);
+        }
+
+        btnParseIso.addEventListener("click", function () {
+            var d = parseUserDate(isoInput.value);
+            if (!d) {
+                showErr(isoErr, "无法解析文本，请尝试 ISO 格式或含日期的字符串。");
+                outSec.textContent = "—";
+                outMs.textContent = "—";
+                return;
+            }
+            dtLocal.value = toDatetimeLocalValue(d);
+            updateDtDisplay();
+            renderFromDate(d);
+        });
+
+        btnFromPicker.addEventListener("click", function () {
+            var v = dtLocal.value;
+            if (!v) {
+                showErr(isoErr, "请先选择日期与时间。");
+                return;
+            }
+            var d = new Date(v);
+            renderFromDate(d);
+        });
+
+        document.querySelectorAll(".copy").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                var id = btn.getAttribute("data-copy");
+                var el = document.getElementById(id);
+                var text = el.textContent;
+                if (!text || text === "—") return;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(function () {
+                        var prev = btn.textContent;
+                        btn.textContent = "已复制";
+                        setTimeout(function () { btn.textContent = prev; }, 1200);
+                    });
+                } else {
+                    var ta = document.createElement("textarea");
+                    ta.value = text;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    try {
+                        document.execCommand("copy");
+                    } catch (e) {}
+                    document.body.removeChild(ta);
+                }
+            });
+        });
+
+        function tickLive() {
+            var ms = Date.now();
+            var sec = Math.floor(ms / 1000);
+            var d = new Date(ms);
+            liveClock.innerHTML =
+                "现在：<strong>" + sec + "</strong> s · <strong>" + ms + "</strong> ms";
+            renderSeq(d);
+        }
+
+        tickLive();
+        setInterval(tickLive, 250);
+
+        dtLocal.value = toDatetimeLocalValue(new Date());
+        updateDtDisplay();
+    })();
+</script>
+</body>
+</html>

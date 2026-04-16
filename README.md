@@ -22,6 +22,7 @@
 | [demos/presentation/](demos/presentation/) | 「架构师的成长」全屏 HTML 演示文稿 |
 | [tools/timestamp-converter/](tools/timestamp-converter/) | 时间戳与日期时间互转（秒/毫秒、UTC、复制） |
 | [tools/json-formatter/](tools/json-formatter/) | JSON 校验、美化与压缩（缩进、键排序、复制） |
+| [tools/emoji-tool/](tools/emoji-tool/) | Emoji 分类大全、CLDR 中文名、搜索与一键复制 |
 
 ## Demo 摘要
 
@@ -45,6 +46,10 @@
 ### JSON 格式化工具（`tools/json-formatter/`）
 
 双栏输入与结果区：基于原生 `JSON.parse` 校验，一键美化或压缩；可选 2/4 空格或 Tab 缩进、对象键排序；支持复制输入/结果与 `Ctrl+Enter` 快捷美化。
+
+### Emoji 表情大全（`tools/emoji-tool/`）
+
+与索引同系的深色界面：从 CDN 加载 `unicode-emoji-json` 分组列表，并用 Unicode CLDR `cldr-annotations-modern` 的 `annotations/zh` 提供中文名称与关键词（搜索支持中文）；无匹配时回退英文。失败时回退内置示例；含「最近使用」与显示差异说明。
 
 ## 维护习惯
 

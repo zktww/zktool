@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Emoji 表情大全 · zkdome</title>
+    <meta name="description" content="按分类浏览 Unicode Emoji，支持搜索与一键复制；数据来自开源 emoji 列表。" />
+    <meta name="theme-color" content="#0a0e17" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #0a0e17;
+            --surface: #131c2e;
+            --surface2: #1a2540;
+            --text: #e0f7ff;
+            --muted: #a0c8e0;
+            --primary: #00eeff;
+            --secondary: #ff00ea;
+            --accent: #00ff9d;
+            --danger: #ff6b8a;
+            --border: rgba(0, 238, 255, 0.22);
+            --radius: 14px;
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
+            --mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.55;
+            background-image:
+                    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 238, 255, 0.1), transparent),
+                    radial-gradient(circle at 100% 100%, rgba(255, 0, 234, 0.06), transparent 40%);
+        }
+
+        .wrap {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: clamp(1rem, 4vw, 2rem) clamp(1rem, 3vw, 1.5rem) 3rem;
+        }
+
+        .top {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 0.5rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            transition: color 0.25s var(--ease), border-color 0.25s, transform 0.25s var(--ease);
+        }
+
+        .back:hover, .back:focus-visible {
+            color: var(--text);
+            border-color: rgba(0, 238, 255, 0.45);
+            outline: none;
+            transform: translateX(-2px);
+        }
+
+        .stat {
+            font-family: var(--mono);
+            font-size: 0.78rem;
+            color: var(--muted);
+            text-align: right;
+        }
+
+        .stat strong { color: var(--accent); font-weight: 600; }
+
+        h1 {
+            font-size: clamp(1.35rem, 4vw, 1.85rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(120deg, var(--text) 0%, var(--primary) 50%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .lead {
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.25rem;
+            max-width: 52em;
+        }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.1rem 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            align-items: center;
+        }
+
+        .search-row label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .search-wrap {
+            flex: 1;
+            min-width: 12rem;
+            position: relative;
+        }
+
+        .search-wrap i {
+            position: absolute;
+            left: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 0.85rem;
+            pointer-events: none;
+        }
+
+        .search-wrap input {
+            width: 100%;
+            padding: 0.65rem 0.85rem 0.65rem 2.35rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-wrap input:focus {
+            border-color: rgba(0, 238, 255, 0.5);
+            box-shadow: 0 0 0 3px rgba(0, 238, 255, 0.12);
+        }
+
+        .btn-ghost {
+            font-size: 0.85rem;
+            padding: 0.55rem 0.9rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            font-family: inherit;
+            transition: color 0.2s, border-color 0.2s, background 0.2s;
+        }
+
+        .btn-ghost:hover, .btn-ghost:focus-visible {
+            color: var(--text);
+            border-color: rgba(0, 238, 255, 0.4);
+            background: rgba(0, 238, 255, 0.06);
+            outline: none;
+        }
+
+        .cat-nav {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 238, 255, 0.1);
+        }
+
+        .cat-nav-head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 0.5rem 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .cat-nav-title {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: rgba(160, 200, 224, 0.55);
+        }
+
+        .cat-nav-hint {
+            font-size: 0.72rem;
+            color: var(--muted);
+            opacity: 0.75;
+        }
+
+        .cat-scroll {
+            display: flex;
+            gap: 0.2rem;
+            overflow-x: auto;
+            padding: 0.2rem 0 0.45rem;
+            margin: 0 -0.35rem;
+            padding-left: 0.35rem;
+            padding-right: 0.35rem;
+            scroll-snap-type: x proximity;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 238, 255, 0.28) transparent;
+        }
+
+        .cat-scroll::-webkit-scrollbar {
+            height: 5px;
+        }
+
+        .cat-scroll::-webkit-scrollbar-thumb {
+            background: rgba(0, 238, 255, 0.28);
+            border-radius: 99px;
+        }
+
+        @media (min-width: 880px) {
+            .cat-scroll {
+                flex-wrap: wrap;
+                overflow-x: visible;
+                row-gap: 0.35rem;
+            }
+        }
+
+        .cat-btn {
+            flex: 0 0 auto;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.32rem;
+            min-width: 4.75rem;
+            max-width: 7rem;
+            padding: 0.48rem 0.55rem 0.52rem;
+            border: none;
+            border-radius: 11px;
+            background: transparent;
+            color: rgba(160, 200, 224, 0.82);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.7rem;
+            font-weight: 500;
+            line-height: 1.28;
+            letter-spacing: 0.01em;
+            position: relative;
+            transition: color 0.22s var(--ease), background 0.22s var(--ease);
+        }
+
+        .cat-btn .cat-ico {
+            font-size: 1.05rem;
+            line-height: 1;
+            opacity: 0.55;
+            transition: opacity 0.22s var(--ease), color 0.22s var(--ease), transform 0.22s var(--ease);
+        }
+
+        .cat-btn .cat-btn-label {
+            text-align: center;
+            display: block;
+            max-width: 6.5rem;
+        }
+
+        .cat-btn:hover,
+        .cat-btn:focus-visible {
+            outline: none;
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.035);
+        }
+
+        .cat-btn:hover .cat-ico,
+        .cat-btn:focus-visible .cat-ico {
+            opacity: 0.92;
+        }
+
+        .cat-btn[aria-pressed="true"] {
+            color: var(--text);
+            background: rgba(0, 238, 255, 0.07);
+        }
+
+        .cat-btn[aria-pressed="true"] .cat-ico {
+            opacity: 1;
+            color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .cat-btn[aria-pressed="true"]::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 2px;
+            transform: translateX(-50%);
+            width: 1.5rem;
+            height: 2px;
+            border-radius: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.95;
+        }
+
+        .section-label {
+            font-size: 0.72rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin: 1rem 0 0.65rem;
+            font-weight: 600;
+        }
+
+        .section-label:first-child { margin-top: 0; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+            gap: 0.5rem;
+        }
+
+        .cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            padding: 0.65rem 0.4rem;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            background: var(--surface2);
+            cursor: pointer;
+            text-align: center;
+            transition: border-color 0.2s, transform 0.2s var(--ease), background 0.2s;
+            min-height: 5.5rem;
+        }
+
+        .cell:hover, .cell:focus-visible {
+            border-color: rgba(0, 238, 255, 0.45);
+            background: rgba(26, 37, 64, 0.95);
+            outline: none;
+            transform: translateY(-2px);
+        }
+
+        .cell .glyph {
+            font-size: 1.85rem;
+            line-height: 1;
+            font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+        }
+
+        .cell .name {
+            font-size: 0.68rem;
+            color: var(--muted);
+            line-height: 1.25;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            word-break: break-word;
+        }
+
+        .recent-bar {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .recent-bar h3 {
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .recent-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .recent-row button {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            font-size: 1.35rem;
+            line-height: 1;
+            cursor: pointer;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .recent-row button:hover, .recent-row button:focus-visible {
+            border-color: var(--primary);
+            outline: none;
+            transform: scale(1.06);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(120%);
+            opacity: 0;
+            padding: 0.65rem 1.25rem;
+            border-radius: 999px;
+            background: var(--surface2);
+            border: 1px solid rgba(0, 255, 157, 0.45);
+            color: var(--accent);
+            font-size: 0.9rem;
+            pointer-events: none;
+            transition: transform 0.35s var(--ease), opacity 0.35s var(--ease);
+            z-index: 50;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .err-box {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--muted);
+        }
+
+        .err-box p { margin-bottom: 1rem; }
+
+        .err-box .fa {
+            font-size: 2rem;
+            color: var(--danger);
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .footnote {
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-top: 1rem;
+            line-height: 1.5;
+        }
+
+        .footnote a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .footnote a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="top">
+        <a class="back" href="../../index.html"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> 返回索引</a>
+        <p class="stat" id="statLine" aria-live="polite"><strong>—</strong></p>
+    </div>
+
+    <h1><i class="fa-regular fa-face-smile" aria-hidden="true"></i> Emoji 表情大全</h1>
+    <p class="lead">
+        按主题分类浏览，点击即可复制到剪贴板。Emoji 列表来自 <code>unicode-emoji-json</code>；中文名称与关键词来自 Unicode CLDR <code>annotations/zh</code>
+    </p>
+
+    <div class="panel" id="controlPanel">
+        <div class="search-row">
+            <label for="q">搜索</label>
+            <div class="search-wrap">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                <input id="q" type="search" placeholder="例如：红心、笑哭了、thumb、rocket、🇨🇳" autocomplete="off" enterkeyhint="search" />
+            </div>
+            <button type="button" class="btn-ghost" id="btnClear" title="清空搜索">清空</button>
+        </div>
+        <div class="cat-nav" id="chips" hidden></div>
+    </div>
+
+    <div class="panel" id="mainPanel">
+        <div class="err-box" id="loadingState">
+            <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+            <p>正在加载 Emoji 数据…</p>
+        </div>
+        <div id="contentRoot" hidden></div>
+    </div>
+
+    <div class="panel" id="recentPanel" hidden>
+        <div class="recent-bar" style="margin-top:0;border-top:none;padding-top:0;">
+            <h3><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> 最近使用</h3>
+            <div class="recent-row" id="recentRow" role="list"></div>
+        </div>
+    </div>
+
+    <p class="footnote">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        不同操作系统与字体下，同一字符的图形可能略有差异，以本机显示为准。若分组或中文注释 CDN 不可用，会尽量用英文名显示；完全失败时仅显示内置示例。刷新页面可重新加载。
+    </p>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite">已复制</div>
+
+<script>
+    (cccccfunction () {
+        var GROUP_LABELS = {
+            smileys_emotion: "笑脸与情感",
+            people_body: "人物与身体",
+            animals_nature: "动物与自然",
+            food_drink: "食物与饮料",
+            travel_places: "旅行与地点",
+            activities: "活动",
+            objects: "物品",
+            symbols: "符号",
+            flags: "旗帜"
+        };
+
+        var CATEGORY_ICONS = {
+            smileys_emotion: "fa-solid fa-face-smile",
+            people_body: "fa-solid fa-user",
+            animals_nature: "fa-solid fa-paw",
+            food_drink: "fa-solid fa-burger",
+            travel_places: "fa-solid fa-earth-asia",
+            activities: "fa-solid fa-person-running",
+            objects: "fa-solid fa-cube",
+            symbols: "fa-solid fa-icons",
+            flags: "fa-solid fa-flag"
+        };
+
+        var DATA_URLS = [
+            "https://cdn.jsdelivr.net/npm/unicode-emoji-json@0.6.0/data-by-group.json",
+            "https://unpkg.com/unicode-emoji-json@0.6.0/data-by-group.json"
+        ];
+
+        var ZH_URLS = [
+            "https://cdn.jsdelivr.net/npm/cldr-annotations-modern@45.0.0/annotations/zh/annotations.json",
+            "https://unpkg.com/cldr-annotations-modern@45.0.0/annotations/zh/annotations.json"
+        ];
+
+        var FALLBACK_GROUPS = [
+            {
+                name: "Smileys & Emotion",
+                slug: "smileys_emotion",
+                emojis: [
+                    { emoji: "😀", name: "grinning face", slug: "grinning_face", nameZh: "嘿嘿" },
+                    { emoji: "😂", name: "face with tears of joy", slug: "face_with_tears_of_joy", nameZh: "笑哭了" },
+                    { emoji: "🥰", name: "smiling face with hearts", slug: "smiling_face_with_hearts", nameZh: "喜笑颜开" },
+                    { emoji: "😍", name: "smiling face with heart-eyes", slug: "smiling_face_with_heart_eyes", nameZh: "花痴" },
+                    { emoji: "🤔", name: "thinking face", slug: "thinking_face", nameZh: "想一想" },
+                    { emoji: "👍", name: "thumbs up", slug: "thumbs_up", nameZh: "拇指向上" },
+                    { emoji: "🎉", name: "party popper", slug: "party_popper", nameZh: "拉炮彩带" },
+                    { emoji: "❤️", name: "red heart", slug: "red_heart", nameZh: "红心" }
+                ]
+            }
+        ];
+
+        var RECENT_KEY = "zkdome-emoji-recent-v1";
+        var MAX_RECENT = 18;
+
+        var state = {
+            groups: null,
+            activeSlug: null,
+            query: "",
+            flat: [],
+            zhLookup: null
+        };
+
+        var $ = function (id) { return document.getElementById(id); };
+
+        function labelForSlug(slug) {
+            return GROUP_LABELS[slug] || slug.replace(/_/g, " ");
+        }
+
+        function loadRecent() {
+            try {
+                var raw = localStorage.getItem(RECENT_KEY);
+                var arr = raw ? JSON.parse(raw) : [];
+                return Array.isArray(arr) ? arr.filter(function (x) { return typeof x === "string" && x; }) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveRecent(ch) {
+            var list = loadRecent().filter(function (x) { return x !== ch; });
+            list.unshift(ch);
+            if (list.length > MAX_RECENT) list.length = MAX_RECENT;
+            try {
+                localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+            } catch (e) { /* ignore */ }
+            renderRecent();
+        }
+
+        function renderRecent() {
+            var row = $("recentRow");
+            var panel = $("recentPanel");
+            var list = loadRecent();
+            row.innerHTML = "";
+            if (!list.length) {
+                panel.hidden = true;
+                return;
+            }
+            panel.hidden = false;
+            list.forEach(function (ch) {
+                var b = document.createElement("button");
+                b.type = "button";
+                b.setAttribute("aria-label", "复制 " + ch);
+                b.textContent = ch;
+                b.addEventListener("click", function () { copyEmoji(ch); });
+                row.appendChild(b);
+            });
+        }
+
+        var toastTimer;
+        function showToast(msg) {
+            var t = $("toast");
+            t.textContent = msg || "已复制";
+            t.classList.add("show");
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(function () { t.classList.remove("show"); }, 1600);
+        }
+
+        function copyEmoji(ch) {
+            function fallback() {
+                var ta = document.createElement("textarea");
+                ta.value = ch;
+                ta.setAttribute("readonly", "");
+                ta.style.position = "fixed";
+                ta.style.left = "-9999px";
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    document.execCommand("copy");
+                    showToast("已复制");
+                    saveRecent(ch);
+                } catch (e) {
+                    showToast("复制失败，请手动选择");
+                }
+                document.body.removeChild(ta);
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(ch).then(function () {
+                    showToast("已复制 " + ch);
+                    saveRecent(ch);
+                }).catch(fallback);
+            } else {
+                fallback();
+            }
+        }
+
+        function buildZhLookup(cldrRoot) {
+            var map = new Map();
+            if (!cldrRoot || !cldrRoot.annotations || !cldrRoot.annotations.annotations) return map;
+            var blob = cldrRoot.annotations.annotations;
+            for (var key in blob) {
+                if (!Object.prototype.hasOwnProperty.call(blob, key)) continue;
+                var entry = blob[key];
+                if (!entry || typeof entry !== "object") continue;
+                var tts = Array.isArray(entry.tts) && entry.tts.length ? String(entry.tts[0]).trim() : "";
+                var def = Array.isArray(entry.default) ? entry.default.map(String) : [];
+                var label = (tts || def[0] || "").trim();
+                if (!label) continue;
+                var pack = { label: label, tags: def };
+                function reg(k) {
+                    if (!k) return;
+                    map.set(k, pack);
+                    try {
+                        map.set(k.normalize("NFC"), pack);
+                    } catch (err) { /* ignore */ }
+                }
+                reg(key);
+                try { reg(key.normalize("NFC")); } catch (err2) { /* ignore */ }
+            }
+            return map;
+        }
+
+        function lookupZh(map, s) {
+            if (!s || !map || !map.size) return null;
+            var tries = [];
+            function add(x) {
+                if (!x || tries.indexOf(x) !== -1) return;
+                tries.push(x);
+            }
+            add(s);
+            try {
+                add(s.normalize("NFC"));
+                add(s.normalize("NFD"));
+            } catch (e) { /* ignore */ }
+            var stripped = s.replace(/\uFE0F/g, "").replace(/\uFE0E/g, "");
+            add(stripped);
+            try { add(stripped.normalize("NFC")); } catch (e2) { /* ignore */ }
+            for (var i = 0; i < tries.length; i++) {
+                var hit = map.get(tries[i]);
+                if (hit) return hit;
+            }
+            return null;
+        }
+
+        function displayLabel(item) {
+            return item.nameZh || item.name;
+        }
+
+        function displayTitle(item) {
+            return item.nameZh ? (item.nameZh + "（" + item.name + "）") : item.name;
+        }
+
+        function buildFlat(groups) {
+            var map = state.zhLookup || new Map();
+            var out = [];
+            groups.forEach(function (g) {
+                (g.emojis || []).forEach(function (e) {
+                    if (!e.emoji) return;
+                    var zhHit = lookupZh(map, e.emoji);
+                    var nameZh = e.nameZh != null && e.nameZh !== "" ? e.nameZh : (zhHit ? zhHit.label : "");
+                    var zhTags = zhHit ? zhHit.tags : [];
+                    out.push({
+                        emoji: e.emoji,
+                        name: e.name || "",
+                        nameZh: nameZh,
+                        zhTags: zhTags,
+                        slug: e.slug || "",
+                        groupSlug: g.slug,
+                        groupName: g.name
+                    });
+                });
+            });
+            return out;
+        }
+
+        function matches(item, qRaw) {
+            var q = (qRaw || "").trim();
+            if (!q) return true;
+            if (item.emoji.indexOf(q) !== -1) return true;
+            var ql = q.toLowerCase();
+            if (item.name && item.name.toLowerCase().indexOf(ql) !== -1) return true;
+            var s = (item.slug || "").toLowerCase();
+            if (s.indexOf(ql) !== -1 || s.indexOf(ql.replace(/\s+/g, "_")) !== -1) return true;
+            if (s.replace(/_/g, " ").indexOf(ql) !== -1) return true;
+            if (item.nameZh && item.nameZh.indexOf(q) !== -1) return true;
+            if (item.zhTags && item.zhTags.length) {
+                for (var i = 0; i < item.zhTags.length; i++) {
+                    if (item.zhTags[i].indexOf(q) !== -1) return true;
+                }
+            }
+            return false;
+        }
+
+        function renderGrid(items) {
+            var root = $("contentRoot");
+            root.innerHTML = "";
+            if (!items.length) {
+                var empty = document.createElement("div");
+                empty.className = "err-box";
+                empty.innerHTML = "<p>没有匹配的 Emoji，试试其它关键词或清空搜索。</p>";
+                root.appendChild(empty);
+                return;
+            }
+            var grid = document.createElement("div");
+            grid.className = "grid";
+            grid.setAttribute("role", "list");
+            items.forEach(function (item) {
+                var cell = document.createElement("button");
+                cell.type = "button";
+                cell.className = "cell";
+                cell.setAttribute("role", "listitem");
+                cell.setAttribute("title", displayTitle(item) + " — 点击复制");
+                var g = document.createElement("span");
+                g.className = "glyph";
+                g.setAttribute("aria-hidden", "true");
+                g.textContent = item.emoji;
+                var n = document.createElement("span");
+                n.className = "name";
+                n.textContent = displayLabel(item);
+                cell.appendChild(g);
+                cell.appendChild(n);
+                cell.addEventListener("click", function () { copyEmoji(item.emoji); });
+                grid.appendChild(cell);
+            });
+            root.appendChild(grid);
+        }
+
+        function renderSearchResults(q) {
+            var root = $("contentRoot");
+            root.innerHTML = "";
+            var qv = (q || "").trim();
+            var byGroup = {};
+            state.flat.forEach(function (item) {
+                if (!matches(item, qv)) return;
+                var key = item.groupSlug;
+                if (!byGroup[key]) byGroup[key] = { label: labelForSlug(key), items: [] };
+                byGroup[key].items.push(item);
+            });
+            var keys = state.groups.map(function (g) { return g.slug; }).filter(function (k) { return byGroup[k]; });
+            if (!keys.length) {
+                renderGrid([]);
+                return;
+            }
+            keys.forEach(function (k) {
+                var sec = document.createElement("div");
+                sec.className = "section-label";
+                sec.textContent = byGroup[k].label + " · " + byGroup[k].items.length;
+                root.appendChild(sec);
+                var grid = document.createElement("div");
+                grid.className = "grid";
+                grid.setAttribute("role", "list");
+                byGroup[k].items.forEach(function (item) {
+                    var cell = document.createElement("button");
+                    cell.type = "button";
+                    cell.className = "cell";
+                    cell.setAttribute("role", "listitem");
+                    cell.setAttribute("title", displayTitle(item));
+                    var g = document.createElement("span");
+                    g.className = "glyph";
+                    g.setAttribute("aria-hidden", "true");
+                    g.textContent = item.emoji;
+                    var n = document.createElement("span");
+                    n.className = "name";
+                    n.textContent = displayLabel(item);
+                    cell.appendChild(g);
+                    cell.appendChild(n);
+                    cell.addEventListener("click", function () { copyEmoji(item.emoji); });
+                    grid.appendChild(cell);
+                });
+                root.appendChild(grid);
+            });
+        }
+
+        function setActiveChip(slug) {
+            state.activeSlug = slug;
+            var chips = $("chips").querySelectorAll(".cat-btn");
+            chips.forEach(function (c) {
+                var on = c.dataset.slug === slug;
+                c.setAttribute("aria-pressed", on ? "true" : "false");
+                c.setAttribute("aria-selected", on ? "true" : "false");
+            });
+        }
+
+        function refreshView() {
+            var q = $("q").value;
+            state.query = q;
+            if ((q || "").trim()) {
+                renderSearchResults(q);
+                return;
+            }
+            var g = state.groups.find(function (x) { return x.slug === state.activeSlug; });
+            var items = (g && g.emojis) ? g.emojis.map(function (e) {
+                var zhHit = lookupZh(state.zhLookup || new Map(), e.emoji);
+                var nameZh = e.nameZh != null && e.nameZh !== "" ? e.nameZh : (zhHit ? zhHit.label : "");
+                var zhTags = zhHit ? zhHit.tags : [];
+                return { emoji: e.emoji, name: e.name, nameZh: nameZh, zhTags: zhTags, slug: e.slug, groupSlug: g.slug, groupName: g.name };
+            }) : [];
+            renderGrid(items);
+            updateStat();
+        }
+
+        function buildChips() {
+            var wrap = $("chips");
+            wrap.innerHTML = "";
+            var head = document.createElement("div");
+            head.className = "cat-nav-head";
+            var title = document.createElement("span");
+            title.className = "cat-nav-title";
+            title.textContent = "目录";
+            var sub = document.createElement("span");
+            sub.className = "cat-nav-hint";
+            sub.textContent = "点选切换 · 窄屏可横向滑动";
+            head.appendChild(title);
+            head.appendChild(sub);
+            var scroll = document.createElement("div");
+            scroll.className = "cat-scroll";
+            scroll.setAttribute("role", "tablist");
+            scroll.setAttribute("aria-label", "Emoji 分类");
+            state.groups.forEach(function (g) {
+                var b = document.createElement("button");
+                b.type = "button";
+                b.className = "cat-btn";
+                b.dataset.slug = g.slug;
+                b.setAttribute("role", "tab");
+                b.setAttribute("aria-pressed", "false");
+                b.setAttribute("aria-selected", "false");
+                b.setAttribute("id", "cat-tab-" + g.slug);
+                var ico = document.createElement("i");
+                ico.className = (CATEGORY_ICONS[g.slug] || "fa-solid fa-layer-group") + " cat-ico";
+                ico.setAttribute("aria-hidden", "true");
+                var lab = document.createElement("span");
+                lab.className = "cat-btn-label";
+                lab.textContent = labelForSlug(g.slug);
+                b.appendChild(ico);
+                b.appendChild(lab);
+                b.addEventListener("click", function () {
+                    setActiveChip(g.slug);
+                    $("q").value = "";
+                    state.query = "";
+                    refreshView();
+                });
+                scroll.appendChild(b);
+            });
+            wrap.appendChild(head);
+            wrap.appendChild(scroll);
+            wrap.hidden = false;
+        }
+
+        function updateStat() {
+            var total = state.flat.length;
+            var g = state.groups && state.groups.find(function (x) { return x.slug === state.activeSlug; });
+            var nCat = (g && g.emojis) ? g.emojis.length : 0;
+            $("statLine").innerHTML =
+                "当前分类 <strong>" + labelForSlug(state.activeSlug) + "</strong> · 本类 <strong>" + nCat + "</strong> 个 · 全库 <strong>" + total + "</strong> 个";
+        }
+
+        function showContent() {
+            $("loadingState").hidden = true;
+            $("contentRoot").hidden = false;
+        }
+
+        function applyGroups(groups) {
+            state.groups = groups;
+            state.flat = buildFlat(groups);
+            state.activeSlug = groups[0] ? groups[0].slug : null;
+            buildChips();
+            setActiveChip(state.activeSlug);
+            refreshView();
+            renderRecent();
+            showContent();
+        }
+
+        function fetchJson(url) {
+            return fetch(url, { cache: "force-cache" }).then(function (r) {
+                if (!r.ok) throw new Error(r.status + " " + r.statusText);
+                return r.json();
+            });
+        }
+
+        function loadRemote() {
+            var i = 0;
+            function next() {
+                if (i >= DATA_URLS.length) return Promise.reject(new Error("全部数据源均不可用"));
+                var url = DATA_URLS[i++];
+                return fetchJson(url).catch(next);
+            }
+            return next();
+        }
+
+        function loadZhAnnotations() {
+            var j = 0;
+            function nextZh() {
+                if (j >= ZH_URLS.length) return Promise.resolve(null);
+                var url = ZH_URLS[j++];
+                return fetchJson(url).catch(nextZh);
+            }
+            return nextZh();
+        }
+
+        function init() {
+            $("btnClear").addEventListener("click", function () {
+                $("q").value = "";
+                refreshView();
+            });
+            $("q").addEventListener("input", function () {
+                refreshView();
+                var qv = ($("q").value || "").trim();
+                if (qv) {
+                    $("statLine").innerHTML = "筛选 <strong>" + state.flat.filter(function (item) { return matches(item, qv); }).length + "</strong> 项";
+                }
+            });
+            startLoad();
+        }
+
+        function startLoad() {
+            $("loadingState").hidden = false;
+            $("contentRoot").hidden = true;
+            Promise.all([loadRemote(), loadZhAnnotations()]).then(function (pair) {
+                var data = pair[0];
+                var cldr = pair[1];
+                if (!Array.isArray(data) || !data.length) throw new Error("数据格式异常");
+                state.zhLookup = buildZhLookup(cldr);
+                applyGroups(data);
+            }).catch(function () {
+                state.zhLookup = new Map();
+                applyGroups(FALLBACK_GROUPS);
+                showToast("已使用离线示例数据");
+                $("statLine").innerHTML = "<strong>离线示例</strong> · 联网后刷新可加载完整库";
+            });
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>

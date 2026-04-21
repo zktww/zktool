@@ -1,11 +1,11 @@
-# zkdome
+# zktool
 
-个人 **Demo / 实验页** 仓库：放一些静态 HTML 小作品、演示稿和练习页面，方便本地打开或托管在静态站点上浏览。
+个人 **小工具** 仓库：收纳一批静态 HTML 实用工具页，双击本地打开或托管到静态站点即可使用；同时附带少量 Demo / 实验页作为副产物。
 
 ## 目录约定
 
-- **`demos/`** — 演示、交互探索、幻灯片等偏展示向页面；每个模块一个子文件夹，入口为 **`index.html`**。
-- **`tools/`** — 小工具页；同样每模块独立文件夹 + **`index.html`**。
+- **`tools/`** — 主角，日常开发辅助的小工具页；每模块独立文件夹，入口为 **`index.html`**。
+- **`demos/`** — 附属，交互探索、演示稿等偏展示向页面；同样每模块一个子文件夹 + **`index.html`**。
 - 根目录保留 **`index.html`** 总索引与 **`favicon.ico`**。
 
 ## 快速开始
@@ -13,31 +13,15 @@
 - 在资源管理器中打开本目录，双击 **`index.html`** 进入索引页。
 - 或用任意静态服务器（例如 `npx serve .`）避免部分环境下 `file://` 的限制。
 
-## 索引
+## 工具索引
 
 | 入口 | 说明 |
 |------|------|
-| [index.html](index.html) | 总导航（演示 / 工具分区） |
-| [demos/css-length-unit/](demos/css-length-unit/) | CSS 长度单位探索器（暖色编辑风交互页） |
-| [demos/presentation/](demos/presentation/) | 「架构师的成长」全屏 HTML 演示文稿 |
 | [tools/timestamp-converter/](tools/timestamp-converter/) | 时间戳与日期时间互转（秒/毫秒、UTC、复制） |
 | [tools/json-formatter/](tools/json-formatter/) | JSON 校验、美化与压缩（缩进、键排序、复制） |
 | [tools/emoji-tool/](tools/emoji-tool/) | Emoji 分类大全、CLDR 中文名、搜索与一键复制 |
 
-## Demo 摘要
-
-### CSS 长度单位探索器（`demos/css-length-unit/`）
-
-- **单位演示**：实时演示所选单位在进度条与文案上的效果
-- **单位对比**：比较两组「数值 + 单位」的相对长度与比例
-- **单位对照表**：px、rem、vw、vmin、lh 等说明与示意条
-- **可调参数**：基准字号、容器宽度等，观察相对单位变化
-
-支持的主要单位包括：绝对单位（px、cm、mm、in、pt 等）与相对单位（em、rem、vw、vh、%、lh 等）。
-
-### 演示文稿（`demos/presentation/`）
-
-深空主题、视口适配的全屏幻灯片；适合键盘翻页与投屏分享。
+## 工具说明
 
 ### 时间戳转换工具（`tools/timestamp-converter/`）
 
@@ -51,13 +35,23 @@
 
 与索引同系的深色界面：从 CDN 加载 `unicode-emoji-json` 分组列表，并用 Unicode CLDR `cldr-annotations-modern` 的 `annotations/zh` 提供中文名称与关键词（搜索支持中文）；无匹配时回退英文。失败时回退内置示例；含「最近使用」与显示差异说明。
 
+## Demo 附录
+
+| 入口 | 说明 |
+|------|------|
+| [demos/css-length-unit/](demos/css-length-unit/) | CSS 长度单位探索器（暖色编辑风交互页） |
+| [demos/presentation/](demos/presentation/) | 「架构师的成长」全屏 HTML 演示文稿 |
+
+- **CSS 长度单位探索器**：单位演示、对比与对照表，覆盖 px、rem、vw、vmin、lh 等绝对/相对单位，可调基准字号与容器宽度观察差异。
+- **演示文稿**：深空主题、视口适配的全屏幻灯片，适合键盘翻页与投屏分享。
+
 ## 维护习惯
 
 新增页面时：
 
-1. 在 **`demos/<模块名>/`** 或 **`tools/<模块名>/`** 下创建文件夹，入口命名为 **`index.html`**（模块内还可放专属脚本、样式或数据文件）；
+1. 工具类放 **`tools/<模块名>/`**；演示/实验类放 **`demos/<模块名>/`**，入口命名为 **`index.html`**（模块内还可放专属脚本、样式或数据文件）；
 2. 在根目录 **`index.html`** 对应分区增加一条卡片链接；
-3. 在本 README 的表格与摘要中各补一行（按需详写）。
+3. 在本 README 的表格与说明中各补一行（按需详写）。
 
 ---
 

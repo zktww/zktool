@@ -4,33 +4,31 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JSON 格式化工具 · zktool</title>
-    <meta name="description" content="校验、美化与压缩 JSON，支持缩进选项、键排序与一键复制。" />
-    <meta name="theme-color" content="#0a0e17" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <meta name="description" content="校验、美化、压缩 JSON，语法高亮、树形视图、错误定位、转义与统计信息。" />
+    <meta name="theme-color" content="#07090f" />
     <style>
         :root {
             color-scheme: dark;
-            --bg: #0a0e17;
-            --surface: #131c2e;
-            --surface2: #1a2540;
-            --text: #e0f7ff;
-            --muted: #a0c8e0;
-            --primary: #00eeff;
-            --secondary: #ff00ea;
-            --accent: #00ff9d;
-            --danger: #ff6b8a;
-            --border: rgba(0, 238, 255, 0.22);
-            --radius: 14px;
+            --bg: #07090f;
+            --bg-soft: #0b0e17;
+            --surface: rgba(255, 255, 255, 0.03);
+            --surface-hover: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.18);
+            --text: #eef2f8;
+            --text-2: #9aa5b8;
+            --text-3: #5d6880;
+            --brand-1: #6366f1;
+            --brand-2: #22d3ee;
+            --brand-3: #a855f7;
+            --ok: #34d399;
+            --danger: #fb7185;
+            --radius: 16px;
             --ease: cubic-bezier(0.16, 1, 0.3, 1);
-            --mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
-            --scroll-track: rgba(19, 28, 46, 0.95);
-            --scroll-thumb: rgba(0, 238, 255, 0.38);
-            --scroll-thumb-hover: rgba(0, 238, 255, 0.58);
+            --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
         }
 
-        html {
-            height: 100%;
-        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
@@ -39,10 +37,10 @@
             }
         }
 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { height: 100%; }
 
         body {
-            font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+            font-family: "Inter", "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100%;
@@ -50,9 +48,31 @@
             line-height: 1.55;
             display: flex;
             flex-direction: column;
+        }
+
+        /* ---------- 背景氛围 ---------- */
+        .bg-fx {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background:
+                radial-gradient(640px 420px at 12% 8%, rgba(99, 102, 241, 0.14), transparent 62%),
+                radial-gradient(720px 480px at 88% 12%, rgba(34, 211, 238, 0.10), transparent 62%),
+                radial-gradient(860px 620px at 50% 105%, rgba(168, 85, 247, 0.09), transparent 62%),
+                var(--bg);
+        }
+
+        .bg-fx::after {
+            content: "";
+            position: absolute;
+            inset: 0;
             background-image:
-                    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 238, 255, 0.1), transparent),
-                    radial-gradient(circle at 100% 100%, rgba(255, 0, 234, 0.06), transparent 40%);
+                linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+            background-size: 44px 44px;
+            -webkit-mask-image: radial-gradient(ellipse 72% 62% at 50% 32%, #000 28%, transparent 78%);
+            mask-image: radial-gradient(ellipse 72% 62% at 50% 32%, #000 28%, transparent 78%);
         }
 
         .wrap {
@@ -61,11 +81,12 @@
             flex-direction: column;
             min-height: 0;
             width: 100%;
-            max-width: 1080px;
+            max-width: 1180px;
             margin: 0 auto;
-            padding: clamp(1rem, 4vw, 2rem) clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.75rem);
+            padding: clamp(1rem, 3.5vw, 1.75rem) clamp(1rem, 3vw, 1.5rem) clamp(1rem, 2.5vw, 1.5rem);
         }
 
+        /* ---------- 顶部 ---------- */
         .top {
             flex-shrink: 0;
             display: flex;
@@ -73,98 +94,148 @@
             align-items: center;
             justify-content: space-between;
             gap: 1rem;
-            margin-bottom: 1.75rem;
+            margin-bottom: 1.35rem;
         }
 
         .back {
             display: inline-flex;
             align-items: center;
             gap: 0.45rem;
-            color: var(--muted);
+            color: var(--text-2);
             text-decoration: none;
-            font-size: 0.9rem;
-            padding: 0.5rem 0.9rem;
+            font-size: 0.88rem;
+            padding: 0.5rem 0.95rem;
             border-radius: 999px;
             border: 1px solid var(--border);
             background: var(--surface);
-            transition: color 0.25s var(--ease), border-color 0.25s, transform 0.25s var(--ease);
+            backdrop-filter: blur(8px);
+            transition: color 0.25s var(--ease), border-color 0.25s var(--ease), transform 0.25s var(--ease);
         }
+
+        .back svg { flex-shrink: 0; }
 
         .back:hover, .back:focus-visible {
             color: var(--text);
-            border-color: rgba(0, 238, 255, 0.45);
+            border-color: var(--border-hover);
             outline: none;
             transform: translateX(-2px);
         }
 
-        .stat {
+        .top-stat {
             font-family: var(--mono);
-            font-size: 0.78rem;
-            color: var(--muted);
-            text-align: right;
+            font-size: 0.76rem;
+            color: var(--text-3);
         }
 
-        .stat strong {
-            color: var(--accent);
-            font-weight: 600;
-        }
+        .top-stat strong { color: var(--brand-2); font-weight: 600; }
 
         h1 {
             flex-shrink: 0;
-            font-size: clamp(1.35rem, 4vw, 1.85rem);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: clamp(1.35rem, 4vw, 1.8rem);
             font-weight: 700;
             letter-spacing: -0.02em;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(120deg, var(--text) 0%, var(--primary) 50%, var(--secondary) 100%);
+            margin-bottom: 0.35rem;
+        }
+
+        h1 .grad {
+            background: linear-gradient(100deg, #22d3ee, #6366f1, #a855f7);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
 
+        h1 svg { color: var(--brand-2); flex-shrink: 0; }
+
         .lead {
             flex-shrink: 0;
-            color: var(--muted);
-            font-size: 0.95rem;
-            margin-bottom: 1.5rem;
+            color: var(--text-2);
+            font-size: 0.92rem;
+            margin-bottom: 1.15rem;
         }
 
+        /* ---------- 工具栏 ---------- */
         .toolbar {
             flex-shrink: 0;
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: 0.65rem;
-            margin-bottom: 1rem;
+            gap: 0.55rem;
+            margin-bottom: 0.9rem;
+            padding: 0.65rem 0.75rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            backdrop-filter: blur(8px);
         }
 
-        .toolbar .grow {
-            flex: 1;
-            min-width: 0;
+        .toolbar .grow { flex: 1; min-width: 0.25rem; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font: inherit;
+            font-size: 0.84rem;
+            font-weight: 600;
+            padding: 0.5rem 0.9rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-2);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s var(--ease), border-color 0.2s var(--ease), color 0.2s var(--ease), transform 0.2s var(--ease);
+        }
+
+        .btn svg { flex-shrink: 0; }
+
+        .btn:hover, .btn:focus-visible {
+            background: var(--surface-hover);
+            border-color: var(--border-hover);
+            color: var(--text);
+            outline: none;
+        }
+
+        .btn:active { transform: scale(0.97); }
+
+        .btn--primary {
+            border-color: rgba(99, 102, 241, 0.45);
+            background: linear-gradient(120deg, rgba(99, 102, 241, 0.18), rgba(34, 211, 238, 0.12));
+            color: #c7d2fe;
+        }
+
+        .btn--primary:hover, .btn--primary:focus-visible {
+            background: linear-gradient(120deg, rgba(99, 102, 241, 0.3), rgba(34, 211, 238, 0.2));
+            border-color: rgba(99, 102, 241, 0.7);
+            color: #e0e7ff;
         }
 
         .field {
             display: inline-flex;
             align-items: center;
             gap: 0.45rem;
-            font-size: 0.85rem;
-            color: var(--muted);
+            font-size: 0.82rem;
+            color: var(--text-2);
         }
 
         select {
             font: inherit;
-            font-size: 0.82rem;
-            padding: 0.45rem 0.65rem;
+            font-size: 0.8rem;
+            padding: 0.45rem 0.6rem;
             border-radius: 10px;
             border: 1px solid var(--border);
-            background: var(--surface2);
+            background: var(--bg-soft);
             color: var(--text);
             cursor: pointer;
         }
 
         select:focus {
             outline: none;
-            border-color: rgba(0, 238, 255, 0.55);
-            box-shadow: 0 0 0 3px rgba(0, 238, 255, 0.12);
+            border-color: rgba(99, 102, 241, 0.6);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
         }
 
         .chk {
@@ -172,108 +243,101 @@
             align-items: center;
             gap: 0.4rem;
             font-size: 0.82rem;
-            color: var(--muted);
+            color: var(--text-2);
             cursor: pointer;
             user-select: none;
         }
 
-        .chk input {
-            accent-color: var(--primary);
-            width: 1rem;
-            height: 1rem;
-        }
+        .chk input { accent-color: var(--brand-1); width: 1rem; height: 1rem; cursor: pointer; }
 
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font: inherit;
-            font-size: 0.85rem;
-            font-weight: 600;
-            padding: 0.55rem 1rem;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background: rgba(0, 238, 255, 0.08);
-            color: var(--primary);
-            cursor: pointer;
-            transition: background 0.2s, border-color 0.2s, transform 0.2s var(--ease);
-        }
-
-        .btn:hover, .btn:focus-visible {
-            background: rgba(0, 238, 255, 0.15);
-            border-color: rgba(0, 238, 255, 0.45);
-            outline: none;
-        }
-
-        .btn:active {
-            transform: scale(0.98);
-        }
-
-        .btn--ghost {
-            background: transparent;
-            color: var(--muted);
-        }
-
-        .btn--ghost:hover, .btn--ghost:focus-visible {
-            color: var(--text);
-            background: rgba(255, 255, 255, 0.04);
-        }
-
+        /* ---------- 双栏 ---------- */
         .split {
             flex: 1;
             min-height: 0;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr;
             gap: 1rem;
             align-items: stretch;
-        }
-
-        @media (max-width: 820px) {
-            .split {
-                grid-template-columns: 1fr;
-                grid-template-rows: 1fr 1fr;
-            }
         }
 
         .pane {
             display: flex;
             flex-direction: column;
             min-height: 0;
+            min-width: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            backdrop-filter: blur(8px);
+            overflow: hidden;
         }
 
         .pane-head {
+            flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 0.5rem;
-            margin-bottom: 0.45rem;
+            padding: 0.55rem 0.8rem;
+            border-bottom: 1px solid var(--border);
+            min-height: 2.85rem;
         }
 
-        .pane-head span {
+        .pane-title {
             font-size: 0.72rem;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--muted);
-            font-weight: 600;
+            letter-spacing: 0.12em;
+            color: var(--text-3);
+            font-weight: 700;
         }
 
+        .tabs { display: inline-flex; gap: 0.25rem; }
+
+        .tab {
+            font: inherit;
+            font-size: 0.76rem;
+            font-weight: 600;
+            padding: 0.32rem 0.7rem;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-3);
+            cursor: pointer;
+            transition: background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease);
+        }
+
+        .tab:hover:not(:disabled), .tab:focus-visible { color: var(--text-2); background: var(--surface-hover); outline: none; }
+
+        .tab.active {
+            color: var(--brand-2);
+            background: rgba(34, 211, 238, 0.08);
+            border-color: rgba(34, 211, 238, 0.28);
+        }
+
+        .tab:disabled { opacity: 0.35; cursor: not-allowed; }
+
         .copy {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font: inherit;
             font-size: 0.75rem;
-            padding: 0.35rem 0.6rem;
+            padding: 0.35rem 0.65rem;
             border-radius: 8px;
             border: 1px solid var(--border);
             background: transparent;
-            color: var(--muted);
+            color: var(--text-2);
             cursor: pointer;
-            transition: color 0.2s, border-color 0.2s;
+            transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
         }
 
         .copy:hover, .copy:focus-visible {
-            color: var(--primary);
-            border-color: rgba(0, 238, 255, 0.4);
+            color: var(--brand-2);
+            border-color: rgba(34, 211, 238, 0.45);
             outline: none;
         }
+
+        .copy.copied { color: var(--ok); border-color: rgba(52, 211, 153, 0.45); }
 
         textarea {
             flex: 1;
@@ -283,117 +347,268 @@
             overflow: auto;
             font-family: var(--mono);
             font-size: 0.82rem;
-            line-height: 1.45;
+            line-height: 1.5;
             padding: 0.85rem 0.95rem;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            background: var(--surface);
-            color: var(--text);
-            transition: border-color 0.2s, box-shadow 0.2s;
-            scrollbar-gutter: stable;
-            scrollbar-width: thin;
-            scrollbar-color: var(--scroll-thumb) var(--scroll-track);
-        }
-
-        textarea::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
-        }
-
-        textarea::-webkit-scrollbar-track {
-            background: var(--scroll-track);
-            border-radius: 999px;
-            margin: 4px 0;
-        }
-
-        textarea::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, var(--scroll-thumb-hover), var(--scroll-thumb));
-            border-radius: 999px;
-            border: 2px solid var(--scroll-track);
-            background-clip: padding-box;
-        }
-
-        textarea::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, rgba(0, 238, 255, 0.75), rgba(0, 238, 255, 0.45));
-            border: 2px solid var(--scroll-track);
-            background-clip: padding-box;
-        }
-
-        textarea::-webkit-scrollbar-corner {
+            border: none;
             background: transparent;
+            color: var(--text);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
         }
 
-        textarea:focus {
-            outline: none;
-            border-color: rgba(0, 238, 255, 0.55);
-            box-shadow: 0 0 0 3px rgba(0, 238, 255, 0.1);
+        textarea:focus { outline: none; }
+        textarea::placeholder { color: var(--text-3); }
+
+        .pane.pane--error { border-color: rgba(251, 113, 133, 0.5); }
+
+        .out-body { flex: 1; min-height: 0; position: relative; display: flex; flex-direction: column; }
+
+        pre.out-text {
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+            font-family: var(--mono);
+            font-size: 0.82rem;
+            line-height: 1.5;
+            padding: 0.85rem 0.95rem;
+            white-space: pre;
+            color: var(--text);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
         }
 
-        textarea::placeholder {
-            color: rgba(160, 200, 224, 0.4);
+        textarea::-webkit-scrollbar, pre.out-text::-webkit-scrollbar, .out-tree::-webkit-scrollbar { width: 10px; height: 10px; }
+        textarea::-webkit-scrollbar-thumb, pre.out-text::-webkit-scrollbar-thumb, .out-tree::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.14);
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+        textarea::-webkit-scrollbar-thumb:hover, pre.out-text::-webkit-scrollbar-thumb:hover, .out-tree::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.26);
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+        textarea::-webkit-scrollbar-corner, pre.out-text::-webkit-scrollbar-corner { background: transparent; }
+
+        .out-empty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: var(--text-3);
+            font-size: 0.85rem;
+            padding: 1rem;
+            text-align: center;
         }
 
-        #output {
-            background: var(--surface2);
-            color: var(--accent);
+        /* ---------- 语法高亮 ---------- */
+        .j-key { color: #93c5fd; }
+        .j-str { color: #86efac; }
+        .j-num { color: #fbbf24; }
+        .j-bool { color: #c4b5fd; }
+        .j-null { color: #f0abfc; }
+
+        /* ---------- 树形视图 ---------- */
+        .out-tree {
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            line-height: 1.6;
+            padding: 0.7rem 0.9rem;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
         }
+
+        .t-kids { padding-left: 1.15rem; border-left: 1px solid rgba(255, 255, 255, 0.06); margin-left: 0.5rem; }
+
+        .t-line {
+            display: flex;
+            align-items: baseline;
+            gap: 0.3rem;
+            white-space: nowrap;
+            border-radius: 6px;
+            padding: 0 0.25rem;
+        }
+
+        .t-line.t-toggle { cursor: pointer; }
+        .t-line.t-toggle:hover { background: var(--surface-hover); }
+
+        .t-caret {
+            flex-shrink: 0;
+            align-self: center;
+            width: 14px;
+            height: 14px;
+            color: var(--text-3);
+            transition: transform 0.18s var(--ease);
+        }
+
+        .t-node.open > .t-line .t-caret { transform: rotate(90deg); }
+        .t-caret-space { flex-shrink: 0; width: 14px; }
+
+        .t-meta { color: var(--text-3); font-size: 0.74rem; }
+        .t-node > .t-kids { display: none; }
+        .t-node.open > .t-kids { display: block; }
+
+        .t-more {
+            font: inherit;
+            font-size: 0.74rem;
+            color: var(--brand-2);
+            background: rgba(34, 211, 238, 0.07);
+            border: 1px solid rgba(34, 211, 238, 0.25);
+            border-radius: 8px;
+            padding: 0.2rem 0.65rem;
+            margin: 0.25rem 0 0.25rem 0.25rem;
+            cursor: pointer;
+        }
+
+        .t-more:hover, .t-more:focus-visible { background: rgba(34, 211, 238, 0.14); outline: none; }
+
+        /* ---------- 消息与统计 ---------- */
+        .msg-area { flex-shrink: 0; margin-top: 0.8rem; min-height: 1.4rem; }
 
         .err {
-            flex-shrink: 0;
-            font-size: 0.85rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            font-size: 0.83rem;
             color: var(--danger);
-            margin-top: 0.75rem;
             font-family: var(--mono);
             word-break: break-word;
+            white-space: pre-wrap;
         }
 
-        .err[hidden] {
-            display: none !important;
-        }
+        .err svg { flex-shrink: 0; margin-top: 0.15rem; }
+        .err[hidden] { display: none !important; }
 
-        .ok {
-            flex-shrink: 0;
+        .ok-msg {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             font-size: 0.85rem;
-            color: var(--accent);
-            margin-top: 0.75rem;
+            color: var(--ok);
         }
 
-        .ok[hidden] {
-            display: none !important;
+        .ok-msg[hidden] { display: none !important; }
+
+        .stats {
+            flex-shrink: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.8rem;
         }
+
+        .stat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 0.76rem;
+            font-family: var(--mono);
+            color: var(--text-2);
+            padding: 0.3rem 0.75rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            backdrop-filter: blur(8px);
+        }
+
+        .stat-chip b { color: var(--brand-2); font-weight: 600; }
+        .stat-chip .lbl { color: var(--text-3); }
 
         .hint {
             flex-shrink: 0;
-            font-size: 0.8rem;
-            color: var(--muted);
-            margin-top: 0.85rem;
-            opacity: 0.92;
+            font-size: 0.78rem;
+            color: var(--text-3);
+            margin-top: 0.8rem;
+        }
+
+        kbd {
+            font-family: var(--mono);
+            font-size: 0.9em;
+            border: 1px solid var(--border);
+            padding: 0.08rem 0.35rem;
+            border-radius: 6px;
+            background: var(--bg-soft);
+            color: var(--text-2);
         }
 
         footer {
             flex-shrink: 0;
-            margin-top: 1rem;
-            padding-top: 1rem;
+            margin-top: 0.9rem;
+            padding-top: 0.9rem;
             border-top: 1px solid var(--border);
-            font-size: 0.82rem;
-            color: var(--muted);
+            font-size: 0.8rem;
+            color: var(--text-3);
+        }
+
+        footer code { font-family: var(--mono); font-size: 0.92em; color: var(--brand-2); }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* ---------- 响应式 ---------- */
+        @media (max-width: 860px) {
+            body { height: auto; }
+            .split { grid-template-columns: 1fr; }
+            .pane { min-height: 320px; }
+            textarea, pre.out-text, .out-tree { min-height: 260px; }
         }
     </style>
     <script src="../../assets/analytics.js"></script>
 </head>
 <body>
+<div class="bg-fx" aria-hidden="true"></div>
+
 <div class="wrap">
     <div class="top">
-        <a class="back" href="../../index.html"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> 返回索引</a>
-        <p class="stat" id="statLine" aria-live="polite">输入 <strong>0</strong> 字符</p>
+        <a class="back" href="../../">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+            返回主页
+        </a>
+        <p class="top-stat" id="statLine" aria-live="polite">输入 <strong>0</strong> 字符</p>
     </div>
 
-    <h1><i class="fa-solid fa-code" aria-hidden="true"></i> JSON 格式化</h1>
-    <p class="lead">粘贴或编辑 JSON，一键美化或压缩；可选按键名排序，便于 diff 与对照。</p>
+    <h1>
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 12.5 8 15l2 2.5"/><path d="m14 12.5 2 2.5-2 2.5"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/></svg>
+        <span class="grad">JSON 格式化工具</span>
+    </h1>
+    <p class="lead">校验、美化、压缩 JSON；支持语法高亮、树形视图、错误精确定位、转义与统计信息，输入自动保存。</p>
 
     <div class="toolbar" role="toolbar" aria-label="操作">
-        <button type="button" class="btn" id="btnFormat"><i class="fa-solid fa-indent" aria-hidden="true"></i> 美化</button>
-        <button type="button" class="btn" id="btnMinify"><i class="fa-solid fa-compress" aria-hidden="true"></i> 压缩</button>
+        <button type="button" class="btn btn--primary" id="btnFormat">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 6H3"/><path d="M10 12H3"/><path d="M10 18H3"/><path d="m16 12 5 3-5 3v-6"/></svg>
+            美化
+        </button>
+        <button type="button" class="btn" id="btnMinify">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 15 6 6"/><path d="m15 9 6-6"/><path d="M21 16v5h-5"/><path d="M21 8V3h-5"/><path d="M3 16v5h5"/><path d="m3 21 6-6"/><path d="M3 8V3h5"/><path d="M9 9 3 3"/></svg>
+            压缩
+        </button>
+        <button type="button" class="btn" id="btnValidate">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            校验
+        </button>
+        <button type="button" class="btn" id="btnEscape">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>
+            转义
+        </button>
+        <button type="button" class="btn" id="btnUnescape">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 16-4-4 4-4"/><path d="m18 8 4 4-4 4"/><path d="m9.5 20 5-16"/></svg>
+            去转义
+        </button>
         <span class="grow"></span>
         <label class="field">
             缩进
@@ -407,89 +622,224 @@
             <input type="checkbox" id="sortKeys" />
             键排序
         </label>
-        <button type="button" class="btn btn--ghost" id="btnClear"><i class="fa-solid fa-eraser" aria-hidden="true"></i> 清空</button>
+        <button type="button" class="btn" id="btnSample">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M8 5H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-4"/></svg>
+            示例
+        </button>
+        <button type="button" class="btn" id="btnClear">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            清空
+        </button>
     </div>
 
     <div class="split">
-        <div class="pane">
+        <section class="pane" id="inPane">
             <div class="pane-head">
-                <span>输入</span>
-                <button type="button" class="copy" id="copyIn">复制输入</button>
+                <span class="pane-title">输入</span>
+                <button type="button" class="copy" id="copyIn">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    <span>复制输入</span>
+                </button>
             </div>
             <label for="input" class="visually-hidden">JSON 输入</label>
-            <textarea id="input" spellcheck="false" autocomplete="off" placeholder='例如 {"a":1,"b":[true,null]}'></textarea>
-        </div>
-        <div class="pane">
+            <textarea id="input" spellcheck="false" autocomplete="off" placeholder='粘贴或输入 JSON，例如 {"a":1,"b":[true,null]}'></textarea>
+        </section>
+
+        <section class="pane" id="outPane">
             <div class="pane-head">
-                <span>结果</span>
-                <button type="button" class="copy" id="copyOut">复制结果</button>
+                <span class="pane-title">结果</span>
+                <div class="tabs" role="tablist" aria-label="结果视图">
+                    <button type="button" class="tab active" id="tabText" role="tab" aria-selected="true">文本视图</button>
+                    <button type="button" class="tab" id="tabTree" role="tab" aria-selected="false" disabled>树形视图</button>
+                </div>
+                <button type="button" class="copy" id="copyOut">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    <span>复制结果</span>
+                </button>
             </div>
-            <label for="output" class="visually-hidden">格式化结果</label>
-            <textarea id="output" readonly spellcheck="false" aria-readonly="true" placeholder="美化或压缩后的 JSON 将显示在这里"></textarea>
+            <div class="out-body">
+                <div class="out-empty" id="outEmpty">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity:0.5"><path d="M10 12.5 8 15l2 2.5"/><path d="m14 12.5 2 2.5-2 2.5"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/></svg>
+                    美化、压缩或转义后的结果将显示在这里
+                </div>
+                <pre class="out-text" id="outText" hidden tabindex="0" aria-label="格式化结果文本"></pre>
+                <div class="out-tree" id="outTree" hidden aria-label="格式化结果树形视图"></div>
+            </div>
+        </section>
+    </div>
+
+    <div class="msg-area">
+        <div id="errBox" class="err" hidden role="alert"></div>
+        <div id="okBox" class="ok-msg" hidden aria-live="polite">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+            <span id="okText">完成</span>
         </div>
     </div>
 
-    <div id="errBox" class="err" hidden role="alert"></div>
-    <div id="okBox" class="ok" hidden aria-live="polite"></div>
-    <p class="hint">快捷键：<kbd style="font-family:var(--mono);border:1px solid var(--border);padding:0.1rem 0.35rem;border-radius:6px;background:var(--surface2)">Ctrl</kbd> + <kbd style="font-family:var(--mono);border:1px solid var(--border);padding:0.1rem 0.35rem;border-radius:6px;background:var(--surface2)">Enter</kbd> 美化当前输入。</p>
+    <div class="stats" id="statsBar" aria-label="统计信息">
+        <span class="stat-chip"><span class="lbl">字符</span> <b id="stChars">0</b></span>
+        <span class="stat-chip"><span class="lbl">行数</span> <b id="stLines">0</b></span>
+        <span class="stat-chip"><span class="lbl">键数量</span> <b id="stKeys">—</b></span>
+        <span class="stat-chip"><span class="lbl">最大深度</span> <b id="stDepth">—</b></span>
+    </div>
 
-    <footer>仅使用浏览器原生 <code style="font-family:var(--mono);font-size:0.9em;color:var(--primary)">JSON.parse</code>，不支持 JSON5 / 尾逗号等非标准语法。</footer>
+    <p class="hint">快捷键：<kbd>Ctrl</kbd> + <kbd>Enter</kbd> 美化当前输入 · 输入内容自动保存至本地，刷新不丢失。</p>
+
+    <footer>仅使用浏览器原生 <code>JSON.parse</code>，数据全程本地处理，不上传服务器；不支持 JSON5 / 尾逗号等非标准语法。</footer>
 </div>
-
-<style>
-    .visually-hidden {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border: 0;
-    }
-</style>
 
 <script>
     (function () {
+        "use strict";
+
         var input = document.getElementById("input");
-        var output = document.getElementById("output");
+        var inPane = document.getElementById("inPane");
+        var outText = document.getElementById("outText");
+        var outTree = document.getElementById("outTree");
+        var outEmpty = document.getElementById("outEmpty");
+        var tabText = document.getElementById("tabText");
+        var tabTree = document.getElementById("tabTree");
         var indentSel = document.getElementById("indentSel");
         var sortKeys = document.getElementById("sortKeys");
         var errBox = document.getElementById("errBox");
         var okBox = document.getElementById("okBox");
+        var okText = document.getElementById("okText");
         var statLine = document.getElementById("statLine");
+        var stChars = document.getElementById("stChars");
+        var stLines = document.getElementById("stLines");
+        var stKeys = document.getElementById("stKeys");
+        var stDepth = document.getElementById("stDepth");
+
+        var STORAGE_KEY = "zktool-json-formatter-input";
+        var HIGHLIGHT_LIMIT = 1500000; // 超过 1.5MB 不做语法高亮，防卡顿
+        var TREE_CHUNK = 100;          // 树形视图每批渲染条数
+
+        var state = {
+            outputText: "",   // 当前结果原始文本（复制用）
+            data: undefined,  // 最近一次成功解析的数据（树形视图用）
+            hasTree: false,
+            view: "text"
+        };
+
+        /* ================= 消息 ================= */
+
+        var okTimer = null;
+        function showOk(msg) {
+            errBox.hidden = true;
+            inPane.classList.remove("pane--error");
+            okText.textContent = msg || "完成";
+            okBox.hidden = false;
+            if (okTimer) clearTimeout(okTimer);
+            okTimer = setTimeout(function () { okBox.hidden = true; }, 1800);
+        }
 
         function showErr(msg) {
-            if (msg) {
-                errBox.textContent = msg;
-                errBox.hidden = false;
-            } else {
-                errBox.textContent = "";
-                errBox.hidden = true;
-            }
             okBox.hidden = true;
+            errBox.innerHTML = "";
+            var icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            icon.setAttribute("width", "15");
+            icon.setAttribute("height", "15");
+            icon.setAttribute("viewBox", "0 0 24 24");
+            icon.setAttribute("fill", "none");
+            icon.setAttribute("stroke", "currentColor");
+            icon.setAttribute("stroke-width", "2");
+            icon.setAttribute("stroke-linecap", "round");
+            icon.setAttribute("stroke-linejoin", "round");
+            icon.innerHTML = '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>';
+            var span = document.createElement("span");
+            span.textContent = msg;
+            errBox.appendChild(icon);
+            errBox.appendChild(span);
+            errBox.hidden = false;
         }
 
-        function showOk(msg) {
-            okBox.textContent = msg || "完成";
-            okBox.hidden = false;
+        function clearMsg() {
             errBox.hidden = true;
-            setTimeout(function () {
-                okBox.hidden = true;
-            }, 1600);
+            okBox.hidden = true;
+            inPane.classList.remove("pane--error");
         }
+
+        /* ================= 解析与错误定位 ================= */
+
+        function lineColFromPos(text, pos) {
+            var line = 1, col = 1;
+            var limit = Math.min(pos, text.length);
+            for (var i = 0; i < limit; i++) {
+                if (text.charCodeAt(i) === 10) { line++; col = 1; } else { col++; }
+            }
+            return { line: line, col: col };
+        }
+
+        function posFromLineCol(text, line, col) {
+            var curLine = 1, i = 0;
+            while (curLine < line && i < text.length) {
+                if (text.charCodeAt(i) === 10) curLine++;
+                i++;
+            }
+            return Math.min(i + col - 1, text.length);
+        }
+
+        // 从各浏览器的错误消息中提取出错位置
+        function extractErrorPos(msg, text) {
+            var m = msg.match(/position\s+(\d+)/i);
+            if (m) return Math.min(parseInt(m[1], 10), text.length);
+            m = msg.match(/line\s+(\d+)\s+column\s+(\d+)/i);
+            if (m) return posFromLineCol(text, parseInt(m[1], 10), parseInt(m[2], 10));
+            return -1;
+        }
+
+        // 高亮并滚动到 textarea 出错位置
+        function highlightErrorAt(pos) {
+            if (pos < 0) return;
+            inPane.classList.add("pane--error");
+            try {
+                input.focus();
+                input.setSelectionRange(pos, Math.min(pos + 1, input.value.length));
+                var lc = lineColFromPos(input.value, pos);
+                var cs = window.getComputedStyle(input);
+                var lh = parseFloat(cs.lineHeight);
+                if (!lh || isNaN(lh)) lh = parseFloat(cs.fontSize) * 1.5;
+                input.scrollTop = Math.max(0, (lc.line - 4) * lh);
+            } catch (e) { /* ignore */ }
+        }
+
+        function parseInput() {
+            var raw = input.value;
+            var offset = 0;
+            var text = raw;
+            if (text.charCodeAt(0) === 0xFEFF) { text = text.slice(1); offset = 1; }
+            if (!text.trim()) {
+                showErr("请输入 JSON 文本。");
+                return null;
+            }
+            try {
+                return { data: JSON.parse(text) };
+            } catch (e) {
+                var msg = String(e && e.message ? e.message : e);
+                var pos = extractErrorPos(msg, text);
+                if (pos >= 0) {
+                    var lc = lineColFromPos(text, pos);
+                    var start = Math.max(0, pos - 20);
+                    var snippet = text.slice(start, pos + 20).replace(/\n/g, "⏎");
+                    showErr("解析失败（第 " + lc.line + " 行，第 " + lc.col + " 列）：" + msg +
+                        "\n出错位置附近：…" + snippet + "…");
+                    highlightErrorAt(pos + offset);
+                } else {
+                    showErr("解析失败：" + msg);
+                    inPane.classList.add("pane--error");
+                }
+                return null;
+            }
+        }
+
+        /* ================= 工具函数 ================= */
 
         function sortValueDeep(v) {
             if (v === null || typeof v !== "object") return v;
-            if (Array.isArray(v)) {
-                return v.map(sortValueDeep);
-            }
+            if (Array.isArray(v)) return v.map(sortValueDeep);
             var keys = Object.keys(v).sort();
             var o = {};
-            for (var i = 0; i < keys.length; i++) {
-                o[keys[i]] = sortValueDeep(v[keys[i]]);
-            }
+            for (var i = 0; i < keys.length; i++) o[keys[i]] = sortValueDeep(v[keys[i]]);
             return o;
         }
 
@@ -501,117 +851,448 @@
             return new Array(n + 1).join(" ");
         }
 
-        function parseInput() {
-            var raw = input.value;
-            var text = raw.replace(/^\uFEFF/, "").trim();
-            if (!text) {
-                showErr("请输入 JSON 文本。");
-                return null;
+        function analyze(value) {
+            var keys = 0, maxDepth = 0;
+            (function walk(v, d) {
+                if (d > maxDepth) maxDepth = d;
+                if (v !== null && typeof v === "object") {
+                    if (Array.isArray(v)) {
+                        for (var i = 0; i < v.length; i++) walk(v[i], d + 1);
+                    } else {
+                        var ks = Object.keys(v);
+                        keys += ks.length;
+                        for (var j = 0; j < ks.length; j++) walk(v[ks[j]], d + 1);
+                    }
+                }
+            })(value, 1);
+            return { keys: keys, maxDepth: maxDepth };
+        }
+
+        /* ================= 语法高亮 ================= */
+
+        function escHtml(s) {
+            return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        var TOKEN_RE = /("(?:\\u[0-9a-fA-F]{4}|\\[^u]|[^\\"])*")(\s*:)?|\b(true|false)\b|\bnull\b|-?\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b/g;
+
+        function highlightJson(json) {
+            return escHtml(json).replace(TOKEN_RE, function (match, str, colon, bool) {
+                if (str !== undefined) {
+                    if (colon !== undefined) return '<span class="j-key">' + str + "</span>" + colon;
+                    return '<span class="j-str">' + str + "</span>";
+                }
+                if (bool !== undefined) return '<span class="j-bool">' + match + "</span>";
+                if (match === "null") return '<span class="j-null">' + match + "</span>";
+                return '<span class="j-num">' + match + "</span>";
+            });
+        }
+
+        /* ================= 输出渲染 ================= */
+
+        function setView(view) {
+            state.view = view;
+            var isText = view === "text";
+            tabText.classList.toggle("active", isText);
+            tabTree.classList.toggle("active", !isText);
+            tabText.setAttribute("aria-selected", isText ? "true" : "false");
+            tabTree.setAttribute("aria-selected", isText ? "false" : "true");
+            if (state.outputText || state.hasTree) {
+                outEmpty.hidden = true;
+                outText.hidden = !isText;
+                outTree.hidden = isText;
             }
-            try {
-                return JSON.parse(text);
-            } catch (e) {
-                showErr(String(e && e.message ? e.message : e));
-                return null;
-            }
         }
 
-        function stringifyPretty(data) {
-            var space = getIndentUnit();
-            return JSON.stringify(data, null, space);
-        }
+        // opts: { data: 解析后的数据（有则启用树形视图）, highlight: 是否语法高亮 }
+        function setOutput(text, opts) {
+            opts = opts || {};
+            state.outputText = text;
+            state.data = opts.data;
+            state.hasTree = opts.data !== undefined;
 
-        function stringifyMin(data) {
-            return JSON.stringify(data);
-        }
-
-        function formatPretty() {
-            var data = parseInput();
-            if (data === null) {
-                output.value = "";
-                return;
-            }
-            if (sortKeys.checked) data = sortValueDeep(data);
-            output.value = stringifyPretty(data);
-            showErr("");
-            showOk("已美化");
-        }
-
-        function formatMinify() {
-            var data = parseInput();
-            if (data === null) {
-                output.value = "";
-                return;
-            }
-            if (sortKeys.checked) data = sortValueDeep(data);
-            output.value = stringifyMin(data);
-            showErr("");
-            showOk("已压缩");
-        }
-
-        function copyText(text) {
-            if (!text) return;
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(function () {
-                    showOk("已复制到剪贴板");
-                });
+            outEmpty.hidden = true;
+            if (opts.highlight && text.length <= HIGHLIGHT_LIMIT) {
+                outText.innerHTML = highlightJson(text);
             } else {
+                outText.textContent = text;
+            }
+
+            tabTree.disabled = !state.hasTree;
+            if (state.hasTree) {
+                buildTree(outTree, state.data);
+            } else {
+                outTree.innerHTML = "";
+            }
+            setView(state.hasTree && state.view === "tree" ? "tree" : "text");
+        }
+
+        function clearOutput() {
+            state.outputText = "";
+            state.data = undefined;
+            state.hasTree = false;
+            outText.textContent = "";
+            outText.hidden = true;
+            outTree.innerHTML = "";
+            outTree.hidden = true;
+            outEmpty.hidden = false;
+            tabTree.disabled = true;
+            setViewTabsOnly("text");
+        }
+
+        function setViewTabsOnly(view) {
+            state.view = view;
+            tabText.classList.toggle("active", view === "text");
+            tabTree.classList.toggle("active", view === "tree");
+        }
+
+        /* ================= 树形视图 ================= */
+
+        var CARET_SVG = '<svg class="t-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
+
+        function valueSpan(v) {
+            var span = document.createElement("span");
+            if (v === null) {
+                span.className = "j-null";
+                span.textContent = "null";
+            } else if (typeof v === "string") {
+                span.className = "j-str";
+                var shown = v.length > 200 ? v.slice(0, 200) + "…（共 " + v.length + " 字符）" : v;
+                span.textContent = JSON.stringify(shown);
+            } else if (typeof v === "number") {
+                span.className = "j-num";
+                span.textContent = String(v);
+            } else if (typeof v === "boolean") {
+                span.className = "j-bool";
+                span.textContent = String(v);
+            } else {
+                span.textContent = String(v);
+            }
+            return span;
+        }
+
+        function metaText(v) {
+            if (Array.isArray(v)) return "[ " + v.length + " 项 ]";
+            return "{ " + Object.keys(v).length + " 键 }";
+        }
+
+        function treeNode(key, value, depth, autoExpand) {
+            var node = document.createElement("div");
+            node.className = "t-node";
+            var line = document.createElement("div");
+            line.className = "t-line";
+            node.appendChild(line);
+
+            var isComposite = value !== null && typeof value === "object";
+
+            if (isComposite) {
+                line.classList.add("t-toggle");
+                line.insertAdjacentHTML("beforeend", CARET_SVG);
+            } else {
+                var sp = document.createElement("span");
+                sp.className = "t-caret-space";
+                line.appendChild(sp);
+            }
+
+            if (key !== null) {
+                var k = document.createElement("span");
+                k.className = "j-key";
+                k.textContent = JSON.stringify(key) + ":";
+                line.appendChild(k);
+            }
+
+            if (!isComposite) {
+                line.appendChild(valueSpan(value));
+                return node;
+            }
+
+            var meta = document.createElement("span");
+            meta.className = "t-meta";
+            meta.textContent = metaText(value);
+            line.appendChild(meta);
+
+            var kids = document.createElement("div");
+            kids.className = "t-kids";
+            node.appendChild(kids);
+
+            var rendered = false;
+            function ensureChildren() {
+                if (rendered) return;
+                rendered = true;
+                renderChildren(kids, value, 0, depth);
+            }
+
+            line.addEventListener("click", function () {
+                var opening = !node.classList.contains("open");
+                if (opening) ensureChildren();
+                node.classList.toggle("open", opening);
+            });
+
+            if (autoExpand) {
+                ensureChildren();
+                node.classList.add("open");
+            }
+
+            return node;
+        }
+
+        function renderChildren(container, value, start, depth) {
+            var isArr = Array.isArray(value);
+            var entries = isArr ? value : Object.keys(value);
+            var total = entries.length;
+            var end = Math.min(start + TREE_CHUNK, total);
+            var frag = document.createDocumentFragment();
+
+            var smallParent = total <= 20;
+            for (var i = start; i < end; i++) {
+                var key = isArr ? String(i) : entries[i];
+                var val = isArr ? value[i] : value[entries[i]];
+                var childExpand = depth < 1 && smallParent &&
+                    val !== null && typeof val === "object" &&
+                    (Array.isArray(val) ? val.length : Object.keys(val).length) <= 50;
+                frag.appendChild(treeNode(key, val, depth + 1, childExpand));
+            }
+
+            if (end < total) {
+                var more = document.createElement("button");
+                more.type = "button";
+                more.className = "t-more";
+                more.textContent = "显示更多（剩余 " + (total - end) + " 项）";
+                more.addEventListener("click", function () {
+                    container.removeChild(more);
+                    renderChildren(container, value, end, depth);
+                });
+                frag.appendChild(more);
+            }
+
+            container.appendChild(frag);
+        }
+
+        function buildTree(container, data) {
+            container.innerHTML = "";
+            container.appendChild(treeNode(null, data, 0, true));
+        }
+
+        /* ================= 统计 ================= */
+
+        function updateStats(text, analysis) {
+            stChars.textContent = String(text.length);
+            stLines.textContent = text ? String(text.split("\n").length) : "0";
+            stKeys.textContent = analysis ? String(analysis.keys) : "—";
+            stDepth.textContent = analysis ? String(analysis.maxDepth) : "—";
+        }
+
+        function updateInputStat() {
+            statLine.innerHTML = "输入 <strong>" + input.value.length + "</strong> 字符";
+        }
+
+        /* ================= 主操作 ================= */
+
+        function runFormat(minify) {
+            var parsed = parseInput();
+            if (parsed === null) { clearOutput(); updateStats(input.value, null); return; }
+            var data = parsed.data;
+            if (sortKeys.checked) data = sortValueDeep(data);
+            var text = minify ? JSON.stringify(data) : JSON.stringify(data, null, getIndentUnit());
+            setOutput(text, { data: data, highlight: true });
+            updateStats(text, analyze(data));
+            clearMsg();
+            showOk(minify ? "已压缩" : "已美化");
+        }
+
+        function runValidate() {
+            var parsed = parseInput();
+            if (parsed === null) return;
+            clearMsg();
+            var a = analyze(parsed.data);
+            updateStats(input.value, a);
+            showOk("JSON 合法 ✓ 共 " + a.keys + " 个键，最大深度 " + a.maxDepth);
+        }
+
+        function runEscape() {
+            var raw = input.value;
+            if (!raw) { showErr("输入为空。"); return; }
+            var text = JSON.stringify(raw);
+            setOutput(text, { highlight: false });
+            updateStats(text, null);
+            clearMsg();
+            showOk("已转义为 JSON 字符串字面量");
+        }
+
+        function runUnescape() {
+            var raw = input.value.trim();
+            if (!raw) { showErr("输入为空。"); return; }
+            if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1);
+            var result = null;
+            try {
+                if (raw.charAt(0) === '"' && raw.charAt(raw.length - 1) === '"') {
+                    var v = JSON.parse(raw);
+                    if (typeof v === "string") result = v;
+                }
+            } catch (e) { /* 继续尝试包裹 */ }
+            if (result === null) {
+                try {
+                    result = JSON.parse('"' + raw + '"');
+                } catch (e2) {
+                    showErr("去转义失败：内容不是合法的 JSON 转义字符串。" + String(e2 && e2.message ? e2.message : e2));
+                    return;
+                }
+            }
+            // 去转义结果如果本身是合法 JSON，则附带高亮与树形视图
+            var opts = { highlight: false };
+            try {
+                var inner = JSON.parse(result);
+                if (inner !== null && typeof inner === "object") {
+                    opts = { highlight: true, data: inner };
+                }
+            } catch (e3) { /* 纯文本结果 */ }
+            setOutput(result, opts);
+            updateStats(result, opts.data !== undefined ? analyze(opts.data) : null);
+            clearMsg();
+            showOk("已去转义");
+        }
+
+        /* ================= 复制 ================= */
+
+        function flashCopied(btn) {
+            var label = btn.querySelector("span");
+            var original = label.textContent;
+            label.textContent = "已复制 ✓";
+            btn.classList.add("copied");
+            setTimeout(function () {
+                label.textContent = original;
+                btn.classList.remove("copied");
+            }, 1400);
+        }
+
+        function copyText(text, btn) {
+            function ok() { flashCopied(btn); }
+            function fallback() {
                 var ta = document.createElement("textarea");
                 ta.value = text;
+                ta.style.position = "fixed";
+                ta.style.opacity = "0";
                 document.body.appendChild(ta);
                 ta.select();
                 try {
                     document.execCommand("copy");
-                    showOk("已复制到剪贴板");
+                    ok();
                 } catch (e) {
                     showErr("复制失败，请手动全选复制。");
                 }
                 document.body.removeChild(ta);
             }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(ok, fallback);
+            } else {
+                fallback();
+            }
         }
 
-        document.getElementById("btnFormat").addEventListener("click", formatPretty);
-        document.getElementById("btnMinify").addEventListener("click", formatMinify);
+        /* ================= localStorage 自动保存 ================= */
+
+        var saveTimer = null;
+        function scheduleSave() {
+            if (saveTimer) clearTimeout(saveTimer);
+            saveTimer = setTimeout(function () {
+                try {
+                    if (input.value) localStorage.setItem(STORAGE_KEY, input.value);
+                    else localStorage.removeItem(STORAGE_KEY);
+                } catch (e) { /* 超出配额或隐私模式，静默忽略 */ }
+            }, 400);
+        }
+
+        function restoreSaved() {
+            try {
+                var saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) input.value = saved;
+            } catch (e) { /* ignore */ }
+        }
+
+        /* ================= 示例数据 ================= */
+
+        var SAMPLE = {
+            name: "zktool",
+            version: "2.0.0",
+            active: true,
+            downloads: 128456,
+            rating: 4.9,
+            homepage: null,
+            tags: ["json", "格式化", "开发工具"],
+            author: { name: "zk", email: "zk@example.com" },
+            features: [
+                { id: 1, title: "语法高亮", enabled: true },
+                { id: 2, title: "树形视图", enabled: true },
+                { id: 3, title: "错误定位", enabled: true }
+            ],
+            config: {
+                indent: 2,
+                sortKeys: false,
+                nested: { deep: { deeper: { value: "嵌套第 5 层" } } }
+            }
+        };
+
+        /* ================= 事件绑定 ================= */
+
+        document.getElementById("btnFormat").addEventListener("click", function () { runFormat(false); });
+        document.getElementById("btnMinify").addEventListener("click", function () { runFormat(true); });
+        document.getElementById("btnValidate").addEventListener("click", runValidate);
+        document.getElementById("btnEscape").addEventListener("click", runEscape);
+        document.getElementById("btnUnescape").addEventListener("click", runUnescape);
+
+        document.getElementById("btnSample").addEventListener("click", function () {
+            input.value = JSON.stringify(SAMPLE, null, 2);
+            updateInputStat();
+            scheduleSave();
+            clearMsg();
+            runFormat(false);
+        });
+
         document.getElementById("btnClear").addEventListener("click", function () {
             input.value = "";
-            output.value = "";
-            showErr("");
-            okBox.hidden = true;
-            updateStat();
+            clearOutput();
+            clearMsg();
+            updateInputStat();
+            updateStats("", null);
+            try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
             input.focus();
         });
 
         document.getElementById("copyIn").addEventListener("click", function () {
-            if (!input.value) {
-                showErr("输入为空。");
-                return;
-            }
-            copyText(input.value);
+            if (!input.value) { showErr("输入为空。"); return; }
+            copyText(input.value, this);
         });
+
         document.getElementById("copyOut").addEventListener("click", function () {
-            if (!output.value) {
-                showErr("结果为空，请先美化或压缩。");
-                return;
-            }
-            copyText(output.value);
+            if (!state.outputText) { showErr("结果为空，请先美化或压缩。"); return; }
+            copyText(state.outputText, this);
+        });
+
+        tabText.addEventListener("click", function () { setView("text"); });
+        tabTree.addEventListener("click", function () {
+            if (!tabTree.disabled) setView("tree");
         });
 
         document.addEventListener("keydown", function (e) {
             if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
                 if (document.activeElement === input) {
                     e.preventDefault();
-                    formatPretty();
+                    runFormat(false);
                 }
             }
         });
 
-        function updateStat() {
-            var n = input.value.length;
-            statLine.innerHTML = "输入 <strong>" + n + "</strong> 字符";
-        }
+        input.addEventListener("input", function () {
+            updateInputStat();
+            inPane.classList.remove("pane--error");
+            scheduleSave();
+        });
 
-        input.addEventListener("input", updateStat);
-        updateStat();
+        /* ================= 初始化 ================= */
+
+        restoreSaved();
+        updateInputStat();
+        updateStats(input.value, null);
     })();
 </script>
 </body>

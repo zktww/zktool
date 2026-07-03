@@ -4,116 +4,176 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Emoji 表情大全 · zktool</title>
-    <meta name="description" content="按分类浏览 Unicode Emoji，支持搜索与一键复制；数据来自开源 emoji 列表。" />
-    <meta name="theme-color" content="#0a0e17" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <meta name="description" content="按分类浏览 Unicode Emoji，支持中英文搜索、收藏、肤色切换与一键复制；数据来自开源 emoji 列表与 Unicode CLDR 中文标注。" />
+    <meta name="theme-color" content="#07090f" />
     <style>
         :root {
             color-scheme: dark;
-            --bg: #0a0e17;
-            --surface: #131c2e;
-            --surface2: #1a2540;
-            --text: #e0f7ff;
-            --muted: #a0c8e0;
-            --primary: #00eeff;
-            --secondary: #ff00ea;
-            --accent: #00ff9d;
-            --danger: #ff6b8a;
-            --border: rgba(0, 238, 255, 0.22);
-            --radius: 14px;
+            --bg: #07090f;
+            --bg-soft: #0b0e17;
+            --surface: rgba(255, 255, 255, 0.03);
+            --surface-hover: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.18);
+            --text: #eef2f8;
+            --text-2: #9aa5b8;
+            --text-3: #5d6880;
+            --brand-1: #6366f1;
+            --brand-2: #22d3ee;
+            --brand-3: #a855f7;
+            --radius: 16px;
             --ease: cubic-bezier(0.16, 1, 0.3, 1);
-            --mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                transition-duration: 0.01ms !important;
-            }
+            --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+        html { scroll-behavior: smooth; }
+
         body {
-            font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+            font-family: "Inter", "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
             line-height: 1.55;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* ===== 背景氛围 ===== */
+        .bg-fx {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background:
+                radial-gradient(620px 420px at 12% -5%, rgba(99, 102, 241, 0.16), transparent 65%),
+                radial-gradient(720px 480px at 88% 8%, rgba(34, 211, 238, 0.10), transparent 65%),
+                radial-gradient(900px 620px at 50% 110%, rgba(168, 85, 247, 0.09), transparent 65%);
+        }
+
+        .bg-fx::after {
+            content: "";
+            position: absolute;
+            inset: 0;
             background-image:
-                    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 238, 255, 0.1), transparent),
-                    radial-gradient(circle at 100% 100%, rgba(255, 0, 234, 0.06), transparent 40%);
+                linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+            background-size: 44px 44px;
+            -webkit-mask-image: radial-gradient(ellipse 85% 65% at 50% 0%, #000 25%, transparent 78%);
+            mask-image: radial-gradient(ellipse 85% 65% at 50% 0%, #000 25%, transparent 78%);
         }
 
         .wrap {
-            max-width: 960px;
+            max-width: 1080px;
             margin: 0 auto;
-            padding: clamp(1rem, 4vw, 2rem) clamp(1rem, 3vw, 1.5rem) 3rem;
+            padding: clamp(1rem, 4vw, 2rem) clamp(1rem, 3vw, 1.5rem) 3.5rem;
         }
 
+        /* ===== 顶部 ===== */
         .top {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
             gap: 1rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.4rem;
         }
 
         .back {
             display: inline-flex;
             align-items: center;
             gap: 0.45rem;
-            color: var(--muted);
+            color: var(--text-2);
             text-decoration: none;
-            font-size: 0.9rem;
-            padding: 0.5rem 0.9rem;
+            font-size: 0.88rem;
+            padding: 0.5rem 0.95rem;
             border-radius: 999px;
             border: 1px solid var(--border);
             background: var(--surface);
-            transition: color 0.25s var(--ease), border-color 0.25s, transform 0.25s var(--ease);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: color 0.25s var(--ease), border-color 0.25s var(--ease), transform 0.25s var(--ease);
         }
 
         .back:hover, .back:focus-visible {
             color: var(--text);
-            border-color: rgba(0, 238, 255, 0.45);
+            border-color: var(--border-hover);
             outline: none;
             transform: translateX(-2px);
         }
 
         .stat {
             font-family: var(--mono);
-            font-size: 0.78rem;
-            color: var(--muted);
+            font-size: 0.76rem;
+            color: var(--text-3);
             text-align: right;
         }
 
-        .stat strong { color: var(--accent); font-weight: 600; }
+        .stat strong { color: var(--brand-2); font-weight: 600; }
 
         h1 {
-            font-size: clamp(1.35rem, 4vw, 1.85rem);
+            font-size: clamp(1.45rem, 4vw, 2rem);
             font-weight: 700;
             letter-spacing: -0.02em;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(120deg, var(--text) 0%, var(--primary) 50%, var(--secondary) 100%);
+            margin-bottom: 0.45rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        h1 .grad {
+            background: linear-gradient(100deg, #22d3ee, #6366f1, #a855f7);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
 
+        h1 svg { color: var(--brand-2); flex: none; }
+
         .lead {
-            color: var(--muted);
-            font-size: 0.95rem;
-            margin-bottom: 1.25rem;
-            max-width: 52em;
+            color: var(--text-2);
+            font-size: 0.93rem;
+            margin-bottom: 1.3rem;
+            max-width: 56em;
         }
 
+        .lead code {
+            font-family: var(--mono);
+            font-size: 0.85em;
+            padding: 0.1em 0.4em;
+            border-radius: 6px;
+            background: var(--surface-hover);
+            border: 1px solid var(--border);
+        }
+
+        /* ===== 玻璃面板 ===== */
         .panel {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             padding: 1.1rem 1.25rem;
             margin-bottom: 1rem;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        /* ===== 吸顶控制栏 ===== */
+        .sticky-bar {
+            position: sticky;
+            top: 0.6rem;
+            z-index: 40;
+            background: rgba(11, 14, 23, 0.82);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
         }
 
         .search-row {
@@ -123,54 +183,51 @@
             align-items: center;
         }
 
-        .search-row label {
-            font-size: 0.78rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--muted);
-            font-weight: 600;
-        }
-
         .search-wrap {
             flex: 1;
             min-width: 12rem;
             position: relative;
         }
 
-        .search-wrap i {
+        .search-wrap > svg {
             position: absolute;
             left: 0.85rem;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--muted);
-            font-size: 0.85rem;
+            color: var(--text-3);
             pointer-events: none;
         }
 
         .search-wrap input {
             width: 100%;
-            padding: 0.65rem 0.85rem 0.65rem 2.35rem;
-            border-radius: 10px;
+            padding: 0.62rem 0.85rem 0.62rem 2.45rem;
+            border-radius: 12px;
             border: 1px solid var(--border);
-            background: var(--surface2);
+            background: rgba(255, 255, 255, 0.04);
             color: var(--text);
             font-size: 0.95rem;
+            font-family: inherit;
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
 
+        .search-wrap input::placeholder { color: var(--text-3); }
+
         .search-wrap input:focus {
-            border-color: rgba(0, 238, 255, 0.5);
-            box-shadow: 0 0 0 3px rgba(0, 238, 255, 0.12);
+            border-color: rgba(99, 102, 241, 0.6);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.16);
         }
 
         .btn-ghost {
-            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.84rem;
             padding: 0.55rem 0.9rem;
-            border-radius: 10px;
+            border-radius: 12px;
             border: 1px solid var(--border);
             background: transparent;
-            color: var(--muted);
+            color: var(--text-2);
             cursor: pointer;
             font-family: inherit;
             transition: color 0.2s, border-color 0.2s, background 0.2s;
@@ -178,69 +235,94 @@
 
         .btn-ghost:hover, .btn-ghost:focus-visible {
             color: var(--text);
-            border-color: rgba(0, 238, 255, 0.4);
-            background: rgba(0, 238, 255, 0.06);
+            border-color: var(--border-hover);
+            background: var(--surface-hover);
             outline: none;
         }
 
-        .cat-nav {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(0, 238, 255, 0.1);
-        }
-
-        .cat-nav-head {
+        /* ===== 肤色选择器 ===== */
+        .tone-row {
             display: flex;
             flex-wrap: wrap;
-            align-items: baseline;
-            justify-content: space-between;
-            gap: 0.5rem 1rem;
-            margin-bottom: 0.5rem;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.85rem;
+            padding-top: 0.85rem;
+            border-top: 1px solid var(--border);
         }
 
-        .cat-nav-title {
-            font-size: 0.68rem;
-            font-weight: 600;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            color: rgba(160, 200, 224, 0.55);
-        }
-
-        .cat-nav-hint {
+        .tone-label {
             font-size: 0.72rem;
-            color: var(--muted);
-            opacity: 0.75;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-3);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .tone-opts { display: flex; gap: 0.3rem; }
+
+        .tone-btn {
+            width: 2.15rem;
+            height: 2.15rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            font-size: 1.15rem;
+            line-height: 1;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.2s, background 0.2s, transform 0.2s var(--ease);
+            font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+        }
+
+        .tone-btn:hover, .tone-btn:focus-visible {
+            border-color: var(--border-hover);
+            background: var(--surface-hover);
+            outline: none;
+            transform: translateY(-1px);
+        }
+
+        .tone-btn[aria-pressed="true"] {
+            border-color: rgba(34, 211, 238, 0.65);
+            background: rgba(34, 211, 238, 0.10);
+            box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.15);
+        }
+
+        .tone-hint { font-size: 0.74rem; color: var(--text-3); }
+
+        /* ===== 分类导航 ===== */
+        .cat-nav {
+            margin-top: 0.85rem;
+            padding-top: 0.85rem;
+            border-top: 1px solid var(--border);
         }
 
         .cat-scroll {
             display: flex;
             gap: 0.2rem;
             overflow-x: auto;
-            padding: 0.2rem 0 0.45rem;
-            margin: 0 -0.35rem;
-            padding-left: 0.35rem;
-            padding-right: 0.35rem;
+            padding: 0.15rem 0.2rem 0.4rem;
+            margin: 0 -0.2rem;
             scroll-snap-type: x proximity;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: thin;
-            scrollbar-color: rgba(0, 238, 255, 0.28) transparent;
+            scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
         }
 
-        .cat-scroll::-webkit-scrollbar {
-            height: 5px;
-        }
+        .cat-scroll::-webkit-scrollbar { height: 5px; }
 
         .cat-scroll::-webkit-scrollbar-thumb {
-            background: rgba(0, 238, 255, 0.28);
+            background: rgba(255, 255, 255, 0.16);
             border-radius: 99px;
         }
 
-        @media (min-width: 880px) {
-            .cat-scroll {
-                flex-wrap: wrap;
-                overflow-x: visible;
-                row-gap: 0.35rem;
-            }
+        @media (min-width: 920px) {
+            .cat-scroll { flex-wrap: wrap; overflow-x: visible; row-gap: 0.3rem; }
         }
 
         .cat-btn {
@@ -249,271 +331,518 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
             gap: 0.32rem;
-            min-width: 4.75rem;
-            max-width: 7rem;
-            padding: 0.48rem 0.55rem 0.52rem;
-            border: none;
-            border-radius: 11px;
+            min-width: 4.6rem;
+            padding: 0.5rem 0.55rem 0.55rem;
+            border: 1px solid transparent;
+            border-radius: 12px;
             background: transparent;
-            color: rgba(160, 200, 224, 0.82);
+            color: var(--text-2);
             cursor: pointer;
             font-family: inherit;
             font-size: 0.7rem;
             font-weight: 500;
-            line-height: 1.28;
-            letter-spacing: 0.01em;
+            line-height: 1.25;
             position: relative;
-            transition: color 0.22s var(--ease), background 0.22s var(--ease);
+            transition: color 0.22s var(--ease), background 0.22s var(--ease), border-color 0.22s var(--ease);
         }
 
-        .cat-btn .cat-ico {
-            font-size: 1.05rem;
-            line-height: 1;
+        .cat-btn svg {
             opacity: 0.55;
             transition: opacity 0.22s var(--ease), color 0.22s var(--ease), transform 0.22s var(--ease);
         }
 
-        .cat-btn .cat-btn-label {
-            text-align: center;
-            display: block;
-            max-width: 6.5rem;
-        }
-
-        .cat-btn:hover,
-        .cat-btn:focus-visible {
+        .cat-btn:hover, .cat-btn:focus-visible {
             outline: none;
             color: var(--text);
-            background: rgba(255, 255, 255, 0.035);
+            background: var(--surface-hover);
         }
 
-        .cat-btn:hover .cat-ico,
-        .cat-btn:focus-visible .cat-ico {
-            opacity: 0.92;
-        }
+        .cat-btn:hover svg, .cat-btn:focus-visible svg { opacity: 0.9; }
 
         .cat-btn[aria-pressed="true"] {
             color: var(--text);
-            background: rgba(0, 238, 255, 0.07);
+            background: rgba(99, 102, 241, 0.10);
+            border-color: rgba(99, 102, 241, 0.30);
         }
 
-        .cat-btn[aria-pressed="true"] .cat-ico {
+        .cat-btn[aria-pressed="true"] svg {
             opacity: 1;
-            color: var(--primary);
+            color: var(--brand-2);
             transform: translateY(-1px);
         }
 
-        .cat-btn[aria-pressed="true"]::after {
-            content: "";
-            position: absolute;
-            left: 50%;
-            bottom: 2px;
-            transform: translateX(-50%);
-            width: 1.5rem;
-            height: 2px;
-            border-radius: 2px;
-            background: linear-gradient(90deg, transparent, var(--primary), transparent);
-            opacity: 0.95;
+        /* ===== 分区标题 ===== */
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 0.7rem;
+        }
+
+        .section-title {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-2);
+        }
+
+        .section-title svg { color: var(--brand-2); }
+
+        .section-title .count {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--text-3);
+            font-weight: 500;
+            letter-spacing: 0;
         }
 
         .section-label {
             font-size: 0.72rem;
             letter-spacing: 0.12em;
             text-transform: uppercase;
-            color: var(--muted);
-            margin: 1rem 0 0.65rem;
+            color: var(--text-2);
+            margin: 1.1rem 0 0.65rem;
             font-weight: 600;
         }
 
         .section-label:first-child { margin-top: 0; }
 
+        .section-label .count {
+            font-family: var(--mono);
+            color: var(--text-3);
+            letter-spacing: 0;
+        }
+
+        /* ===== 表格网格 & 单元格 ===== */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(5.6rem, 1fr));
             gap: 0.5rem;
         }
 
         .cell {
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 0.35rem;
-            padding: 0.65rem 0.4rem;
+            padding: 0.7rem 0.4rem 0.6rem;
             border-radius: 12px;
-            border: 1px solid transparent;
-            background: var(--surface2);
+            border: 1px solid var(--border);
+            background: var(--surface);
             cursor: pointer;
             text-align: center;
+            min-height: 5.6rem;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
             transition: border-color 0.2s, transform 0.2s var(--ease), background 0.2s;
-            min-height: 5.5rem;
         }
 
         .cell:hover, .cell:focus-visible {
-            border-color: rgba(0, 238, 255, 0.45);
-            background: rgba(26, 37, 64, 0.95);
+            border-color: var(--border-hover);
+            background: var(--surface-hover);
             outline: none;
             transform: translateY(-2px);
         }
 
         .cell .glyph {
             font-size: 1.85rem;
-            line-height: 1;
+            line-height: 1.15;
             font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+            pointer-events: none;
         }
 
         .cell .name {
-            font-size: 0.68rem;
-            color: var(--muted);
+            font-size: 0.66rem;
+            color: var(--text-2);
             line-height: 1.25;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
             word-break: break-word;
+            pointer-events: none;
         }
 
-        .recent-bar {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border);
+        @keyframes cellFlash {
+            0% { border-color: rgba(34, 211, 238, 0.9); box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.28); background: rgba(34, 211, 238, 0.12); }
+            100% { border-color: var(--border); box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); background: var(--surface); }
         }
 
-        .recent-bar h3 {
-            font-size: 0.78rem;
-            color: var(--muted);
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
+        .cell.flash { animation: cellFlash 0.65s var(--ease); }
 
-        .recent-row {
+        .cell-tools {
+            position: absolute;
+            top: 0.3rem;
+            right: 0.3rem;
             display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
+            gap: 0.15rem;
+            opacity: 0;
+            transition: opacity 0.18s var(--ease);
         }
 
-        .recent-row button {
-            width: 2.5rem;
-            height: 2.5rem;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background: var(--surface2);
-            font-size: 1.35rem;
-            line-height: 1;
+        .cell:hover .cell-tools,
+        .cell:focus-visible .cell-tools,
+        .cell:focus-within .cell-tools { opacity: 1; }
+
+        @media (hover: none) { .cell-tools { opacity: 1; } }
+
+        .cell-tools button {
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 8px;
+            border: none;
+            background: rgba(7, 9, 15, 0.55);
+            color: var(--text-3);
             cursor: pointer;
-            transition: border-color 0.2s, transform 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: color 0.18s, background 0.18s;
         }
 
-        .recent-row button:hover, .recent-row button:focus-visible {
-            border-color: var(--primary);
+        .cell-tools button:hover, .cell-tools button:focus-visible {
+            color: var(--text);
+            background: rgba(7, 9, 15, 0.85);
             outline: none;
-            transform: scale(1.06);
         }
 
+        .cell-tools .fav-btn.active { color: #fbbf24; }
+        .cell-tools .fav-btn.active svg { fill: currentColor; }
+
+        .cell.is-fav::before {
+            content: "";
+            position: absolute;
+            inset: -1px;
+            border-radius: 12px;
+            border: 1px solid rgba(251, 191, 36, 0.35);
+            pointer-events: none;
+        }
+
+        .load-sentinel {
+            grid-column: 1 / -1;
+            min-height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-3);
+            font-size: 0.78rem;
+            font-family: var(--mono);
+        }
+
+        /* ===== 空态 / 加载 ===== */
+        .err-box {
+            text-align: center;
+            padding: 2.2rem 1rem;
+            color: var(--text-2);
+        }
+
+        .err-box svg {
+            display: block;
+            margin: 0 auto 0.75rem;
+            color: var(--text-3);
+        }
+
+        .spin { animation: rot 1s linear infinite; }
+
+        @keyframes rot { to { transform: rotate(360deg); } }
+
+        /* ===== Toast ===== */
         .toast {
             position: fixed;
             bottom: 1.5rem;
             left: 50%;
-            transform: translateX(-50%) translateY(120%);
+            transform: translateX(-50%) translateY(140%);
             opacity: 0;
-            padding: 0.65rem 1.25rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.62rem 1.2rem;
             border-radius: 999px;
-            background: var(--surface2);
-            border: 1px solid rgba(0, 255, 157, 0.45);
-            color: var(--accent);
+            background: rgba(11, 14, 23, 0.92);
+            border: 1px solid rgba(34, 211, 238, 0.45);
+            color: var(--brand-2);
             font-size: 0.9rem;
             pointer-events: none;
             transition: transform 0.35s var(--ease), opacity 0.35s var(--ease);
-            z-index: 50;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+            z-index: 90;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
 
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
+        .toast .t-emoji {
+            font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+            font-size: 1.05rem;
         }
 
-        .err-box {
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        /* ===== 详情弹层 ===== */
+        .modal-mask {
+            position: fixed;
+            inset: 0;
+            z-index: 80;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: rgba(4, 6, 10, 0.68);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s var(--ease);
+        }
+
+        .modal-mask.open { opacity: 1; pointer-events: auto; }
+
+        .modal {
+            width: min(26rem, 100%);
+            background: var(--bg-soft);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.4rem 1.4rem 1.25rem;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+            transform: translateY(14px) scale(0.97);
+            transition: transform 0.3s var(--ease);
+            position: relative;
+        }
+
+        .modal-mask.open .modal { transform: translateY(0) scale(1); }
+
+        .modal-close {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-2);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s, border-color 0.2s, background 0.2s;
+        }
+
+        .modal-close:hover, .modal-close:focus-visible {
+            color: var(--text);
+            border-color: var(--border-hover);
+            background: var(--surface-hover);
+            outline: none;
+        }
+
+        .modal .big {
+            font-size: 4.2rem;
+            line-height: 1.15;
             text-align: center;
-            padding: 2rem 1rem;
-            color: var(--muted);
+            margin-bottom: 0.6rem;
+            font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
         }
 
-        .err-box p { margin-bottom: 1rem; }
-
-        .err-box .fa {
-            font-size: 2rem;
-            color: var(--danger);
-            margin-bottom: 0.75rem;
-            display: block;
+        .modal .m-zh {
+            font-size: 1.08rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 0.15rem;
         }
 
+        .modal .m-en {
+            font-size: 0.85rem;
+            color: var(--text-2);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .m-rows { display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 1rem; }
+
+        .m-row {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 0.7rem;
+            border-radius: 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            font-size: 0.8rem;
+        }
+
+        .m-row .k { color: var(--text-3); flex: none; min-width: 3.2em; }
+
+        .m-row .v {
+            font-family: var(--mono);
+            color: var(--text);
+            flex: 1;
+            overflow-wrap: anywhere;
+            font-size: 0.78rem;
+        }
+
+        .m-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+        .m-actions .btn-ghost { flex: 1; justify-content: center; min-width: 7rem; font-size: 0.8rem; }
+
+        .m-actions .primary {
+            border-color: rgba(99, 102, 241, 0.45);
+            background: rgba(99, 102, 241, 0.14);
+            color: var(--text);
+        }
+
+        .m-actions .primary:hover, .m-actions .primary:focus-visible {
+            background: rgba(99, 102, 241, 0.24);
+            border-color: rgba(99, 102, 241, 0.65);
+        }
+
+        /* ===== 脚注 ===== */
         .footnote {
-            font-size: 0.82rem;
-            color: var(--muted);
-            margin-top: 1rem;
-            line-height: 1.5;
+            display: flex;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-3);
+            margin-top: 1.2rem;
+            line-height: 1.6;
         }
 
-        .footnote a {
-            color: var(--primary);
-            text-decoration: none;
-        }
+        .footnote svg { flex: none; margin-top: 0.2em; }
+
+        .footnote a { color: var(--brand-2); text-decoration: none; }
 
         .footnote a:hover { text-decoration: underline; }
+
+        @media (max-width: 560px) {
+            .stat { display: none; }
+            .tone-hint { display: none; }
+            .grid { grid-template-columns: repeat(auto-fill, minmax(4.6rem, 1fr)); }
+            .cell { min-height: 5rem; }
+            .cell .glyph { font-size: 1.6rem; }
+        }
     </style>
     <script src="../../assets/analytics.js"></script>
 </head>
 <body>
+<div class="bg-fx" aria-hidden="true"></div>
+
 <div class="wrap">
     <div class="top">
-        <a class="back" href="../../index.html"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> 返回索引</a>
+        <a class="back" href="../../">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+            返回主页
+        </a>
         <p class="stat" id="statLine" aria-live="polite"><strong>—</strong></p>
     </div>
 
-    <h1><i class="fa-regular fa-face-smile" aria-hidden="true"></i> Emoji 表情大全</h1>
+    <h1>
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg>
+        <span class="grad">Emoji 表情大全</span>
+    </h1>
     <p class="lead">
-        按主题分类浏览，点击即可复制到剪贴板。Emoji 列表来自 <code>unicode-emoji-json</code>；中文名称与关键词来自 Unicode CLDR <code>annotations/zh</code>
+        按主题分类浏览，点击即可复制到剪贴板；hover 星标可收藏，右键 / 长按查看 Unicode 详情。Emoji 列表来自
+        <code>unicode-emoji-json</code>，中文名称与关键词来自 Unicode CLDR <code>annotations/zh</code>。
     </p>
 
-    <div class="panel" id="controlPanel">
+    <div class="panel sticky-bar" id="controlPanel">
         <div class="search-row">
-            <label for="q">搜索</label>
             <div class="search-wrap">
-                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                <input id="q" type="search" placeholder="例如：红心、笑哭了、thumb、rocket、🇨🇳" autocomplete="off" enterkeyhint="search" />
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input id="q" type="search" placeholder="搜索：红心、笑哭了、thumb、rocket、🇨🇳…" autocomplete="off" enterkeyhint="search" aria-label="搜索 Emoji" />
             </div>
-            <button type="button" class="btn-ghost" id="btnClear" title="清空搜索">清空</button>
+            <button type="button" class="btn-ghost" id="btnClear" title="清空搜索">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                清空
+            </button>
+        </div>
+        <div class="tone-row" id="toneRow" hidden>
+            <span class="tone-label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
+                肤色
+            </span>
+            <div class="tone-opts" id="toneOpts" role="group" aria-label="全局肤色"></div>
+            <span class="tone-hint">对支持肤色的人物 / 手势类 emoji 生效，复制时自动应用</span>
         </div>
         <div class="cat-nav" id="chips" hidden></div>
     </div>
 
+    <div class="panel" id="favPanel" hidden>
+        <div class="section-head">
+            <span class="section-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                收藏 <span class="count" id="favCount"></span>
+            </span>
+        </div>
+        <div class="grid" id="favGrid" role="list"></div>
+    </div>
+
+    <div class="panel" id="recentPanel" hidden>
+        <div class="section-head">
+            <span class="section-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                最近使用 <span class="count" id="recentCount"></span>
+            </span>
+            <button type="button" class="btn-ghost" id="btnClearRecent" title="清空最近使用">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                清空
+            </button>
+        </div>
+        <div class="grid" id="recentGrid" role="list"></div>
+    </div>
+
     <div class="panel" id="mainPanel">
         <div class="err-box" id="loadingState">
-            <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+            <svg class="spin" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
             <p>正在加载 Emoji 数据…</p>
         </div>
         <div id="contentRoot" hidden></div>
     </div>
 
-    <div class="panel" id="recentPanel" hidden>
-        <div class="recent-bar" style="margin-top:0;border-top:none;padding-top:0;">
-            <h3><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> 最近使用</h3>
-            <div class="recent-row" id="recentRow" role="list"></div>
-        </div>
-    </div>
-
     <p class="footnote">
-        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-        不同操作系统与字体下，同一字符的图形可能略有差异，以本机显示为准。若分组或中文注释 CDN 不可用，会尽量用英文名显示；完全失败时仅显示内置示例。刷新页面可重新加载。
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        <span>
+            不同操作系统与字体下，同一字符的图形可能略有差异，以本机显示为准。收藏与最近使用保存在本机浏览器（localStorage）。
+            若分组或中文注释 CDN 不可用，会尽量用英文名显示；完全失败时仅显示内置示例，刷新页面可重新加载。
+        </span>
     </p>
 </div>
 
-<div class="toast" id="toast" role="status" aria-live="polite">已复制</div>
+<div class="toast" id="toast" role="status" aria-live="polite"><span class="t-text">已复制</span><span class="t-emoji"></span></div>
+
+<div class="modal-mask" id="modalMask" role="dialog" aria-modal="true" aria-labelledby="mZh" hidden>
+    <div class="modal" id="modalBox">
+        <button type="button" class="modal-close" id="modalClose" aria-label="关闭详情">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+        <div class="big" id="mBig"></div>
+        <div class="m-zh" id="mZh"></div>
+        <div class="m-en" id="mEn"></div>
+        <div class="m-rows">
+            <div class="m-row"><span class="k">码点</span><span class="v" id="mCode"></span></div>
+            <div class="m-row"><span class="k">短代码</span><span class="v" id="mShort"></span></div>
+            <div class="m-row"><span class="k">分类</span><span class="v" id="mGroup"></span></div>
+        </div>
+        <div class="m-actions">
+            <button type="button" class="btn-ghost primary" id="mCopyEmoji">复制 Emoji</button>
+            <button type="button" class="btn-ghost" id="mCopyCode">复制码点</button>
+            <button type="button" class="btn-ghost" id="mCopyShort">复制短代码</button>
+            <button type="button" class="btn-ghost" id="mFav">☆ 收藏</button>
+        </div>
+    </div>
+</div>
 
 <script>
     (function () {
+        "use strict";
+
+        /* ===================== 常量与数据源（保持不变） ===================== */
         var GROUP_LABELS = {
             smileys_emotion: "笑脸与情感",
             people_body: "人物与身体",
@@ -526,18 +855,21 @@
             flags: "旗帜"
         };
 
+        /* lucide 风格线性图标 path（stroke-width 2，24x24 viewBox） */
         var CATEGORY_ICONS = {
-            smileys_emotion: "fa-solid fa-face-smile",
-            people_body: "fa-solid fa-user",
-            animals_nature: "fa-solid fa-paw",
-            food_drink: "fa-solid fa-burger",
-            travel_places: "fa-solid fa-earth-asia",
-            activities: "fa-solid fa-person-running",
-            objects: "fa-solid fa-cube",
-            symbols: "fa-solid fa-icons",
-            flags: "fa-solid fa-flag"
+            smileys_emotion: '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/>',
+            people_body: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+            animals_nature: '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
+            food_drink: '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>',
+            travel_places: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+            activities: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+            objects: '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
+            symbols: '<line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/>',
+            flags: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+            _default: '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>'
         };
 
+        /* 数据源 URL —— 保持不变 */
         var DATA_URLS = [
             "https://cdn.jsdelivr.net/npm/unicode-emoji-json@0.6.0/data-by-group.json",
             "https://unpkg.com/unicode-emoji-json@0.6.0/data-by-group.json"
@@ -558,7 +890,7 @@
                     { emoji: "🥰", name: "smiling face with hearts", slug: "smiling_face_with_hearts", nameZh: "喜笑颜开" },
                     { emoji: "😍", name: "smiling face with heart-eyes", slug: "smiling_face_with_heart_eyes", nameZh: "花痴" },
                     { emoji: "🤔", name: "thinking face", slug: "thinking_face", nameZh: "想一想" },
-                    { emoji: "👍", name: "thumbs up", slug: "thumbs_up", nameZh: "拇指向上" },
+                    { emoji: "👍", name: "thumbs up", slug: "thumbs_up", nameZh: "拇指向上", skin_tone_support: true },
                     { emoji: "🎉", name: "party popper", slug: "party_popper", nameZh: "拉炮彩带" },
                     { emoji: "❤️", name: "red heart", slug: "red_heart", nameZh: "红心" }
                 ]
@@ -566,178 +898,358 @@
         ];
 
         var RECENT_KEY = "zktool-emoji-recent-v1";
-        var MAX_RECENT = 18;
+        var FAV_KEY = "zktool-emoji-fav-v1";
+        var TONE_KEY = "zktool-emoji-tone-v1";
+        var MAX_RECENT = 30;
+        var CHUNK_SIZE = 150;
+
+        var SKIN_TONES = [
+            { mod: "", label: "默认" },
+            { mod: "🏻", label: "浅肤色" },
+            { mod: "🏼", label: "中浅肤色" },
+            { mod: "🏽", label: "中等肤色" },
+            { mod: "🏾", label: "中深肤色" },
+            { mod: "🏿", label: "深肤色" }
+        ];
 
         var state = {
             groups: null,
+            flat: [],
+            index: new Map(),   // 基础 emoji 字符 -> item
+            zhLookup: null,
             activeSlug: null,
             query: "",
-            flat: [],
-            zhLookup: null
+            tone: "",
+            favorites: [],
+            recent: [],
+            detailItem: null
         };
 
         var $ = function (id) { return document.getElementById(id); };
+        var io = null;           // 分块懒加载 IntersectionObserver
+        var longPressTimer = null;
+        var suppressClick = false;
+
+        /* ===================== 小工具 ===================== */
+        function svgIcon(paths, size) {
+            var s = size || 14;
+            return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + paths + "</svg>";
+        }
+
+        var ICON_STAR = '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>';
+        var ICON_INFO = '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>';
 
         function labelForSlug(slug) {
-            return GROUP_LABELS[slug] || slug.replace(/_/g, " ");
+            return GROUP_LABELS[slug] || String(slug || "").replace(/_/g, " ");
         }
 
-        function loadRecent() {
-            try {
-                var raw = localStorage.getItem(RECENT_KEY);
-                var arr = raw ? JSON.parse(raw) : [];
-                return Array.isArray(arr) ? arr.filter(function (x) { return typeof x === "string" && x; }) : [];
-            } catch (e) {
-                return [];
-            }
-        }
-
-        function saveRecent(ch) {
-            var list = loadRecent().filter(function (x) { return x !== ch; });
-            list.unshift(ch);
-            if (list.length > MAX_RECENT) list.length = MAX_RECENT;
-            try {
-                localStorage.setItem(RECENT_KEY, JSON.stringify(list));
-            } catch (e) { /* ignore */ }
-            renderRecent();
-        }
-
-        function renderRecent() {
-            var row = $("recentRow");
-            var panel = $("recentPanel");
-            var list = loadRecent();
-            row.innerHTML = "";
-            if (!list.length) {
-                panel.hidden = true;
-                return;
-            }
-            panel.hidden = false;
-            list.forEach(function (ch) {
-                var b = document.createElement("button");
-                b.type = "button";
-                b.setAttribute("aria-label", "复制 " + ch);
-                b.textContent = ch;
-                b.addEventListener("click", function () { copyEmoji(ch); });
-                row.appendChild(b);
-            });
-        }
-
-        var toastTimer;
-        function showToast(msg) {
-            var t = $("toast");
-            t.textContent = msg || "已复制";
-            t.classList.add("show");
-            clearTimeout(toastTimer);
-            toastTimer = setTimeout(function () { t.classList.remove("show"); }, 1600);
-        }
-
-        function copyEmoji(ch) {
-            function fallback() {
-                var ta = document.createElement("textarea");
-                ta.value = ch;
-                ta.setAttribute("readonly", "");
-                ta.style.position = "fixed";
-                ta.style.left = "-9999px";
-                document.body.appendChild(ta);
-                ta.select();
-                try {
-                    document.execCommand("copy");
-                    showToast("已复制");
-                    saveRecent(ch);
-                } catch (e) {
-                    showToast("复制失败，请手动选择");
-                }
-                document.body.removeChild(ta);
-            }
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(ch).then(function () {
-                    showToast("已复制 " + ch);
-                    saveRecent(ch);
-                }).catch(fallback);
-            } else {
-                fallback();
-            }
-        }
-
-        function buildZhLookup(cldrRoot) {
-            var map = new Map();
-            if (!cldrRoot || !cldrRoot.annotations || !cldrRoot.annotations.annotations) return map;
-            var blob = cldrRoot.annotations.annotations;
-            for (var key in blob) {
-                if (!Object.prototype.hasOwnProperty.call(blob, key)) continue;
-                var entry = blob[key];
-                if (!entry || typeof entry !== "object") continue;
-                var tts = Array.isArray(entry.tts) && entry.tts.length ? String(entry.tts[0]).trim() : "";
-                var def = Array.isArray(entry.default) ? entry.default.map(String) : [];
-                var label = (tts || def[0] || "").trim();
-                if (!label) continue;
-                var pack = { label: label, tags: def };
-                function reg(k) {
-                    if (!k) return;
-                    map.set(k, pack);
-                    try {
-                        map.set(k.normalize("NFC"), pack);
-                    } catch (err) { /* ignore */ }
-                }
-                reg(key);
-                try { reg(key.normalize("NFC")); } catch (err2) { /* ignore */ }
-            }
-            return map;
-        }
-
-        function lookupZh(map, s) {
-            if (!s || !map || !map.size) return null;
-            var tries = [];
-            function add(x) {
-                if (!x || tries.indexOf(x) !== -1) return;
-                tries.push(x);
-            }
-            add(s);
-            try {
-                add(s.normalize("NFC"));
-                add(s.normalize("NFD"));
-            } catch (e) { /* ignore */ }
-            var stripped = s.replace(/\uFE0F/g, "").replace(/\uFE0E/g, "");
-            add(stripped);
-            try { add(stripped.normalize("NFC")); } catch (e2) { /* ignore */ }
-            for (var i = 0; i < tries.length; i++) {
-                var hit = map.get(tries[i]);
-                if (hit) return hit;
-            }
-            return null;
-        }
-
-        function displayLabel(item) {
-            return item.nameZh || item.name;
-        }
+        function displayLabel(item) { return item.nameZh || item.name; }
 
         function displayTitle(item) {
             return item.nameZh ? (item.nameZh + "（" + item.name + "）") : item.name;
         }
 
-        function buildFlat(groups) {
-            var map = state.zhLookup || new Map();
-            var out = [];
-            groups.forEach(function (g) {
-                (g.emojis || []).forEach(function (e) {
-                    if (!e.emoji) return;
-                    var zhHit = lookupZh(map, e.emoji);
-                    var nameZh = e.nameZh != null && e.nameZh !== "" ? e.nameZh : (zhHit ? zhHit.label : "");
-                    var zhTags = zhHit ? zhHit.tags : [];
-                    out.push({
-                        emoji: e.emoji,
-                        name: e.name || "",
-                        nameZh: nameZh,
-                        zhTags: zhTags,
-                        slug: e.slug || "",
-                        groupSlug: g.slug,
-                        groupName: g.name
-                    });
+        function codePointsOf(str) {
+            return Array.from(str).map(function (c) {
+                var hex = c.codePointAt(0).toString(16).toUpperCase();
+                while (hex.length < 4) hex = "0" + hex;
+                return "U+" + hex;
+            }).join(" ");
+        }
+
+        /* 对支持肤色的 emoji 应用全局肤色修饰符 */
+        function applyTone(item) {
+            if (!state.tone || !item || !item.skinToneSupport) return item ? item.emoji : "";
+            var cps = Array.from(item.emoji);
+            var out = [cps[0], state.tone];
+            for (var i = 1; i < cps.length; i++) {
+                if (i === 1 && cps[i] === "️") continue; // 肤色修饰符替代 VS16
+                out.push(cps[i]);
+            }
+            return out.join("");
+        }
+
+        /* ===================== localStorage ===================== */
+        function loadList(key) {
+            try {
+                var raw = localStorage.getItem(key);
+                var arr = raw ? JSON.parse(raw) : [];
+                return Array.isArray(arr) ? arr.filter(function (x) { return typeof x === "string" && x; }) : [];
+            } catch (e) { return []; }
+        }
+
+        function saveList(key, list) {
+            try { localStorage.setItem(key, JSON.stringify(list)); } catch (e) { /* ignore */ }
+        }
+
+        function pushRecent(baseEmoji) {
+            state.recent = state.recent.filter(function (x) { return x !== baseEmoji; });
+            state.recent.unshift(baseEmoji);
+            if (state.recent.length > MAX_RECENT) state.recent.length = MAX_RECENT;
+            saveList(RECENT_KEY, state.recent);
+            renderRecent();
+        }
+
+        function toggleFav(baseEmoji) {
+            var idx = state.favorites.indexOf(baseEmoji);
+            if (idx === -1) {
+                state.favorites.unshift(baseEmoji);
+                showToast("已收藏", baseEmoji);
+            } else {
+                state.favorites.splice(idx, 1);
+                showToast("已取消收藏", baseEmoji);
+            }
+            saveList(FAV_KEY, state.favorites);
+            renderFavorites();
+            syncFavMarks();
+            syncModalFav();
+        }
+
+        function isFav(baseEmoji) { return state.favorites.indexOf(baseEmoji) !== -1; }
+
+        /* 更新页面上所有同款 cell 的收藏标记 */
+        function syncFavMarks() {
+            var cells = document.querySelectorAll(".cell[data-emoji]");
+            cells.forEach(function (c) {
+                var fav = isFav(c.dataset.emoji);
+                c.classList.toggle("is-fav", fav);
+                var b = c.querySelector(".fav-btn");
+                if (b) {
+                    b.classList.toggle("active", fav);
+                    b.setAttribute("aria-label", fav ? "取消收藏" : "收藏");
+                    b.title = fav ? "取消收藏" : "收藏";
+                }
+            });
+        }
+
+        /* ===================== Toast & 复制 ===================== */
+        var toastTimer;
+        function showToast(msg, emoji) {
+            var t = $("toast");
+            t.querySelector(".t-text").textContent = msg || "已复制";
+            t.querySelector(".t-emoji").textContent = emoji || "";
+            t.classList.add("show");
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(function () { t.classList.remove("show"); }, 1600);
+        }
+
+        function copyText(text, okMsg, emoji) {
+            function done() { showToast(okMsg || "已复制", emoji); }
+            function fallback() {
+                var ta = document.createElement("textarea");
+                ta.value = text;
+                ta.setAttribute("readonly", "");
+                ta.style.position = "fixed";
+                ta.style.left = "-9999px";
+                document.body.appendChild(ta);
+                ta.select();
+                var ok = false;
+                try { ok = document.execCommand("copy"); } catch (e) { /* ignore */ }
+                document.body.removeChild(ta);
+                if (ok) done(); else showToast("复制失败，请手动选择");
+                return ok;
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                return navigator.clipboard.writeText(text).then(done).catch(function () { fallback(); });
+            }
+            return Promise.resolve(fallback());
+        }
+
+        /* 点击 cell 复制（应用肤色），记录最近使用并高亮反馈 */
+        function copyFromCell(cellEl) {
+            var base = cellEl.dataset.emoji;
+            var item = state.index.get(base) || { emoji: base, skinToneSupport: false };
+            var out = applyTone(item) || base;
+            copyText(out, "已复制", out);
+            pushRecent(base);
+            cellEl.classList.remove("flash");
+            void cellEl.offsetWidth; // 重启动画
+            cellEl.classList.add("flash");
+        }
+
+        /* ===================== 单元格构建（共用） ===================== */
+        function buildCell(item) {
+            var cell = document.createElement("div");
+            cell.className = "cell" + (isFav(item.emoji) ? " is-fav" : "");
+            cell.dataset.emoji = item.emoji;
+            cell.setAttribute("role", "listitem");
+            cell.setAttribute("tabindex", "0");
+            cell.title = displayTitle(item) + " — 点击复制，右键查看详情";
+
+            var g = document.createElement("span");
+            g.className = "glyph";
+            g.setAttribute("aria-hidden", "true");
+            g.textContent = applyTone(item);
+
+            var n = document.createElement("span");
+            n.className = "name";
+            n.textContent = displayLabel(item);
+
+            var tools = document.createElement("span");
+            tools.className = "cell-tools";
+
+            var favBtn = document.createElement("button");
+            favBtn.type = "button";
+            favBtn.className = "fav-btn" + (isFav(item.emoji) ? " active" : "");
+            favBtn.setAttribute("aria-label", isFav(item.emoji) ? "取消收藏" : "收藏");
+            favBtn.title = isFav(item.emoji) ? "取消收藏" : "收藏";
+            favBtn.innerHTML = svgIcon(ICON_STAR, 12);
+
+            var infoBtn = document.createElement("button");
+            infoBtn.type = "button";
+            infoBtn.className = "info-btn";
+            infoBtn.setAttribute("aria-label", "查看详情");
+            infoBtn.title = "查看详情";
+            infoBtn.innerHTML = svgIcon(ICON_INFO, 12);
+
+            tools.appendChild(favBtn);
+            tools.appendChild(infoBtn);
+            cell.appendChild(g);
+            cell.appendChild(n);
+            cell.appendChild(tools);
+            return cell;
+        }
+
+        /* 事件委托：点击复制 / 星标收藏 / info 详情 / 右键、长按详情 / 键盘 */
+        function bindGridEvents(container) {
+            container.addEventListener("click", function (ev) {
+                var favBtn = ev.target.closest(".fav-btn");
+                var infoBtn = ev.target.closest(".info-btn");
+                var cell = ev.target.closest(".cell[data-emoji]");
+                if (!cell || !container.contains(cell)) return;
+                if (favBtn) { toggleFav(cell.dataset.emoji); return; }
+                if (infoBtn) { openDetail(cell.dataset.emoji); return; }
+                if (suppressClick) { suppressClick = false; return; }
+                copyFromCell(cell);
+            });
+
+            container.addEventListener("contextmenu", function (ev) {
+                var cell = ev.target.closest(".cell[data-emoji]");
+                if (!cell) return;
+                ev.preventDefault();
+                openDetail(cell.dataset.emoji);
+            });
+
+            container.addEventListener("keydown", function (ev) {
+                var cell = ev.target.closest(".cell[data-emoji]");
+                if (!cell || ev.target !== cell) return;
+                if (ev.key === "Enter" || ev.key === " ") {
+                    ev.preventDefault();
+                    copyFromCell(cell);
+                } else if (ev.key.toLowerCase() === "i") {
+                    ev.preventDefault();
+                    openDetail(cell.dataset.emoji);
+                }
+            });
+
+            /* 长按（触屏）打开详情 */
+            container.addEventListener("pointerdown", function (ev) {
+                var cell = ev.target.closest(".cell[data-emoji]");
+                if (!cell || ev.button !== 0 || ev.target.closest("button")) return;
+                clearTimeout(longPressTimer);
+                var emoji = cell.dataset.emoji;
+                longPressTimer = setTimeout(function () {
+                    suppressClick = true;
+                    openDetail(emoji);
+                }, 520);
+            });
+            ["pointerup", "pointercancel", "pointerleave", "pointermove"].forEach(function (evt) {
+                container.addEventListener(evt, function (ev) {
+                    if (evt === "pointermove" && ev.movementX === 0 && ev.movementY === 0) return;
+                    clearTimeout(longPressTimer);
+                }, { passive: true });
+            });
+        }
+
+        /* ===================== 分块懒加载渲染 ===================== */
+        function ensureObserver() {
+            if (io || !("IntersectionObserver" in window)) return;
+            io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (!entry.isIntersecting) return;
+                    var el = entry.target;
+                    if (el._renderNext) el._renderNext();
                 });
+            }, { rootMargin: "700px 0px" });
+        }
+
+        /**
+         * 把 items 分块渲染进 grid：先渲染首块，其余在滚动接近时补齐；
+         * 无 IntersectionObserver 时一次性渲染。
+         */
+        function renderChunked(grid, items) {
+            ensureObserver();
+            var pos = 0;
+
+            function renderBatch(n) {
+                var frag = document.createDocumentFragment();
+                var end = Math.min(pos + n, items.length);
+                for (; pos < end; pos++) frag.appendChild(buildCell(items[pos]));
+                grid.appendChild(frag);
+            }
+
+            renderBatch(CHUNK_SIZE);
+
+            if (pos >= items.length || !io) {
+                if (pos < items.length) renderBatch(items.length); // 无 IO 时兜底全渲染
+                return;
+            }
+
+            var sentinel = document.createElement("div");
+            sentinel.className = "load-sentinel";
+            sentinel.textContent = "…";
+            sentinel._renderNext = function () {
+                renderBatch(CHUNK_SIZE);
+                if (pos >= items.length) {
+                    io.unobserve(sentinel);
+                    sentinel.remove();
+                } else {
+                    grid.appendChild(sentinel); // 移到末尾继续观察
+                }
+            };
+            grid.appendChild(sentinel);
+            io.observe(sentinel);
+        }
+
+        /* ===================== 收藏 / 最近使用分区 ===================== */
+        function itemsFromChars(chars) {
+            var out = [];
+            chars.forEach(function (ch) {
+                var item = state.index.get(ch);
+                if (item) {
+                    out.push(item);
+                } else if (ch) {
+                    out.push({ emoji: ch, name: "", nameZh: "", slug: "", groupSlug: "", skinToneSupport: false });
+                }
             });
             return out;
         }
 
+        function renderFavorites() {
+            var panel = $("favPanel");
+            var grid = $("favGrid");
+            grid.innerHTML = "";
+            if (!state.favorites.length) { panel.hidden = true; return; }
+            panel.hidden = false;
+            $("favCount").textContent = "· " + state.favorites.length;
+            var frag = document.createDocumentFragment();
+            itemsFromChars(state.favorites).forEach(function (it) { frag.appendChild(buildCell(it)); });
+            grid.appendChild(frag);
+        }
+
+        function renderRecent() {
+            var panel = $("recentPanel");
+            var grid = $("recentGrid");
+            grid.innerHTML = "";
+            if (!state.recent.length) { panel.hidden = true; return; }
+            panel.hidden = false;
+            $("recentCount").textContent = "· " + state.recent.length;
+            var frag = document.createDocumentFragment();
+            itemsFromChars(state.recent).forEach(function (it) { frag.appendChild(buildCell(it)); });
+            grid.appendChild(frag);
+        }
+
+        /* ===================== 搜索匹配 ===================== */
         function matches(item, qRaw) {
             var q = (qRaw || "").trim();
             if (!q) return true;
@@ -756,38 +1268,26 @@
             return false;
         }
 
-        function renderGrid(items) {
+        /* ===================== 主区域渲染 ===================== */
+        function renderEmpty(root) {
+            var empty = document.createElement("div");
+            empty.className = "err-box";
+            empty.innerHTML = svgIcon('<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/>', 26) +
+                "<p>没有匹配的 Emoji，试试其它关键词或清空搜索。</p>";
+            root.appendChild(empty);
+        }
+
+        function renderCategory() {
             var root = $("contentRoot");
             root.innerHTML = "";
-            if (!items.length) {
-                var empty = document.createElement("div");
-                empty.className = "err-box";
-                empty.innerHTML = "<p>没有匹配的 Emoji，试试其它关键词或清空搜索。</p>";
-                root.appendChild(empty);
-                return;
-            }
+            var g = state.groups.find(function (x) { return x.slug === state.activeSlug; });
+            var items = state.flat.filter(function (it) { return g && it.groupSlug === g.slug; });
+            if (!items.length) { renderEmpty(root); return; }
             var grid = document.createElement("div");
             grid.className = "grid";
             grid.setAttribute("role", "list");
-            items.forEach(function (item) {
-                var cell = document.createElement("button");
-                cell.type = "button";
-                cell.className = "cell";
-                cell.setAttribute("role", "listitem");
-                cell.setAttribute("title", displayTitle(item) + " — 点击复制");
-                var g = document.createElement("span");
-                g.className = "glyph";
-                g.setAttribute("aria-hidden", "true");
-                g.textContent = item.emoji;
-                var n = document.createElement("span");
-                n.className = "name";
-                n.textContent = displayLabel(item);
-                cell.appendChild(g);
-                cell.appendChild(n);
-                cell.addEventListener("click", function () { copyEmoji(item.emoji); });
-                grid.appendChild(cell);
-            });
             root.appendChild(grid);
+            renderChunked(grid, items);
         }
 
         function renderSearchResults(q) {
@@ -795,88 +1295,53 @@
             root.innerHTML = "";
             var qv = (q || "").trim();
             var byGroup = {};
+            var total = 0;
             state.flat.forEach(function (item) {
                 if (!matches(item, qv)) return;
                 var key = item.groupSlug;
                 if (!byGroup[key]) byGroup[key] = { label: labelForSlug(key), items: [] };
                 byGroup[key].items.push(item);
+                total++;
             });
             var keys = state.groups.map(function (g) { return g.slug; }).filter(function (k) { return byGroup[k]; });
-            if (!keys.length) {
-                renderGrid([]);
-                return;
-            }
+            if (!keys.length) { renderEmpty(root); return total; }
             keys.forEach(function (k) {
                 var sec = document.createElement("div");
                 sec.className = "section-label";
-                sec.textContent = byGroup[k].label + " · " + byGroup[k].items.length;
+                sec.innerHTML = byGroup[k].label + ' <span class="count">· ' + byGroup[k].items.length + "</span>";
                 root.appendChild(sec);
                 var grid = document.createElement("div");
                 grid.className = "grid";
                 grid.setAttribute("role", "list");
-                byGroup[k].items.forEach(function (item) {
-                    var cell = document.createElement("button");
-                    cell.type = "button";
-                    cell.className = "cell";
-                    cell.setAttribute("role", "listitem");
-                    cell.setAttribute("title", displayTitle(item));
-                    var g = document.createElement("span");
-                    g.className = "glyph";
-                    g.setAttribute("aria-hidden", "true");
-                    g.textContent = item.emoji;
-                    var n = document.createElement("span");
-                    n.className = "name";
-                    n.textContent = displayLabel(item);
-                    cell.appendChild(g);
-                    cell.appendChild(n);
-                    cell.addEventListener("click", function () { copyEmoji(item.emoji); });
-                    grid.appendChild(cell);
-                });
                 root.appendChild(grid);
+                renderChunked(grid, byGroup[k].items);
             });
-        }
-
-        function setActiveChip(slug) {
-            state.activeSlug = slug;
-            var chips = $("chips").querySelectorAll(".cat-btn");
-            chips.forEach(function (c) {
-                var on = c.dataset.slug === slug;
-                c.setAttribute("aria-pressed", on ? "true" : "false");
-                c.setAttribute("aria-selected", on ? "true" : "false");
-            });
+            return total;
         }
 
         function refreshView() {
-            var q = $("q").value;
-            state.query = q;
+            var q = state.query;
             if ((q || "").trim()) {
-                renderSearchResults(q);
+                var n = renderSearchResults(q);
+                $("statLine").innerHTML = "筛选 <strong>" + (n || 0) + "</strong> 项 · 全库 <strong>" + state.flat.length + "</strong> 个";
                 return;
             }
-            var g = state.groups.find(function (x) { return x.slug === state.activeSlug; });
-            var items = (g && g.emojis) ? g.emojis.map(function (e) {
-                var zhHit = lookupZh(state.zhLookup || new Map(), e.emoji);
-                var nameZh = e.nameZh != null && e.nameZh !== "" ? e.nameZh : (zhHit ? zhHit.label : "");
-                var zhTags = zhHit ? zhHit.tags : [];
-                return { emoji: e.emoji, name: e.name, nameZh: nameZh, zhTags: zhTags, slug: e.slug, groupSlug: g.slug, groupName: g.name };
-            }) : [];
-            renderGrid(items);
+            renderCategory();
             updateStat();
         }
 
+        function updateStat() {
+            var total = state.flat.length;
+            var g = state.groups && state.groups.find(function (x) { return x.slug === state.activeSlug; });
+            var nCat = g ? state.flat.filter(function (it) { return it.groupSlug === g.slug; }).length : 0;
+            $("statLine").innerHTML =
+                "当前分类 <strong>" + labelForSlug(state.activeSlug) + "</strong> · 本类 <strong>" + nCat + "</strong> 个 · 全库 <strong>" + total + "</strong> 个";
+        }
+
+        /* ===================== 分类导航 ===================== */
         function buildChips() {
             var wrap = $("chips");
             wrap.innerHTML = "";
-            var head = document.createElement("div");
-            head.className = "cat-nav-head";
-            var title = document.createElement("span");
-            title.className = "cat-nav-title";
-            title.textContent = "目录";
-            var sub = document.createElement("span");
-            sub.className = "cat-nav-hint";
-            sub.textContent = "点选切换 · 窄屏可横向滑动";
-            head.appendChild(title);
-            head.appendChild(sub);
             var scroll = document.createElement("div");
             scroll.className = "cat-scroll";
             scroll.setAttribute("role", "tablist");
@@ -889,15 +1354,8 @@
                 b.setAttribute("role", "tab");
                 b.setAttribute("aria-pressed", "false");
                 b.setAttribute("aria-selected", "false");
-                b.setAttribute("id", "cat-tab-" + g.slug);
-                var ico = document.createElement("i");
-                ico.className = (CATEGORY_ICONS[g.slug] || "fa-solid fa-layer-group") + " cat-ico";
-                ico.setAttribute("aria-hidden", "true");
-                var lab = document.createElement("span");
-                lab.className = "cat-btn-label";
-                lab.textContent = labelForSlug(g.slug);
-                b.appendChild(ico);
-                b.appendChild(lab);
+                b.innerHTML = svgIcon(CATEGORY_ICONS[g.slug] || CATEGORY_ICONS._default, 17) +
+                    '<span class="cat-btn-label">' + labelForSlug(g.slug) + "</span>";
                 b.addEventListener("click", function () {
                     setActiveChip(g.slug);
                     $("q").value = "";
@@ -906,33 +1364,200 @@
                 });
                 scroll.appendChild(b);
             });
-            wrap.appendChild(head);
             wrap.appendChild(scroll);
             wrap.hidden = false;
         }
 
-        function updateStat() {
-            var total = state.flat.length;
-            var g = state.groups && state.groups.find(function (x) { return x.slug === state.activeSlug; });
-            var nCat = (g && g.emojis) ? g.emojis.length : 0;
-            $("statLine").innerHTML =
-                "当前分类 <strong>" + labelForSlug(state.activeSlug) + "</strong> · 本类 <strong>" + nCat + "</strong> 个 · 全库 <strong>" + total + "</strong> 个";
+        function setActiveChip(slug) {
+            state.activeSlug = slug;
+            $("chips").querySelectorAll(".cat-btn").forEach(function (c) {
+                var on = c.dataset.slug === slug;
+                c.setAttribute("aria-pressed", on ? "true" : "false");
+                c.setAttribute("aria-selected", on ? "true" : "false");
+            });
         }
 
-        function showContent() {
-            $("loadingState").hidden = true;
-            $("contentRoot").hidden = false;
+        /* ===================== 肤色选择器 ===================== */
+        function buildToneRow() {
+            var opts = $("toneOpts");
+            opts.innerHTML = "";
+            SKIN_TONES.forEach(function (t) {
+                var b = document.createElement("button");
+                b.type = "button";
+                b.className = "tone-btn";
+                b.dataset.tone = t.mod;
+                b.title = t.label;
+                b.setAttribute("aria-label", "肤色：" + t.label);
+                b.setAttribute("aria-pressed", state.tone === t.mod ? "true" : "false");
+                b.textContent = "✋" + t.mod; // ✋ + 肤色修饰符作为色板
+                b.addEventListener("click", function () {
+                    state.tone = t.mod;
+                    try { localStorage.setItem(TONE_KEY, t.mod); } catch (e) { /* ignore */ }
+                    opts.querySelectorAll(".tone-btn").forEach(function (x) {
+                        x.setAttribute("aria-pressed", x.dataset.tone === t.mod ? "true" : "false");
+                    });
+                    refreshView();
+                    renderFavorites();
+                    renderRecent();
+                    if (state.detailItem) fillDetail(state.detailItem);
+                });
+                opts.appendChild(b);
+            });
+            $("toneRow").hidden = false;
+        }
+
+        /* ===================== 详情弹层 ===================== */
+        var lastFocused = null;
+
+        function fillDetail(item) {
+            var toned = applyTone(item) || item.emoji;
+            $("mBig").textContent = toned;
+            $("mZh").textContent = item.nameZh || item.name || item.emoji;
+            $("mEn").textContent = item.name || "—";
+            $("mCode").textContent = codePointsOf(toned);
+            $("mShort").textContent = item.slug ? (":" + item.slug + ":") : "—";
+            $("mGroup").textContent = item.groupSlug ? labelForSlug(item.groupSlug) : "—";
+            $("mCopyShort").disabled = !item.slug;
+            $("mCopyShort").style.opacity = item.slug ? "" : "0.45";
+            syncModalFav();
+        }
+
+        function syncModalFav() {
+            if (!state.detailItem) return;
+            var fav = isFav(state.detailItem.emoji);
+            $("mFav").textContent = fav ? "★ 已收藏" : "☆ 收藏";
+        }
+
+        function openDetail(baseEmoji) {
+            var item = state.index.get(baseEmoji) ||
+                { emoji: baseEmoji, name: "", nameZh: "", slug: "", groupSlug: "", skinToneSupport: false };
+            state.detailItem = item;
+            fillDetail(item);
+            var mask = $("modalMask");
+            mask.hidden = false;
+            requestAnimationFrame(function () { mask.classList.add("open"); });
+            lastFocused = document.activeElement;
+            $("modalClose").focus();
+        }
+
+        function closeDetail() {
+            var mask = $("modalMask");
+            mask.classList.remove("open");
+            state.detailItem = null;
+            setTimeout(function () { mask.hidden = true; }, 260);
+            if (lastFocused && lastFocused.focus) lastFocused.focus();
+        }
+
+        function bindModal() {
+            $("modalClose").addEventListener("click", closeDetail);
+            $("modalMask").addEventListener("click", function (ev) {
+                if (ev.target === this) closeDetail();
+            });
+            document.addEventListener("keydown", function (ev) {
+                if (ev.key === "Escape" && !$("modalMask").hidden) closeDetail();
+            });
+            $("mCopyEmoji").addEventListener("click", function () {
+                if (!state.detailItem) return;
+                var out = applyTone(state.detailItem) || state.detailItem.emoji;
+                copyText(out, "已复制", out);
+                pushRecent(state.detailItem.emoji);
+            });
+            $("mCopyCode").addEventListener("click", function () {
+                if (!state.detailItem) return;
+                var toned = applyTone(state.detailItem) || state.detailItem.emoji;
+                copyText(codePointsOf(toned), "已复制码点");
+            });
+            $("mCopyShort").addEventListener("click", function () {
+                if (!state.detailItem || !state.detailItem.slug) return;
+                copyText(":" + state.detailItem.slug + ":", "已复制短代码");
+            });
+            $("mFav").addEventListener("click", function () {
+                if (!state.detailItem) return;
+                toggleFav(state.detailItem.emoji);
+            });
+        }
+
+        /* ===================== CLDR 中文标注 ===================== */
+        function buildZhLookup(cldrRoot) {
+            var map = new Map();
+            if (!cldrRoot || !cldrRoot.annotations || !cldrRoot.annotations.annotations) return map;
+            var blob = cldrRoot.annotations.annotations;
+            for (var key in blob) {
+                if (!Object.prototype.hasOwnProperty.call(blob, key)) continue;
+                var entry = blob[key];
+                if (!entry || typeof entry !== "object") continue;
+                var tts = Array.isArray(entry.tts) && entry.tts.length ? String(entry.tts[0]).trim() : "";
+                var def = Array.isArray(entry.default) ? entry.default.map(String) : [];
+                var label = (tts || def[0] || "").trim();
+                if (!label) continue;
+                var pack = { label: label, tags: def };
+                var reg = function (k) {
+                    if (!k) return;
+                    map.set(k, pack);
+                    try { map.set(k.normalize("NFC"), pack); } catch (err) { /* ignore */ }
+                };
+                reg(key);
+                try { reg(key.normalize("NFC")); } catch (err2) { /* ignore */ }
+            }
+            return map;
+        }
+
+        function lookupZh(map, s) {
+            if (!s || !map || !map.size) return null;
+            var tries = [];
+            var add = function (x) { if (x && tries.indexOf(x) === -1) tries.push(x); };
+            add(s);
+            try { add(s.normalize("NFC")); add(s.normalize("NFD")); } catch (e) { /* ignore */ }
+            var stripped = s.replace(/️/g, "").replace(/︎/g, "");
+            add(stripped);
+            try { add(stripped.normalize("NFC")); } catch (e2) { /* ignore */ }
+            for (var i = 0; i < tries.length; i++) {
+                var hit = map.get(tries[i]);
+                if (hit) return hit;
+            }
+            return null;
+        }
+
+        /* ===================== 数据装配 ===================== */
+        function buildFlat(groups) {
+            var map = state.zhLookup || new Map();
+            var out = [];
+            groups.forEach(function (g) {
+                (g.emojis || []).forEach(function (e) {
+                    if (!e.emoji) return;
+                    var zhHit = lookupZh(map, e.emoji);
+                    var nameZh = e.nameZh != null && e.nameZh !== "" ? e.nameZh : (zhHit ? zhHit.label : "");
+                    out.push({
+                        emoji: e.emoji,
+                        name: e.name || "",
+                        nameZh: nameZh,
+                        zhTags: zhHit ? zhHit.tags : [],
+                        slug: e.slug || "",
+                        groupSlug: g.slug,
+                        groupName: g.name,
+                        skinToneSupport: !!e.skin_tone_support
+                    });
+                });
+            });
+            return out;
         }
 
         function applyGroups(groups) {
             state.groups = groups;
             state.flat = buildFlat(groups);
+            state.index = new Map();
+            state.flat.forEach(function (it) {
+                if (!state.index.has(it.emoji)) state.index.set(it.emoji, it);
+            });
             state.activeSlug = groups[0] ? groups[0].slug : null;
             buildChips();
             setActiveChip(state.activeSlug);
+            buildToneRow();
             refreshView();
+            renderFavorites();
             renderRecent();
-            showContent();
+            $("loadingState").hidden = true;
+            $("contentRoot").hidden = false;
         }
 
         function fetchJson(url) {
@@ -946,8 +1571,7 @@
             var i = 0;
             function next() {
                 if (i >= DATA_URLS.length) return Promise.reject(new Error("全部数据源均不可用"));
-                var url = DATA_URLS[i++];
-                return fetchJson(url).catch(next);
+                return fetchJson(DATA_URLS[i++]).catch(next);
             }
             return next();
         }
@@ -956,25 +1580,9 @@
             var j = 0;
             function nextZh() {
                 if (j >= ZH_URLS.length) return Promise.resolve(null);
-                var url = ZH_URLS[j++];
-                return fetchJson(url).catch(nextZh);
+                return fetchJson(ZH_URLS[j++]).catch(nextZh);
             }
             return nextZh();
-        }
-
-        function init() {
-            $("btnClear").addEventListener("click", function () {
-                $("q").value = "";
-                refreshView();
-            });
-            $("q").addEventListener("input", function () {
-                refreshView();
-                var qv = ($("q").value || "").trim();
-                if (qv) {
-                    $("statLine").innerHTML = "筛选 <strong>" + state.flat.filter(function (item) { return matches(item, qv); }).length + "</strong> 项";
-                }
-            });
-            startLoad();
         }
 
         function startLoad() {
@@ -992,6 +1600,47 @@
                 showToast("已使用离线示例数据");
                 $("statLine").innerHTML = "<strong>离线示例</strong> · 联网后刷新可加载完整库";
             });
+        }
+
+        /* ===================== 初始化 ===================== */
+        function init() {
+            state.recent = loadList(RECENT_KEY).slice(0, MAX_RECENT);
+            state.favorites = loadList(FAV_KEY);
+            try {
+                var savedTone = localStorage.getItem(TONE_KEY) || "";
+                if (SKIN_TONES.some(function (t) { return t.mod === savedTone; })) state.tone = savedTone;
+            } catch (e) { /* ignore */ }
+
+            /* 搜索防抖 */
+            var debounceTimer;
+            $("q").addEventListener("input", function () {
+                clearTimeout(debounceTimer);
+                var v = this.value;
+                debounceTimer = setTimeout(function () {
+                    state.query = v;
+                    if (state.groups) refreshView();
+                }, 180);
+            });
+
+            $("btnClear").addEventListener("click", function () {
+                $("q").value = "";
+                state.query = "";
+                if (state.groups) refreshView();
+                $("q").focus();
+            });
+
+            $("btnClearRecent").addEventListener("click", function () {
+                state.recent = [];
+                saveList(RECENT_KEY, state.recent);
+                renderRecent();
+                showToast("已清空最近使用");
+            });
+
+            bindGridEvents($("contentRoot"));
+            bindGridEvents($("favGrid"));
+            bindGridEvents($("recentGrid"));
+            bindModal();
+            startLoad();
         }
 
         init();

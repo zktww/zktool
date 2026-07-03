@@ -1,0 +1,2812 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>商品字段渠道批量维护</title>
+  <style>
+    :root {
+      --el-blue: #409eff;
+      --el-blue-light: #ecf5ff;
+      --el-blue-border: #d9ecff;
+      --el-green: #67c23a;
+      --el-orange: #e6a23c;
+      --el-red: #f56c6c;
+      --text-main: #303133;
+      --text-regular: #606266;
+      --text-secondary: #909399;
+      --border: #dcdfe6;
+      --border-light: #ebeef5;
+      --fill-page: #f5f7fa;
+      --fill-light: #f8fafc;
+      --white: #fff;
+      --shadow-bar: 0 -4px 14px rgba(31, 45, 61, .08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 1180px;
+      min-height: 100vh;
+      background: var(--fill-page);
+      color: var(--text-main);
+      font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+      font-size: 14px;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 12px 12px 72px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .page-header,
+    .filter-panel,
+    .table-panel {
+      background: var(--white);
+      border: 1px solid #e4e7ed;
+      border-radius: 6px;
+    }
+
+    .page-header {
+      min-height: 58px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .title-wrap {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-title {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      margin: 0;
+      color: var(--text-main);
+      font-size: 18px;
+      line-height: 26px;
+      font-weight: 600;
+    }
+
+    .page-title::before,
+    .panel-title::before {
+      content: "";
+      width: 4px;
+      height: 18px;
+      margin-right: 10px;
+      border-radius: 2px;
+      background: var(--el-blue);
+      flex-shrink: 0;
+    }
+
+    .header-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .meta-tag {
+      height: 24px;
+      padding: 0 8px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #e1f3d8;
+      border-radius: 4px;
+      background: #f0f9eb;
+      color: #529b2e;
+      font-size: 12px;
+    }
+
+    .header-actions,
+    .query-actions,
+    .dimension-actions,
+    .dialog-actions,
+    .footer-actions,
+    .table-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .filter-panel {
+      flex-shrink: 0;
+      padding: 14px 16px 4px;
+    }
+
+    .filter-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .panel-title {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 24px;
+    }
+
+    .dimension-row {
+      display: grid;
+      grid-template-columns: 96px minmax(0, 1fr) 52px;
+      gap: 10px;
+      align-items: start;
+      padding: 10px 0;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .dimension-row:first-of-type {
+      border-top: 0;
+    }
+
+    .dimension-label {
+      padding-top: 7px;
+      color: var(--text-regular);
+      text-align: right;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .required-dot {
+      margin-right: 4px;
+      color: var(--el-red);
+      font-weight: 700;
+    }
+
+    .tag-box {
+      min-height: 40px;
+      max-height: 68px;
+      padding: 7px 8px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--white);
+      display: flex;
+      align-content: flex-start;
+      flex-wrap: wrap;
+      gap: 6px;
+      overflow-y: auto;
+      cursor: pointer;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .tag-box:hover {
+      border-color: var(--el-blue);
+      box-shadow: 0 0 0 2px rgba(64, 158, 255, .08);
+    }
+
+    .tag-box.is-empty {
+      align-items: center;
+    }
+
+    .placeholder {
+      color: #c0c4cc;
+      line-height: 24px;
+    }
+
+    .el-tag {
+      max-width: 220px;
+      height: 24px;
+      padding: 0 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid var(--el-blue-border);
+      border-radius: 4px;
+      background: var(--el-blue-light);
+      color: var(--el-blue);
+      font-size: 12px;
+      line-height: 22px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+    }
+
+    .el-tag.is-success {
+      border-color: #e1f3d8;
+      background: #f0f9eb;
+      color: #529b2e;
+    }
+
+    .el-tag.is-warning {
+      border-color: #faecd8;
+      background: #fdf6ec;
+      color: #b88230;
+    }
+
+    .el-tag.is-info {
+      border-color: #f0f2f5;
+      background: #fafafa;
+      color: #909399;
+    }
+
+    .tag-close {
+      width: 14px;
+      height: 14px;
+      border: 0;
+      border-radius: 50%;
+      padding: 0;
+      background: rgba(64, 158, 255, .14);
+      color: var(--el-blue);
+      line-height: 14px;
+      cursor: pointer;
+    }
+
+    .tag-close:hover {
+      background: var(--el-blue);
+      color: #fff;
+    }
+
+    .dimension-actions {
+      padding-top: 4px;
+      justify-content: flex-start;
+    }
+
+    .count-text {
+      min-width: 42px;
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+
+    .el-button {
+      min-width: 32px;
+      height: 32px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--white);
+      color: var(--text-regular);
+      cursor: pointer;
+      outline: none;
+      transition: color .15s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
+    }
+
+    .el-button:hover {
+      color: var(--el-blue);
+      border-color: #c6e2ff;
+      background: var(--el-blue-light);
+    }
+
+    .el-button:disabled,
+    .el-button:disabled:hover {
+      color: #c0c4cc;
+      border-color: #ebeef5;
+      background: #f5f7fa;
+      cursor: not-allowed;
+      opacity: .72;
+    }
+
+    .el-button.primary {
+      border-color: var(--el-blue);
+      background: var(--el-blue);
+      color: #fff;
+    }
+
+    .el-button.primary:hover {
+      border-color: #66b1ff;
+      background: #66b1ff;
+      color: #fff;
+    }
+
+    .el-button.primary:disabled,
+    .el-button.primary:disabled:hover {
+      border-color: #dcdfe6;
+      background: #f5f7fa;
+      color: #c0c4cc;
+      cursor: not-allowed;
+      opacity: .72;
+    }
+
+    .el-button.plain {
+      background: #fff;
+    }
+
+    .el-button.success.plain {
+      color: var(--el-green);
+      border-color: #c2e7b0;
+      background: #f0f9eb;
+    }
+
+    .el-button.success.plain:hover {
+      color: #fff;
+      border-color: var(--el-green);
+      background: var(--el-green);
+    }
+
+    .el-button.info.plain {
+      color: #909399;
+      border-color: #d3d4d6;
+      background: #f4f4f5;
+    }
+
+    .el-button.info.plain:hover {
+      color: #fff;
+      border-color: #909399;
+      background: #909399;
+    }
+
+    .el-button.danger.plain {
+      color: var(--el-red);
+      border-color: #fbc4c4;
+      background: #fef0f0;
+    }
+
+    .el-button.danger.plain:hover {
+      color: #fff;
+      border-color: var(--el-red);
+      background: var(--el-red);
+    }
+
+    .el-button.text {
+      height: 26px;
+      min-width: 0;
+      padding: 0 4px;
+      border: 0;
+      background: transparent;
+      color: var(--el-blue);
+    }
+
+    .el-button.text:hover {
+      color: #66b1ff;
+      background: transparent;
+    }
+
+    .el-button.danger-text {
+      color: var(--el-red);
+    }
+
+    .el-button.small {
+      height: 28px;
+      padding: 0 10px;
+      font-size: 12px;
+    }
+
+    .icon-button {
+      width: 32px;
+      padding: 0;
+    }
+
+    .table-panel {
+      flex: none;
+      height: calc(100vh - 88px);
+      min-height: 620px;
+      scroll-margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .table-toolbar {
+      min-height: 54px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .table-summary {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      color: var(--text-regular);
+      font-size: 13px;
+    }
+
+    .summary-pill {
+      width: 108px;
+      height: 24px;
+      padding: 0 8px;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      background: #fafafa;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      white-space: nowrap;
+    }
+
+    .summary-pill.is-total {
+      border-color: #d9ecff;
+      background: #f5faff;
+      color: #337ecc;
+    }
+
+    .summary-pill.is-change {
+      border-color: #f3e4c9;
+      background: #fffaf2;
+      color: #b88230;
+    }
+
+    .summary-pill.is-add {
+      border-color: #e1f3d8;
+      background: #f7fcf3;
+      color: #529b2e;
+    }
+
+    .summary-pill.is-delete {
+      border-color: #fde2e2;
+      background: #fff7f7;
+      color: #c45656;
+    }
+
+    .summary-number {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .search-inline {
+      width: 260px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--white);
+      overflow: hidden;
+    }
+
+    .search-inline .search-icon {
+      width: 34px;
+      color: #c0c4cc;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .search-inline input {
+      width: 100%;
+      height: 30px;
+      border: 0;
+      outline: none;
+      color: var(--text-main);
+    }
+
+    .search-clear {
+      width: 24px;
+      height: 24px;
+      min-width: 24px;
+      margin-right: 4px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: #c0c4cc;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      line-height: 24px;
+      font-size: 14px;
+    }
+
+    .search-clear.is-visible {
+      display: inline-flex;
+    }
+
+    .search-clear:hover {
+      background: #f4f4f5;
+      color: #909399;
+    }
+
+    .table-wrap {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      position: relative;
+      scrollbar-width: thin;
+      scrollbar-color: #d4d7de transparent;
+    }
+
+    .table-wrap::-webkit-scrollbar {
+      width: 7px;
+      height: 6px;
+    }
+
+    .table-wrap::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .table-wrap::-webkit-scrollbar-thumb {
+      border-radius: 8px;
+      background: #d4d7de;
+    }
+
+    .table-wrap::-webkit-scrollbar-thumb:hover {
+      background: #b8bcc6;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1560px;
+      table-layout: fixed;
+      border-collapse: separate;
+      border-spacing: 0;
+      color: var(--text-regular);
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      border-right: 1px solid var(--border-light);
+      border-bottom: 1px solid var(--border-light);
+      padding: 6px 8px;
+      height: 40px;
+      text-align: left;
+      vertical-align: middle;
+      background: #fff;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #fafafa;
+      color: var(--text-regular);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    th.action-col,
+    td.action-col {
+      position: sticky;
+      right: 0;
+      box-shadow: -8px 0 12px rgba(31, 45, 61, .05);
+    }
+
+    th.action-col {
+      z-index: 5;
+    }
+
+    td.action-col {
+      z-index: 3;
+    }
+
+    tbody tr:nth-child(even) td {
+      background: #fcfcfd;
+    }
+
+    tbody tr:hover td {
+      background: #f5f9ff;
+    }
+
+    tbody tr.is-dirty td {
+      background: #fff9e8;
+    }
+
+    tbody tr.is-dirty:hover td {
+      background: #fff4d6;
+    }
+
+    tbody tr.is-new td {
+      background: #f0f9eb;
+    }
+
+    tbody tr.is-new:hover td {
+      background: #e8f6df;
+    }
+
+    tbody tr.is-deleted td {
+      background: #fef0f0;
+      color: #909399;
+      text-decoration: line-through;
+    }
+
+    tbody tr.is-deleted:hover td {
+      background: #fde2e2;
+    }
+
+    tbody tr.is-editing td {
+      background: #f5f9ff;
+    }
+
+    .select-col {
+      width: 46px;
+      text-align: center;
+    }
+
+    .select-col input {
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+      vertical-align: middle;
+    }
+
+    .cell-ellipsis {
+      max-width: 100%;
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .field-type {
+      display: inline-flex;
+      height: 20px;
+      padding: 0 6px;
+      align-items: center;
+      border-radius: 4px;
+      border: 1px solid #f0f2f5;
+      background: #fafafa;
+      color: #909399;
+      font-size: 12px;
+    }
+
+    .value-input,
+    .value-select,
+    .value-textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .value-input,
+    .value-select {
+      height: 28px;
+      padding: 0 7px;
+    }
+
+    .value-textarea {
+      min-height: 54px;
+      padding: 6px 8px;
+      resize: vertical;
+      line-height: 20px;
+    }
+
+    .value-input:focus,
+    .value-select:focus,
+    .value-textarea:focus {
+      border-color: var(--el-blue);
+      box-shadow: 0 0 0 2px rgba(64, 158, 255, .08);
+    }
+
+    .editable-value {
+      min-height: 28px;
+      padding: 5px 7px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      display: block;
+      color: var(--text-main);
+      cursor: text;
+      line-height: 18px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .editable-value:hover {
+      border-color: #c6e2ff;
+      background: var(--el-blue-light);
+    }
+
+    .editable-value.is-empty {
+      color: #c0c4cc;
+    }
+
+    .table-actions {
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .op-icon {
+      width: 24px;
+      height: 24px;
+      min-width: 24px;
+      padding: 0;
+      border: 0;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--el-blue);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: color .15s ease, background .15s ease;
+    }
+
+    .op-icon svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      pointer-events: none;
+    }
+
+    .op-icon:hover {
+      background: var(--el-blue-light);
+      color: #66b1ff;
+    }
+
+    .op-icon.is-reset {
+      color: #909399;
+    }
+
+    .op-icon.is-reset:hover {
+      background: #f4f4f5;
+      color: #606266;
+    }
+
+    .op-icon.is-delete {
+      color: var(--el-red);
+    }
+
+    .op-icon.is-delete:hover {
+      background: #fef0f0;
+      color: #c45656;
+    }
+
+    .el-tooltip-popper {
+      position: fixed;
+      z-index: 100;
+      max-width: min(420px, calc(100vw - 32px));
+      padding: 8px 10px;
+      border-radius: 4px;
+      background: #303133;
+      color: #fff;
+      font-size: 12px;
+      line-height: 18px;
+      white-space: normal;
+      word-break: break-word;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, .18);
+      pointer-events: none;
+      display: none;
+    }
+
+    .el-tooltip-popper::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -5px;
+      width: 8px;
+      height: 8px;
+      background: #303133;
+      transform: translateX(-50%) rotate(45deg);
+    }
+
+    .empty-state {
+      height: 100%;
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
+      text-align: center;
+    }
+
+    .empty-state-title {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .empty-state-desc {
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    .pagination {
+      min-height: 48px;
+      padding: 8px 16px;
+      border-top: 1px solid var(--border-light);
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      color: var(--text-regular);
+      font-size: 13px;
+    }
+
+    .pager-item {
+      min-width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #f4f4f5;
+      color: var(--text-regular);
+    }
+
+    .pager-item.active {
+      background: var(--el-blue);
+      color: #fff;
+    }
+
+    .fixed-footer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 20;
+      min-width: 1180px;
+      height: 56px;
+      padding: 10px 16px;
+      border-top: 1px solid var(--border-light);
+      background: rgba(255, 255, 255, .96);
+      box-shadow: var(--shadow-bar);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(8px);
+    }
+
+    .footer-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    .footer-metric {
+      height: 26px;
+      padding: 0 9px;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      background: #f7f8fa;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .footer-metric strong {
+      color: var(--text-main);
+    }
+
+    .footer-metric.is-pending {
+      border-color: var(--el-blue-border);
+      background: var(--el-blue-light);
+      color: #337ecc;
+    }
+
+    .footer-metric.is-pending strong {
+      color: var(--el-blue);
+    }
+
+    .footer-metric.is-pending.is-idle {
+      border-color: var(--border-light);
+      background: #f7f8fa;
+      color: var(--text-secondary);
+    }
+
+    .footer-metric.is-pending.is-idle strong {
+      color: var(--text-regular);
+    }
+
+    .dialog-mask {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, .34);
+    }
+
+    .dialog-mask.is-visible {
+      display: flex;
+    }
+
+    .dialog {
+      width: min(1040px, calc(100vw - 48px));
+      height: min(690px, calc(100vh - 64px));
+      border-radius: 6px;
+      background: #fff;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, .18);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .dialog-header {
+      height: 54px;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .dialog-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .dialog-close {
+      width: 32px;
+      height: 32px;
+      border: 0;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 32px;
+    }
+
+    .dialog-body {
+      flex: 1;
+      min-height: 0;
+      padding: 14px 16px;
+      background: var(--fill-light);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 82px minmax(0, 1fr);
+      gap: 12px;
+    }
+
+    .transfer-panel {
+      min-width: 0;
+      border: 1px solid #e4e7ed;
+      border-radius: 6px;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .transfer-header {
+      min-height: 48px;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .transfer-title {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .transfer-count {
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+
+    .transfer-search {
+      height: 34px;
+      margin: 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .transfer-search span {
+      width: 32px;
+      color: #c0c4cc;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .transfer-search input {
+      height: 32px;
+      width: 100%;
+      border: 0;
+      outline: none;
+    }
+
+    .transfer-list {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      padding: 0 8px 10px;
+    }
+
+    .tree-group {
+      margin-top: 8px;
+    }
+
+    .tree-group-title {
+      height: 28px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .tree-group-title::before {
+      content: "";
+      width: 0;
+      height: 0;
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      border-left: 5px solid #c0c4cc;
+    }
+
+    .tree-item {
+      min-height: 34px;
+      padding: 6px 8px 6px 18px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-regular);
+      cursor: pointer;
+    }
+
+    .tree-item:hover {
+      background: var(--el-blue-light);
+      color: var(--el-blue);
+    }
+
+    .tree-item input {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    .tree-text {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      line-height: 18px;
+    }
+
+    .tree-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .tree-code {
+      color: var(--text-secondary);
+      font-family: Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+    }
+
+    .transfer-middle {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .transfer-middle .el-button {
+      width: 46px;
+      padding: 0;
+    }
+
+    .selected-list {
+      flex: 1;
+      min-height: 0;
+      padding: 10px;
+      overflow: auto;
+      display: flex;
+      align-content: flex-start;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .dialog-footer {
+      height: 56px;
+      padding: 10px 16px;
+      border-top: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .edit-dialog {
+      width: min(980px, calc(100vw - 64px));
+      height: min(660px, calc(100vh - 72px));
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, .18);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .edit-body {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      padding: 16px;
+      background: var(--fill-light);
+    }
+
+    .form-section-title {
+      min-height: 32px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      color: var(--text-main);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .form-section-title::before {
+      content: "";
+      width: 4px;
+      height: 16px;
+      margin-right: 10px;
+      border-radius: 2px;
+      background: var(--el-blue);
+    }
+
+    .edit-form-card {
+      border: 1px solid #dfe5f2;
+      border-radius: 6px;
+      background: #fff;
+      padding: 16px;
+    }
+
+    .edit-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(260px, 1fr));
+      gap: 14px 18px;
+    }
+
+    .edit-field {
+      min-width: 0;
+    }
+
+    .edit-field.is-wide {
+      grid-column: 1 / -1;
+    }
+
+    .edit-label {
+      margin-bottom: 6px;
+      color: var(--text-regular);
+      font-weight: 600;
+    }
+
+    .batch-dialog {
+      width: min(1120px, calc(100vw - 64px));
+      height: min(760px, calc(100vh - 72px));
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, .18);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .batch-body {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      padding: 16px;
+      background: var(--fill-light);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .batch-grid {
+      border: 1px solid #dfe5f2;
+      border-radius: 6px;
+      background: #fff;
+      padding: 4px 14px;
+    }
+
+    .batch-edit-card {
+      border: 1px solid #dfe5f2;
+      border-radius: 6px;
+      background: #fff;
+      padding: 14px;
+    }
+
+    .batch-edit-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(260px, 1fr));
+      gap: 12px 16px;
+    }
+
+    .batch-edit-item {
+      min-width: 0;
+    }
+
+    .batch-empty {
+      min-height: 64px;
+      border: 1px dashed var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      background: #fbfdff;
+    }
+
+    .submit-dialog {
+      width: min(1500px, calc(100vw - 40px));
+      height: min(920px, calc(100vh - 48px));
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, .18);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .submit-body {
+      flex: 1;
+      min-height: 0;
+      padding: 14px 16px;
+      background: var(--fill-light);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .submit-summary {
+      color: var(--text-regular);
+      font-size: 13px;
+    }
+
+    .submit-table-wrap {
+      flex: 1;
+      min-height: 0;
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      background: #fff;
+      overflow: auto;
+    }
+
+    .submit-table {
+      min-width: 1120px;
+    }
+
+    .submit-old-value {
+      color: var(--text-secondary);
+    }
+
+    .submit-new-value {
+      color: #529b2e;
+      font-weight: 600;
+    }
+
+    .submit-tabs {
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: flex-end;
+      gap: 0;
+    }
+
+    .submit-tab {
+      min-width: 112px;
+      height: 38px;
+      padding: 0 14px;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      background: transparent;
+      color: var(--text-regular);
+      cursor: pointer;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .submit-tab:hover {
+      color: var(--el-blue);
+    }
+
+    .submit-tab.is-active {
+      color: var(--el-blue);
+      border-bottom-color: var(--el-blue);
+    }
+
+    .submit-tab-count {
+      margin-left: 4px;
+      font-weight: 400;
+    }
+
+    .submit-tab-icon {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .submit-tab.is-change {
+      color: var(--el-blue);
+    }
+
+    .submit-tab.is-change.is-active {
+      border-bottom-color: var(--el-blue);
+    }
+
+    .submit-tab.is-add {
+      color: var(--el-green);
+    }
+
+    .submit-tab.is-add.is-active {
+      border-bottom-color: var(--el-green);
+    }
+
+    .submit-tab.is-delete {
+      color: var(--el-red);
+    }
+
+    .submit-tab.is-delete.is-active {
+      border-bottom-color: var(--el-red);
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      z-index: 80;
+      display: none;
+      transform: translateX(-50%);
+      min-width: 220px;
+      max-width: 520px;
+      min-height: 38px;
+      padding: 9px 14px;
+      border: 1px solid #e1f3d8;
+      border-radius: 4px;
+      background: #f0f9eb;
+      color: #529b2e;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
+    }
+
+    .toast.is-visible {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="page-header">
+      <div class="title-wrap">
+        <h1 class="page-title">商品字段渠道批量维护</h1>
+        <div class="header-meta">
+          <span class="meta-tag">批量编辑</span>
+          <span class="meta-tag">渠道字段</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="filter-panel">
+      <div class="filter-top">
+        <div class="panel-title">维度选择</div>
+        <div class="query-actions">
+          <button class="el-button small" type="button" data-action="resetAll">重置</button>
+          <button class="el-button primary small" type="button" data-action="query">查询</button>
+        </div>
+      </div>
+
+      <div class="dimension-row" data-dimension-row="products">
+        <div class="dimension-label"><span class="required-dot">*</span>商品选择</div>
+        <div class="tag-box" id="productsTags" data-open="products"></div>
+        <div class="dimension-actions">
+          <span class="count-text" id="productsCount"></span>
+        </div>
+      </div>
+
+      <div class="dimension-row" data-dimension-row="channels">
+        <div class="dimension-label"><span class="required-dot">*</span>渠道选择</div>
+        <div class="tag-box" id="channelsTags" data-open="channels"></div>
+        <div class="dimension-actions">
+          <span class="count-text" id="channelsCount"></span>
+        </div>
+      </div>
+
+      <div class="dimension-row" data-dimension-row="fields">
+        <div class="dimension-label"><span class="required-dot">*</span>字段选择</div>
+        <div class="tag-box" id="fieldsTags" data-open="fields"></div>
+        <div class="dimension-actions">
+          <span class="count-text" id="fieldsCount"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="table-panel">
+      <div class="table-toolbar">
+        <div class="table-summary">
+          <span class="summary-pill is-total">共 <span class="summary-number" id="totalCount">0</span> 条</span>
+          <span class="summary-pill is-change">已修改 <span class="summary-number" id="changedCount">0</span> 条</span>
+          <span class="summary-pill is-add">已新增 <span class="summary-number" id="addedCount">0</span> 条</span>
+          <span class="summary-pill is-delete">已删除 <span class="summary-number" id="deletedCount">0</span> 条</span>
+        </div>
+        <div class="query-actions">
+          <label class="search-inline">
+            <span class="search-icon">⌕</span>
+            <input id="tableKeyword" type="text" placeholder="搜索商品、字段、渠道">
+            <button class="search-clear" id="tableKeywordClear" type="button" data-action="clearTableKeyword" aria-label="清空搜索" data-tooltip="清空">×</button>
+          </label>
+          <button class="el-button success plain small" type="button" data-action="batchAdd">批量新增</button>
+          <button class="el-button info plain small" type="button" data-action="batchEdit">批量修改</button>
+          <button class="el-button danger plain small" type="button" data-action="batchDelete" disabled>批量删除</button>
+        </div>
+      </div>
+      <div class="table-wrap" id="tableWrap">
+        <div class="empty-state" id="emptyState">暂无数据</div>
+        <table id="resultTable" style="display:none;">
+          <thead>
+            <tr>
+              <th class="select-col"><input id="selectAllRows" type="checkbox" aria-label="全选"></th>
+              <th style="width: 150px;">商品库</th>
+              <th style="width: 170px;">商品模板</th>
+              <th style="width: 220px;">商品</th>
+              <th style="width: 150px;">字段</th>
+              <th style="width: 90px;">字段类型</th>
+              <th style="width: 115px;">渠道</th>
+              <th style="width: 215px;">当前值</th>
+              <th style="width: 230px;">修改值</th>
+              <th class="action-col" style="width: 100px;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div class="fixed-footer">
+    <div class="footer-info" id="footerInfo">请选择维度后查询</div>
+    <div class="footer-actions">
+      <button class="el-button" type="button" data-action="cancel">取消</button>
+      <button class="el-button primary" type="button" data-action="save">保存</button>
+    </div>
+  </div>
+
+  <div class="dialog-mask" id="selectorDialog" aria-hidden="true">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+      <div class="dialog-header">
+        <div class="dialog-title" id="dialogTitle">选择</div>
+        <button class="dialog-close" type="button" data-dialog="close" aria-label="关闭">×</button>
+      </div>
+      <div class="dialog-body">
+        <section class="transfer-panel">
+          <div class="transfer-header">
+            <span class="transfer-title">候选项</span>
+            <span class="transfer-count" id="sourceCount">0 项</span>
+          </div>
+          <label class="transfer-search">
+            <span>⌕</span>
+            <input id="selectorKeyword" type="text" placeholder="输入名称或编码">
+          </label>
+          <div class="transfer-list" id="sourceList"></div>
+        </section>
+        <div class="transfer-middle">
+          <button class="el-button primary" type="button" data-transfer="add">›</button>
+          <button class="el-button" type="button" data-transfer="remove">‹</button>
+          <button class="el-button small" type="button" data-transfer="selectAll">全</button>
+          <button class="el-button small" type="button" data-transfer="clear">清</button>
+        </div>
+        <section class="transfer-panel">
+          <div class="transfer-header">
+            <span class="transfer-title">已选项</span>
+            <span class="transfer-count" id="selectedCount">0 项</span>
+          </div>
+          <div class="selected-list" id="selectedList"></div>
+        </section>
+      </div>
+      <div class="dialog-footer">
+        <button class="el-button" type="button" data-dialog="cancel">取消</button>
+        <button class="el-button primary" type="button" data-dialog="confirm">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="dialog-mask" id="editDialog" aria-hidden="true">
+    <div class="edit-dialog" role="dialog" aria-modal="true" aria-labelledby="editDialogTitle">
+      <div class="dialog-header">
+        <div class="dialog-title" id="editDialogTitle">编辑商品字段</div>
+        <button class="dialog-close" type="button" data-edit-dialog="close" aria-label="关闭">×</button>
+      </div>
+      <div class="edit-body">
+        <div class="form-section-title">字段维护信息</div>
+        <div class="edit-form-card">
+          <div class="edit-grid" id="editFormGrid"></div>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button class="el-button" type="button" data-edit-dialog="cancel">取消</button>
+        <button class="el-button primary" type="button" data-edit-dialog="confirm">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="dialog-mask" id="batchDialog" aria-hidden="true">
+    <div class="batch-dialog" role="dialog" aria-modal="true" aria-labelledby="batchDialogTitle">
+      <div class="dialog-header">
+        <div class="dialog-title" id="batchDialogTitle">批量维护</div>
+        <button class="dialog-close" type="button" data-batch-dialog="close" aria-label="关闭">×</button>
+      </div>
+      <div class="batch-body">
+        <div class="batch-grid" id="batchDimensionGrid"></div>
+        <div class="batch-edit-card" id="batchEditCard" style="display:none;">
+          <div class="form-section-title">字段编辑列表</div>
+          <div class="batch-edit-list" id="batchEditList"></div>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button class="el-button" type="button" data-batch-dialog="cancel">取消</button>
+        <button class="el-button primary" type="button" data-batch-dialog="confirm">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="dialog-mask" id="submitDialog" aria-hidden="true">
+    <div class="submit-dialog" role="dialog" aria-modal="true" aria-labelledby="submitDialogTitle">
+      <div class="dialog-header">
+        <div class="dialog-title" id="submitDialogTitle">提交数据核对</div>
+        <button class="dialog-close" type="button" data-submit-dialog="close" aria-label="关闭">×</button>
+      </div>
+      <div class="submit-body">
+        <div class="submit-summary" id="submitSummary"></div>
+        <div class="submit-tabs" id="submitTabs">
+          <button class="submit-tab is-change is-active" type="button" data-submit-tab="修改"><svg class="submit-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>修改<span class="submit-tab-count" id="submitChangeCount">0</span></button>
+          <button class="submit-tab is-add" type="button" data-submit-tab="新增"><svg class="submit-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>新增<span class="submit-tab-count" id="submitAddCount">0</span></button>
+          <button class="submit-tab is-delete" type="button" data-submit-tab="删除"><svg class="submit-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg>删除<span class="submit-tab-count" id="submitDeleteCount">0</span></button>
+        </div>
+        <div class="submit-table-wrap">
+          <table class="submit-table">
+            <thead>
+              <tr>
+                <th style="width: 240px;">商品</th>
+                <th style="width: 180px;">字段</th>
+                <th style="width: 100px;">字段类型</th>
+                <th style="width: 130px;">渠道</th>
+                <th style="width: 220px;">旧值</th>
+                <th style="width: 220px;">新值</th>
+              </tr>
+            </thead>
+            <tbody id="submitTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button class="el-button" type="button" data-submit-dialog="cancel">返回修改</button>
+        <button class="el-button primary" type="button" data-submit-dialog="confirm">确认提交</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    var dimensions = {
+      products: {
+        title: "商品选择",
+        placeholder: "请选择需要维护的商品",
+        groups: [
+          {
+            name: "Steam 游戏",
+            items: [
+              ["prd_1001", "黑神话：悟空 数字豪华版"],
+              ["prd_1002", "赛博朋克2077 终极版"],
+              ["prd_1003", "艾尔登法环 黄金树幽影"],
+              ["prd_1004", "荒野大镖客：救赎2"],
+              ["prd_1005", "使命召唤：现代战争III"],
+              ["prd_1006", "博德之门3 标准版"],
+              ["prd_1007", "怪物猎人：世界 Iceborne"],
+              ["prd_1008", "极限竞速：地平线5"]
+            ]
+          },
+          {
+            name: "主机兑换卡",
+            items: [
+              ["prd_2001", "PlayStation Store 10美元礼品卡"],
+              ["prd_2002", "PlayStation Store 50美元礼品卡"],
+              ["prd_2003", "Xbox Game Pass Ultimate 3个月"],
+              ["prd_2004", "Nintendo eShop 5000日元卡"],
+              ["prd_2005", "Nintendo Switch Online 12个月"],
+              ["prd_2006", "PS Plus Premium 12个月"]
+            ]
+          },
+          {
+            name: "会员与服务",
+            items: [
+              ["prd_3001", "Steam 钱包充值 100港币"],
+              ["prd_3002", "EA Play Pro 1个月"],
+              ["prd_3003", "Ubisoft+ Premium 1个月"],
+              ["prd_3004", "网易UU加速器 90天"],
+              ["prd_3005", "奇游联机宝 30天"]
+            ]
+          }
+        ]
+      },
+      channels: {
+        title: "渠道选择",
+        placeholder: "请选择投放渠道",
+        groups: [
+          {
+            name: "国内渠道",
+            items: [
+              ["chn_01", "官方商城"],
+              ["chn_02", "微信小程序"],
+              ["chn_03", "抖音商城"],
+              ["chn_04", "B站会员购"],
+              ["chn_05", "京东旗舰店"],
+              ["chn_06", "天猫旗舰店"]
+            ]
+          },
+          {
+            name: "国际渠道",
+            items: [
+              ["chn_11", "Kardz 官网"],
+              ["chn_12", "Kardz App"],
+              ["chn_13", "Shopee SG"],
+              ["chn_14", "Lazada MY"],
+              ["chn_15", "TikTok Shop US"],
+              ["chn_16", "Amazon Store"]
+            ]
+          }
+        ]
+      },
+      fields: {
+        title: "字段选择",
+        placeholder: "请选择需要批量维护的字段",
+        groups: [
+          {
+            name: "基础字段",
+            items: [
+              ["field_name", "商品名称"],
+              ["field_subtitle", "副标题"],
+              ["field_status", "上下架状态"],
+              ["field_sort", "排序值"],
+              ["field_tag", "商品标签"]
+            ]
+          },
+          {
+            name: "销售字段",
+            items: [
+              ["field_price", "销售价"],
+              ["field_stock", "渠道库存"],
+              ["field_limit", "限购数量"],
+              ["field_delivery", "发货方式"],
+              ["field_desc", "商品详情"]
+            ]
+          },
+          {
+            name: "风控字段",
+            items: [
+              ["field_region", "可售地区"],
+              ["field_risk", "风控等级"],
+              ["field_verify", "实名校验"]
+            ]
+          }
+        ]
+      }
+    };
+
+    var fieldMeta = {
+      field_name: { type: "文本", kind: "text" },
+      field_subtitle: { type: "文本", kind: "text" },
+      field_status: { type: "枚举", kind: "select", options: ["上架", "下架", "预售"] },
+      field_sort: { type: "数字", kind: "number" },
+      field_tag: { type: "标签", kind: "text" },
+      field_price: { type: "金额", kind: "number" },
+      field_stock: { type: "数字", kind: "number" },
+      field_limit: { type: "数字", kind: "number" },
+      field_delivery: { type: "枚举", kind: "select", options: ["自动发货", "人工发货", "卡密发货"] },
+      field_desc: { type: "富文本", kind: "textarea" },
+      field_region: { type: "多选", kind: "text" },
+      field_risk: { type: "枚举", kind: "select", options: ["低", "中", "高"] },
+      field_verify: { type: "布尔", kind: "select", options: ["开启", "关闭"] }
+    };
+
+    var state = {
+      selected: {
+        products: ["prd_1001", "prd_1002", "prd_1003", "prd_1006", "prd_2001", "prd_2003", "prd_3001"],
+        channels: ["chn_01", "chn_02", "chn_11", "chn_12"],
+        fields: ["field_name", "field_price", "field_status", "field_desc"]
+      },
+      activeDimension: null,
+      selectorScope: "main",
+      draftSelection: [],
+      sourceChecked: [],
+      selectedChecked: [],
+      rows: [],
+      keyword: "",
+      selectedRows: [],
+      editRowId: "",
+      editDraft: "",
+      batchMode: "",
+      submitActiveTab: "修改",
+      batchSelected: {
+        products: [],
+        channels: [],
+        fields: []
+      }
+    };
+
+    var gameLibraries = [
+      { id: "cache_lib_1001", name: "Steam 游戏库" },
+      { id: "cache_lib_1002", name: "主机卡密库" },
+      { id: "cache_lib_1003", name: "会员服务库" },
+      { id: "cache_lib_1004", name: "国际充值库" }
+    ];
+    var templates = [
+      { id: "tpl_2001", name: "标准直充模板" },
+      { id: "tpl_2002", name: "卡密发货模板" },
+      { id: "tpl_2003", name: "预售商品模板" },
+      { id: "tpl_2004", name: "会员订阅模板" }
+    ];
+
+    function flatten(dimensionKey) {
+      var list = [];
+      dimensions[dimensionKey].groups.forEach(function(group) {
+        group.items.forEach(function(item) {
+          list.push({ id: item[0], name: item[1], group: group.name });
+        });
+      });
+      return list;
+    }
+
+    function getItem(dimensionKey, id) {
+      return flatten(dimensionKey).filter(function(item) {
+        return item.id === id;
+      })[0];
+    }
+
+    function escapeHtml(value) {
+      return String(value == null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function renderTags(dimensionKey) {
+      var box = document.getElementById(dimensionKey + "Tags");
+      var count = document.getElementById(dimensionKey + "Count");
+      var selected = state.selected[dimensionKey];
+      count.textContent = selected.length + " 项";
+      box.classList.toggle("is-empty", selected.length === 0);
+      if (!selected.length) {
+        box.innerHTML = '<span class="placeholder">' + dimensions[dimensionKey].placeholder + '</span>';
+        return;
+      }
+      box.innerHTML = selected.map(function(id) {
+        var item = getItem(dimensionKey, id);
+        return '<span class="el-tag" title="' + escapeHtml(item.name) + '">' +
+          escapeHtml(item.name) +
+          '<button class="tag-close" type="button" data-remove-tag="' + dimensionKey + '" data-id="' + id + '">×</button>' +
+          '</span>';
+      }).join("");
+    }
+
+    function renderAllTags() {
+      renderTags("products");
+      renderTags("channels");
+      renderTags("fields");
+    }
+
+    function openDialog(dimensionKey, scope) {
+      state.selectorScope = scope || "main";
+      state.activeDimension = dimensionKey;
+      var source = state.selectorScope === "batch" ? state.batchSelected : state.selected;
+      state.draftSelection = source[dimensionKey].slice();
+      state.sourceChecked = [];
+      state.selectedChecked = [];
+      document.getElementById("dialogTitle").textContent = dimensions[dimensionKey].title;
+      document.getElementById("selectorKeyword").value = "";
+      document.getElementById("selectorDialog").classList.add("is-visible");
+      document.getElementById("selectorDialog").setAttribute("aria-hidden", "false");
+      renderDialog();
+    }
+
+    function closeDialog() {
+      document.getElementById("selectorDialog").classList.remove("is-visible");
+      document.getElementById("selectorDialog").setAttribute("aria-hidden", "true");
+      state.activeDimension = null;
+      state.selectorScope = "main";
+    }
+
+    function renderDialog() {
+      var key = state.activeDimension;
+      if (!key) return;
+      var keyword = document.getElementById("selectorKeyword").value.trim().toLowerCase();
+      var sourceList = document.getElementById("sourceList");
+      var selectedList = document.getElementById("selectedList");
+      var visibleCount = 0;
+
+      var sourceHtml = dimensions[key].groups.map(function(group) {
+        var rows = group.items.filter(function(item) {
+          var text = (item[0] + " " + item[1]).toLowerCase();
+          return !keyword || text.indexOf(keyword) > -1;
+        }).map(function(item) {
+          visibleCount += 1;
+          var checked = state.sourceChecked.indexOf(item[0]) > -1 ? "checked" : "";
+          var active = state.draftSelection.indexOf(item[0]) > -1;
+          return '<label class="tree-item">' +
+            '<input type="checkbox" data-source-check="' + item[0] + '" ' + checked + '>' +
+            '<span class="tree-text">' +
+            '<span class="tree-name">' + escapeHtml(item[1]) + (active ? ' <span class="el-tag is-success">已选</span>' : '') + '</span>' +
+            '<span class="tree-code">' + escapeHtml(item[0]) + '</span>' +
+            '</span>' +
+            '</label>';
+        }).join("");
+        if (!rows) return "";
+        return '<div class="tree-group"><div class="tree-group-title">' + escapeHtml(group.name) + '</div>' + rows + '</div>';
+      }).join("");
+
+      sourceList.innerHTML = sourceHtml || '<div class="empty-state">暂无匹配项</div>';
+      document.getElementById("sourceCount").textContent = visibleCount + " 项";
+
+      selectedList.innerHTML = state.draftSelection.map(function(id) {
+        var item = getItem(key, id);
+        var checked = state.selectedChecked.indexOf(id) > -1 ? "checked" : "";
+        return '<label class="el-tag" title="' + escapeHtml(item.name) + '">' +
+          '<input type="checkbox" data-selected-check="' + id + '" ' + checked + '>' +
+          escapeHtml(item.name) +
+          '</label>';
+      }).join("") || '<span class="placeholder">暂无已选项</span>';
+      document.getElementById("selectedCount").textContent = state.draftSelection.length + " 项";
+    }
+
+    function addDraftSelection(ids) {
+      ids.forEach(function(id) {
+        if (state.draftSelection.indexOf(id) === -1) {
+          state.draftSelection.push(id);
+        }
+      });
+      state.sourceChecked = [];
+      renderDialog();
+    }
+
+    function removeDraftSelection(ids) {
+      state.draftSelection = state.draftSelection.filter(function(id) {
+        return ids.indexOf(id) === -1;
+      });
+      state.selectedChecked = [];
+      renderDialog();
+    }
+
+    function currentValue(row) {
+      var fieldId = row.fieldId;
+      if (fieldId === "field_status") return row.index % 4 === 0 ? "下架" : "上架";
+      if (fieldId === "field_price") return (39 + row.index * 3.7).toFixed(2);
+      if (fieldId === "field_stock") return 120 + row.index * 8;
+      if (fieldId === "field_sort") return 1000 + row.index;
+      if (fieldId === "field_limit") return row.index % 3 === 0 ? 1 : 2;
+      if (fieldId === "field_delivery") return row.index % 2 === 0 ? "自动发货" : "卡密发货";
+      if (fieldId === "field_desc") return "支持自动兑换，到账时间约 1-5 分钟。";
+      if (fieldId === "field_region") return "CN, HK, SG";
+      if (fieldId === "field_risk") return row.index % 3 === 0 ? "中" : "低";
+      if (fieldId === "field_verify") return row.index % 2 === 0 ? "开启" : "关闭";
+      if (fieldId === "field_tag") return "热销, 限时";
+      return row.product.name + " - " + row.channel.name;
+    }
+
+    function createRow(product, channel, field, index, isNew, initialModifyValue) {
+      var row = {
+        id: product.id + "_" + channel.id + "_" + field.id,
+        index: index,
+        gameLibrary: gameLibraries[index % gameLibraries.length],
+        template: templates[index % templates.length],
+        product: product,
+        channel: channel,
+        fieldId: field.id,
+        field: field.name,
+        fieldType: (fieldMeta[field.id] || {}).type || "文本",
+        modifyValue: "",
+        changed: false,
+        selected: false,
+        inlineEditing: false,
+        isNew: !!isNew,
+        isDeleted: false
+      };
+      row.currentValue = row.isNew ? "" : currentValue(row);
+      row.modifyValue = row.isNew ? (initialModifyValue || "") : row.currentValue;
+      return row;
+    }
+
+    function buildRows() {
+      var rows = [];
+      var products = state.selected.products.map(function(id) { return getItem("products", id); }).filter(Boolean);
+      var channels = state.selected.channels.map(function(id) { return getItem("channels", id); }).filter(Boolean);
+      var fields = state.selected.fields.map(function(id) { return getItem("fields", id); }).filter(Boolean);
+      var maxRows = Math.min(36, Math.max(0, products.length * channels.length * fields.length));
+      var index = 0;
+
+      products.forEach(function(product) {
+        channels.forEach(function(channel) {
+          fields.forEach(function(field) {
+            if (index >= maxRows) return;
+            rows.push(createRow(product, channel, field, index, false));
+            index += 1;
+          });
+        });
+      });
+      state.rows = rows;
+      state.selectedRows = [];
+      renderTable();
+    }
+
+    function rowChanged(row) {
+      if (row.isDeleted || row.isNew) return false;
+      return String(row.modifyValue == null ? "" : row.modifyValue) !== String(row.currentValue == null ? "" : row.currentValue);
+    }
+
+    function rowAdded(row) {
+      return !!row.isNew && !row.isDeleted;
+    }
+
+    function rowDeleted(row) {
+      return !!row.isDeleted;
+    }
+
+    function getCounts() {
+      return {
+        changed: state.rows.filter(rowChanged).length,
+        added: state.rows.filter(rowAdded).length,
+        deleted: state.rows.filter(rowDeleted).length
+      };
+    }
+
+    function renderFooterInfo(counts) {
+      var pending = counts.changed + counts.added + counts.deleted;
+      document.getElementById("footerInfo").innerHTML =
+        '<span class="footer-metric">商品 <strong>' + state.selected.products.length + '</strong></span>' +
+        '<span class="footer-metric">渠道 <strong>' + state.selected.channels.length + '</strong></span>' +
+        '<span class="footer-metric">字段 <strong>' + state.selected.fields.length + '</strong></span>' +
+        '<span class="footer-metric">勾选 <strong>' + state.selectedRows.length + '</strong></span>' +
+        '<span class="footer-metric is-pending' + (pending ? '' : ' is-idle') + '">待提交 <strong>' + pending + '</strong> 条：修改 ' + counts.changed + ' / 新增 ' + counts.added + ' / 删除 ' + counts.deleted + '</span>';
+      syncSaveButton(pending);
+    }
+
+    function syncSaveButton(pending) {
+      var button = document.querySelector('[data-action="save"]');
+      if (!button) return;
+      button.disabled = pending === 0;
+      button.textContent = pending ? "保存 " + pending : "保存";
+      button.setAttribute("title", pending ? "提交本次变更" : "暂无需要提交的数据");
+    }
+
+    function syncTableKeywordClear() {
+      var button = document.getElementById("tableKeywordClear");
+      if (button) {
+        button.classList.toggle("is-visible", !!state.keyword);
+      }
+    }
+
+    function renderEmptyState(empty, title, desc) {
+      empty.innerHTML =
+        '<div class="empty-state-title">' + escapeHtml(title) + '</div>' +
+        '<div class="empty-state-desc">' + escapeHtml(desc) + '</div>';
+    }
+
+    function formatIdName(id, name) {
+      return id + " - " + name;
+    }
+
+    function setRowModifyValue(row, value) {
+      row.modifyValue = value;
+      row.changed = rowChanged(row);
+    }
+
+    function renderValueEditor(row) {
+      if (row.isDeleted) {
+        return '<span class="cell-ellipsis" data-tooltip="-">-</span>';
+      }
+      var meta = fieldMeta[row.fieldId] || { kind: "text" };
+      var value = row.modifyValue;
+      if (!row.inlineEditing) {
+        var displayValue = value || "点击编辑";
+        var emptyClass = value ? "" : " is-empty";
+        return '<span class="editable-value' + emptyClass + '" data-inline-edit="' + row.id + '" data-tooltip="' + escapeHtml(displayValue) + '">' + escapeHtml(displayValue) + '</span>';
+      }
+      if (meta.kind === "select") {
+        return '<select class="value-select" data-row-edit="' + row.id + '">' +
+          meta.options.map(function(option) {
+            var selected = String(value) === option ? "selected" : "";
+            return '<option value="' + escapeHtml(option) + '" ' + selected + '>' + escapeHtml(option) + '</option>';
+          }).join("") +
+          '</select>';
+      }
+      if (meta.kind === "textarea") {
+        return '<textarea class="value-textarea" data-row-edit="' + row.id + '" placeholder="请输入修改值">' + escapeHtml(value) + '</textarea>';
+      }
+      return '<input class="value-input" data-row-edit="' + row.id + '" type="' + (meta.kind === "number" ? "number" : "text") + '" value="' + escapeHtml(value) + '" placeholder="请输入修改值">';
+    }
+
+    function filteredRows() {
+      var keyword = state.keyword.trim().toLowerCase();
+      if (!keyword) return state.rows;
+      return state.rows.filter(function(row) {
+        return [
+          row.gameLibrary,
+          row.template,
+          row.product.name,
+          row.field,
+          row.channel.name,
+          row.currentValue,
+          row.modifyValue
+        ].join(" ").toLowerCase().indexOf(keyword) > -1;
+      });
+    }
+
+    function renderTable() {
+      var rows = filteredRows();
+      var table = document.getElementById("resultTable");
+      var empty = document.getElementById("emptyState");
+      var body = document.getElementById("tableBody");
+      var counts = getCounts();
+      state.selectedRows = state.rows.filter(function(row) { return row.selected; }).map(function(row) { return row.id; });
+
+      document.getElementById("totalCount").textContent = rows.length;
+      document.getElementById("changedCount").textContent = counts.changed;
+      document.getElementById("addedCount").textContent = counts.added;
+      document.getElementById("deletedCount").textContent = counts.deleted;
+      renderFooterInfo(counts);
+      syncBatchDeleteButton();
+
+      if (!rows.length) {
+        table.style.display = "none";
+        empty.style.display = "flex";
+        if (state.rows.length) {
+          renderEmptyState(empty, "未找到匹配结果", "请调整搜索关键词，或重新选择商品、渠道、字段后查询");
+        } else {
+          renderEmptyState(empty, "暂无可维护字段", "请选择商品、渠道和字段后点击查询");
+        }
+        body.innerHTML = "";
+        syncSelectAllState([]);
+        return;
+      }
+
+      empty.style.display = "none";
+      table.style.display = "";
+      body.innerHTML = rows.map(function(row) {
+        var libraryText = formatIdName(row.gameLibrary.id, row.gameLibrary.name);
+        var templateText = formatIdName(row.template.id, row.template.name);
+        var productText = formatIdName(row.product.id, row.product.name);
+        var fieldText = formatIdName(row.fieldId, row.field);
+        var rowClasses = [rowChanged(row) ? 'is-dirty' : '', rowAdded(row) ? 'is-new' : '', rowDeleted(row) ? 'is-deleted' : '', row.inlineEditing ? 'is-editing' : ''].filter(Boolean).join(' ');
+        return '<tr class="' + rowClasses + '">' +
+          '<td class="select-col"><input type="checkbox" data-row-select="' + row.id + '" ' + (row.selected ? 'checked' : '') + ' aria-label="选择行"></td>' +
+          '<td><span class="cell-ellipsis" data-tooltip="' + escapeHtml(libraryText) + '">' + escapeHtml(libraryText) + '</span></td>' +
+          '<td><span class="cell-ellipsis" data-tooltip="' + escapeHtml(templateText) + '">' + escapeHtml(templateText) + '</span></td>' +
+          '<td><span class="cell-ellipsis" data-tooltip="' + escapeHtml(productText) + '">' + escapeHtml(productText) + '</span></td>' +
+          '<td><span class="cell-ellipsis" data-tooltip="' + escapeHtml(fieldText) + '">' + escapeHtml(fieldText) + '</span></td>' +
+          '<td><span class="field-type" data-tooltip="' + escapeHtml(row.fieldType) + '">' + escapeHtml(row.fieldType) + '</span></td>' +
+          '<td><span class="el-tag is-info" data-tooltip="' + escapeHtml(formatIdName(row.channel.id, row.channel.name)) + '">' + escapeHtml(row.channel.name) + '</span></td>' +
+          '<td><span class="cell-ellipsis" data-tooltip="' + escapeHtml(row.currentValue || '-') + '">' + escapeHtml(row.currentValue || '-') + '</span></td>' +
+          '<td>' + renderValueEditor(row) + '</td>' +
+          '<td class="action-col"><div class="table-actions">' +
+          '<button class="op-icon" type="button" data-row-open="' + row.id + '" data-tooltip="编辑">' + actionIcons.edit + '</button>' +
+          '<button class="op-icon is-reset" type="button" data-row-reset="' + row.id + '" data-tooltip="重置">' + actionIcons.reset + '</button>' +
+          '<button class="op-icon is-delete" type="button" data-row-delete="' + row.id + '" data-tooltip="删除">' + actionIcons.delete + '</button>' +
+          '</div></td>' +
+          '</tr>';
+      }).join("");
+      syncSelectAllState(rows);
+    }
+
+    var actionIcons = {
+      edit: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>',
+      reset: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v6h6"></path></svg>',
+      delete: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg>'
+    };
+
+    function syncBatchDeleteButton() {
+      var button = document.querySelector('[data-action="batchDelete"]');
+      if (button) {
+        button.disabled = !state.selectedRows.length;
+      }
+    }
+
+    function syncSelectAllState(rows) {
+      var checkbox = document.getElementById("selectAllRows");
+      if (!checkbox) return;
+      checkbox.checked = !!rows.length && rows.every(function(row) { return row.selected; });
+      checkbox.indeterminate = rows.some(function(row) { return row.selected; }) && !checkbox.checked;
+    }
+
+    function refreshSummaryOnly() {
+      var counts = getCounts();
+      state.selectedRows = state.rows.filter(function(row) { return row.selected; }).map(function(row) { return row.id; });
+      document.getElementById("changedCount").textContent = counts.changed;
+      document.getElementById("addedCount").textContent = counts.added;
+      document.getElementById("deletedCount").textContent = counts.deleted;
+      renderFooterInfo(counts);
+      syncBatchDeleteButton();
+    }
+
+    function findRow(rowId) {
+      return state.rows.filter(function(row) { return row.id === rowId; })[0];
+    }
+
+    function renderEditValueControl(row) {
+      var meta = fieldMeta[row.fieldId] || { kind: "text" };
+      var value = state.editDraft;
+      if (meta.kind === "select") {
+        return '<select class="value-select" id="editValueControl">' +
+          meta.options.map(function(option) {
+            var selected = String(value) === option ? "selected" : "";
+            return '<option value="' + escapeHtml(option) + '" ' + selected + '>' + escapeHtml(option) + '</option>';
+          }).join("") +
+          '</select>';
+      }
+      if (meta.kind === "textarea") {
+        return '<textarea class="value-textarea" id="editValueControl">' + escapeHtml(value) + '</textarea>';
+      }
+      return '<input class="value-input" id="editValueControl" type="' + (meta.kind === "number" ? "number" : "text") + '" value="' + escapeHtml(value) + '">';
+    }
+
+    function openEditDialog(rowId) {
+      var row = findRow(rowId);
+      if (!row) return;
+      if (row.isDeleted) {
+        showToast("删除行不可编辑");
+        return;
+      }
+      state.editRowId = rowId;
+      state.editDraft = row.modifyValue;
+      var grid = document.getElementById("editFormGrid");
+      grid.innerHTML =
+        '<div class="edit-field"><div class="edit-label">商品库</div><input class="value-input" disabled value="' + escapeHtml(formatIdName(row.gameLibrary.id, row.gameLibrary.name)) + '"></div>' +
+        '<div class="edit-field"><div class="edit-label">商品模板</div><input class="value-input" disabled value="' + escapeHtml(formatIdName(row.template.id, row.template.name)) + '"></div>' +
+        '<div class="edit-field is-wide"><div class="edit-label">商品</div><input class="value-input" disabled value="' + escapeHtml(formatIdName(row.product.id, row.product.name)) + '"></div>' +
+        '<div class="edit-field"><div class="edit-label">字段</div><input class="value-input" disabled value="' + escapeHtml(formatIdName(row.fieldId, row.field)) + '"></div>' +
+        '<div class="edit-field"><div class="edit-label">渠道</div><input class="value-input" disabled value="' + escapeHtml(formatIdName(row.channel.id, row.channel.name)) + '"></div>' +
+        '<div class="edit-field is-wide"><div class="edit-label">当前值</div><textarea class="value-textarea" disabled>' + escapeHtml(row.currentValue) + '</textarea></div>' +
+        '<div class="edit-field is-wide"><div class="edit-label">修改值</div>' + renderEditValueControl(row) + '</div>';
+      document.getElementById("editDialog").classList.add("is-visible");
+      document.getElementById("editDialog").setAttribute("aria-hidden", "false");
+    }
+
+    function closeEditDialog() {
+      document.getElementById("editDialog").classList.remove("is-visible");
+      document.getElementById("editDialog").setAttribute("aria-hidden", "true");
+      state.editRowId = "";
+      state.editDraft = "";
+    }
+
+    function confirmEditDialog() {
+      var row = findRow(state.editRowId);
+      var control = document.getElementById("editValueControl");
+      if (row && control) {
+        setRowModifyValue(row, control.value);
+        row.inlineEditing = false;
+        renderTable();
+      }
+      closeEditDialog();
+    }
+
+    function renderBatchTags(dimensionKey) {
+      var box = document.getElementById("batch" + dimensionKey + "Tags");
+      var count = document.getElementById("batch" + dimensionKey + "Count");
+      if (!box || !count) return;
+      var selected = state.batchSelected[dimensionKey];
+      count.textContent = selected.length + " 项";
+      box.classList.toggle("is-empty", selected.length === 0);
+      if (!selected.length) {
+        box.innerHTML = '<span class="placeholder">' + dimensions[dimensionKey].placeholder + '</span>';
+        return;
+      }
+      box.innerHTML = selected.map(function(id) {
+        var item = getItem(dimensionKey, id);
+        return '<span class="el-tag" title="' + escapeHtml(item.id + ' - ' + item.name) + '">' +
+          escapeHtml(item.id + ' - ' + item.name) +
+          '<button class="tag-close" type="button" data-remove-batch-tag="' + dimensionKey + '" data-id="' + id + '">×</button>' +
+          '</span>';
+      }).join("");
+    }
+
+    function renderBatchDimensions() {
+      document.getElementById('batchDimensionGrid').innerHTML =
+        '<div class="dimension-row">' +
+        '<div class="dimension-label"><span class="required-dot">*</span>商品选择</div>' +
+        '<div class="tag-box" id="batchproductsTags" data-batch-open="products"></div>' +
+        '<div class="dimension-actions"><span class="count-text" id="batchproductsCount"></span></div>' +
+        '</div>' +
+        '<div class="dimension-row">' +
+        '<div class="dimension-label"><span class="required-dot">*</span>渠道选择</div>' +
+        '<div class="tag-box" id="batchchannelsTags" data-batch-open="channels"></div>' +
+        '<div class="dimension-actions"><span class="count-text" id="batchchannelsCount"></span></div>' +
+        '</div>' +
+        '<div class="dimension-row">' +
+        '<div class="dimension-label"><span class="required-dot">*</span>字段选择</div>' +
+        '<div class="tag-box" id="batchfieldsTags" data-batch-open="fields"></div>' +
+        '<div class="dimension-actions"><span class="count-text" id="batchfieldsCount"></span></div>' +
+        '</div>';
+      renderBatchTags('products');
+      renderBatchTags('channels');
+      renderBatchTags('fields');
+    }
+
+    function collectBatchSelection() {
+      return {
+        products: state.batchSelected.products.slice(),
+        channels: state.batchSelected.channels.slice(),
+        fields: state.batchSelected.fields.slice()
+      };
+    }
+
+    function sampleValueForField(fieldId) {
+      var row = state.rows.filter(function(item) { return item.fieldId === fieldId; })[0];
+      if (row) return row.modifyValue;
+      var meta = fieldMeta[fieldId] || {};
+      return meta.options && meta.options.length ? meta.options[0] : '';
+    }
+
+    function renderBatchValueControl(fieldId) {
+      var meta = fieldMeta[fieldId] || { kind: 'text' };
+      var value = sampleValueForField(fieldId);
+      if (meta.kind === 'select') {
+        return '<select class="value-select" data-batch-value="' + fieldId + '">' +
+          meta.options.map(function(option) {
+            var selected = String(value) === option ? 'selected' : '';
+            return '<option value="' + escapeHtml(option) + '" ' + selected + '>' + escapeHtml(option) + '</option>';
+          }).join('') +
+          '</select>';
+      }
+      if (meta.kind === 'textarea') {
+        return '<textarea class="value-textarea" data-batch-value="' + fieldId + '">' + escapeHtml(value) + '</textarea>';
+      }
+      return '<input class="value-input" data-batch-value="' + fieldId + '" type="' + (meta.kind === 'number' ? 'number' : 'text') + '" value="' + escapeHtml(value) + '">';
+    }
+
+    function renderBatchEditList() {
+      var list = document.getElementById('batchEditList');
+      var card = document.getElementById('batchEditCard');
+      card.style.display = '';
+      var selected = collectBatchSelection();
+      var fields = selected.fields.map(function(id) { return getItem('fields', id); }).filter(Boolean);
+      if (!fields.length) {
+        list.innerHTML = '<div class="batch-empty">请选择字段后维护批量字段值</div>';
+        return;
+      }
+      list.innerHTML = fields.map(function(field) {
+        return '<div class="batch-edit-item">' +
+          '<div class="edit-label">' + escapeHtml(field.id + ' - ' + field.name) + '</div>' +
+          renderBatchValueControl(field.id) +
+          '</div>';
+      }).join('');
+    }
+
+    function openBatchDialog(mode) {
+      state.batchMode = mode;
+      state.batchSelected = {
+        products: state.selected.products.slice(),
+        channels: state.selected.channels.slice(),
+        fields: state.selected.fields.slice()
+      };
+      document.getElementById('batchDialogTitle').textContent = mode === 'add' ? '批量新增商品字段' : '批量修改商品字段';
+      renderBatchDimensions();
+      document.getElementById('batchDialog').classList.add('is-visible');
+      document.getElementById('batchDialog').setAttribute('aria-hidden', 'false');
+      renderBatchEditList();
+    }
+
+    function closeBatchDialog() {
+      document.getElementById('batchDialog').classList.remove('is-visible');
+      document.getElementById('batchDialog').setAttribute('aria-hidden', 'true');
+      state.batchMode = '';
+    }
+
+    function applyBatchAdd() {
+      var selected = collectBatchSelection();
+      var products = selected.products.map(function(id) { return getItem('products', id); }).filter(Boolean);
+      var channels = selected.channels.map(function(id) { return getItem('channels', id); }).filter(Boolean);
+      var fields = selected.fields.map(function(id) { return getItem('fields', id); }).filter(Boolean);
+      if (!products.length || !channels.length || !fields.length) {
+        showToast('请先选择商品、渠道和字段');
+        return;
+      }
+      var existingIds = {};
+      var values = {};
+      Array.from(document.querySelectorAll('[data-batch-value]')).forEach(function(control) {
+        values[control.getAttribute('data-batch-value')] = control.value;
+      });
+      state.rows.forEach(function(row) { existingIds[row.id] = true; });
+      var addedCount = 0;
+      products.forEach(function(product) {
+        channels.forEach(function(channel) {
+          fields.forEach(function(field) {
+            var id = product.id + '_' + channel.id + '_' + field.id;
+            if (existingIds[id]) return;
+            var row = createRow(product, channel, field, state.rows.length, true, values[field.id] || "");
+            state.rows.push(row);
+            existingIds[id] = true;
+            addedCount += 1;
+          });
+        });
+      });
+      renderTable();
+      closeBatchDialog();
+      showToast('批量新增完成，新增 ' + addedCount + ' 条，已存在的不重复新增');
+    }
+
+    function applyBatchEdit() {
+      var selected = collectBatchSelection();
+      if (!selected.products.length || !selected.channels.length || !selected.fields.length) {
+        showToast('请先选择商品、渠道和字段');
+        return;
+      }
+      var values = {};
+      Array.from(document.querySelectorAll('[data-batch-value]')).forEach(function(control) {
+        values[control.getAttribute('data-batch-value')] = control.value;
+      });
+      var updated = 0;
+      state.rows.forEach(function(row) {
+        if (selected.products.indexOf(row.product.id) < 0) return;
+        if (selected.channels.indexOf(row.channel.id) < 0) return;
+        if (selected.fields.indexOf(row.fieldId) < 0) return;
+        if (!Object.prototype.hasOwnProperty.call(values, row.fieldId)) return;
+        setRowModifyValue(row, values[row.fieldId]);
+        row.inlineEditing = false;
+        updated += 1;
+      });
+      renderTable();
+      closeBatchDialog();
+      showToast('批量修改完成，共写入 ' + updated + ' 条');
+    }
+
+    function confirmBatchDialog() {
+      if (state.batchMode === 'add') {
+        applyBatchAdd();
+        return;
+      }
+      if (state.batchMode === 'edit') {
+        applyBatchEdit();
+      }
+    }
+
+    function markRowsDeleted(rowIds) {
+      var count = 0;
+      var removedNewCount = 0;
+      state.rows.forEach(function(row) {
+        if (rowIds.indexOf(row.id) < 0) return;
+        if (row.isNew) {
+          removedNewCount += 1;
+          return;
+        }
+        row.isDeleted = true;
+        row.selected = false;
+        row.inlineEditing = false;
+        count += 1;
+      });
+      if (removedNewCount) {
+        state.rows = state.rows.filter(function(row) {
+          return !(row.isNew && rowIds.indexOf(row.id) > -1);
+        });
+      }
+      renderTable();
+      showToast('已删除 ' + (count + removedNewCount) + ' 条' + (removedNewCount ? '，其中新增数据已直接移除' : ''));
+    }
+
+    function submitRows() {
+      var list = [];
+      state.rows.forEach(function(row) {
+        if (rowDeleted(row)) {
+          list.push({ row: row, action: '删除', oldValue: row.currentValue || '-', newValue: '-' });
+          return;
+        }
+        if (rowAdded(row)) {
+          list.push({ row: row, action: '新增', oldValue: '-', newValue: row.modifyValue || '-' });
+          return;
+        }
+        if (rowChanged(row)) {
+          list.push({ row: row, action: '修改', oldValue: row.currentValue || '-', newValue: row.modifyValue || '-' });
+        }
+      });
+      return list;
+    }
+
+    function openSubmitDialog() {
+      var list = submitRows();
+      if (!list.length) {
+        showToast('暂无需要提交的数据');
+        return;
+      }
+      var changeCount = list.filter(function(item) { return item.action === '修改'; }).length;
+      var addCount = list.filter(function(item) { return item.action === '新增'; }).length;
+      var deleteCount = list.filter(function(item) { return item.action === '删除'; }).length;
+      document.getElementById('submitSummary').textContent = '本次提交共 ' + list.length + ' 条，请按分类核对后确认提交。';
+      document.getElementById('submitChangeCount').textContent = changeCount;
+      document.getElementById('submitAddCount').textContent = addCount;
+      document.getElementById('submitDeleteCount').textContent = deleteCount;
+      state.submitActiveTab = changeCount ? '修改' : addCount ? '新增' : '删除';
+      renderSubmitTabs();
+      renderSubmitTable();
+      document.getElementById('submitDialog').classList.add('is-visible');
+      document.getElementById('submitDialog').setAttribute('aria-hidden', 'false');
+    }
+
+    function renderSubmitTabs() {
+      Array.from(document.querySelectorAll('.submit-tab')).forEach(function(tab) {
+        tab.classList.toggle('is-active', tab.getAttribute('data-submit-tab') === state.submitActiveTab);
+      });
+    }
+
+    function renderSubmitTable() {
+      var list = submitRows().filter(function(item) {
+        return item.action === state.submitActiveTab;
+      });
+      if (!list.length) {
+        document.getElementById('submitTableBody').innerHTML = '<tr><td colspan="6"><div class="batch-empty">当前分类暂无提交数据</div></td></tr>';
+        return;
+      }
+      document.getElementById('submitTableBody').innerHTML = list.map(function(item) {
+        var row = item.row;
+        return '<tr>' +
+          '<td><span class="cell-ellipsis" data-tooltip="' + escapeHtml(formatIdName(row.product.id, row.product.name)) + '">' + escapeHtml(formatIdName(row.product.id, row.product.name)) + '</span></td>' +
+          '<td><span class="cell-ellipsis" data-tooltip="' + escapeHtml(formatIdName(row.fieldId, row.field)) + '">' + escapeHtml(formatIdName(row.fieldId, row.field)) + '</span></td>' +
+          '<td><span class="field-type" data-tooltip="' + escapeHtml(row.fieldType) + '">' + escapeHtml(row.fieldType) + '</span></td>' +
+          '<td><span class="el-tag is-info" data-tooltip="' + escapeHtml(formatIdName(row.channel.id, row.channel.name)) + '">' + escapeHtml(row.channel.name) + '</span></td>' +
+          '<td><span class="cell-ellipsis submit-old-value" data-tooltip="' + escapeHtml(item.oldValue) + '">' + escapeHtml(item.oldValue) + '</span></td>' +
+          '<td><span class="cell-ellipsis submit-new-value" data-tooltip="' + escapeHtml(item.newValue) + '">' + escapeHtml(item.newValue) + '</span></td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    function closeSubmitDialog() {
+      document.getElementById('submitDialog').classList.remove('is-visible');
+      document.getElementById('submitDialog').setAttribute('aria-hidden', 'true');
+    }
+
+    function confirmSubmitDialog() {
+      var count = submitRows().length;
+      closeSubmitDialog();
+      showToast('提交成功，共 ' + count + ' 条');
+    }
+
+    function showToast(message) {
+      var toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("is-visible");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(function() {
+        toast.classList.remove("is-visible");
+      }, 1800);
+    }
+
+    function ensureTooltip() {
+      var tooltip = document.getElementById("elTooltipPopper");
+      if (!tooltip) {
+        tooltip = document.createElement("div");
+        tooltip.id = "elTooltipPopper";
+        tooltip.className = "el-tooltip-popper";
+        document.body.appendChild(tooltip);
+      }
+      return tooltip;
+    }
+
+    function showTooltip(target) {
+      var text = target && target.getAttribute("data-tooltip");
+      if (!text) return;
+      var tooltip = ensureTooltip();
+      tooltip.textContent = text;
+      tooltip.style.display = "block";
+      var rect = target.getBoundingClientRect();
+      var tipRect = tooltip.getBoundingClientRect();
+      var left = rect.left + rect.width / 2 - tipRect.width / 2;
+      left = Math.max(8, Math.min(left, window.innerWidth - tipRect.width - 8));
+      var top = rect.top - tipRect.height - 10;
+      if (top < 8) {
+        top = rect.bottom + 10;
+        tooltip.style.setProperty("--arrow-bottom", "auto");
+      }
+      tooltip.style.left = left + "px";
+      tooltip.style.top = top + "px";
+    }
+
+    function hideTooltip() {
+      var tooltip = document.getElementById("elTooltipPopper");
+      if (tooltip) {
+        tooltip.style.display = "none";
+      }
+    }
+
+    function resetAll() {
+      state.selected.products = [];
+      state.selected.channels = [];
+      state.selected.fields = [];
+      state.rows = [];
+      state.selectedRows = [];
+      state.editRowId = "";
+      state.editDraft = "";
+      state.keyword = "";
+      document.getElementById("tableKeyword").value = "";
+      syncTableKeywordClear();
+      renderAllTags();
+      renderTable();
+    }
+
+    document.addEventListener("click", function(event) {
+      var openNode = event.target.closest("[data-open]");
+      var openKey = openNode && openNode.getAttribute("data-open");
+      var clearKey = event.target.getAttribute("data-clear");
+      var removeTagKey = event.target.getAttribute("data-remove-tag");
+      var batchOpenNode = event.target.closest("[data-batch-open]");
+      var batchOpenKey = batchOpenNode && batchOpenNode.getAttribute("data-batch-open");
+      var removeBatchTagKey = event.target.getAttribute("data-remove-batch-tag");
+      var action = event.target.getAttribute("data-action");
+      var transfer = event.target.getAttribute("data-transfer");
+      var dialog = event.target.getAttribute("data-dialog");
+      var rowReset = event.target.getAttribute("data-row-reset");
+      var rowDelete = event.target.getAttribute("data-row-delete");
+      var rowOpen = event.target.getAttribute("data-row-open");
+      var inlineEdit = event.target.getAttribute("data-inline-edit");
+      var editDialogAction = event.target.getAttribute("data-edit-dialog");
+      var batchDialogAction = event.target.getAttribute("data-batch-dialog");
+      var submitDialogAction = event.target.getAttribute("data-submit-dialog");
+      var submitTab = event.target.closest("[data-submit-tab]");
+
+      if (openKey && !removeTagKey) openDialog(openKey);
+      if (batchOpenKey && !removeBatchTagKey) openDialog(batchOpenKey, "batch");
+      if (clearKey) {
+        state.selected[clearKey] = [];
+        renderTags(clearKey);
+      }
+      if (removeTagKey) {
+        var id = event.target.getAttribute("data-id");
+        state.selected[removeTagKey] = state.selected[removeTagKey].filter(function(itemId) {
+          return itemId !== id;
+        });
+        renderTags(removeTagKey);
+      }
+      if (removeBatchTagKey) {
+        var batchRemoveId = event.target.getAttribute("data-id");
+        state.batchSelected[removeBatchTagKey] = state.batchSelected[removeBatchTagKey].filter(function(itemId) {
+          return itemId !== batchRemoveId;
+        });
+        renderBatchTags(removeBatchTagKey);
+        if (removeBatchTagKey === "fields") {
+          renderBatchEditList();
+        }
+      }
+      if (action === "query") {
+        buildRows();
+        document.querySelector(".table-panel").scrollIntoView({ block: "start" });
+        showToast("查询完成");
+      }
+      if (action === "resetAll") resetAll();
+      if (action === "clearTableKeyword") {
+        state.keyword = "";
+        document.getElementById("tableKeyword").value = "";
+        syncTableKeywordClear();
+        renderTable();
+      }
+      if (action === "batchAdd") openBatchDialog("add");
+      if (action === "batchEdit") openBatchDialog("edit");
+      if (action === "batchDelete") {
+        if (!state.selectedRows.length) {
+          showToast("请先勾选需要删除的行");
+        } else {
+          markRowsDeleted(state.selectedRows.slice());
+        }
+      }
+      if (action === "cancel") {
+        state.rows.forEach(function(row) {
+          setRowModifyValue(row, row.currentValue);
+          row.inlineEditing = false;
+          row.isDeleted = false;
+        });
+        renderTable();
+        showToast("已取消本次修改");
+      }
+      if (action === "save") {
+        openSubmitDialog();
+      }
+      if (transfer === "add") {
+        addDraftSelection(state.sourceChecked);
+      }
+      if (transfer === "remove") {
+        removeDraftSelection(state.selectedChecked);
+      }
+      if (transfer === "selectAll") {
+        addDraftSelection(flatten(state.activeDimension).map(function(item) { return item.id; }));
+      }
+      if (transfer === "clear") {
+        state.draftSelection = [];
+        state.selectedChecked = [];
+        renderDialog();
+      }
+      if (dialog === "close" || dialog === "cancel") closeDialog();
+      if (dialog === "confirm") {
+        if (state.selectorScope === "batch") {
+          state.batchSelected[state.activeDimension] = state.draftSelection.slice();
+          renderBatchTags(state.activeDimension);
+          if (state.activeDimension === "fields") {
+            renderBatchEditList();
+          }
+        } else {
+          state.selected[state.activeDimension] = state.draftSelection.slice();
+          renderTags(state.activeDimension);
+        }
+        closeDialog();
+      }
+      if (rowReset) {
+        state.rows.forEach(function(row) {
+          if (row.id === rowReset) {
+            setRowModifyValue(row, row.currentValue);
+            row.inlineEditing = false;
+            row.isDeleted = false;
+          }
+        });
+        renderTable();
+      }
+      if (rowDelete) {
+        markRowsDeleted([rowDelete]);
+      }
+      if (rowOpen) openEditDialog(rowOpen);
+      if (inlineEdit) {
+        state.rows.forEach(function(row) {
+          row.inlineEditing = row.id === inlineEdit;
+        });
+        renderTable();
+      }
+      if (editDialogAction === "close" || editDialogAction === "cancel") closeEditDialog();
+      if (editDialogAction === "confirm") confirmEditDialog();
+      if (batchDialogAction === "close" || batchDialogAction === "cancel") closeBatchDialog();
+      if (batchDialogAction === "confirm") confirmBatchDialog();
+      if (submitDialogAction === "close" || submitDialogAction === "cancel") closeSubmitDialog();
+      if (submitDialogAction === "confirm") confirmSubmitDialog();
+      if (submitTab) {
+        state.submitActiveTab = submitTab.getAttribute("data-submit-tab");
+        renderSubmitTabs();
+        renderSubmitTable();
+      }
+    });
+
+    document.addEventListener("change", function(event) {
+      var sourceId = event.target.getAttribute("data-source-check");
+      var selectedId = event.target.getAttribute("data-selected-check");
+      var rowId = event.target.getAttribute("data-row-edit");
+      var rowSelectId = event.target.getAttribute("data-row-select");
+      if (sourceId) {
+        if (event.target.checked && state.sourceChecked.indexOf(sourceId) === -1) {
+          state.sourceChecked.push(sourceId);
+        }
+        if (!event.target.checked) {
+          state.sourceChecked = state.sourceChecked.filter(function(id) { return id !== sourceId; });
+        }
+      }
+      if (selectedId) {
+        if (event.target.checked && state.selectedChecked.indexOf(selectedId) === -1) {
+          state.selectedChecked.push(selectedId);
+        }
+        if (!event.target.checked) {
+          state.selectedChecked = state.selectedChecked.filter(function(id) { return id !== selectedId; });
+        }
+      }
+      if (rowId) {
+        state.rows.forEach(function(row) {
+          if (row.id === rowId) {
+            setRowModifyValue(row, event.target.value);
+            row.inlineEditing = false;
+          }
+        });
+        renderTable();
+      }
+      if (rowSelectId) {
+        state.rows.forEach(function(row) {
+          if (row.id === rowSelectId) {
+            row.selected = event.target.checked;
+          }
+        });
+        renderTable();
+      }
+      if (event.target.id === "selectAllRows") {
+        var rows = filteredRows();
+        rows.forEach(function(row) {
+          row.selected = event.target.checked;
+        });
+        renderTable();
+      }
+    });
+
+    document.addEventListener("input", function(event) {
+      var rowId = event.target.getAttribute("data-row-edit");
+      if (!rowId) return;
+      var row = findRow(rowId);
+      if (!row) return;
+      setRowModifyValue(row, event.target.value);
+      var tableRow = event.target.closest("tr");
+      if (tableRow) {
+        tableRow.classList.toggle("is-dirty", rowChanged(row));
+      }
+      refreshSummaryOnly();
+    });
+
+    document.addEventListener("mouseover", function(event) {
+      var target = event.target.closest("[data-tooltip]");
+      if (target) {
+        showTooltip(target);
+      }
+    });
+
+    document.addEventListener("mouseout", function(event) {
+      if (event.target.closest("[data-tooltip]")) {
+        hideTooltip();
+      }
+    });
+
+    document.addEventListener("focusin", function(event) {
+      var target = event.target.closest("[data-tooltip]");
+      if (target) {
+        showTooltip(target);
+      }
+    });
+
+    document.addEventListener("focusout", function(event) {
+      if (event.target.closest("[data-tooltip]")) {
+        hideTooltip();
+      }
+    });
+
+    document.getElementById("selectorKeyword").addEventListener("input", renderDialog);
+    document.getElementById("tableKeyword").addEventListener("input", function(event) {
+      state.keyword = event.target.value;
+      syncTableKeywordClear();
+      renderTable();
+    });
+
+    document.getElementById("selectorDialog").addEventListener("click", function(event) {
+      if (event.target.id === "selectorDialog") closeDialog();
+    });
+
+    document.getElementById("editDialog").addEventListener("click", function(event) {
+      if (event.target.id === "editDialog") closeEditDialog();
+    });
+
+    document.getElementById("batchDialog").addEventListener("click", function(event) {
+      if (event.target.id === "batchDialog") closeBatchDialog();
+    });
+
+    document.getElementById("submitDialog").addEventListener("click", function(event) {
+      if (event.target.id === "submitDialog") closeSubmitDialog();
+    });
+
+    renderAllTags();
+    buildRows();
+    syncTableKeywordClear();
+  </script>
+</body>
+</html>

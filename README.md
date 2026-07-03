@@ -20,6 +20,7 @@
 | [tools/timestamp-converter/](tools/timestamp-converter/) | 时间戳与日期时间互转（秒/毫秒、UTC、复制） |
 | [tools/json-formatter/](tools/json-formatter/) | JSON 校验、美化与压缩（缩进、键排序、复制） |
 | [tools/emoji-tool/](tools/emoji-tool/) | Emoji 分类大全、CLDR 中文名、搜索与一键复制 |
+| [tools/mermaid-editor/](tools/mermaid-editor/) | Mermaid 图表实时编辑与预览，支持导出 PNG / SVG |
 
 ## 工具说明
 
@@ -34,6 +35,10 @@
 ### Emoji 表情大全（`tools/emoji-tool/`）
 
 与索引同系的深色界面：从 CDN 加载 `unicode-emoji-json` 分组列表，并用 Unicode CLDR `cldr-annotations-modern` 的 `annotations/zh` 提供中文名称与关键词（搜索支持中文）；无匹配时回退英文。失败时回退内置示例；含「最近使用」与显示差异说明。
+
+### Mermaid 图表编辑器（`tools/mermaid-editor/`）
+
+左右分栏布局：左侧 textarea 编辑 Mermaid 代码，右侧实时渲染图表；输入防抖 600ms 自动刷新，`Ctrl+Enter` 手动刷新。内置流程图、时序图、甘特图、类图、状态图、饼图六种中文示例模板；支持导出 SVG 与高清 PNG（2x 缩放，深色背景）。基于 CDN 加载 `mermaid@11`，暗色主题与项目风格统一。
 
 ## Demo 附录
 

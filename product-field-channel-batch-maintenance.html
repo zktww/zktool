@@ -37,6 +37,14 @@
       font-size: 14px;
     }
 
+    body.is-dialog-open {
+      position: fixed;
+      left: 0;
+      right: 0;
+      width: 100%;
+      overflow: hidden;
+    }
+
     button,
     input,
     textarea {
@@ -172,6 +180,79 @@
       white-space: nowrap;
     }
 
+    .dimension-mode-select {
+      position: relative;
+      display: inline-block;
+      width: 86px;
+      text-align: left;
+      font-weight: 500;
+    }
+
+    .dimension-mode-trigger {
+      height: 26px;
+      width: 100%;
+      padding: 0 22px 0 8px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--text-regular);
+      cursor: pointer;
+      font-size: 12px;
+      text-align: left;
+      line-height: 24px;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .dimension-mode-trigger:hover,
+    .dimension-mode-select.is-open .dimension-mode-trigger {
+      border-color: var(--el-blue);
+      box-shadow: 0 0 0 2px rgba(64, 158, 255, .08);
+    }
+
+    .dimension-mode-trigger::after {
+      content: "⌄";
+      position: absolute;
+      right: 8px;
+      top: 3px;
+      color: #c0c4cc;
+      font-size: 12px;
+      pointer-events: none;
+    }
+
+    .dimension-mode-menu {
+      display: none;
+      position: absolute;
+      top: 30px;
+      right: 0;
+      z-index: 25;
+      min-width: 96px;
+      padding: 4px 0;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 8px 22px rgba(31, 45, 61, .14);
+    }
+
+    .dimension-mode-select.is-open .dimension-mode-menu {
+      display: block;
+    }
+
+    .dimension-mode-option {
+      height: 30px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      color: var(--text-regular);
+      font-size: 12px;
+    }
+
+    .dimension-mode-option:hover,
+    .dimension-mode-option.is-active {
+      background: var(--el-blue-light);
+      color: var(--el-blue);
+    }
+
     .required-dot {
       margin-right: 4px;
       color: var(--el-red);
@@ -243,6 +324,22 @@
       border-color: #f0f2f5;
       background: #fafafa;
       color: #909399;
+    }
+
+    .el-tag.is-danger {
+      border-color: #fde2e2;
+      background: #fef0f0;
+      color: var(--el-red);
+    }
+
+    .el-tag.is-danger .tag-close {
+      background: rgba(245, 108, 108, .14);
+      color: var(--el-red);
+    }
+
+    .el-tag.is-danger .tag-close:hover {
+      background: var(--el-red);
+      color: #fff;
     }
 
     .tag-close {
@@ -671,12 +768,18 @@
       color: var(--text-main);
       outline: none;
       transition: border-color .15s ease, box-shadow .15s ease;
+      font-size: 12px;
     }
 
     .value-input,
     .value-select {
-      height: 28px;
-      padding: 0 7px;
+      height: 32px;
+      padding: 0 9px;
+    }
+
+    .value-select.is-multiple {
+      height: 58px;
+      padding: 4px 7px;
     }
 
     .value-textarea {
@@ -691,6 +794,426 @@
     .value-textarea:focus {
       border-color: var(--el-blue);
       box-shadow: 0 0 0 2px rgba(64, 158, 255, .08);
+    }
+
+    .inline-el-control {
+      position: relative;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .inline-el-control .value-input,
+    .inline-el-control .value-select {
+      height: 32px;
+      border-color: #dcdfe6;
+      border-radius: 4px;
+      color: #606266;
+      box-shadow: none;
+    }
+
+    .inline-el-control .value-input:hover,
+    .inline-el-control .value-select:hover {
+      border-color: #c0c4cc;
+    }
+
+    .inline-el-control .value-input:focus,
+    .inline-el-control .value-select:focus {
+      border-color: var(--el-blue);
+      box-shadow: 0 0 0 2px rgba(64, 158, 255, .08);
+    }
+
+    .inline-el-control.is-select .value-select,
+    .inline-el-control.is-time .value-input {
+      padding-right: 28px;
+    }
+
+    .inline-el-control.is-select .value-select {
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+
+    .inline-el-control.is-select::after {
+      content: "⌄";
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      color: #c0c4cc;
+      transform: translateY(-50%);
+      pointer-events: none;
+      font-size: 12px;
+    }
+
+    .inline-el-control.is-time::after {
+      content: "◷";
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      color: #c0c4cc;
+      transform: translateY(-50%);
+      pointer-events: none;
+      font-size: 13px;
+    }
+
+    .inline-el-control.is-multiple:not(.inline-select-control) {
+      min-height: 58px;
+    }
+
+    .inline-el-control.is-multiple:not(.inline-select-control) .value-select {
+      min-height: 58px;
+      border-color: #dcdfe6;
+      background: linear-gradient(#fff, #fff);
+    }
+
+    .inline-el-control.is-textarea .value-textarea {
+      border-color: #dcdfe6;
+      border-radius: 4px;
+      color: #606266;
+    }
+
+    .inline-el-control.is-textarea .value-textarea:hover {
+      border-color: #c0c4cc;
+    }
+
+    .inline-select-control {
+      position: relative;
+      height: 32px;
+      min-height: 32px;
+      line-height: 32px;
+    }
+
+    .inline-select-trigger {
+      height: 32px;
+      min-height: 32px;
+      max-height: 32px;
+      width: 100%;
+      padding: 0 28px 0 9px;
+      border: 1px solid #dcdfe6;
+      border-radius: 4px;
+      background: #fff;
+      color: #606266;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      line-height: 30px;
+      text-align: left;
+      overflow: hidden;
+      box-sizing: border-box;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .inline-select-trigger:hover,
+    .inline-select-control.is-open .inline-select-trigger {
+      border-color: var(--el-blue);
+      box-shadow: 0 0 0 2px rgba(64, 158, 255, .08);
+    }
+
+    .inline-select-label {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+
+    .inline-select-arrow {
+      position: absolute;
+      right: 10px;
+      top: 16px;
+      color: #c0c4cc;
+      transform: translateY(-50%);
+      pointer-events: none;
+      font-size: 12px;
+    }
+
+    .inline-select-dropdown {
+      display: none;
+      position: absolute;
+      top: 36px;
+      left: 0;
+      z-index: 30;
+      min-width: 100%;
+      width: max(100%, 148px);
+      max-height: 220px;
+      padding: 6px 0;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 8px 22px rgba(31, 45, 61, .14);
+      overflow: auto;
+      line-height: normal;
+    }
+
+    .inline-select-control.is-open .inline-select-dropdown {
+      display: block;
+    }
+
+    .inline-select-option {
+      height: 32px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #606266;
+      cursor: pointer;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .inline-select-option:hover {
+      background: var(--el-blue-light);
+      color: var(--el-blue);
+    }
+
+    .inline-select-option.is-active {
+      color: var(--el-blue);
+      font-weight: 600;
+      background: #f5faff;
+    }
+
+    .inline-select-check {
+      width: 14px;
+      height: 14px;
+      border: 1px solid #dcdfe6;
+      border-radius: 2px;
+      background: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+
+    .inline-select-option.is-active .inline-select-check {
+      border-color: var(--el-blue);
+      background: var(--el-blue);
+    }
+
+    .inline-select-option.is-active .inline-select-check::after {
+      content: "✓";
+    }
+
+    .inline-el-control.is-time .value-input {
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .inline-time-control {
+      position: relative;
+    }
+
+    .inline-time-control .value-input {
+      cursor: text;
+    }
+
+    .inline-time-button {
+      position: absolute;
+      right: 1px;
+      top: 1px;
+      width: 30px;
+      height: 30px;
+      border: 0;
+      border-left: 1px solid #ebeef5;
+      border-radius: 0 4px 4px 0;
+      background: #fff;
+      color: #c0c4cc;
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 30px;
+    }
+
+    .inline-time-button:hover,
+    .inline-time-control.is-open .inline-time-button {
+      color: var(--el-blue);
+      background: #f5faff;
+    }
+
+    .inline-time-panel {
+      display: none;
+      position: absolute;
+      top: 36px;
+      left: 0;
+      z-index: 32;
+      width: 372px;
+      padding: 0;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 8px 22px rgba(31, 45, 61, .14);
+      color: #606266;
+      line-height: normal;
+    }
+
+    .inline-time-control.is-open .inline-time-panel {
+      display: block;
+    }
+
+    .inline-time-now {
+      height: 28px;
+      padding: 0 10px;
+      border: 0;
+      border-radius: 4px;
+      background: #fff;
+      color: var(--el-blue);
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .inline-time-body {
+      padding: 12px 14px 10px;
+    }
+
+    .inline-time-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #ebeef5;
+    }
+
+    .inline-time-fields input {
+      height: 36px;
+      width: 100%;
+      min-width: 0;
+      border: 1px solid #dcdfe6;
+      border-radius: 4px;
+      padding: 0 12px;
+      color: #606266;
+      outline: none;
+      font-size: 13px;
+      box-sizing: border-box;
+    }
+
+    .inline-time-fields input:focus {
+      border-color: var(--el-blue);
+      box-shadow: 0 0 0 2px rgba(64, 158, 255, .08);
+    }
+
+    .inline-time-calendar-head {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #606266;
+      font-size: 18px;
+    }
+
+    .inline-time-calendar-head strong {
+      flex: 1;
+      text-align: center;
+      color: #606266;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .inline-time-calendar-head button {
+      width: 28px;
+      height: 28px;
+      border: 0;
+      border-radius: 4px;
+      background: #fff;
+      color: #606266;
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 24px;
+    }
+
+    .inline-time-calendar-head button:hover {
+      color: var(--el-blue);
+      background: var(--el-blue-light);
+    }
+
+    .inline-time-weekdays,
+    .inline-time-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+    }
+
+    .inline-time-weekdays {
+      height: 34px;
+      border-bottom: 1px solid #ebeef5;
+      align-items: center;
+      color: #606266;
+      font-size: 14px;
+    }
+
+    .inline-time-days {
+      padding: 8px 0 6px;
+      row-gap: 2px;
+    }
+
+    .inline-time-day {
+      height: 34px;
+      border: 0;
+      border-radius: 4px;
+      background: #fff;
+      color: #606266;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 34px;
+    }
+
+    .inline-time-day:hover {
+      color: var(--el-blue);
+      background: var(--el-blue-light);
+    }
+
+    .inline-time-day.is-muted {
+      color: #c0c4cc;
+    }
+
+    .inline-time-day.is-today {
+      color: var(--el-blue);
+      font-weight: 600;
+    }
+
+    .inline-time-day.is-active {
+      color: #fff;
+      background: var(--el-blue);
+      font-weight: 600;
+    }
+
+    .inline-time-footer {
+      height: 48px;
+      padding: 8px 8px;
+      border-top: 1px solid #ebeef5;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .inline-time-actions button:hover,
+    .inline-time-now:hover {
+      border-color: var(--el-blue);
+      color: var(--el-blue);
+      background: var(--el-blue-light);
+    }
+
+    .inline-time-confirm {
+      height: 32px;
+      padding: 0 14px;
+      border: 1px solid #dcdfe6;
+      border-radius: 4px;
+      background: #fff;
+      color: #606266;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .inline-time-confirm.is-primary {
+      border-color: var(--el-blue);
+      background: var(--el-blue);
+      color: #fff;
+    }
+
+    .inline-time-confirm.is-primary:hover {
+      background: #66b1ff;
+      color: #fff;
     }
 
     .editable-value {
@@ -754,12 +1277,12 @@
     }
 
     .op-icon.is-reset {
-      color: #909399;
+      color: var(--el-blue);
     }
 
     .op-icon.is-reset:hover {
-      background: #f4f4f5;
-      color: #606266;
+      background: var(--el-blue-light);
+      color: #66b1ff;
     }
 
     .op-icon.is-delete {
@@ -927,6 +1450,22 @@
       display: flex;
     }
 
+    #batchDialog {
+      z-index: 60;
+    }
+
+    #selectorDialog {
+      z-index: 70;
+    }
+
+    #editDialog {
+      z-index: 80;
+    }
+
+    #submitDialog {
+      z-index: 70;
+    }
+
     .dialog {
       width: min(1040px, calc(100vw - 48px));
       height: min(690px, calc(100vh - 64px));
@@ -973,7 +1512,8 @@
       background: var(--fill-light);
       display: grid;
       grid-template-columns: minmax(0, 1fr) 82px minmax(0, 1fr);
-      gap: 12px;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 10px 12px;
     }
 
     .transfer-panel {
@@ -1030,6 +1570,252 @@
       width: 100%;
       border: 0;
       outline: none;
+    }
+
+    .transfer-filter-line {
+      margin: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .transfer-filter-line .transfer-search {
+      flex: 1;
+      min-width: 0;
+      margin: 0;
+    }
+
+    .transfer-search-type {
+      display: none;
+      position: relative;
+      width: 112px;
+      flex-shrink: 0;
+    }
+
+    .transfer-search-type.is-visible {
+      display: block;
+    }
+
+    .search-type-button {
+      height: 34px;
+      width: 100%;
+      padding: 0 10px;
+      border: 1px solid #b3d8ff;
+      border-radius: 4px;
+      background: #fff;
+      color: var(--text-regular);
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .search-type-button:hover,
+    .transfer-search-type.is-open .search-type-button {
+      border-color: var(--el-blue);
+      color: var(--el-blue);
+      box-shadow: 0 0 0 2px rgba(64, 158, 255, .08);
+    }
+
+    .search-type-arrow {
+      color: #c0c4cc;
+      font-size: 11px;
+      transform: translateY(-1px);
+    }
+
+    .search-type-popover {
+      display: none;
+      position: absolute;
+      top: 42px;
+      left: 0;
+      z-index: 12;
+      width: 150px;
+      padding: 6px 0;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(31, 45, 61, 0.12);
+    }
+
+    .transfer-search-type.is-open .search-type-popover {
+      display: block;
+    }
+
+    .search-type-popover::before {
+      content: "";
+      position: absolute;
+      top: -6px;
+      left: 42px;
+      width: 10px;
+      height: 10px;
+      border-left: 1px solid var(--border-light);
+      border-top: 1px solid var(--border-light);
+      background: #fff;
+      transform: rotate(45deg);
+    }
+
+    .search-type-option {
+      height: 32px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      color: var(--text-regular);
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .search-type-option:hover {
+      background: var(--el-blue-light);
+      color: var(--el-blue);
+    }
+
+    .search-type-option.is-active {
+      color: var(--el-blue);
+      font-weight: 600;
+      background: #f5faff;
+    }
+
+    .transfer-group-filter {
+      display: none;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .transfer-group-filter.is-visible {
+      display: block;
+    }
+
+    .group-filter-button {
+      height: 34px;
+      min-width: 92px;
+      padding: 0 12px;
+      border: 1px solid #b3d8ff;
+      border-radius: 4px;
+      background: #ecf5ff;
+      color: var(--el-blue);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .group-filter-button:hover {
+      border-color: var(--el-blue);
+      background: #e6f1ff;
+    }
+
+    .group-filter-icon {
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .group-filter-popover {
+      display: none;
+      position: absolute;
+      top: 42px;
+      right: 0;
+      z-index: 10;
+      width: 220px;
+      padding: 10px 0;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(31, 45, 61, 0.12);
+    }
+
+    .transfer-group-filter.is-open .group-filter-popover {
+      display: block;
+    }
+
+    .group-filter-popover::before {
+      content: "";
+      position: absolute;
+      top: -6px;
+      right: 38px;
+      width: 10px;
+      height: 10px;
+      border-left: 1px solid var(--border-light);
+      border-top: 1px solid var(--border-light);
+      background: #fff;
+      transform: rotate(45deg);
+    }
+
+    .group-filter-actions {
+      height: 28px;
+      padding: 0 12px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 14px;
+    }
+
+    .group-filter-actions button {
+      border: 0;
+      background: transparent;
+      color: var(--el-blue);
+      cursor: pointer;
+      font-size: 12px;
+      padding: 0;
+    }
+
+    .group-filter-option {
+      height: 36px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-regular);
+      cursor: pointer;
+    }
+
+    .group-filter-option:hover {
+      background: #f5f7fa;
+    }
+
+    .group-filter-option input {
+      width: 14px;
+      height: 14px;
+      margin: 0;
+      flex-shrink: 0;
+    }
+
+    .transfer-check-header {
+      height: 38px;
+      padding: 0 10px;
+      border-bottom: 1px solid var(--border-light);
+      background: #f7f8fa;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-regular);
+      flex-shrink: 0;
+    }
+
+    .transfer-check-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .transfer-check-title input {
+      width: 14px;
+      height: 14px;
+      margin: 0;
+      flex-shrink: 0;
+    }
+
+    .transfer-check-count {
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-family: Menlo, Monaco, Consolas, monospace;
     }
 
     .transfer-list {
@@ -1103,6 +1889,103 @@
       font-size: 11px;
     }
 
+    .field-template-bar {
+      display: none;
+      grid-column: 1 / -1;
+      padding: 8px 10px;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      background: #fff;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .field-template-bar.is-visible {
+      display: flex;
+    }
+
+    .template-label {
+      color: var(--text-secondary);
+      font-size: 12px;
+      margin-right: 2px;
+    }
+
+    .template-button {
+      height: 26px;
+      padding: 0 10px;
+      border: 1px solid #d9ecff;
+      border-radius: 4px;
+      background: #f5faff;
+      color: #337ecc;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .template-button:hover {
+      border-color: var(--el-blue);
+      color: var(--el-blue);
+      background: var(--el-blue-light);
+    }
+
+    .field-flat-list,
+    .field-selected-list {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      padding: 8px;
+      display: block;
+    }
+
+    .field-row {
+      min-height: 34px;
+      padding: 6px 8px;
+      border-radius: 4px;
+      display: grid;
+      grid-template-columns: 18px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-regular);
+      cursor: pointer;
+    }
+
+    .field-row.is-product {
+      min-height: 52px;
+      grid-template-rows: auto auto;
+    }
+
+    .field-row:hover {
+      background: var(--el-blue-light);
+    }
+
+    .field-row input {
+      width: 14px;
+      height: 14px;
+      margin: 0;
+    }
+
+    .field-row-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .field-row-key {
+      color: var(--text-secondary);
+      font-family: Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+    }
+
+    .product-row-desc {
+      grid-column: 2 / -1;
+      color: var(--text-secondary);
+      font-size: 11px;
+      line-height: 16px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .transfer-middle {
       display: flex;
       flex-direction: column;
@@ -1116,6 +1999,11 @@
       padding: 0;
     }
 
+    .transfer-middle .el-button[data-transfer="selectAll"],
+    .transfer-middle .el-button[data-transfer="clear"] {
+      display: none;
+    }
+
     .selected-list {
       flex: 1;
       min-height: 0;
@@ -1125,6 +2013,11 @@
       align-content: flex-start;
       flex-wrap: wrap;
       gap: 6px;
+    }
+
+    .selected-list.field-selected-list {
+      display: block;
+      padding: 8px;
     }
 
     .dialog-footer {
@@ -1203,15 +2096,198 @@
       font-weight: 600;
     }
 
+    .upload-mock {
+      border: 1px dashed #d9d9d9;
+      border-radius: 4px;
+      background: #fff;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .upload-dragger {
+      min-height: 164px;
+      padding: 22px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: #fbfdff;
+      text-align: center;
+      transition: border-color .15s ease, background .15s ease;
+    }
+
+    .upload-mock:hover {
+      border-color: var(--el-blue);
+    }
+
+    .upload-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--el-blue-light);
+      color: var(--el-blue);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .upload-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .upload-title {
+      color: var(--text-main);
+      font-size: 13px;
+    }
+
+    .upload-title em {
+      color: var(--el-blue);
+      font-style: normal;
+    }
+
+    .upload-button {
+      height: 32px;
+      margin-top: 4px;
+      padding: 0 14px;
+      border: 1px solid var(--el-blue);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--el-blue);
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .upload-button:hover {
+      background: var(--el-blue-light);
+    }
+
+    .upload-tip {
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+
+    .upload-file-list {
+      margin: 0;
+      padding: 8px 12px 10px;
+      border-top: 1px solid var(--border-light);
+      list-style: none;
+      background: #fff;
+    }
+
+    .upload-file-item {
+      height: 28px;
+      padding: 0 8px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #606266;
+      font-size: 12px;
+    }
+
+    .upload-file-item:hover {
+      background: #f5f7fa;
+      color: var(--el-blue);
+    }
+
+    .upload-file-name {
+      min-width: 0;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .upload-icon-mini {
+      width: 14px;
+      height: 14px;
+      color: #909399;
+      flex-shrink: 0;
+    }
+
+    .upload-icon-mini svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      display: block;
+    }
+
+    .upload-file-remove {
+      border: 0;
+      background: transparent;
+      color: #c0c4cc;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .upload-empty {
+      height: 28px;
+      display: flex;
+      align-items: center;
+      color: #c0c4cc;
+      font-size: 12px;
+    }
+
+    .upload-hidden-value {
+      margin: 10px 12px 12px;
+    }
+
+    .upload-hidden-value .value-input {
+      background: #fafafa;
+      color: #606266;
+    }
+
+    .richtext-toolbar {
+      height: 34px;
+      border: 1px solid var(--border);
+      border-bottom: 0;
+      border-radius: 4px 4px 0 0;
+      background: #fafafa;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 8px;
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+
+    .richtext-toolbar span {
+      height: 22px;
+      min-width: 22px;
+      padding: 0 6px;
+      border-radius: 3px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      border: 1px solid var(--border-light);
+    }
+
+    .richtext-editor {
+      border-radius: 0 0 4px 4px;
+      min-height: 120px;
+    }
+
     .batch-dialog {
-      width: min(1120px, calc(100vw - 64px));
-      height: min(760px, calc(100vh - 72px));
+      width: min(1480px, calc(100vw - 48px));
+      height: min(820px, calc(100vh - 56px));
       background: #fff;
       border-radius: 6px;
       box-shadow: 0 8px 28px rgba(0, 0, 0, .18);
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow: visible;
     }
 
     .batch-body {
@@ -1223,6 +2299,7 @@
       display: flex;
       flex-direction: column;
       gap: 14px;
+      min-width: 0;
     }
 
     .batch-grid {
@@ -1230,6 +2307,8 @@
       border-radius: 6px;
       background: #fff;
       padding: 4px 14px;
+      min-width: 0;
+      flex-shrink: 0;
     }
 
     .batch-edit-card {
@@ -1237,16 +2316,246 @@
       border-radius: 6px;
       background: #fff;
       padding: 14px;
+      min-width: 0;
+      min-height: 0;
+      flex: 0 0 100%;
+      display: flex;
+      flex-direction: column;
     }
 
     .batch-edit-list {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(260px, 1fr));
-      gap: 12px 16px;
+      flex: 1;
+      min-height: 0;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      overflow: auto;
+      background: #fff;
+      scrollbar-width: thin;
     }
 
     .batch-edit-item {
       min-width: 0;
+    }
+
+    .batch-edit-table {
+      width: 100%;
+      min-width: 1180px;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .batch-edit-table th,
+    .batch-edit-table td {
+      height: 38px;
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--border-light);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .batch-edit-table th {
+      background: #f7f8fa;
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .batch-edit-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .batch-edit-table .product-col {
+      width: 30%;
+    }
+
+    .batch-edit-table .field-col {
+      width: 22%;
+    }
+
+    .batch-edit-table .channel-col {
+      width: 22%;
+    }
+
+    .batch-edit-table .value-col {
+      width: 26%;
+    }
+
+    .batch-edit-table .value-input,
+    .batch-edit-table .value-select {
+      width: 100%;
+    }
+
+    .batch-dialog-value {
+      min-height: 30px;
+      width: 100%;
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--text-regular);
+      display: inline-flex;
+      align-items: center;
+      padding: 0 8px;
+      cursor: pointer;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      box-sizing: border-box;
+    }
+
+    .batch-dialog-value:hover {
+      border-color: var(--el-blue);
+      color: var(--el-blue);
+    }
+
+    .batch-value-select,
+    .batch-time-control {
+      height: 30px;
+    }
+
+    .batch-value-select .inline-select-trigger,
+    .batch-time-control .value-input {
+      height: 30px;
+      min-height: 30px;
+      max-height: 30px;
+      line-height: 28px;
+    }
+
+    .batch-value-select .inline-select-arrow {
+      top: 15px;
+    }
+
+    .batch-time-control .inline-time-button {
+      height: 28px;
+      width: 28px;
+      line-height: 28px;
+    }
+
+    .batch-time-control .inline-time-panel,
+    .batch-value-select .inline-select-dropdown {
+      z-index: 120;
+    }
+
+    .batch-time-control.is-floating .inline-time-panel,
+    .batch-value-select.is-floating .inline-select-dropdown {
+      position: fixed;
+      top: var(--floating-top);
+      left: var(--floating-left);
+      width: var(--floating-width);
+      display: block;
+    }
+
+    .batch-channel-select {
+      position: relative;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .batch-channel-hidden {
+      display: none;
+    }
+
+    .batch-channel-trigger {
+      height: 30px;
+      width: 100%;
+      min-width: 0;
+      padding: 0 28px 0 9px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      text-align: left;
+      box-sizing: border-box;
+      overflow: hidden;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .batch-channel-trigger:hover,
+    .batch-channel-select.is-open .batch-channel-trigger {
+      border-color: var(--el-blue);
+      box-shadow: 0 0 0 2px rgba(64, 158, 255, .08);
+    }
+
+    .batch-channel-label {
+      min-width: 0;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .batch-channel-arrow {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      color: #c0c4cc;
+      transform: translateY(-50%);
+      pointer-events: none;
+      font-size: 10px;
+    }
+
+    .batch-channel-dropdown {
+      display: none;
+      position: absolute;
+      top: 34px;
+      left: 0;
+      z-index: 90;
+      width: max(100%, 240px);
+      max-height: 220px;
+      padding: 6px 0;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 8px 22px rgba(31, 45, 61, .14);
+      overflow: auto;
+    }
+
+    .batch-channel-select.is-open .batch-channel-dropdown {
+      display: block;
+    }
+
+    .batch-channel-select.is-floating .batch-channel-dropdown {
+      position: fixed;
+      top: var(--floating-top);
+      left: var(--floating-left);
+      width: var(--floating-width);
+      display: block;
+      z-index: 120;
+    }
+
+    .batch-channel-option {
+      height: 32px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--text-regular);
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .batch-channel-option:hover {
+      background: var(--el-blue-light);
+      color: var(--el-blue);
+    }
+
+    .batch-channel-option.is-active {
+      color: var(--el-blue);
+      font-weight: 600;
+      background: #f5faff;
+    }
+
+    .batch-channel-group {
+      color: var(--text-secondary);
+      font-size: 11px;
+      flex-shrink: 0;
     }
 
     .batch-empty {
@@ -1433,19 +2742,27 @@
         </div>
       </div>
 
-      <div class="dimension-row" data-dimension-row="channels">
-        <div class="dimension-label"><span class="required-dot">*</span>渠道选择</div>
-        <div class="tag-box" id="channelsTags" data-open="channels"></div>
-        <div class="dimension-actions">
-          <span class="count-text" id="channelsCount"></span>
-        </div>
-      </div>
-
       <div class="dimension-row" data-dimension-row="fields">
         <div class="dimension-label"><span class="required-dot">*</span>字段选择</div>
         <div class="tag-box" id="fieldsTags" data-open="fields"></div>
         <div class="dimension-actions">
           <span class="count-text" id="fieldsCount"></span>
+        </div>
+      </div>
+
+      <div class="dimension-row" data-dimension-row="channels">
+        <div class="dimension-label">
+          <div class="dimension-mode-select" id="channelModeSelect">
+            <button class="dimension-mode-trigger" type="button" data-channel-mode-toggle>渠道选择</button>
+            <div class="dimension-mode-menu">
+              <div class="dimension-mode-option is-active" data-channel-mode-option="include">渠道选择</div>
+              <div class="dimension-mode-option" data-channel-mode-option="exclude">渠道过滤</div>
+            </div>
+          </div>
+        </div>
+        <div class="tag-box" id="channelsTags" data-open="channels"></div>
+        <div class="dimension-actions">
+          <span class="count-text" id="channelsCount"></span>
         </div>
       </div>
     </section>
@@ -1507,15 +2824,54 @@
         <button class="dialog-close" type="button" data-dialog="close" aria-label="关闭">×</button>
       </div>
       <div class="dialog-body">
+        <div class="field-template-bar" id="fieldTemplateBar">
+          <span class="template-label">字段模板</span>
+          <button class="template-button" type="button" data-field-template="addChannel">新增渠道</button>
+          <button class="template-button" type="button" data-field-template="changePrice">批量改价</button>
+          <button class="template-button" type="button" data-field-template="changeStatus">批量上下架</button>
+        </div>
         <section class="transfer-panel">
-          <div class="transfer-header">
-            <span class="transfer-title">候选项</span>
-            <span class="transfer-count" id="sourceCount">0 项</span>
+          <div class="transfer-filter-line">
+            <div class="transfer-search-type" id="sourceProductSearchType">
+              <button class="search-type-button" type="button" data-search-type-toggle="source">
+                <span data-search-type-label="source">商品ID</span>
+                <span class="search-type-arrow">⌃</span>
+              </button>
+              <div class="search-type-popover">
+                <div class="search-type-option is-active" data-search-type-option="source" data-value="productId">商品ID</div>
+                <div class="search-type-option" data-search-type-option="source" data-value="productName">商品名称</div>
+                <div class="search-type-option" data-search-type-option="source" data-value="libraryId">商品库ID</div>
+                <div class="search-type-option" data-search-type-option="source" data-value="libraryName">商品库名称</div>
+                <div class="search-type-option" data-search-type-option="source" data-value="templateId">模板ID</div>
+                <div class="search-type-option" data-search-type-option="source" data-value="templateName">模板名称</div>
+              </div>
+            </div>
+            <label class="transfer-search">
+              <span>⌕</span>
+              <input id="selectorKeyword" type="text" placeholder="输入名称或编码">
+            </label>
+            <div class="transfer-group-filter" id="sourceGroupFilter">
+              <button class="group-filter-button" type="button" data-group-filter-toggle="source">
+                <span class="group-filter-icon">☷</span>
+                <span>分组</span>
+              </button>
+              <div class="group-filter-popover">
+                <div class="group-filter-actions">
+                  <button type="button" data-group-filter-action="source-all">全选</button>
+                  <button type="button" data-group-filter-action="source-clear">清空</button>
+                </div>
+                <label class="group-filter-option"><input type="checkbox" data-group-filter-check="source" value="国内渠道">国内渠道</label>
+                <label class="group-filter-option"><input type="checkbox" data-group-filter-check="source" value="国际渠道">国际渠道</label>
+              </div>
+            </div>
           </div>
-          <label class="transfer-search">
-            <span>⌕</span>
-            <input id="selectorKeyword" type="text" placeholder="输入名称或编码">
-          </label>
+          <div class="transfer-check-header">
+            <label class="transfer-check-title">
+              <input id="sourceCheckAll" type="checkbox" data-check-all="source">
+              <span>候选项</span>
+            </label>
+            <span class="transfer-check-count" id="sourceCheckCount">0/0</span>
+          </div>
           <div class="transfer-list" id="sourceList"></div>
         </section>
         <div class="transfer-middle">
@@ -1525,9 +2881,46 @@
           <button class="el-button small" type="button" data-transfer="clear">清</button>
         </div>
         <section class="transfer-panel">
-          <div class="transfer-header">
-            <span class="transfer-title">已选项</span>
-            <span class="transfer-count" id="selectedCount">0 项</span>
+          <div class="transfer-filter-line">
+            <div class="transfer-search-type" id="selectedProductSearchType">
+              <button class="search-type-button" type="button" data-search-type-toggle="selected">
+                <span data-search-type-label="selected">商品ID</span>
+                <span class="search-type-arrow">⌃</span>
+              </button>
+              <div class="search-type-popover">
+                <div class="search-type-option is-active" data-search-type-option="selected" data-value="productId">商品ID</div>
+                <div class="search-type-option" data-search-type-option="selected" data-value="productName">商品名称</div>
+                <div class="search-type-option" data-search-type-option="selected" data-value="libraryId">商品库ID</div>
+                <div class="search-type-option" data-search-type-option="selected" data-value="libraryName">商品库名称</div>
+                <div class="search-type-option" data-search-type-option="selected" data-value="templateId">模板ID</div>
+                <div class="search-type-option" data-search-type-option="selected" data-value="templateName">模板名称</div>
+              </div>
+            </div>
+            <label class="transfer-search selected-search">
+              <span>⌕</span>
+              <input id="selectedKeyword" type="text" placeholder="搜索已选名称或编码">
+            </label>
+            <div class="transfer-group-filter" id="selectedGroupFilter">
+              <button class="group-filter-button" type="button" data-group-filter-toggle="selected">
+                <span class="group-filter-icon">☷</span>
+                <span>分组</span>
+              </button>
+              <div class="group-filter-popover">
+                <div class="group-filter-actions">
+                  <button type="button" data-group-filter-action="selected-all">全选</button>
+                  <button type="button" data-group-filter-action="selected-clear">清空</button>
+                </div>
+                <label class="group-filter-option"><input type="checkbox" data-group-filter-check="selected" value="国内渠道">国内渠道</label>
+                <label class="group-filter-option"><input type="checkbox" data-group-filter-check="selected" value="国际渠道">国际渠道</label>
+              </div>
+            </div>
+          </div>
+          <div class="transfer-check-header">
+            <label class="transfer-check-title">
+              <input id="selectedCheckAll" type="checkbox" data-check-all="selected">
+              <span>已选项</span>
+            </label>
+            <span class="transfer-check-count" id="selectedCheckCount">0/0</span>
           </div>
           <div class="selected-list" id="selectedList"></div>
         </section>
@@ -1546,7 +2939,7 @@
         <button class="dialog-close" type="button" data-edit-dialog="close" aria-label="关闭">×</button>
       </div>
       <div class="edit-body">
-        <div class="form-section-title">字段维护信息</div>
+        <div class="form-section-title">修改值</div>
         <div class="edit-form-card">
           <div class="edit-grid" id="editFormGrid"></div>
         </div>
@@ -1670,7 +3063,17 @@
               ["chn_03", "抖音商城"],
               ["chn_04", "B站会员购"],
               ["chn_05", "京东旗舰店"],
-              ["chn_06", "天猫旗舰店"]
+              ["chn_06", "天猫旗舰店"],
+              ["chn_07", "快手小店"],
+              ["chn_08", "小红书商城"],
+              ["chn_09", "拼多多旗舰店"],
+              ["chn_10", "网易严选"],
+              ["chn_17", "华为应用市场"],
+              ["chn_18", "OPPO 软件商店"],
+              ["chn_19", "vivo 应用商店"],
+              ["chn_20", "腾讯视频会员中心"],
+              ["chn_21", "支付宝生活号"],
+              ["chn_22", "企业微信商城"]
             ]
           },
           {
@@ -1681,7 +3084,19 @@
               ["chn_13", "Shopee SG"],
               ["chn_14", "Lazada MY"],
               ["chn_15", "TikTok Shop US"],
-              ["chn_16", "Amazon Store"]
+              ["chn_16", "Amazon Store"],
+              ["chn_23", "Google Play"],
+              ["chn_24", "Apple App Store"],
+              ["chn_25", "Steam Store"],
+              ["chn_26", "PlayStation Store"],
+              ["chn_27", "Xbox Store"],
+              ["chn_28", "Nintendo eShop"],
+              ["chn_29", "Epic Games Store"],
+              ["chn_30", "Razer Gold"],
+              ["chn_31", "PayPal Deals"],
+              ["chn_32", "G2A Marketplace"],
+              ["chn_33", "Humble Store"],
+              ["chn_34", "Green Man Gaming"]
             ]
           }
         ]
@@ -1696,6 +3111,7 @@
               ["field_name", "商品名称"],
               ["field_subtitle", "副标题"],
               ["field_status", "上下架状态"],
+              ["field_release_time", "上架时间"],
               ["field_sort", "排序值"],
               ["field_tag", "商品标签"]
             ]
@@ -1707,7 +3123,15 @@
               ["field_stock", "渠道库存"],
               ["field_limit", "限购数量"],
               ["field_delivery", "发货方式"],
+              ["field_platforms", "销售平台"],
               ["field_desc", "商品详情"]
+            ]
+          },
+          {
+            name: "素材字段",
+            items: [
+              ["field_cover", "封面图"],
+              ["field_gallery", "轮播图"]
             ]
           },
           {
@@ -1725,35 +3149,51 @@
     var fieldMeta = {
       field_name: { type: "文本", kind: "text" },
       field_subtitle: { type: "文本", kind: "text" },
-      field_status: { type: "枚举", kind: "select", options: ["上架", "下架", "预售"] },
+      field_status: { type: "下拉单选", kind: "select", options: ["上架", "下架", "预售"] },
+      field_release_time: { type: "时间", kind: "time" },
       field_sort: { type: "数字", kind: "number" },
       field_tag: { type: "标签", kind: "text" },
       field_price: { type: "金额", kind: "number" },
       field_stock: { type: "数字", kind: "number" },
       field_limit: { type: "数字", kind: "number" },
-      field_delivery: { type: "枚举", kind: "select", options: ["自动发货", "人工发货", "卡密发货"] },
-      field_desc: { type: "富文本", kind: "textarea" },
-      field_region: { type: "多选", kind: "text" },
-      field_risk: { type: "枚举", kind: "select", options: ["低", "中", "高"] },
-      field_verify: { type: "布尔", kind: "select", options: ["开启", "关闭"] }
+      field_delivery: { type: "下拉单选", kind: "select", options: ["自动发货", "人工发货", "卡密发货"] },
+      field_platforms: { type: "下拉多选", kind: "multiselect", options: ["PC", "PlayStation", "Xbox", "Switch", "Mobile"] },
+      field_desc: { type: "富文本编辑器", kind: "richtext", editMode: "dialog" },
+      field_cover: { type: "文件单个上传", kind: "file", editMode: "dialog" },
+      field_gallery: { type: "文件多个上传", kind: "files", editMode: "dialog" },
+      field_region: { type: "下拉多选", kind: "multiselect", options: ["CN", "HK", "SG", "JP", "US"] },
+      field_risk: { type: "下拉单选", kind: "select", options: ["低", "中", "高"] },
+      field_verify: { type: "下拉单选", kind: "select", options: ["开启", "关闭"] }
+    };
+
+    var fieldTemplates = {
+      addChannel: ["field_name", "field_status", "field_release_time", "field_delivery", "field_platforms", "field_cover", "field_gallery", "field_desc"],
+      changePrice: ["field_price", "field_limit", "field_tag"],
+      changeStatus: ["field_status", "field_release_time", "field_risk", "field_verify"]
     };
 
     var state = {
       selected: {
         products: ["prd_1001", "prd_1002", "prd_1003", "prd_1006", "prd_2001", "prd_2003", "prd_3001"],
         channels: ["chn_01", "chn_02", "chn_11", "chn_12"],
-        fields: ["field_name", "field_price", "field_status", "field_desc"]
+        fields: ["field_name", "field_release_time", "field_status", "field_platforms", "field_cover", "field_gallery", "field_desc"]
       },
       activeDimension: null,
       selectorScope: "main",
       draftSelection: [],
       sourceChecked: [],
       selectedChecked: [],
+      sourceGroupFilters: [],
+      selectedGroupFilters: [],
+      sourceProductSearchType: "productId",
+      selectedProductSearchType: "productId",
+      channelMode: "include",
       rows: [],
       keyword: "",
       selectedRows: [],
       editRowId: "",
       editDraft: "",
+      batchValueKey: "",
       batchMode: "",
       submitActiveTab: "修改",
       batchSelected: {
@@ -1804,7 +3244,7 @@
       var box = document.getElementById(dimensionKey + "Tags");
       var count = document.getElementById(dimensionKey + "Count");
       var selected = state.selected[dimensionKey];
-      count.textContent = selected.length + " 项";
+      count.textContent = dimensionKey === "channels" && state.channelMode === "exclude" ? "过滤 " + selected.length + " 项" : selected.length + " 项";
       box.classList.toggle("is-empty", selected.length === 0);
       if (!selected.length) {
         box.innerHTML = '<span class="placeholder">' + dimensions[dimensionKey].placeholder + '</span>';
@@ -1812,7 +3252,9 @@
       }
       box.innerHTML = selected.map(function(id) {
         var item = getItem(dimensionKey, id);
-        return '<span class="el-tag" title="' + escapeHtml(item.name) + '">' +
+        var dangerClass = dimensionKey === "channels" && state.channelMode === "exclude" ? " is-danger" : "";
+        var title = dimensionKey === "channels" && state.channelMode === "exclude" ? "过滤：" + item.name : item.name;
+        return '<span class="el-tag' + dangerClass + '" title="' + escapeHtml(title) + '">' +
           escapeHtml(item.name) +
           '<button class="tag-close" type="button" data-remove-tag="' + dimensionKey + '" data-id="' + id + '">×</button>' +
           '</span>';
@@ -1823,6 +3265,34 @@
       renderTags("products");
       renderTags("channels");
       renderTags("fields");
+      syncChannelModeSelect();
+    }
+
+    function syncChannelModeSelect() {
+      var select = document.getElementById("channelModeSelect");
+      if (!select) return;
+      var label = state.channelMode === "exclude" ? "渠道过滤" : "渠道选择";
+      var trigger = select.querySelector("[data-channel-mode-toggle]");
+      if (trigger) trigger.textContent = label;
+      Array.from(select.querySelectorAll("[data-channel-mode-option]")).forEach(function(option) {
+        option.classList.toggle("is-active", option.getAttribute("data-channel-mode-option") === state.channelMode);
+      });
+    }
+
+    var bodyScrollTop = 0;
+
+    function lockBodyScroll() {
+      if (document.body.classList.contains("is-dialog-open")) return;
+      bodyScrollTop = window.pageYOffset || document.documentElement.scrollTop || 0;
+      document.body.style.top = "-" + bodyScrollTop + "px";
+      document.body.classList.add("is-dialog-open");
+    }
+
+    function unlockBodyScroll() {
+      if (document.querySelector(".dialog-mask.is-visible")) return;
+      document.body.classList.remove("is-dialog-open");
+      document.body.style.top = "";
+      window.scrollTo(0, bodyScrollTop);
     }
 
     function openDialog(dimensionKey, scope) {
@@ -1832,10 +3302,17 @@
       state.draftSelection = source[dimensionKey].slice();
       state.sourceChecked = [];
       state.selectedChecked = [];
+      state.sourceGroupFilters = [];
+      state.selectedGroupFilters = [];
+      state.sourceProductSearchType = "productId";
+      state.selectedProductSearchType = "productId";
       document.getElementById("dialogTitle").textContent = dimensions[dimensionKey].title;
       document.getElementById("selectorKeyword").value = "";
+      document.getElementById("selectedKeyword").value = "";
+      closeGroupFilterPopovers();
       document.getElementById("selectorDialog").classList.add("is-visible");
       document.getElementById("selectorDialog").setAttribute("aria-hidden", "false");
+      lockBodyScroll();
       renderDialog();
     }
 
@@ -1844,15 +3321,197 @@
       document.getElementById("selectorDialog").setAttribute("aria-hidden", "true");
       state.activeDimension = null;
       state.selectorScope = "main";
+      unlockBodyScroll();
+    }
+
+    function productMetaData(productId) {
+      var match = String(productId || "").match(/(\d+)$/);
+      var index = match ? Math.max(0, Number(match[1]) - 1) : 0;
+      return {
+        library: gameLibraries[index % gameLibraries.length],
+        template: templates[index % templates.length]
+      };
+    }
+
+    function productMetaText(productId) {
+      var meta = productMetaData(productId);
+      var library = meta.library;
+      var template = meta.template;
+      return formatIdName(library.id, library.name) + "；" + formatIdName(template.id, template.name);
+    }
+
+    function productSearchText(item, type) {
+      var meta = productMetaData(item.id);
+      if (type === "productName") return item.name;
+      if (type === "libraryId") return meta.library.id;
+      if (type === "libraryName") return meta.library.name;
+      if (type === "templateId") return meta.template.id;
+      if (type === "templateName") return meta.template.name;
+      return item.id;
+    }
+
+    function renderFlatRow(item, key, checkAttr, checked) {
+      var rightText = key === "channels" ? item.group : item.id;
+      var productDesc = key === "products" ? '<span class="product-row-desc">' + escapeHtml(productMetaText(item.id)) + '</span>' : '';
+      return '<label class="field-row' + (key === "products" ? ' is-product' : '') + '">' +
+        '<input type="checkbox" ' + checkAttr + '="' + item.id + '" ' + checked + '>' +
+        '<span class="field-row-name">' + escapeHtml(item.name) + '</span>' +
+        '<span class="field-row-key">' + escapeHtml(rightText) + '</span>' +
+        productDesc +
+        '</label>';
+    }
+
+    function channelGroupNames() {
+      return dimensions.channels.groups.map(function(group) {
+        return group.name;
+      });
+    }
+
+    function closeGroupFilterPopovers(except) {
+      Array.from(document.querySelectorAll(".transfer-group-filter")).forEach(function(node) {
+        if (!except || node.id !== except + "GroupFilter") {
+          node.classList.remove("is-open");
+        }
+      });
+    }
+
+    function closeSearchTypePopovers(except) {
+      Array.from(document.querySelectorAll(".transfer-search-type")).forEach(function(node) {
+        if (!except || node.id !== except + "ProductSearchType") {
+          node.classList.remove("is-open");
+        }
+      });
+    }
+
+    function closeBatchChannelSelects(exceptKey) {
+      Array.from(document.querySelectorAll(".batch-channel-select")).forEach(function(node) {
+        if (!exceptKey || node.getAttribute("data-channel-select") !== exceptKey) {
+          node.classList.remove("is-open");
+          node.classList.remove("is-floating");
+        }
+      });
+    }
+
+    function syncGroupFilterControls(key) {
+      var visible = key === "channels";
+      ["source", "selected"].forEach(function(scope) {
+        var container = document.getElementById(scope + "GroupFilter");
+        if (!container) return;
+        container.classList.toggle("is-visible", visible);
+        if (!visible) {
+          container.classList.remove("is-open");
+          return;
+        }
+        var activeGroups = scope === "source" ? state.sourceGroupFilters : state.selectedGroupFilters;
+        Array.from(container.querySelectorAll("[data-group-filter-check]")).forEach(function(input) {
+          input.checked = activeGroups.indexOf(input.value) > -1;
+        });
+        var label = container.querySelector(".group-filter-button span:last-child");
+        label.textContent = activeGroups.length ? "分组 " + activeGroups.length : "分组";
+      });
+    }
+
+    function searchTypeLabel(type) {
+      var labels = {
+        productId: "商品ID",
+        productName: "商品名称",
+        libraryId: "商品库ID",
+        libraryName: "商品库名称",
+        templateId: "模板ID",
+        templateName: "模板名称"
+      };
+      return labels[type] || labels.productId;
+    }
+
+    function syncProductSearchTypeControls(key) {
+      var visible = key === "products";
+      ["source", "selected"].forEach(function(scope) {
+        var container = document.getElementById(scope + "ProductSearchType");
+        if (!container) return;
+        container.classList.toggle("is-visible", visible);
+        if (!visible) {
+          container.classList.remove("is-open");
+          return;
+        }
+        var type = scope === "source" ? state.sourceProductSearchType : state.selectedProductSearchType;
+        var label = container.querySelector("[data-search-type-label]");
+        if (label) label.textContent = searchTypeLabel(type);
+        Array.from(container.querySelectorAll("[data-search-type-option]")).forEach(function(option) {
+          option.classList.toggle("is-active", option.getAttribute("data-value") === type);
+        });
+      });
+      var sourceInput = document.getElementById("selectorKeyword");
+      var selectedInput = document.getElementById("selectedKeyword");
+      sourceInput.placeholder = visible ? "请输入查询值" : "输入名称或编码";
+      selectedInput.placeholder = visible ? "请输入查询值" : "搜索已选名称或编码";
+    }
+
+    function syncTransferCheckHeader(type, visibleIds, checkedIds) {
+      var checkbox = document.getElementById(type + "CheckAll");
+      var count = document.getElementById(type + "CheckCount");
+      var checkedVisible = visibleIds.filter(function(id) {
+        return checkedIds.indexOf(id) > -1;
+      }).length;
+      checkbox.checked = visibleIds.length > 0 && checkedVisible === visibleIds.length;
+      checkbox.indeterminate = checkedVisible > 0 && checkedVisible < visibleIds.length;
+      checkbox.disabled = visibleIds.length === 0;
+      count.textContent = checkedVisible + "/" + visibleIds.length;
+    }
+
+    function renderFlatDimensionDialog(key, keyword, selectedKeyword, sourceList, selectedList) {
+      var sourceItems = flatten(key).filter(function(item) {
+        var text = key === "products"
+          ? productSearchText(item, state.sourceProductSearchType).toLowerCase()
+          : (item.id + " " + item.name + " " + item.group).toLowerCase();
+        if (state.draftSelection.indexOf(item.id) > -1) return false;
+        if (key === "channels" && state.sourceGroupFilters.length && state.sourceGroupFilters.indexOf(item.group) === -1) return false;
+        return !keyword || text.indexOf(keyword) > -1;
+      });
+      sourceList.className = "transfer-list field-flat-list";
+      selectedList.className = "selected-list field-selected-list";
+      sourceList.innerHTML = sourceItems.map(function(item) {
+        var checked = state.sourceChecked.indexOf(item.id) > -1 ? "checked" : "";
+        return renderFlatRow(item, key, "data-source-check", checked);
+      }).join("") || '<div class="empty-state">暂无匹配项</div>';
+      var selectedIds = state.draftSelection.filter(function(id) {
+        var item = getItem(key, id);
+        var text = item
+          ? (key === "products" ? productSearchText(item, state.selectedProductSearchType).toLowerCase() : (item.id + " " + item.name + " " + item.group).toLowerCase())
+          : "";
+        if (key === "channels" && item && state.selectedGroupFilters.length && state.selectedGroupFilters.indexOf(item.group) === -1) return false;
+        return !selectedKeyword || text.indexOf(selectedKeyword) > -1;
+      });
+      selectedList.innerHTML = selectedIds.map(function(id) {
+        var item = getItem(key, id);
+        var checked = state.selectedChecked.indexOf(id) > -1 ? "checked" : "";
+        return renderFlatRow(item, key, "data-selected-check", checked);
+      }).join("") || '<span class="placeholder">' + (state.draftSelection.length ? '暂无匹配已选项' : '暂无已选项') + '</span>';
+      syncTransferCheckHeader("source", sourceItems.map(function(item) { return item.id; }), state.sourceChecked);
+      syncTransferCheckHeader("selected", selectedIds, state.selectedChecked);
     }
 
     function renderDialog() {
       var key = state.activeDimension;
       if (!key) return;
       var keyword = document.getElementById("selectorKeyword").value.trim().toLowerCase();
+      var selectedKeyword = document.getElementById("selectedKeyword").value.trim().toLowerCase();
       var sourceList = document.getElementById("sourceList");
       var selectedList = document.getElementById("selectedList");
+      var templateBar = document.getElementById("fieldTemplateBar");
+      if (templateBar) {
+        templateBar.classList.toggle("is-visible", key === "fields");
+      }
+      syncGroupFilterControls(key);
+      syncProductSearchTypeControls(key);
       var visibleCount = 0;
+
+      if (key === "fields" || key === "channels" || key === "products") {
+        renderFlatDimensionDialog(key, keyword, selectedKeyword, sourceList, selectedList);
+        return;
+      }
+
+      sourceList.className = "transfer-list";
+      selectedList.className = "selected-list";
 
       var sourceHtml = dimensions[key].groups.map(function(group) {
         var rows = group.items.filter(function(item) {
@@ -1875,17 +3534,20 @@
       }).join("");
 
       sourceList.innerHTML = sourceHtml || '<div class="empty-state">暂无匹配项</div>';
-      document.getElementById("sourceCount").textContent = visibleCount + " 项";
 
-      selectedList.innerHTML = state.draftSelection.map(function(id) {
+      var selectedIds = state.draftSelection.filter(function(id) {
+        var item = getItem(key, id);
+        var text = item ? (item.id + " " + item.name).toLowerCase() : "";
+        return !selectedKeyword || text.indexOf(selectedKeyword) > -1;
+      });
+      selectedList.innerHTML = selectedIds.map(function(id) {
         var item = getItem(key, id);
         var checked = state.selectedChecked.indexOf(id) > -1 ? "checked" : "";
         return '<label class="el-tag" title="' + escapeHtml(item.name) + '">' +
           '<input type="checkbox" data-selected-check="' + id + '" ' + checked + '>' +
           escapeHtml(item.name) +
           '</label>';
-      }).join("") || '<span class="placeholder">暂无已选项</span>';
-      document.getElementById("selectedCount").textContent = state.draftSelection.length + " 项";
+      }).join("") || '<span class="placeholder">' + (state.draftSelection.length ? '暂无匹配已选项' : '暂无已选项') + '</span>';
     }
 
     function addDraftSelection(ids) {
@@ -1909,12 +3571,16 @@
     function currentValue(row) {
       var fieldId = row.fieldId;
       if (fieldId === "field_status") return row.index % 4 === 0 ? "下架" : "上架";
+      if (fieldId === "field_release_time") return "2026-07-" + String(10 + row.index % 18).padStart(2, "0") + "T10:00:00";
       if (fieldId === "field_price") return (39 + row.index * 3.7).toFixed(2);
       if (fieldId === "field_stock") return 120 + row.index * 8;
       if (fieldId === "field_sort") return 1000 + row.index;
       if (fieldId === "field_limit") return row.index % 3 === 0 ? 1 : 2;
       if (fieldId === "field_delivery") return row.index % 2 === 0 ? "自动发货" : "卡密发货";
+      if (fieldId === "field_platforms") return row.index % 2 === 0 ? "PC, PlayStation" : "PC, Xbox";
       if (fieldId === "field_desc") return "支持自动兑换，到账时间约 1-5 分钟。";
+      if (fieldId === "field_cover") return "cover_" + row.product.id + ".png";
+      if (fieldId === "field_gallery") return "banner_1.png, banner_2.png";
       if (fieldId === "field_region") return "CN, HK, SG";
       if (fieldId === "field_risk") return row.index % 3 === 0 ? "中" : "低";
       if (fieldId === "field_verify") return row.index % 2 === 0 ? "开启" : "关闭";
@@ -1948,7 +3614,11 @@
     function buildRows() {
       var rows = [];
       var products = state.selected.products.map(function(id) { return getItem("products", id); }).filter(Boolean);
-      var channels = state.selected.channels.map(function(id) { return getItem("channels", id); }).filter(Boolean);
+      var allChannels = flatten("channels");
+      var channels = state.channelMode === "exclude"
+        ? allChannels.filter(function(channel) { return state.selected.channels.indexOf(channel.id) < 0; })
+        : (state.selected.channels.length ? state.selected.channels.map(function(id) { return getItem("channels", id); }) : allChannels);
+      channels = channels.filter(Boolean);
       var fields = state.selected.fields.map(function(id) { return getItem("fields", id); }).filter(Boolean);
       var maxRows = Math.min(36, Math.max(0, products.length * channels.length * fields.length));
       var index = 0;
@@ -1978,6 +3648,231 @@
 
     function rowDeleted(row) {
       return !!row.isDeleted;
+    }
+
+    function renderInlineSelectControl(row, meta, multiple) {
+      var values = multiple
+        ? String(row.modifyValue || "").split(",").map(function(item) { return item.trim(); }).filter(Boolean)
+        : [String(row.modifyValue || "")];
+      var label = multiple ? (values.length ? values.join(", ") : "请选择") : (values[0] || "请选择");
+      return '<div class="inline-el-control inline-select-control ' + (multiple ? 'is-multiple' : 'is-select') + '" data-inline-select="' + row.id + '">' +
+        '<button class="inline-select-trigger" type="button" data-inline-select-toggle="' + row.id + '">' +
+        '<span class="inline-select-label">' + escapeHtml(label) + '</span>' +
+        '<span class="inline-select-arrow">⌄</span>' +
+        '</button>' +
+        '<div class="inline-select-dropdown">' +
+        meta.options.map(function(option) {
+          var active = values.indexOf(option) > -1;
+          return '<div class="inline-select-option' + (active ? ' is-active' : '') + '" data-inline-select-option="' + row.id + '" data-value="' + escapeHtml(option) + '" data-multiple="' + (multiple ? 'true' : 'false') + '">' +
+            (multiple ? '<span class="inline-select-check"></span>' : '') +
+            '<span>' + escapeHtml(option) + '</span>' +
+            '</div>';
+        }).join("") +
+        '</div>' +
+        '</div>';
+    }
+
+    function parseInlineDate(value) {
+      var normalized = normalizeInlineDate(value || "");
+      var match = normalized.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (match) {
+        return {
+          year: Number(match[1]),
+          month: Number(match[2]),
+          day: Number(match[3]),
+          value: normalized
+        };
+      }
+      return { year: 2026, month: 7, day: 3, value: "2026-07-03" };
+    }
+
+    function inlineDateValue(date) {
+      return date.getFullYear() + "-" + padTimeUnit(date.getMonth() + 1) + "-" + padTimeUnit(date.getDate());
+    }
+
+    function buildInlineCalendarHtml(rowId, dateValue) {
+      var selected = parseInlineDate(dateValue);
+      var firstDay = new Date(selected.year, selected.month - 1, 1).getDay();
+      var today = inlineDateValue(new Date());
+      var cells = [];
+      for (var i = 0; i < 42; i += 1) {
+        var dayOffset = i - firstDay + 1;
+        var cellDate = new Date(selected.year, selected.month - 1, dayOffset);
+        var cellValue = inlineDateValue(cellDate);
+        var muted = cellDate.getMonth() !== selected.month - 1;
+        var active = cellValue === selected.value;
+        var isToday = cellValue === today;
+        cells.push(
+          '<button class="inline-time-day' + (muted ? ' is-muted' : '') + (active ? ' is-active' : '') + (isToday ? ' is-today' : '') + '" type="button" data-inline-time-day="' + rowId + '" data-value="' + cellValue + '">' +
+          cellDate.getDate() +
+          '</button>'
+        );
+      }
+      return '<div class="inline-time-calendar-head">' +
+        '<button type="button" data-inline-time-month="' + rowId + '" data-offset="-12">«</button>' +
+        '<button type="button" data-inline-time-month="' + rowId + '" data-offset="-1">‹</button>' +
+        '<strong>' + selected.year + ' 年 ' + selected.month + ' 月</strong>' +
+        '<button type="button" data-inline-time-month="' + rowId + '" data-offset="1">›</button>' +
+        '<button type="button" data-inline-time-month="' + rowId + '" data-offset="12">»</button>' +
+        '</div>' +
+        '<div class="inline-time-weekdays"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>' +
+        '<div class="inline-time-days">' + cells.join("") + '</div>';
+    }
+
+    function refreshInlineTimeCalendar(rowId, dateValue) {
+      var timeControl = document.querySelector('[data-inline-time="' + rowId + '"]');
+      var calendar = timeControl && timeControl.querySelector(".inline-time-calendar");
+      if (calendar) {
+        calendar.innerHTML = buildInlineCalendarHtml(rowId, dateValue);
+      }
+    }
+
+    function renderInlineTimeControl(row) {
+      var normalized = displayValue(row.modifyValue || "");
+      var dateValue = normalized.slice(0, 10) || "2026-07-11";
+      var timeValue = normalized.length >= 19 ? normalized.slice(11, 19) : (normalized.length >= 16 ? normalized.slice(11, 16) + ":00" : "10:00:00");
+      return '<div class="inline-el-control inline-time-control is-time" data-inline-time="' + row.id + '">' +
+        '<input class="value-input el-input__inner" data-row-edit="' + row.id + '" data-inline-time-input="' + row.id + '" type="text" value="' + escapeHtml(normalized) + '" placeholder="YYYY-MM-DD HH:mm:ss">' +
+        '<button class="inline-time-button" type="button" data-inline-time-toggle="' + row.id + '" aria-label="选择时间">◷</button>' +
+        '<div class="inline-time-panel">' +
+        '<div class="inline-time-body">' +
+        '<div class="inline-time-fields">' +
+        '<input type="text" inputmode="numeric" data-inline-time-date="' + row.id + '" value="' + escapeHtml(dateValue) + '" placeholder="选择日期">' +
+        '<input type="text" inputmode="numeric" data-inline-time-clock="' + row.id + '" value="' + escapeHtml(timeValue) + '" placeholder="选择时间">' +
+        '</div>' +
+        '<div class="inline-time-calendar">' + buildInlineCalendarHtml(row.id, dateValue) + '</div>' +
+        '</div>' +
+        '<div class="inline-time-footer">' +
+        '<button class="inline-time-now" type="button" data-inline-time-now="' + row.id + '">此刻</button>' +
+        '<button class="inline-time-confirm is-primary" type="button" data-inline-time-confirm="' + row.id + '">确定</button>' +
+        '</div>' +
+        '</div>' +
+        '</div>';
+    }
+
+    function closeInlineSelects(exceptId) {
+      Array.from(document.querySelectorAll(".inline-select-control")).forEach(function(node) {
+        if (!exceptId || node.getAttribute("data-inline-select") !== exceptId) {
+          node.classList.remove("is-open");
+        }
+      });
+    }
+
+    function closeInlineTimePickers(exceptId) {
+      Array.from(document.querySelectorAll(".inline-time-control")).forEach(function(node) {
+        if (!exceptId || node.getAttribute("data-inline-time") !== exceptId) {
+          node.classList.remove("is-open");
+        }
+      });
+    }
+
+    function closeBatchValueSelects(exceptId) {
+      Array.from(document.querySelectorAll(".batch-value-select")).forEach(function(node) {
+        if (!exceptId || node.getAttribute("data-batch-select") !== exceptId) {
+          node.classList.remove("is-open");
+          node.classList.remove("is-floating");
+        }
+      });
+    }
+
+    function closeBatchTimePickers(exceptId) {
+      Array.from(document.querySelectorAll(".batch-time-control")).forEach(function(node) {
+        if (!exceptId || node.getAttribute("data-batch-time") !== exceptId) {
+          node.classList.remove("is-open");
+          node.classList.remove("is-floating");
+        }
+      });
+    }
+
+    function positionFloatingPanel(control, panelSelector, preferredWidth) {
+      if (!control) return;
+      var rect = control.getBoundingClientRect();
+      var panel = control.querySelector(panelSelector);
+      var width = Math.max(preferredWidth || rect.width, rect.width);
+      var left = Math.min(Math.max(8, rect.left), window.innerWidth - width - 8);
+      var top = rect.bottom + 4;
+      if (panel) {
+        var panelHeight = panel.offsetHeight || 320;
+        if (top + panelHeight > window.innerHeight - 12) {
+          top = Math.max(8, rect.top - panelHeight - 4);
+        }
+      }
+      control.style.setProperty("--floating-left", left + "px");
+      control.style.setProperty("--floating-top", top + "px");
+      control.style.setProperty("--floating-width", width + "px");
+      control.classList.add("is-floating");
+    }
+
+    function closeChannelModeSelect() {
+      var select = document.getElementById("channelModeSelect");
+      if (select) select.classList.remove("is-open");
+    }
+
+    function padTimeUnit(value) {
+      value = String(value == null ? "" : value).replace(/\D/g, "");
+      return value.length === 1 ? "0" + value : value.slice(0, 2);
+    }
+
+    function normalizeInlineDate(value) {
+      var text = String(value || "").trim().replace(/[./]/g, "-");
+      var match = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+      if (!match) return text;
+      return match[1] + "-" + padTimeUnit(match[2]) + "-" + padTimeUnit(match[3]);
+    }
+
+    function normalizeInlineClock(value) {
+      var text = String(value || "").trim();
+      var match = text.match(/^(\d{1,2})(?::?(\d{1,2}))?(?::?(\d{1,2}))?$/);
+      if (!match) return text;
+      return padTimeUnit(match[1]) + ":" + padTimeUnit(match[2] || "00") + ":" + padTimeUnit(match[3] || "00");
+    }
+
+    function updateInlineTimeValue(rowId, shouldNormalize) {
+      var timeRow = findRow(rowId);
+      var timeControl = document.querySelector('[data-inline-time="' + rowId + '"]');
+      if (!timeRow || !timeControl) return;
+      var dateInput = timeControl.querySelector('[data-inline-time-date]');
+      var clockInput = timeControl.querySelector('[data-inline-time-clock]');
+      var textInput = timeControl.querySelector('[data-row-edit]');
+      var dateValue = dateInput ? dateInput.value : "";
+      var clockValue = clockInput ? clockInput.value : "";
+      if (shouldNormalize) {
+        dateValue = normalizeInlineDate(dateValue);
+        clockValue = normalizeInlineClock(clockValue);
+        if (dateInput) dateInput.value = dateValue;
+        if (clockInput) clockInput.value = clockValue;
+      }
+      var value = (dateValue || "") + (dateValue || clockValue ? " " : "") + (clockValue || "");
+      if (textInput) textInput.value = value;
+      setRowModifyValue(timeRow, value);
+      var timeTr = timeControl.closest("tr");
+      if (timeTr) timeTr.classList.toggle("is-dirty", rowChanged(timeRow));
+      refreshSummaryOnly();
+    }
+
+    function refreshBatchTimeCalendar(key, dateValue) {
+      var timeControl = document.querySelector('[data-batch-time="' + key + '"]');
+      var calendar = timeControl && timeControl.querySelector(".inline-time-calendar");
+      if (calendar) {
+        calendar.innerHTML = buildBatchCalendarHtml(key, dateValue);
+      }
+    }
+
+    function updateBatchTimeValue(key, shouldNormalize) {
+      var timeControl = document.querySelector('[data-batch-time="' + key + '"]');
+      if (!timeControl) return;
+      var dateInput = timeControl.querySelector('[data-batch-time-date]');
+      var clockInput = timeControl.querySelector('[data-batch-time-clock]');
+      var textInput = timeControl.querySelector('[data-batch-value]');
+      var dateValue = dateInput ? dateInput.value : "";
+      var clockValue = clockInput ? clockInput.value : "";
+      if (shouldNormalize) {
+        dateValue = normalizeInlineDate(dateValue);
+        clockValue = normalizeInlineClock(clockValue);
+        if (dateInput) dateInput.value = dateValue;
+        if (clockInput) clockInput.value = clockValue;
+      }
+      if (textInput) textInput.value = (dateValue || "") + (dateValue || clockValue ? " " : "") + (clockValue || "");
     }
 
     function getCounts() {
@@ -2029,29 +3924,38 @@
       row.changed = rowChanged(row);
     }
 
+    function displayValue(value) {
+      return String(value == null ? "" : value).replace("T", " ");
+    }
+
     function renderValueEditor(row) {
       if (row.isDeleted) {
         return '<span class="cell-ellipsis" data-tooltip="-">-</span>';
       }
       var meta = fieldMeta[row.fieldId] || { kind: "text" };
       var value = row.modifyValue;
+      if (meta.editMode === "dialog") {
+        var dialogValue = displayValue(value) || "点击弹框编辑";
+        return '<span class="editable-value" data-dialog-edit="' + row.id + '" data-tooltip="' + escapeHtml(dialogValue) + '">' + escapeHtml(dialogValue) + '</span>';
+      }
       if (!row.inlineEditing) {
-        var displayValue = value || "点击编辑";
+        var displayText = displayValue(value) || "点击编辑";
         var emptyClass = value ? "" : " is-empty";
-        return '<span class="editable-value' + emptyClass + '" data-inline-edit="' + row.id + '" data-tooltip="' + escapeHtml(displayValue) + '">' + escapeHtml(displayValue) + '</span>';
+        return '<span class="editable-value' + emptyClass + '" data-inline-edit="' + row.id + '" data-tooltip="' + escapeHtml(displayText) + '">' + escapeHtml(displayText) + '</span>';
       }
       if (meta.kind === "select") {
-        return '<select class="value-select" data-row-edit="' + row.id + '">' +
-          meta.options.map(function(option) {
-            var selected = String(value) === option ? "selected" : "";
-            return '<option value="' + escapeHtml(option) + '" ' + selected + '>' + escapeHtml(option) + '</option>';
-          }).join("") +
-          '</select>';
+        return renderInlineSelectControl(row, meta, false);
       }
-      if (meta.kind === "textarea") {
-        return '<textarea class="value-textarea" data-row-edit="' + row.id + '" placeholder="请输入修改值">' + escapeHtml(value) + '</textarea>';
+      if (meta.kind === "multiselect") {
+        return renderInlineSelectControl(row, meta, true);
       }
-      return '<input class="value-input" data-row-edit="' + row.id + '" type="' + (meta.kind === "number" ? "number" : "text") + '" value="' + escapeHtml(value) + '" placeholder="请输入修改值">';
+      if (meta.kind === "time") {
+        return renderInlineTimeControl(row);
+      }
+      if (meta.kind === "textarea" || meta.kind === "richtext") {
+        return '<div class="inline-el-control is-textarea"><textarea class="value-textarea el-textarea__inner" data-row-edit="' + row.id + '" placeholder="请输入修改值">' + escapeHtml(value) + '</textarea></div>';
+      }
+      return '<div class="inline-el-control is-input"><input class="value-input el-input__inner" data-row-edit="' + row.id + '" type="' + (meta.kind === "number" ? "number" : "text") + '" value="' + escapeHtml(value) + '" placeholder="请输入修改值"></div>';
     }
 
     function filteredRows() {
@@ -2114,10 +4018,9 @@
           '<td><span class="cell-ellipsis" data-tooltip="' + escapeHtml(fieldText) + '">' + escapeHtml(fieldText) + '</span></td>' +
           '<td><span class="field-type" data-tooltip="' + escapeHtml(row.fieldType) + '">' + escapeHtml(row.fieldType) + '</span></td>' +
           '<td><span class="el-tag is-info" data-tooltip="' + escapeHtml(formatIdName(row.channel.id, row.channel.name)) + '">' + escapeHtml(row.channel.name) + '</span></td>' +
-          '<td><span class="cell-ellipsis" data-tooltip="' + escapeHtml(row.currentValue || '-') + '">' + escapeHtml(row.currentValue || '-') + '</span></td>' +
+          '<td><span class="cell-ellipsis" data-tooltip="' + escapeHtml(displayValue(row.currentValue) || '-') + '">' + escapeHtml(displayValue(row.currentValue) || '-') + '</span></td>' +
           '<td>' + renderValueEditor(row) + '</td>' +
           '<td class="action-col"><div class="table-actions">' +
-          '<button class="op-icon" type="button" data-row-open="' + row.id + '" data-tooltip="编辑">' + actionIcons.edit + '</button>' +
           '<button class="op-icon is-reset" type="button" data-row-reset="' + row.id + '" data-tooltip="重置">' + actionIcons.reset + '</button>' +
           '<button class="op-icon is-delete" type="button" data-row-delete="' + row.id + '" data-tooltip="删除">' + actionIcons.delete + '</button>' +
           '</div></td>' +
@@ -2127,7 +4030,6 @@
     }
 
     var actionIcons = {
-      edit: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>',
       reset: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v6h6"></path></svg>',
       delete: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg>'
     };
@@ -2160,6 +4062,33 @@
       return state.rows.filter(function(row) { return row.id === rowId; })[0];
     }
 
+    function renderUploadFileList(fileNames) {
+      if (!fileNames.length) {
+        return '<li class="upload-empty">暂无文件</li>';
+      }
+      return fileNames.map(function(name, index) {
+        return '<li class="upload-file-item">' +
+          '<span class="upload-icon-mini"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path></svg></span>' +
+          '<span class="upload-file-name" title="' + escapeHtml(name) + '">' + escapeHtml(name) + '</span>' +
+          '<button class="upload-file-remove" type="button" data-upload-remove="' + index + '">×</button>' +
+          '</li>';
+      }).join("");
+    }
+
+    function currentUploadFiles() {
+      var control = document.getElementById("editValueControl");
+      return String(control ? control.value : "").split(",").map(function(item) {
+        return item.trim();
+      }).filter(Boolean);
+    }
+
+    function syncUploadFileList(fileNames) {
+      var control = document.getElementById("editValueControl");
+      var list = document.getElementById("editUploadFileList");
+      if (control) control.value = fileNames.join(", ");
+      if (list) list.innerHTML = renderUploadFileList(fileNames);
+    }
+
     function renderEditValueControl(row) {
       var meta = fieldMeta[row.fieldId] || { kind: "text" };
       var value = state.editDraft;
@@ -2170,6 +4099,35 @@
             return '<option value="' + escapeHtml(option) + '" ' + selected + '>' + escapeHtml(option) + '</option>';
           }).join("") +
           '</select>';
+      }
+      if (meta.kind === "multiselect") {
+        var selectedValues = String(value || "").split(",").map(function(item) { return item.trim(); }).filter(Boolean);
+        return '<select class="value-select is-multiple" id="editValueControl" multiple>' +
+          meta.options.map(function(option) {
+            var selected = selectedValues.indexOf(option) > -1 ? "selected" : "";
+            return '<option value="' + escapeHtml(option) + '" ' + selected + '>' + escapeHtml(option) + '</option>';
+          }).join("") +
+          '</select>';
+      }
+      if (meta.kind === "time") {
+        return '<input class="value-input" id="editValueControl" type="datetime-local" value="' + escapeHtml(value) + '">';
+      }
+      if (meta.kind === "file" || meta.kind === "files") {
+        var fileNames = String(value || "").split(",").map(function(item) { return item.trim(); }).filter(Boolean);
+        return '<div class="upload-mock" data-upload-kind="' + meta.kind + '">' +
+          '<div class="upload-dragger">' +
+          '<span class="upload-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="M17 8l-5-5-5 5"></path><path d="M12 3v12"></path></svg></span>' +
+          '<div class="upload-title">将文件拖到此处，或 <em>点击上传</em></div>' +
+          '<button class="upload-button" type="button" data-upload-pick="' + meta.kind + '">点击上传</button>' +
+          '<div class="upload-tip">' + (meta.kind === "file" ? "只能上传 1 个文件，上传后会替换当前文件" : "支持批量上传，多个文件将按文件列表保存") + '</div>' +
+          '</div>' +
+          '<ul class="upload-file-list" id="editUploadFileList">' + renderUploadFileList(fileNames) + '</ul>' +
+          '<div class="upload-hidden-value"><input class="value-input" id="editValueControl" value="' + escapeHtml(fileNames.join(", ")) + '" placeholder="上传文件后自动填充文件名"></div>' +
+          '</div>';
+      }
+      if (meta.kind === "richtext") {
+        return '<div class="richtext-toolbar"><span>B</span><span>I</span><span>链接</span><span>图片</span></div>' +
+          '<textarea class="value-textarea richtext-editor" id="editValueControl">' + escapeHtml(value) + '</textarea>';
       }
       if (meta.kind === "textarea") {
         return '<textarea class="value-textarea" id="editValueControl">' + escapeHtml(value) + '</textarea>';
@@ -2188,15 +4146,10 @@
       state.editDraft = row.modifyValue;
       var grid = document.getElementById("editFormGrid");
       grid.innerHTML =
-        '<div class="edit-field"><div class="edit-label">商品库</div><input class="value-input" disabled value="' + escapeHtml(formatIdName(row.gameLibrary.id, row.gameLibrary.name)) + '"></div>' +
-        '<div class="edit-field"><div class="edit-label">商品模板</div><input class="value-input" disabled value="' + escapeHtml(formatIdName(row.template.id, row.template.name)) + '"></div>' +
-        '<div class="edit-field is-wide"><div class="edit-label">商品</div><input class="value-input" disabled value="' + escapeHtml(formatIdName(row.product.id, row.product.name)) + '"></div>' +
-        '<div class="edit-field"><div class="edit-label">字段</div><input class="value-input" disabled value="' + escapeHtml(formatIdName(row.fieldId, row.field)) + '"></div>' +
-        '<div class="edit-field"><div class="edit-label">渠道</div><input class="value-input" disabled value="' + escapeHtml(formatIdName(row.channel.id, row.channel.name)) + '"></div>' +
-        '<div class="edit-field is-wide"><div class="edit-label">当前值</div><textarea class="value-textarea" disabled>' + escapeHtml(row.currentValue) + '</textarea></div>' +
-        '<div class="edit-field is-wide"><div class="edit-label">修改值</div>' + renderEditValueControl(row) + '</div>';
+        '<div class="edit-field is-wide">' + renderEditValueControl(row) + '</div>';
       document.getElementById("editDialog").classList.add("is-visible");
       document.getElementById("editDialog").setAttribute("aria-hidden", "false");
+      lockBodyScroll();
     }
 
     function closeEditDialog() {
@@ -2204,13 +4157,29 @@
       document.getElementById("editDialog").setAttribute("aria-hidden", "true");
       state.editRowId = "";
       state.editDraft = "";
+      state.batchValueKey = "";
+      unlockBodyScroll();
     }
 
     function confirmEditDialog() {
       var row = findRow(state.editRowId);
       var control = document.getElementById("editValueControl");
+      if (control) {
+        var value = control.multiple ? Array.from(control.selectedOptions).map(function(option) { return option.value; }).join(", ") : control.value;
+        if (state.batchValueKey) {
+          var hidden = document.querySelector('[data-batch-value="' + state.batchValueKey + '"]');
+          var button = document.querySelector('[data-batch-value-dialog="' + state.batchValueKey + '"]');
+          if (hidden) hidden.value = value;
+          if (button) {
+            button.textContent = displayValue(value) || '点击填写';
+            button.setAttribute('title', displayValue(value) || '点击填写');
+          }
+          closeEditDialog();
+          return;
+        }
+      }
       if (row && control) {
-        setRowModifyValue(row, control.value);
+        setRowModifyValue(row, value);
         row.inlineEditing = false;
         renderTable();
       }
@@ -2245,17 +4214,11 @@
         '<div class="dimension-actions"><span class="count-text" id="batchproductsCount"></span></div>' +
         '</div>' +
         '<div class="dimension-row">' +
-        '<div class="dimension-label"><span class="required-dot">*</span>渠道选择</div>' +
-        '<div class="tag-box" id="batchchannelsTags" data-batch-open="channels"></div>' +
-        '<div class="dimension-actions"><span class="count-text" id="batchchannelsCount"></span></div>' +
-        '</div>' +
-        '<div class="dimension-row">' +
         '<div class="dimension-label"><span class="required-dot">*</span>字段选择</div>' +
         '<div class="tag-box" id="batchfieldsTags" data-batch-open="fields"></div>' +
         '<div class="dimension-actions"><span class="count-text" id="batchfieldsCount"></span></div>' +
         '</div>';
       renderBatchTags('products');
-      renderBatchTags('channels');
       renderBatchTags('fields');
     }
 
@@ -2274,21 +4237,124 @@
       return meta.options && meta.options.length ? meta.options[0] : '';
     }
 
-    function renderBatchValueControl(fieldId) {
+    function batchValueKey(productId, fieldId) {
+      return productId + "__" + fieldId;
+    }
+
+    function renderChannelSelect(key, channels) {
+      var active = channels[0];
+      return '<div class="batch-channel-select" data-channel-select="' + escapeHtml(key) + '">' +
+        '<input class="batch-channel-hidden" type="hidden" data-batch-channel="' + escapeHtml(key) + '" value="' + escapeHtml(active.id) + '">' +
+        '<button class="batch-channel-trigger" type="button" data-batch-channel-toggle="' + escapeHtml(key) + '">' +
+        '<span class="batch-channel-label">' + escapeHtml(active.id + ' - ' + active.name) + '</span>' +
+        '<span class="batch-channel-arrow">⌄</span>' +
+        '</button>' +
+        '<div class="batch-channel-dropdown">' +
+        channels.map(function(channel, index) {
+          return '<div class="batch-channel-option' + (index === 0 ? ' is-active' : '') + '" data-batch-channel-option="' + escapeHtml(key) + '" data-value="' + escapeHtml(channel.id) + '" data-label="' + escapeHtml(channel.id + ' - ' + channel.name) + '">' +
+            '<span class="cell-ellipsis">' + escapeHtml(channel.id + ' - ' + channel.name) + '</span>' +
+            '<span class="batch-channel-group">' + escapeHtml(channel.group) + '</span>' +
+            '</div>';
+        }).join('') +
+        '</div>' +
+        '</div>';
+    }
+
+    function renderBatchSelectControl(fieldId, key, meta, multiple, value) {
+      var values = multiple
+        ? String(value || "").split(",").map(function(item) { return item.trim(); }).filter(Boolean)
+        : [String(value || "")];
+      var label = multiple ? (values.length ? values.join(", ") : "请选择") : (values[0] || "请选择");
+      return '<div class="inline-el-control inline-select-control batch-value-select ' + (multiple ? 'is-multiple' : 'is-select') + '" data-batch-select="' + escapeHtml(key) + '">' +
+        '<input type="hidden" data-batch-value="' + escapeHtml(key) + '" data-batch-field="' + escapeHtml(fieldId) + '" value="' + escapeHtml(multiple ? values.join(", ") : values[0]) + '">' +
+        '<button class="inline-select-trigger" type="button" data-batch-select-toggle="' + escapeHtml(key) + '">' +
+        '<span class="inline-select-label">' + escapeHtml(label) + '</span>' +
+        '<span class="inline-select-arrow">⌄</span>' +
+        '</button>' +
+        '<div class="inline-select-dropdown">' +
+        meta.options.map(function(option) {
+          var active = values.indexOf(option) > -1;
+          return '<div class="inline-select-option' + (active ? ' is-active' : '') + '" data-batch-select-option="' + escapeHtml(key) + '" data-value="' + escapeHtml(option) + '" data-multiple="' + (multiple ? 'true' : 'false') + '">' +
+            (multiple ? '<span class="inline-select-check"></span>' : '') +
+            '<span>' + escapeHtml(option) + '</span>' +
+            '</div>';
+        }).join("") +
+        '</div>' +
+        '</div>';
+    }
+
+    function renderBatchTimeControl(fieldId, key, value) {
+      var normalized = displayValue(value || "");
+      var dateValue = normalized.slice(0, 10) || "2026-07-11";
+      var timeValue = normalized.length >= 19 ? normalized.slice(11, 19) : (normalized.length >= 16 ? normalized.slice(11, 16) + ":00" : "10:00:00");
+      return '<div class="inline-el-control inline-time-control batch-time-control is-time" data-batch-time="' + escapeHtml(key) + '">' +
+        '<input class="value-input el-input__inner" data-batch-value="' + escapeHtml(key) + '" data-batch-field="' + escapeHtml(fieldId) + '" data-batch-time-input="' + escapeHtml(key) + '" type="text" value="' + escapeHtml(dateValue + ' ' + timeValue) + '" placeholder="YYYY-MM-DD HH:mm:ss">' +
+        '<button class="inline-time-button" type="button" data-batch-time-toggle="' + escapeHtml(key) + '" aria-label="选择时间">◷</button>' +
+        '<div class="inline-time-panel">' +
+        '<div class="inline-time-body">' +
+        '<div class="inline-time-fields">' +
+        '<input type="text" inputmode="numeric" data-batch-time-date="' + escapeHtml(key) + '" value="' + escapeHtml(dateValue) + '" placeholder="选择日期">' +
+        '<input type="text" inputmode="numeric" data-batch-time-clock="' + escapeHtml(key) + '" value="' + escapeHtml(timeValue) + '" placeholder="选择时间">' +
+        '</div>' +
+        '<div class="inline-time-calendar">' + buildBatchCalendarHtml(key, dateValue) + '</div>' +
+        '</div>' +
+        '<div class="inline-time-footer">' +
+        '<button class="inline-time-now" type="button" data-batch-time-now="' + escapeHtml(key) + '">此刻</button>' +
+        '<button class="inline-time-confirm is-primary" type="button" data-batch-time-confirm="' + escapeHtml(key) + '">确定</button>' +
+        '</div>' +
+        '</div>' +
+        '</div>';
+    }
+
+    function buildBatchCalendarHtml(key, dateValue) {
+      var selected = parseInlineDate(dateValue);
+      var firstDay = new Date(selected.year, selected.month - 1, 1).getDay();
+      var today = inlineDateValue(new Date());
+      var cells = [];
+      for (var i = 0; i < 42; i += 1) {
+        var dayOffset = i - firstDay + 1;
+        var cellDate = new Date(selected.year, selected.month - 1, dayOffset);
+        var cellValue = inlineDateValue(cellDate);
+        var muted = cellDate.getMonth() !== selected.month - 1;
+        var active = cellValue === selected.value;
+        var isToday = cellValue === today;
+        cells.push('<button class="inline-time-day' + (muted ? ' is-muted' : '') + (active ? ' is-active' : '') + (isToday ? ' is-today' : '') + '" type="button" data-batch-time-day="' + escapeHtml(key) + '" data-value="' + cellValue + '">' + cellDate.getDate() + '</button>');
+      }
+      return '<div class="inline-time-calendar-head">' +
+        '<button type="button" data-batch-time-month="' + escapeHtml(key) + '" data-offset="-12">«</button>' +
+        '<button type="button" data-batch-time-month="' + escapeHtml(key) + '" data-offset="-1">‹</button>' +
+        '<strong>' + selected.year + ' 年 ' + selected.month + ' 月</strong>' +
+        '<button type="button" data-batch-time-month="' + escapeHtml(key) + '" data-offset="1">›</button>' +
+        '<button type="button" data-batch-time-month="' + escapeHtml(key) + '" data-offset="12">»</button>' +
+        '</div>' +
+        '<div class="inline-time-weekdays"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>' +
+        '<div class="inline-time-days">' + cells.join("") + '</div>';
+    }
+
+    function renderBatchValueControl(fieldId, key) {
       var meta = fieldMeta[fieldId] || { kind: 'text' };
       var value = sampleValueForField(fieldId);
+      if (meta.editMode === 'dialog') {
+        var displayText = displayValue(value) || '点击填写';
+        return '<input type="hidden" data-batch-value="' + escapeHtml(key) + '" data-batch-field="' + escapeHtml(fieldId) + '" value="' + escapeHtml(value) + '">' +
+          '<button class="batch-dialog-value" type="button" data-batch-value-dialog="' + escapeHtml(key) + '" data-field-id="' + escapeHtml(fieldId) + '" title="' + escapeHtml(displayText) + '">' + escapeHtml(displayText) + '</button>';
+      }
       if (meta.kind === 'select') {
-        return '<select class="value-select" data-batch-value="' + fieldId + '">' +
-          meta.options.map(function(option) {
-            var selected = String(value) === option ? 'selected' : '';
-            return '<option value="' + escapeHtml(option) + '" ' + selected + '>' + escapeHtml(option) + '</option>';
-          }).join('') +
-          '</select>';
+        return renderBatchSelectControl(fieldId, key, meta, false, value);
       }
-      if (meta.kind === 'textarea') {
-        return '<textarea class="value-textarea" data-batch-value="' + fieldId + '">' + escapeHtml(value) + '</textarea>';
+      if (meta.kind === 'multiselect') {
+        return renderBatchSelectControl(fieldId, key, meta, true, value);
       }
-      return '<input class="value-input" data-batch-value="' + fieldId + '" type="' + (meta.kind === 'number' ? 'number' : 'text') + '" value="' + escapeHtml(value) + '">';
+      if (meta.kind === 'time') {
+        return renderBatchTimeControl(fieldId, key, value);
+      }
+      if (meta.kind === 'file' || meta.kind === 'files') {
+        return '<input class="value-input" data-batch-value="' + escapeHtml(key) + '" data-batch-field="' + escapeHtml(fieldId) + '" value="' + escapeHtml(value) + '" placeholder="' + (meta.kind === 'file' ? '单文件名' : '多个文件名，逗号分隔') + '">';
+      }
+      if (meta.kind === 'textarea' || meta.kind === 'richtext') {
+        return '<textarea class="value-textarea" data-batch-value="' + escapeHtml(key) + '" data-batch-field="' + escapeHtml(fieldId) + '">' + escapeHtml(value) + '</textarea>';
+      }
+      return '<input class="value-input" data-batch-value="' + escapeHtml(key) + '" data-batch-field="' + escapeHtml(fieldId) + '" type="' + (meta.kind === 'number' ? 'number' : 'text') + '" value="' + escapeHtml(value) + '">';
     }
 
     function renderBatchEditList() {
@@ -2296,17 +4362,60 @@
       var card = document.getElementById('batchEditCard');
       card.style.display = '';
       var selected = collectBatchSelection();
+      var products = selected.products.map(function(id) { return getItem('products', id); }).filter(Boolean);
       var fields = selected.fields.map(function(id) { return getItem('fields', id); }).filter(Boolean);
-      if (!fields.length) {
-        list.innerHTML = '<div class="batch-empty">请选择字段后维护批量字段值</div>';
+      var channels = (selected.channels.length ? selected.channels.map(function(id) { return getItem('channels', id); }) : flatten('channels')).filter(Boolean);
+      if (!products.length || !fields.length) {
+        list.innerHTML = '<div class="batch-empty">请选择商品和字段后维护批量字段值</div>';
         return;
       }
-      list.innerHTML = fields.map(function(field) {
-        return '<div class="batch-edit-item">' +
-          '<div class="edit-label">' + escapeHtml(field.id + ' - ' + field.name) + '</div>' +
-          renderBatchValueControl(field.id) +
-          '</div>';
-      }).join('');
+      if (!channels.length) {
+        list.innerHTML = '<div class="batch-empty">暂无可用渠道</div>';
+        return;
+      }
+      var rows = [];
+      products.forEach(function(product) {
+        fields.forEach(function(field) {
+          var key = batchValueKey(product.id, field.id);
+          rows.push('<tr>' +
+            '<td class="product-col"><span class="cell-ellipsis" title="' + escapeHtml(product.id + ' - ' + product.name) + '">' + escapeHtml(product.id + ' - ' + product.name) + '</span></td>' +
+            '<td class="field-col"><span class="cell-ellipsis" title="' + escapeHtml(field.id + ' - ' + field.name) + '">' + escapeHtml(field.id + ' - ' + field.name) + '</span></td>' +
+            '<td class="channel-col">' + renderChannelSelect(key, channels) + '</td>' +
+            '<td class="value-col">' + renderBatchValueControl(field.id, key) + '</td>' +
+            '</tr>');
+        });
+      });
+      list.innerHTML = '<table class="batch-edit-table">' +
+        '<thead><tr><th class="product-col">商品</th><th class="field-col">字段</th><th class="channel-col">渠道</th><th class="value-col">数据值</th></tr></thead>' +
+        '<tbody>' + rows.join('') + '</tbody>' +
+        '</table>';
+    }
+
+    function openBatchValueDialog(key, fieldId) {
+      var control = document.querySelector('[data-batch-value="' + key + '"]');
+      state.batchValueKey = key;
+      state.editRowId = "";
+      state.editDraft = control ? control.value : sampleValueForField(fieldId);
+      var grid = document.getElementById("editFormGrid");
+      grid.innerHTML =
+        '<div class="edit-field is-wide">' + renderEditValueControl({ fieldId: fieldId }) + '</div>';
+      document.getElementById("editDialog").classList.add("is-visible");
+      document.getElementById("editDialog").setAttribute("aria-hidden", "false");
+      lockBodyScroll();
+    }
+
+    function collectBatchRows() {
+      return Array.from(document.querySelectorAll("[data-batch-value]")).map(function(control) {
+        var key = control.getAttribute("data-batch-value");
+        var parts = key.split("__");
+        var channelControl = document.querySelector('[data-batch-channel="' + key + '"]');
+        return {
+          productId: parts[0],
+          fieldId: parts[1],
+          channelId: channelControl ? channelControl.value : "",
+          value: control.multiple ? Array.from(control.selectedOptions).map(function(option) { return option.value; }).join(", ") : control.value
+        };
+      });
     }
 
     function openBatchDialog(mode) {
@@ -2320,6 +4429,7 @@
       renderBatchDimensions();
       document.getElementById('batchDialog').classList.add('is-visible');
       document.getElementById('batchDialog').setAttribute('aria-hidden', 'false');
+      lockBodyScroll();
       renderBatchEditList();
     }
 
@@ -2327,35 +4437,30 @@
       document.getElementById('batchDialog').classList.remove('is-visible');
       document.getElementById('batchDialog').setAttribute('aria-hidden', 'true');
       state.batchMode = '';
+      unlockBodyScroll();
     }
 
     function applyBatchAdd() {
       var selected = collectBatchSelection();
-      var products = selected.products.map(function(id) { return getItem('products', id); }).filter(Boolean);
-      var channels = selected.channels.map(function(id) { return getItem('channels', id); }).filter(Boolean);
-      var fields = selected.fields.map(function(id) { return getItem('fields', id); }).filter(Boolean);
-      if (!products.length || !channels.length || !fields.length) {
-        showToast('请先选择商品、渠道和字段');
+      if (!selected.products.length || !selected.fields.length) {
+        showToast('请先选择商品和字段');
         return;
       }
+      var batchRows = collectBatchRows();
       var existingIds = {};
-      var values = {};
-      Array.from(document.querySelectorAll('[data-batch-value]')).forEach(function(control) {
-        values[control.getAttribute('data-batch-value')] = control.value;
-      });
       state.rows.forEach(function(row) { existingIds[row.id] = true; });
       var addedCount = 0;
-      products.forEach(function(product) {
-        channels.forEach(function(channel) {
-          fields.forEach(function(field) {
-            var id = product.id + '_' + channel.id + '_' + field.id;
-            if (existingIds[id]) return;
-            var row = createRow(product, channel, field, state.rows.length, true, values[field.id] || "");
-            state.rows.push(row);
-            existingIds[id] = true;
-            addedCount += 1;
-          });
-        });
+      batchRows.forEach(function(item) {
+        var product = getItem('products', item.productId);
+        var field = getItem('fields', item.fieldId);
+        var channel = getItem('channels', item.channelId);
+        if (!product || !field || !channel) return;
+        var id = product.id + '_' + channel.id + '_' + field.id;
+        if (existingIds[id]) return;
+        var row = createRow(product, channel, field, state.rows.length, true, item.value || "");
+        state.rows.push(row);
+        existingIds[id] = true;
+        addedCount += 1;
       });
       renderTable();
       closeBatchDialog();
@@ -2364,23 +4469,21 @@
 
     function applyBatchEdit() {
       var selected = collectBatchSelection();
-      if (!selected.products.length || !selected.channels.length || !selected.fields.length) {
-        showToast('请先选择商品、渠道和字段');
+      if (!selected.products.length || !selected.fields.length) {
+        showToast('请先选择商品和字段');
         return;
       }
-      var values = {};
-      Array.from(document.querySelectorAll('[data-batch-value]')).forEach(function(control) {
-        values[control.getAttribute('data-batch-value')] = control.value;
-      });
+      var configs = collectBatchRows();
       var updated = 0;
-      state.rows.forEach(function(row) {
-        if (selected.products.indexOf(row.product.id) < 0) return;
-        if (selected.channels.indexOf(row.channel.id) < 0) return;
-        if (selected.fields.indexOf(row.fieldId) < 0) return;
-        if (!Object.prototype.hasOwnProperty.call(values, row.fieldId)) return;
-        setRowModifyValue(row, values[row.fieldId]);
-        row.inlineEditing = false;
-        updated += 1;
+      configs.forEach(function(item) {
+        state.rows.forEach(function(row) {
+          if (row.product.id !== item.productId) return;
+          if (row.fieldId !== item.fieldId) return;
+          if (row.channel.id !== item.channelId) return;
+          setRowModifyValue(row, item.value);
+          row.inlineEditing = false;
+          updated += 1;
+        });
       });
       renderTable();
       closeBatchDialog();
@@ -2456,6 +4559,7 @@
       renderSubmitTable();
       document.getElementById('submitDialog').classList.add('is-visible');
       document.getElementById('submitDialog').setAttribute('aria-hidden', 'false');
+      lockBodyScroll();
     }
 
     function renderSubmitTabs() {
@@ -2479,8 +4583,8 @@
           '<td><span class="cell-ellipsis" data-tooltip="' + escapeHtml(formatIdName(row.fieldId, row.field)) + '">' + escapeHtml(formatIdName(row.fieldId, row.field)) + '</span></td>' +
           '<td><span class="field-type" data-tooltip="' + escapeHtml(row.fieldType) + '">' + escapeHtml(row.fieldType) + '</span></td>' +
           '<td><span class="el-tag is-info" data-tooltip="' + escapeHtml(formatIdName(row.channel.id, row.channel.name)) + '">' + escapeHtml(row.channel.name) + '</span></td>' +
-          '<td><span class="cell-ellipsis submit-old-value" data-tooltip="' + escapeHtml(item.oldValue) + '">' + escapeHtml(item.oldValue) + '</span></td>' +
-          '<td><span class="cell-ellipsis submit-new-value" data-tooltip="' + escapeHtml(item.newValue) + '">' + escapeHtml(item.newValue) + '</span></td>' +
+          '<td><span class="cell-ellipsis submit-old-value" data-tooltip="' + escapeHtml(displayValue(item.oldValue)) + '">' + escapeHtml(displayValue(item.oldValue)) + '</span></td>' +
+          '<td><span class="cell-ellipsis submit-new-value" data-tooltip="' + escapeHtml(displayValue(item.newValue)) + '">' + escapeHtml(displayValue(item.newValue)) + '</span></td>' +
           '</tr>';
       }).join('');
     }
@@ -2488,6 +4592,7 @@
     function closeSubmitDialog() {
       document.getElementById('submitDialog').classList.remove('is-visible');
       document.getElementById('submitDialog').setAttribute('aria-hidden', 'true');
+      unlockBodyScroll();
     }
 
     function confirmSubmitDialog() {
@@ -2551,6 +4656,7 @@
       state.selectedRows = [];
       state.editRowId = "";
       state.editDraft = "";
+      state.channelMode = "include";
       state.keyword = "";
       document.getElementById("tableKeyword").value = "";
       syncTableKeywordClear();
@@ -2571,15 +4677,381 @@
       var dialog = event.target.getAttribute("data-dialog");
       var rowReset = event.target.getAttribute("data-row-reset");
       var rowDelete = event.target.getAttribute("data-row-delete");
-      var rowOpen = event.target.getAttribute("data-row-open");
+      var channelModeToggle = event.target.closest("[data-channel-mode-toggle]");
+      var channelModeOption = event.target.closest("[data-channel-mode-option]");
       var inlineEdit = event.target.getAttribute("data-inline-edit");
+      var dialogEdit = event.target.getAttribute("data-dialog-edit");
       var editDialogAction = event.target.getAttribute("data-edit-dialog");
       var batchDialogAction = event.target.getAttribute("data-batch-dialog");
       var submitDialogAction = event.target.getAttribute("data-submit-dialog");
       var submitTab = event.target.closest("[data-submit-tab]");
+      var fieldTemplate = event.target.getAttribute("data-field-template");
+      var groupToggle = event.target.closest("[data-group-filter-toggle]");
+      var groupAction = event.target.getAttribute("data-group-filter-action");
+      var batchValueDialog = event.target.closest("[data-batch-value-dialog]");
+      var batchChannelToggle = event.target.closest("[data-batch-channel-toggle]");
+      var batchChannelOption = event.target.closest("[data-batch-channel-option]");
+      var batchSelectToggle = event.target.closest("[data-batch-select-toggle]");
+      var batchSelectOption = event.target.closest("[data-batch-select-option]");
+      var batchTimeToggle = event.target.closest("[data-batch-time-toggle]");
+      var batchTimeInput = event.target.closest("[data-batch-time-input]");
+      var batchTimeDay = event.target.closest("[data-batch-time-day]");
+      var batchTimeMonth = event.target.closest("[data-batch-time-month]");
+      var batchTimeNow = event.target.closest("[data-batch-time-now]");
+      var batchTimeConfirm = event.target.closest("[data-batch-time-confirm]");
+      var uploadPick = event.target.closest("[data-upload-pick]");
+      var uploadRemove = event.target.closest("[data-upload-remove]");
+      var searchTypeToggle = event.target.closest("[data-search-type-toggle]");
+      var searchTypeOption = event.target.closest("[data-search-type-option]");
+      var inlineSelectToggle = event.target.closest("[data-inline-select-toggle]");
+      var inlineSelectOption = event.target.closest("[data-inline-select-option]");
+      var inlineTimeToggle = event.target.closest("[data-inline-time-toggle]");
+      var inlineTimeInput = event.target.closest("[data-inline-time-input]");
+      var inlineTimeQuick = event.target.closest("[data-inline-time-quick]");
+      var inlineTimeConfirm = event.target.closest("[data-inline-time-confirm]");
+      var inlineTimeNow = event.target.closest("[data-inline-time-now]");
+      var inlineTimeDay = event.target.closest("[data-inline-time-day]");
+      var inlineTimeMonth = event.target.closest("[data-inline-time-month]");
+
+      if (!event.target.closest(".transfer-group-filter")) {
+        closeGroupFilterPopovers();
+      }
+      if (!event.target.closest(".transfer-search-type")) {
+        closeSearchTypePopovers();
+      }
+      if (!event.target.closest(".inline-select-control")) {
+        closeInlineSelects();
+      }
+      if (!event.target.closest(".inline-time-control")) {
+        closeInlineTimePickers();
+        closeBatchTimePickers();
+      }
+      if (!event.target.closest(".batch-value-select")) {
+        closeBatchValueSelects();
+      }
+      if (!event.target.closest(".batch-channel-select")) {
+        closeBatchChannelSelects();
+      }
+      if (!event.target.closest(".dimension-mode-select")) {
+        closeChannelModeSelect();
+      }
+      if (channelModeToggle) {
+        var modeSelect = document.getElementById("channelModeSelect");
+        modeSelect.classList.toggle("is-open");
+        return;
+      }
+      if (channelModeOption) {
+        state.channelMode = channelModeOption.getAttribute("data-channel-mode-option") || "include";
+        closeChannelModeSelect();
+        renderTags("channels");
+        syncChannelModeSelect();
+        return;
+      }
+      if (batchSelectToggle) {
+        var batchSelectKey = batchSelectToggle.getAttribute("data-batch-select-toggle");
+        var batchSelectNode = document.querySelector('[data-batch-select="' + batchSelectKey + '"]');
+        var batchSelectOpen = !batchSelectNode.classList.contains("is-open");
+        closeBatchValueSelects(batchSelectKey);
+        batchSelectNode.classList.toggle("is-open", batchSelectOpen);
+        if (batchSelectOpen) {
+          positionFloatingPanel(batchSelectNode, ".inline-select-dropdown", 220);
+        } else {
+          batchSelectNode.classList.remove("is-floating");
+        }
+        return;
+      }
+      if (batchSelectOption) {
+        var batchOptionKey = batchSelectOption.getAttribute("data-batch-select-option");
+        var batchSelectControl = document.querySelector('[data-batch-select="' + batchOptionKey + '"]');
+        var batchSelectHidden = batchSelectControl && batchSelectControl.querySelector('[data-batch-value]');
+        var batchSelectMultiple = batchSelectOption.getAttribute("data-multiple") === "true";
+        if (batchSelectControl && batchSelectHidden) {
+          if (batchSelectMultiple) {
+            batchSelectOption.classList.toggle("is-active");
+            var batchSelectedValues = Array.from(batchSelectControl.querySelectorAll(".inline-select-option.is-active")).map(function(option) {
+              return option.getAttribute("data-value");
+            });
+            batchSelectHidden.value = batchSelectedValues.join(", ");
+            var batchLabel = batchSelectControl.querySelector(".inline-select-label");
+            if (batchLabel) batchLabel.textContent = batchSelectedValues.length ? batchSelectedValues.join(", ") : "请选择";
+          } else {
+            batchSelectHidden.value = batchSelectOption.getAttribute("data-value");
+            var singleLabel = batchSelectControl.querySelector(".inline-select-label");
+            if (singleLabel) singleLabel.textContent = batchSelectHidden.value || "请选择";
+            batchSelectControl.classList.remove("is-open");
+            Array.from(batchSelectControl.querySelectorAll(".inline-select-option")).forEach(function(option) {
+              option.classList.toggle("is-active", option === batchSelectOption);
+            });
+          }
+        }
+        return;
+      }
+      if (batchTimeToggle || batchTimeInput) {
+        var batchTimeKey = batchTimeToggle ? batchTimeToggle.getAttribute("data-batch-time-toggle") : batchTimeInput.getAttribute("data-batch-time-input");
+        var batchTimeNode = document.querySelector('[data-batch-time="' + batchTimeKey + '"]');
+        var batchTimeOpen = !batchTimeNode.classList.contains("is-open");
+        closeBatchTimePickers(batchTimeKey);
+        var shouldOpenBatchTime = batchTimeInput ? true : batchTimeOpen;
+        batchTimeNode.classList.toggle("is-open", shouldOpenBatchTime);
+        if (shouldOpenBatchTime) {
+          positionFloatingPanel(batchTimeNode, ".inline-time-panel", 372);
+        } else {
+          batchTimeNode.classList.remove("is-floating");
+        }
+        return;
+      }
+      if (batchTimeMonth) {
+        var batchMonthKey = batchTimeMonth.getAttribute("data-batch-time-month");
+        var batchMonthNode = document.querySelector('[data-batch-time="' + batchMonthKey + '"]');
+        var batchMonthDateInput = batchMonthNode && batchMonthNode.querySelector('[data-batch-time-date]');
+        if (batchMonthDateInput) {
+          var batchMonthParsed = parseInlineDate(batchMonthDateInput.value);
+          var batchMonthOffset = Number(batchTimeMonth.getAttribute("data-offset") || 0);
+          var batchTargetMonthDate = new Date(batchMonthParsed.year, batchMonthParsed.month - 1 + batchMonthOffset, 1);
+          var batchTargetYear = batchTargetMonthDate.getFullYear();
+          var batchTargetMonth = batchTargetMonthDate.getMonth() + 1;
+          var batchMaxDay = new Date(batchTargetYear, batchTargetMonth, 0).getDate();
+          var batchNextDate = batchTargetYear + "-" + padTimeUnit(batchTargetMonth) + "-" + padTimeUnit(Math.min(batchMonthParsed.day, batchMaxDay));
+          batchMonthDateInput.value = batchNextDate;
+          refreshBatchTimeCalendar(batchMonthKey, batchNextDate);
+        }
+        return;
+      }
+      if (batchTimeDay) {
+        var batchDayKey = batchTimeDay.getAttribute("data-batch-time-day");
+        var batchDayNode = document.querySelector('[data-batch-time="' + batchDayKey + '"]');
+        var batchDayInput = batchDayNode && batchDayNode.querySelector('[data-batch-time-date]');
+        if (batchDayInput) {
+          batchDayInput.value = batchTimeDay.getAttribute("data-value");
+          updateBatchTimeValue(batchDayKey, true);
+          refreshBatchTimeCalendar(batchDayKey, batchDayInput.value);
+        }
+        return;
+      }
+      if (batchTimeNow) {
+        var batchNowKey = batchTimeNow.getAttribute("data-batch-time-now");
+        var batchNowNode = document.querySelector('[data-batch-time="' + batchNowKey + '"]');
+        var batchNow = new Date();
+        var batchNowDate = batchNow.getFullYear() + "-" + padTimeUnit(batchNow.getMonth() + 1) + "-" + padTimeUnit(batchNow.getDate());
+        var batchNowClock = padTimeUnit(batchNow.getHours()) + ":" + padTimeUnit(batchNow.getMinutes()) + ":" + padTimeUnit(batchNow.getSeconds());
+        if (batchNowNode) {
+          var batchNowDateInput = batchNowNode.querySelector('[data-batch-time-date]');
+          var batchNowClockInput = batchNowNode.querySelector('[data-batch-time-clock]');
+          if (batchNowDateInput) batchNowDateInput.value = batchNowDate;
+          if (batchNowClockInput) batchNowClockInput.value = batchNowClock;
+          updateBatchTimeValue(batchNowKey, true);
+          refreshBatchTimeCalendar(batchNowKey, batchNowDate);
+        }
+        return;
+      }
+      if (batchTimeConfirm) {
+        updateBatchTimeValue(batchTimeConfirm.getAttribute("data-batch-time-confirm"), true);
+        closeBatchTimePickers();
+        return;
+      }
+      if (inlineTimeToggle || inlineTimeInput) {
+        var timeRowId = inlineTimeToggle ? inlineTimeToggle.getAttribute("data-inline-time-toggle") : inlineTimeInput.getAttribute("data-inline-time-input");
+        var timeNode = document.querySelector('[data-inline-time="' + timeRowId + '"]');
+        var nextTimeOpen = !timeNode.classList.contains("is-open");
+        closeInlineTimePickers(timeRowId);
+        timeNode.classList.toggle("is-open", inlineTimeInput ? true : nextTimeOpen);
+        return;
+      }
+      if (inlineTimeQuick) {
+        var quickRowId = inlineTimeQuick.getAttribute("data-inline-time-quick");
+        var quickNode = document.querySelector('[data-inline-time="' + quickRowId + '"]');
+        var quickClock = quickNode && quickNode.querySelector('[data-inline-time-clock]');
+        if (quickClock) {
+          quickClock.value = inlineTimeQuick.getAttribute("data-time");
+          updateInlineTimeValue(quickRowId, true);
+        }
+        return;
+      }
+      if (inlineTimeMonth) {
+        var monthRowId = inlineTimeMonth.getAttribute("data-inline-time-month");
+        var monthNode = document.querySelector('[data-inline-time="' + monthRowId + '"]');
+        var monthDateInput = monthNode && monthNode.querySelector('[data-inline-time-date]');
+        if (monthDateInput) {
+          var monthParsed = parseInlineDate(monthDateInput.value);
+          var monthOffset = Number(inlineTimeMonth.getAttribute("data-offset") || 0);
+          var targetMonthDate = new Date(monthParsed.year, monthParsed.month - 1 + monthOffset, 1);
+          var targetYear = targetMonthDate.getFullYear();
+          var targetMonth = targetMonthDate.getMonth() + 1;
+          var maxDay = new Date(targetYear, targetMonth, 0).getDate();
+          var nextDateValue = targetYear + "-" + padTimeUnit(targetMonth) + "-" + padTimeUnit(Math.min(monthParsed.day, maxDay));
+          monthDateInput.value = nextDateValue;
+          refreshInlineTimeCalendar(monthRowId, nextDateValue);
+        }
+        return;
+      }
+      if (inlineTimeDay) {
+        var dayRowId = inlineTimeDay.getAttribute("data-inline-time-day");
+        var dayNode = document.querySelector('[data-inline-time="' + dayRowId + '"]');
+        var dayInput = dayNode && dayNode.querySelector('[data-inline-time-date]');
+        if (dayInput) {
+          dayInput.value = inlineTimeDay.getAttribute("data-value");
+          updateInlineTimeValue(dayRowId, true);
+          refreshInlineTimeCalendar(dayRowId, dayInput.value);
+        }
+        return;
+      }
+      if (inlineTimeNow) {
+        var nowRowId = inlineTimeNow.getAttribute("data-inline-time-now");
+        var nowNode = document.querySelector('[data-inline-time="' + nowRowId + '"]');
+        var now = new Date();
+        var nowDate = now.getFullYear() + "-" + padTimeUnit(now.getMonth() + 1) + "-" + padTimeUnit(now.getDate());
+        var nowClock = padTimeUnit(now.getHours()) + ":" + padTimeUnit(now.getMinutes()) + ":" + padTimeUnit(now.getSeconds());
+        if (nowNode) {
+          var nowDateInput = nowNode.querySelector('[data-inline-time-date]');
+          var nowClockInput = nowNode.querySelector('[data-inline-time-clock]');
+          if (nowDateInput) nowDateInput.value = nowDate;
+          if (nowClockInput) nowClockInput.value = nowClock;
+          updateInlineTimeValue(nowRowId, true);
+          refreshInlineTimeCalendar(nowRowId, nowDate);
+        }
+        return;
+      }
+      if (inlineTimeConfirm) {
+        updateInlineTimeValue(inlineTimeConfirm.getAttribute("data-inline-time-confirm"), true);
+        closeInlineTimePickers();
+        return;
+      }
+      if (inlineSelectToggle) {
+        var inlineId = inlineSelectToggle.getAttribute("data-inline-select-toggle");
+        var inlineNode = document.querySelector('[data-inline-select="' + inlineId + '"]');
+        var nextInlineOpen = !inlineNode.classList.contains("is-open");
+        closeInlineSelects(inlineId);
+        inlineNode.classList.toggle("is-open", nextInlineOpen);
+        return;
+      }
+      if (inlineSelectOption) {
+        var inlineRowId = inlineSelectOption.getAttribute("data-inline-select-option");
+        var inlineRow = findRow(inlineRowId);
+        var isMultiple = inlineSelectOption.getAttribute("data-multiple") === "true";
+        var inlineControl = document.querySelector('[data-inline-select="' + inlineRowId + '"]');
+        if (inlineRow && inlineControl) {
+          if (isMultiple) {
+            inlineSelectOption.classList.toggle("is-active");
+            var selectedValues = Array.from(inlineControl.querySelectorAll(".inline-select-option.is-active")).map(function(option) {
+              return option.getAttribute("data-value");
+            });
+            setRowModifyValue(inlineRow, selectedValues.join(", "));
+            var labelNode = inlineControl.querySelector(".inline-select-label");
+            if (labelNode) labelNode.textContent = selectedValues.length ? selectedValues.join(", ") : "请选择";
+            var tr = inlineControl.closest("tr");
+            if (tr) tr.classList.toggle("is-dirty", rowChanged(inlineRow));
+            refreshSummaryOnly();
+          } else {
+            setRowModifyValue(inlineRow, inlineSelectOption.getAttribute("data-value"));
+            inlineRow.inlineEditing = false;
+            renderTable();
+          }
+        }
+        return;
+      }
+      if (searchTypeToggle) {
+        var searchScope = searchTypeToggle.getAttribute("data-search-type-toggle");
+        var searchNode = document.getElementById(searchScope + "ProductSearchType");
+        var nextSearchOpen = !searchNode.classList.contains("is-open");
+        closeSearchTypePopovers(searchScope);
+        searchNode.classList.toggle("is-open", nextSearchOpen);
+        return;
+      }
+      if (searchTypeOption) {
+        var typeScope = searchTypeOption.getAttribute("data-search-type-option");
+        var typeValue = searchTypeOption.getAttribute("data-value");
+        if (typeScope === "source") {
+          state.sourceProductSearchType = typeValue;
+          state.sourceChecked = [];
+        } else {
+          state.selectedProductSearchType = typeValue;
+          state.selectedChecked = [];
+        }
+        closeSearchTypePopovers();
+        renderDialog();
+        return;
+      }
+      if (batchChannelToggle) {
+        var channelKey = batchChannelToggle.getAttribute("data-batch-channel-toggle");
+        var channelNode = document.querySelector('[data-channel-select="' + channelKey + '"]');
+        var shouldOpen = !channelNode.classList.contains("is-open");
+        closeBatchChannelSelects(channelKey);
+        channelNode.classList.toggle("is-open", shouldOpen);
+        if (shouldOpen) {
+          positionFloatingPanel(channelNode, ".batch-channel-dropdown", 260);
+        } else {
+          channelNode.classList.remove("is-floating");
+        }
+        return;
+      }
+      if (batchChannelOption) {
+        var optionKey = batchChannelOption.getAttribute("data-batch-channel-option");
+        var selectNode = document.querySelector('[data-channel-select="' + optionKey + '"]');
+        var hidden = document.querySelector('[data-batch-channel="' + optionKey + '"]');
+        var label = selectNode && selectNode.querySelector(".batch-channel-label");
+        if (hidden) hidden.value = batchChannelOption.getAttribute("data-value");
+        if (label) label.textContent = batchChannelOption.getAttribute("data-label");
+        if (selectNode) {
+          Array.from(selectNode.querySelectorAll(".batch-channel-option")).forEach(function(option) {
+            option.classList.toggle("is-active", option === batchChannelOption);
+          });
+          selectNode.classList.remove("is-open");
+        }
+        return;
+      }
+      if (groupToggle) {
+        var groupScope = groupToggle.getAttribute("data-group-filter-toggle");
+        var groupNode = document.getElementById(groupScope + "GroupFilter");
+        var nextOpen = !groupNode.classList.contains("is-open");
+        closeGroupFilterPopovers(groupScope);
+        groupNode.classList.toggle("is-open", nextOpen);
+        return;
+      }
+      if (groupAction) {
+        var parts = groupAction.split("-");
+        var actionScope = parts[0];
+        var actionType = parts[1];
+        var groupValues = actionType === "all" ? channelGroupNames() : [];
+        if (actionScope === "source") {
+          state.sourceGroupFilters = groupValues;
+          state.sourceChecked = [];
+        }
+        if (actionScope === "selected") {
+          state.selectedGroupFilters = groupValues;
+          state.selectedChecked = [];
+        }
+        renderDialog();
+        return;
+      }
+      if (batchValueDialog) {
+        openBatchValueDialog(batchValueDialog.getAttribute("data-batch-value-dialog"), batchValueDialog.getAttribute("data-field-id"));
+        return;
+      }
+      if (uploadPick) {
+        var uploadKind = uploadPick.getAttribute("data-upload-pick");
+        var uploadFiles = currentUploadFiles();
+        var nextIndex = uploadFiles.length + 1;
+        var nextFile = uploadKind === "file" ? "upload_cover_demo.png" : "upload_banner_" + nextIndex + ".png";
+        syncUploadFileList(uploadKind === "file" ? [nextFile] : uploadFiles.concat(nextFile));
+        return;
+      }
+      if (uploadRemove) {
+        var removeIndex = Number(uploadRemove.getAttribute("data-upload-remove"));
+        var remainingFiles = currentUploadFiles().filter(function(_, index) {
+          return index !== removeIndex;
+        });
+        syncUploadFileList(remainingFiles);
+        return;
+      }
 
       if (openKey && !removeTagKey) openDialog(openKey);
       if (batchOpenKey && !removeBatchTagKey) openDialog(batchOpenKey, "batch");
+      if (fieldTemplate && state.activeDimension === "fields") {
+        state.draftSelection = (fieldTemplates[fieldTemplate] || []).slice();
+        state.sourceChecked = [];
+        state.selectedChecked = [];
+        renderDialog();
+      }
       if (clearKey) {
         state.selected[clearKey] = [];
         renderTags(clearKey);
@@ -2597,7 +5069,7 @@
           return itemId !== batchRemoveId;
         });
         renderBatchTags(removeBatchTagKey);
-        if (removeBatchTagKey === "fields") {
+        if (removeBatchTagKey === "products" || removeBatchTagKey === "fields") {
           renderBatchEditList();
         }
       }
@@ -2653,7 +5125,7 @@
         if (state.selectorScope === "batch") {
           state.batchSelected[state.activeDimension] = state.draftSelection.slice();
           renderBatchTags(state.activeDimension);
-          if (state.activeDimension === "fields") {
+          if (state.activeDimension === "products" || state.activeDimension === "fields") {
             renderBatchEditList();
           }
         } else {
@@ -2675,7 +5147,7 @@
       if (rowDelete) {
         markRowsDeleted([rowDelete]);
       }
-      if (rowOpen) openEditDialog(rowOpen);
+      if (dialogEdit) openEditDialog(dialogEdit);
       if (inlineEdit) {
         state.rows.forEach(function(row) {
           row.inlineEditing = row.id === inlineEdit;
@@ -2698,8 +5170,74 @@
     document.addEventListener("change", function(event) {
       var sourceId = event.target.getAttribute("data-source-check");
       var selectedId = event.target.getAttribute("data-selected-check");
+      var checkAll = event.target.getAttribute("data-check-all");
+      var groupCheck = event.target.getAttribute("data-group-filter-check");
+      var inlineTimeDate = event.target.getAttribute("data-inline-time-date");
+      var inlineTimeClock = event.target.getAttribute("data-inline-time-clock");
+      var batchTimeDate = event.target.getAttribute("data-batch-time-date");
+      var batchTimeClock = event.target.getAttribute("data-batch-time-clock");
       var rowId = event.target.getAttribute("data-row-edit");
       var rowSelectId = event.target.getAttribute("data-row-select");
+      if (batchTimeDate || batchTimeClock) {
+        updateBatchTimeValue(batchTimeDate || batchTimeClock, true);
+        if (batchTimeDate) refreshBatchTimeCalendar(batchTimeDate, event.target.value);
+        return;
+      }
+      if (inlineTimeDate || inlineTimeClock) {
+        updateInlineTimeValue(inlineTimeDate || inlineTimeClock, true);
+        if (inlineTimeDate) refreshInlineTimeCalendar(inlineTimeDate, event.target.value);
+        return;
+      }
+      if (groupCheck) {
+        var list = groupCheck === "source" ? state.sourceGroupFilters : state.selectedGroupFilters;
+        if (event.target.checked && list.indexOf(event.target.value) === -1) {
+          list.push(event.target.value);
+        }
+        if (!event.target.checked) {
+          list = list.filter(function(groupName) { return groupName !== event.target.value; });
+        }
+        if (groupCheck === "source") {
+          state.sourceGroupFilters = list;
+          state.sourceChecked = [];
+        } else {
+          state.selectedGroupFilters = list;
+          state.selectedChecked = [];
+        }
+        renderDialog();
+        return;
+      }
+      if (checkAll === "source") {
+        var sourceIds = Array.from(document.querySelectorAll("[data-source-check]")).map(function(input) {
+          return input.getAttribute("data-source-check");
+        });
+        if (event.target.checked) {
+          sourceIds.forEach(function(id) {
+            if (state.sourceChecked.indexOf(id) === -1) state.sourceChecked.push(id);
+          });
+        } else {
+          state.sourceChecked = state.sourceChecked.filter(function(id) {
+            return sourceIds.indexOf(id) === -1;
+          });
+        }
+        renderDialog();
+        return;
+      }
+      if (checkAll === "selected") {
+        var selectedIds = Array.from(document.querySelectorAll("[data-selected-check]")).map(function(input) {
+          return input.getAttribute("data-selected-check");
+        });
+        if (event.target.checked) {
+          selectedIds.forEach(function(id) {
+            if (state.selectedChecked.indexOf(id) === -1) state.selectedChecked.push(id);
+          });
+        } else {
+          state.selectedChecked = state.selectedChecked.filter(function(id) {
+            return selectedIds.indexOf(id) === -1;
+          });
+        }
+        renderDialog();
+        return;
+      }
       if (sourceId) {
         if (event.target.checked && state.sourceChecked.indexOf(sourceId) === -1) {
           state.sourceChecked.push(sourceId);
@@ -2707,6 +5245,8 @@
         if (!event.target.checked) {
           state.sourceChecked = state.sourceChecked.filter(function(id) { return id !== sourceId; });
         }
+        renderDialog();
+        return;
       }
       if (selectedId) {
         if (event.target.checked && state.selectedChecked.indexOf(selectedId) === -1) {
@@ -2715,11 +5255,14 @@
         if (!event.target.checked) {
           state.selectedChecked = state.selectedChecked.filter(function(id) { return id !== selectedId; });
         }
+        renderDialog();
+        return;
       }
       if (rowId) {
         state.rows.forEach(function(row) {
           if (row.id === rowId) {
-            setRowModifyValue(row, event.target.value);
+            var value = event.target.multiple ? Array.from(event.target.selectedOptions).map(function(option) { return option.value; }).join(", ") : event.target.value;
+            setRowModifyValue(row, value);
             row.inlineEditing = false;
           }
         });
@@ -2743,6 +5286,20 @@
     });
 
     document.addEventListener("input", function(event) {
+      var inlineTimeDate = event.target.getAttribute("data-inline-time-date");
+      var inlineTimeClock = event.target.getAttribute("data-inline-time-clock");
+      var batchTimeDate = event.target.getAttribute("data-batch-time-date");
+      var batchTimeClock = event.target.getAttribute("data-batch-time-clock");
+      if (batchTimeDate || batchTimeClock) {
+        updateBatchTimeValue(batchTimeDate || batchTimeClock, false);
+        if (batchTimeDate) refreshBatchTimeCalendar(batchTimeDate, event.target.value);
+        return;
+      }
+      if (inlineTimeDate || inlineTimeClock) {
+        updateInlineTimeValue(inlineTimeDate || inlineTimeClock, false);
+        if (inlineTimeDate) refreshInlineTimeCalendar(inlineTimeDate, event.target.value);
+        return;
+      }
       var rowId = event.target.getAttribute("data-row-edit");
       if (!rowId) return;
       var row = findRow(rowId);
@@ -2782,6 +5339,7 @@
     });
 
     document.getElementById("selectorKeyword").addEventListener("input", renderDialog);
+    document.getElementById("selectedKeyword").addEventListener("input", renderDialog);
     document.getElementById("tableKeyword").addEventListener("input", function(event) {
       state.keyword = event.target.value;
       syncTableKeywordClear();
@@ -2802,6 +5360,23 @@
 
     document.getElementById("submitDialog").addEventListener("click", function(event) {
       if (event.target.id === "submitDialog") closeSubmitDialog();
+    });
+
+    document.getElementById("batchEditList").addEventListener("scroll", function() {
+      closeBatchValueSelects();
+      closeBatchTimePickers();
+      closeBatchChannelSelects();
+    });
+
+    document.querySelector("#batchDialog .batch-body").addEventListener("scroll", function() {
+      closeBatchValueSelects();
+      closeBatchTimePickers();
+      closeBatchChannelSelects();
+    });
+
+    window.addEventListener("resize", function() {
+      closeBatchValueSelects();
+      closeBatchTimePickers();
     });
 
     renderAllTags();

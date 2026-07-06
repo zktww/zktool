@@ -2,27 +2,29 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>JSON 格式化工具 · zktool</title>
     <meta name="description" content="校验、美化、压缩 JSON，语法高亮、树形视图、错误定位、转义与统计信息。" />
-    <meta name="theme-color" content="#07090f" />
+    <meta name="theme-color" content="#f6f8fb" />
     <style>
         :root {
-            color-scheme: dark;
-            --bg: #07090f;
-            --bg-soft: #0b0e17;
-            --surface: rgba(255, 255, 255, 0.03);
-            --surface-hover: rgba(255, 255, 255, 0.06);
-            --border: rgba(255, 255, 255, 0.08);
-            --border-hover: rgba(255, 255, 255, 0.18);
-            --text: #eef2f8;
-            --text-2: #9aa5b8;
-            --text-3: #5d6880;
-            --brand-1: #6366f1;
-            --brand-2: #22d3ee;
-            --brand-3: #a855f7;
-            --ok: #34d399;
-            --danger: #fb7185;
+            color-scheme: light;
+            --bg: #f6f8fb;
+            --bg-soft: #f8fafc;
+            --surface: #ffffff;
+            --surface-hover: #f1f5f9;
+            --border: #e4e9f0;
+            --border-hover: #c9d4e3;
+            --text: #1e293b;
+            --text-2: #5b6b81;
+            --text-3: #94a3b8;
+            --brand-1: #5b6cf9;
+            --brand-2: #0ea5e9;
+            --brand-3: #8b5cf6;
+            --ok: #10b981;
+            --danger: #ef4444;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 6px 24px -8px rgba(15, 23, 42, 0.14);
             --radius: 16px;
             --ease: cubic-bezier(0.16, 1, 0.3, 1);
             --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
@@ -48,6 +50,8 @@
             line-height: 1.55;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
         /* ---------- 背景氛围 ---------- */
@@ -57,9 +61,9 @@
             z-index: -1;
             pointer-events: none;
             background:
-                radial-gradient(640px 420px at 12% 8%, rgba(99, 102, 241, 0.14), transparent 62%),
-                radial-gradient(720px 480px at 88% 12%, rgba(34, 211, 238, 0.10), transparent 62%),
-                radial-gradient(860px 620px at 50% 105%, rgba(168, 85, 247, 0.09), transparent 62%),
+                radial-gradient(640px 420px at 12% 8%, rgba(91, 108, 249, 0.08), transparent 62%),
+                radial-gradient(720px 480px at 88% 12%, rgba(14, 165, 233, 0.07), transparent 62%),
+                radial-gradient(860px 620px at 50% 105%, rgba(139, 92, 246, 0.05), transparent 62%),
                 var(--bg);
         }
 
@@ -68,8 +72,8 @@
             position: absolute;
             inset: 0;
             background-image:
-                linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+                linear-gradient(rgba(15, 23, 42, 0.028) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(15, 23, 42, 0.028) 1px, transparent 1px);
             background-size: 44px 44px;
             -webkit-mask-image: radial-gradient(ellipse 72% 62% at 50% 32%, #000 28%, transparent 78%);
             mask-image: radial-gradient(ellipse 72% 62% at 50% 32%, #000 28%, transparent 78%);
@@ -81,9 +85,12 @@
             flex-direction: column;
             min-height: 0;
             width: 100%;
-            max-width: 1180px;
+            max-width: min(1480px, 100%);
             margin: 0 auto;
-            padding: clamp(1rem, 3.5vw, 1.75rem) clamp(1rem, 3vw, 1.5rem) clamp(1rem, 2.5vw, 1.5rem);
+            padding: clamp(1rem, 3.5vw, 1.75rem)
+                calc(clamp(1rem, 3vw, 1.5rem) + env(safe-area-inset-right))
+                clamp(1rem, 2.5vw, 1.5rem)
+                calc(clamp(1rem, 3vw, 1.5rem) + env(safe-area-inset-left));
         }
 
         /* ---------- 顶部 ---------- */
@@ -141,10 +148,7 @@
         }
 
         h1 .grad {
-            background: linear-gradient(100deg, #22d3ee, #6366f1, #a855f7);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            color: #2563eb;
         }
 
         h1 svg { color: var(--brand-2); flex-shrink: 0; }
@@ -169,6 +173,7 @@
             border: 1px solid var(--border);
             border-radius: var(--radius);
             backdrop-filter: blur(8px);
+            box-shadow: var(--shadow-sm);
         }
 
         .toolbar .grow { flex: 1; min-width: 0.25rem; }
@@ -203,14 +208,14 @@
 
         .btn--primary {
             border-color: rgba(99, 102, 241, 0.45);
-            background: linear-gradient(120deg, rgba(99, 102, 241, 0.18), rgba(34, 211, 238, 0.12));
-            color: #c7d2fe;
+            background: linear-gradient(120deg, rgba(91, 108, 249, 0.12), rgba(14, 165, 233, 0.10));
+            color: var(--brand-1);
         }
 
         .btn--primary:hover, .btn--primary:focus-visible {
-            background: linear-gradient(120deg, rgba(99, 102, 241, 0.3), rgba(34, 211, 238, 0.2));
+            background: linear-gradient(120deg, rgba(91, 108, 249, 0.18), rgba(14, 165, 233, 0.14));
             border-color: rgba(99, 102, 241, 0.7);
-            color: #e0e7ff;
+            color: var(--brand-1);
         }
 
         .field {
@@ -269,6 +274,7 @@
             border: 1px solid var(--border);
             border-radius: var(--radius);
             backdrop-filter: blur(8px);
+            box-shadow: var(--shadow-sm);
             overflow: hidden;
         }
 
@@ -310,8 +316,8 @@
 
         .tab.active {
             color: var(--brand-2);
-            background: rgba(34, 211, 238, 0.08);
-            border-color: rgba(34, 211, 238, 0.28);
+            background: rgba(14, 165, 233, 0.10);
+            border-color: rgba(14, 165, 233, 0.28);
         }
 
         .tab:disabled { opacity: 0.35; cursor: not-allowed; }
@@ -353,7 +359,7 @@
             background: transparent;
             color: var(--text);
             scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+            scrollbar-color: rgba(148, 163, 184, 0.28) transparent;
         }
 
         textarea:focus { outline: none; }
@@ -374,18 +380,18 @@
             white-space: pre;
             color: var(--text);
             scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+            scrollbar-color: rgba(148, 163, 184, 0.28) transparent;
         }
 
         textarea::-webkit-scrollbar, pre.out-text::-webkit-scrollbar, .out-tree::-webkit-scrollbar { width: 10px; height: 10px; }
         textarea::-webkit-scrollbar-thumb, pre.out-text::-webkit-scrollbar-thumb, .out-tree::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.14);
+            background: rgba(148, 163, 184, 0.28);
             border-radius: 999px;
             border: 2px solid transparent;
             background-clip: padding-box;
         }
         textarea::-webkit-scrollbar-thumb:hover, pre.out-text::-webkit-scrollbar-thumb:hover, .out-tree::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.26);
+            background: rgba(100, 116, 139, 0.36);
             border: 2px solid transparent;
             background-clip: padding-box;
         }
@@ -404,12 +410,15 @@
             text-align: center;
         }
 
+        /* hidden 属性优先于任何 display 声明，防止被 .out-empty 的 flex 覆盖 */
+        [hidden] { display: none !important; }
+
         /* ---------- 语法高亮 ---------- */
-        .j-key { color: #93c5fd; }
-        .j-str { color: #86efac; }
-        .j-num { color: #fbbf24; }
-        .j-bool { color: #c4b5fd; }
-        .j-null { color: #f0abfc; }
+        .j-key { color: #2563eb; }
+        .j-str { color: #059669; }
+        .j-num { color: #d97706; }
+        .j-bool { color: #7c3aed; }
+        .j-null { color: #db2777; }
 
         /* ---------- 树形视图 ---------- */
         .out-tree {
@@ -421,10 +430,10 @@
             line-height: 1.6;
             padding: 0.7rem 0.9rem;
             scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+            scrollbar-color: rgba(148, 163, 184, 0.28) transparent;
         }
 
-        .t-kids { padding-left: 1.15rem; border-left: 1px solid rgba(255, 255, 255, 0.06); margin-left: 0.5rem; }
+        .t-kids { padding-left: 1.15rem; border-left: 1px solid var(--border); margin-left: 0.5rem; }
 
         .t-line {
             display: flex;
@@ -563,6 +572,17 @@
         /* ---------- 响应式 ---------- */
         @media (max-width: 860px) {
             body { height: auto; }
+            .wrap {
+                min-height: 100dvh;
+                padding-top: max(1rem, env(safe-area-inset-top));
+                padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+            }
+            .top { align-items: flex-start; }
+            .top-stat { width: 100%; }
+            .toolbar { align-items: stretch; }
+            .toolbar .grow { display: none; }
+            .btn, .field, .chk { flex: 1 1 8rem; justify-content: center; }
+            .field select { flex: 1; min-width: 0; }
             .split { grid-template-columns: 1fr; }
             .pane { min-height: 320px; }
             textarea, pre.out-text, .out-tree { min-height: 260px; }

@@ -2,25 +2,26 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>zktool · 工具与演示集</title>
     <meta name="description" content="个人实验与前端小作品索引页：实用小工具与交互演示" />
-    <meta name="theme-color" content="#07090f" />
+    <meta name="theme-color" content="#f6f8fb" />
     <link rel="icon" href="favicon.ico" />
     <style>
         :root {
-            --bg: #07090f;
-            --bg-soft: #0b0e17;
-            --surface: rgba(255, 255, 255, 0.03);
-            --surface-hover: rgba(255, 255, 255, 0.06);
-            --border: rgba(255, 255, 255, 0.08);
-            --border-hover: rgba(255, 255, 255, 0.18);
-            --text: #eef2f8;
-            --text-2: #9aa5b8;
-            --text-3: #5d6880;
-            --brand-1: #6366f1;
-            --brand-2: #22d3ee;
-            --brand-3: #a855f7;
+            --bg: #f6f8fb;
+            --surface: #ffffff;
+            --surface-2: #f1f5f9;
+            --border: #e4e9f0;
+            --border-hover: #c9d4e3;
+            --text: #1e293b;
+            --text-2: #5b6b81;
+            --text-3: #94a3b8;
+            --brand-1: #5b6cf9;
+            --brand-2: #0ea5e9;
+            --brand-3: #8b5cf6;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 6px 24px -8px rgba(15, 23, 42, 0.14);
             --radius: 16px;
             --ease: cubic-bezier(0.16, 1, 0.3, 1);
             --font: "Inter", "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
@@ -28,14 +29,17 @@
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        [hidden] { display: none !important; }
 
         html { scroll-behavior: smooth; }
+        html { min-height: 100%; }
 
         body {
             font-family: var(--font);
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
+            min-height: 100dvh;
             line-height: 1.65;
             -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
@@ -48,32 +52,36 @@
             z-index: -1;
             pointer-events: none;
             background:
-                radial-gradient(ellipse 60% 45% at 18% -8%, rgba(99, 102, 241, 0.16), transparent 60%),
-                radial-gradient(ellipse 50% 40% at 85% 0%, rgba(34, 211, 238, 0.10), transparent 55%),
-                radial-gradient(ellipse 45% 35% at 55% 110%, rgba(168, 85, 247, 0.08), transparent 60%);
+                radial-gradient(ellipse 55% 40% at 18% -6%, rgba(91, 108, 249, 0.08), transparent 60%),
+                radial-gradient(ellipse 45% 35% at 85% 0%, rgba(14, 165, 233, 0.07), transparent 55%),
+                radial-gradient(ellipse 45% 35% at 55% 110%, rgba(139, 92, 246, 0.05), transparent 60%);
         }
         .bg-fx::before {
             content: "";
             position: absolute;
             inset: 0;
             background-image:
-                linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+                linear-gradient(rgba(15, 23, 42, 0.028) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(15, 23, 42, 0.028) 1px, transparent 1px);
             background-size: 44px 44px;
             mask-image: radial-gradient(ellipse 75% 55% at 50% 0%, #000 0%, transparent 78%);
             -webkit-mask-image: radial-gradient(ellipse 75% 55% at 50% 0%, #000 0%, transparent 78%);
         }
 
         .wrap {
-            max-width: 1024px;
+            min-height: 100vh;
+            min-height: 100dvh;
+            max-width: min(1520px, 100%);
             margin: 0 auto;
-            padding: clamp(2rem, 6vw, 4.5rem) clamp(1.1rem, 4vw, 2rem) 4rem;
+            padding: clamp(1.6rem, 4.5vw, 3.6rem) clamp(1rem, 3.5vw, 2.5rem) 3.5rem;
+            padding-left: max(clamp(1rem, 3.5vw, 2.5rem), env(safe-area-inset-left));
+            padding-right: max(clamp(1rem, 3.5vw, 2.5rem), env(safe-area-inset-right));
         }
 
         /* ── 头部 ── */
         header {
             text-align: center;
-            margin-bottom: clamp(2rem, 5vw, 3rem);
+            margin-bottom: clamp(1.8rem, 4.5vw, 2.8rem);
             animation: rise 0.7s var(--ease) both;
         }
 
@@ -94,14 +102,14 @@
             border: 1px solid var(--border);
             border-radius: 999px;
             background: var(--surface);
-            backdrop-filter: blur(8px);
-            margin-bottom: 1.4rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.3rem;
         }
         .badge .dot {
             width: 7px; height: 7px;
             border-radius: 50%;
-            background: #34d399;
-            box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+            background: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
             animation: pulse 2.4s ease-in-out infinite;
         }
         @keyframes pulse {
@@ -110,22 +118,19 @@
         }
 
         h1 {
-            font-size: clamp(2.1rem, 6vw, 3.4rem);
+            font-size: clamp(1.9rem, 5.5vw, 3.1rem);
             font-weight: 800;
             letter-spacing: -0.03em;
             line-height: 1.15;
-            margin-bottom: 0.9rem;
+            margin-bottom: 0.85rem;
         }
         h1 .grad {
-            background: linear-gradient(100deg, var(--brand-2) 0%, var(--brand-1) 50%, var(--brand-3) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            color: #2563eb;
         }
 
         .lead {
             color: var(--text-2);
-            font-size: clamp(0.95rem, 2.2vw, 1.08rem);
+            font-size: clamp(0.92rem, 2.1vw, 1.05rem);
             max-width: 34em;
             margin: 0 auto;
         }
@@ -137,14 +142,14 @@
             align-items: center;
             justify-content: center;
             gap: 0.75rem;
-            margin-bottom: clamp(1.8rem, 4vw, 2.6rem);
+            margin-bottom: clamp(1.6rem, 3.5vw, 2.4rem);
             animation: rise 0.7s var(--ease) 0.08s both;
         }
 
         .search {
             position: relative;
             flex: 1 1 300px;
-            max-width: 430px;
+            max-width: 460px;
         }
         .search svg {
             position: absolute;
@@ -158,20 +163,20 @@
         .search input {
             width: 100%;
             font: inherit;
-            font-size: 0.92rem;
+            font-size: 16px;
             color: var(--text);
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 0.68rem 3.2rem 0.68rem 2.5rem;
+            padding: 0.62rem 3.2rem 0.62rem 2.5rem;
             outline: none;
-            backdrop-filter: blur(8px);
+            box-shadow: var(--shadow-sm);
             transition: border-color 0.25s, box-shadow 0.25s;
         }
         .search input::placeholder { color: var(--text-3); }
         .search input:focus {
-            border-color: rgba(99, 102, 241, 0.6);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+            border-color: rgba(91, 108, 249, 0.55);
+            box-shadow: 0 0 0 3px rgba(91, 108, 249, 0.12);
         }
         .search kbd {
             position: absolute;
@@ -184,18 +189,18 @@
             border: 1px solid var(--border);
             border-radius: 6px;
             padding: 0.1rem 0.42rem;
-            background: rgba(255,255,255,0.03);
+            background: var(--surface-2);
             pointer-events: none;
         }
 
         .filters {
             display: flex;
-            gap: 0.4rem;
+            gap: 0.3rem;
             padding: 0.28rem;
             border: 1px solid var(--border);
             border-radius: 12px;
             background: var(--surface);
-            backdrop-filter: blur(8px);
+            box-shadow: var(--shadow-sm);
         }
         .filters button {
             font: inherit;
@@ -205,25 +210,25 @@
             background: transparent;
             border: none;
             border-radius: 9px;
-            padding: 0.42rem 0.95rem;
+            padding: 0.46rem 0.95rem;
+            min-height: 40px;
             cursor: pointer;
             transition: color 0.2s, background 0.2s;
             white-space: nowrap;
         }
-        .filters button:hover { color: var(--text); }
+        .filters button:hover { color: var(--text); background: var(--surface-2); }
         .filters button.active {
-            color: var(--text);
-            background: rgba(99, 102, 241, 0.22);
+            color: #fff;
+            background: var(--brand-1);
         }
         .filters button .count {
             font-size: 0.7rem;
-            color: var(--text-3);
+            opacity: 0.65;
             margin-left: 0.28rem;
         }
-        .filters button.active .count { color: var(--brand-2); }
 
         /* ── 分组与卡片网格 ── */
-        .group { margin-bottom: clamp(1.9rem, 4.5vw, 2.8rem); }
+        .group { margin-bottom: clamp(1.7rem, 4vw, 2.6rem); }
         .group[hidden] { display: none; }
 
         .section-title {
@@ -247,7 +252,7 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1rem;
         }
 
@@ -260,9 +265,9 @@
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 1.3rem 1.35rem 1.15rem;
-            backdrop-filter: blur(8px);
-            transition: transform 0.35s var(--ease), border-color 0.3s, background 0.3s, box-shadow 0.35s;
+            padding: 1.25rem 1.3rem 1.1rem;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.35s var(--ease), border-color 0.3s, box-shadow 0.35s;
             animation: rise 0.7s var(--ease) both;
             overflow: hidden;
         }
@@ -271,31 +276,18 @@
         .card:nth-child(3) { animation-delay: 0.24s; }
         .card:nth-child(4) { animation-delay: 0.3s; }
 
-        .card::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(99, 102, 241, 0.12), transparent 45%);
-            opacity: 0;
-            transition: opacity 0.35s;
-            pointer-events: none;
-        }
-        .card:hover::before { opacity: 1; }
-
         .card:hover, .card:focus-visible {
             outline: none;
-            transform: translateY(-4px);
+            transform: translateY(-3px);
             border-color: var(--border-hover);
-            background: var(--surface-hover);
-            box-shadow: 0 14px 38px -14px rgba(0, 0, 0, 0.6);
+            box-shadow: var(--shadow-md);
         }
 
         .card-head {
             display: flex;
             align-items: center;
             gap: 0.85rem;
-            margin-bottom: 0.8rem;
+            margin-bottom: 0.75rem;
         }
 
         .card-icon {
@@ -304,9 +296,8 @@
             display: grid;
             place-items: center;
             border-radius: 11px;
-            font-size: 1.15rem;
             background: linear-gradient(135deg, var(--c1), var(--c2));
-            box-shadow: 0 4px 14px -4px var(--c1);
+            box-shadow: 0 4px 12px -4px var(--c1);
         }
         .card-icon svg { width: 20px; height: 20px; color: #fff; }
 
@@ -326,7 +317,7 @@
             border-radius: 999px;
             border: 1px solid var(--border);
             color: var(--text-2);
-            background: rgba(255,255,255,0.02);
+            background: var(--surface-2);
         }
 
         .card-desc {
@@ -337,17 +328,16 @@
         }
 
         .card-cta {
-            margin-top: 0.95rem;
+            margin-top: 0.9rem;
             font-size: 0.82rem;
             font-weight: 550;
-            color: var(--brand-2);
+            color: var(--brand-1);
             display: inline-flex;
             align-items: center;
             gap: 0.35rem;
-            opacity: 0.85;
-            transition: gap 0.25s var(--ease), opacity 0.25s;
+            transition: gap 0.25s var(--ease);
         }
-        .card:hover .card-cta { gap: 0.6rem; opacity: 1; }
+        .card:hover .card-cta { gap: 0.6rem; }
         .card-cta svg { width: 13px; height: 13px; }
 
         /* ── 空状态 ── */
@@ -362,8 +352,8 @@
         .empty strong { color: var(--text-2); }
 
         footer {
-            margin-top: 3.5rem;
-            padding-top: 1.6rem;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
             border-top: 1px solid var(--border);
             text-align: center;
             font-size: 0.82rem;
@@ -373,15 +363,30 @@
         footer code {
             font-family: var(--mono);
             font-size: 0.85em;
-            color: var(--brand-2);
-            background: rgba(34, 211, 238, 0.08);
+            color: var(--brand-1);
+            background: rgba(91, 108, 249, 0.08);
             padding: 0.12rem 0.4rem;
             border-radius: 6px;
         }
 
-        @media (max-width: 560px) {
+        /* ── H5 适配 ── */
+        @media (max-width: 640px) {
+            .wrap {
+                padding-top: max(1rem, env(safe-area-inset-top));
+                padding-bottom: max(2rem, env(safe-area-inset-bottom));
+            }
+
+            header { text-align: left; }
+            h1 { font-size: clamp(1.85rem, 10vw, 2.45rem); }
+            .lead { margin-left: 0; }
             .grid { grid-template-columns: 1fr; }
+            .search { flex-basis: 100%; max-width: none; }
             .search kbd { display: none; }
+            .toolbar { gap: 0.6rem; }
+            .filters { width: 100%; justify-content: center; overflow-x: auto; }
+            .filters button { flex: 1; }
+            .card { min-height: 10rem; }
+            .card:active { transform: scale(0.985); border-color: var(--border-hover); }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -395,7 +400,7 @@
 <div class="wrap">
     <header>
         <p class="badge"><span class="dot" aria-hidden="true"></span> Personal Playground · 持续更新</p>
-        <h1>zktool<br /><span class="grad">工具与演示集</span></h1>
+        <h1>zktool <span class="grad">工具与演示集</span></h1>
         <p class="lead">
             实验页与实用小工具的入口 —— <strong>工具</strong>侧重日常开发辅助，<strong>演示</strong>侧重交互与展示。全部为纯静态 HTML，开箱即用。
         </p>
@@ -425,7 +430,7 @@
                     <span class="card-title">时间戳转换</span>
                     <span class="tag">时间</span>
                 </div>
-                <p class="card-desc">Unix 时间与日期互转，秒/毫秒切换、本地与 UTC、实时当前时间戳与一键复制。</p>
+                <p class="card-desc">Unix 时间与日期互转，秒/毫秒自动识别、批量转换、多格式输出与时区对照。</p>
                 <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
@@ -437,7 +442,7 @@
                     <span class="card-title">JSON 格式化</span>
                     <span class="tag">JSON</span>
                 </div>
-                <p class="card-desc">校验与美化 / 压缩 JSON，缩进与键排序可选，双栏对照与复制。</p>
+                <p class="card-desc">校验、美化、压缩 JSON，语法高亮、树形视图、错误定位、转义与统计信息。</p>
                 <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
@@ -449,19 +454,19 @@
                     <span class="card-title">Emoji 表情大全</span>
                     <span class="tag">Unicode</span>
                 </div>
-                <p class="card-desc">分类浏览与中英文搜索，一键复制；列表来自 unicode-emoji-json，中文名来自 CLDR。</p>
+                <p class="card-desc">分类浏览与中英文搜索，收藏、最近使用、肤色切换与一键复制。</p>
                 <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/mermaid-editor/" data-kw="mermaid 图表 流程图 时序图 甘特图 编辑器 diagram">
                 <div class="card-head">
-                    <span class="card-icon" style="--c1:#10b981;--c2:#22d3ee" aria-hidden="true">
+                    <span class="card-icon" style="--c1:#10b981;--c2:#0ea5e9" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><path d="M10 6.5h4a2 2 0 0 1 2 2V14"/><path d="M6.5 10v4a2 2 0 0 0 2 2H14"/></svg>
                     </span>
                     <span class="card-title">Mermaid 编辑器</span>
                     <span class="tag">图表</span>
                 </div>
-                <p class="card-desc">实时编辑 Mermaid 代码，即时渲染流程图、时序图、甘特图等，支持导出 PNG / SVG。</p>
+                <p class="card-desc">实时编辑渲染流程图、时序图等，模板库、缩放平移、分享链接与导出 PNG / SVG。</p>
                 <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
         </nav>
@@ -484,7 +489,7 @@
 
             <a class="card" href="demos/drag-and-drop/" data-kw="拖拽 drag drop dnd html5 排序 上传">
                 <div class="card-head">
-                    <span class="card-icon" style="--c1:#22d3ee;--c2:#3b82f6" aria-hidden="true">
+                    <span class="card-icon" style="--c1:#0ea5e9;--c2:#3b82f6" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
                     </span>
                     <span class="card-title">HTML5 拖拽 API 演示</span>
@@ -531,7 +536,6 @@
     (function () {
         var q = document.getElementById('q');
         var groups = Array.prototype.slice.call(document.querySelectorAll('.group'));
-        var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
         var filterBtns = Array.prototype.slice.call(document.querySelectorAll('.filters button'));
         var empty = document.getElementById('empty');
         var emptyQ = document.getElementById('empty-q');
@@ -582,15 +586,6 @@
                 apply();
                 q.blur();
             }
-        });
-
-        // 卡片跟随鼠标的辉光
-        cards.forEach(function (c) {
-            c.addEventListener('mousemove', function (e) {
-                var r = c.getBoundingClientRect();
-                c.style.setProperty('--mx', (e.clientX - r.left) + 'px');
-                c.style.setProperty('--my', (e.clientY - r.top) + 'px');
-            });
         });
     })();
 </script>

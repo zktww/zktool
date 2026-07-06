@@ -2,33 +2,37 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>时间戳转换工具 · zktool</title>
     <meta name="description" content="Unix 时间戳与日期时间互转：秒/毫秒自动识别、批量转换、多格式输出、常用时区对照、一键复制。" />
-    <meta name="theme-color" content="#07090f" />
+    <meta name="theme-color" content="#f6f8fb" />
     <style>
         :root {
-            color-scheme: dark;
-            --bg: #07090f;
-            --bg-soft: #0b0e17;
-            --surface: rgba(255, 255, 255, 0.03);
-            --surface-hover: rgba(255, 255, 255, 0.06);
-            --border: rgba(255, 255, 255, 0.08);
-            --border-hover: rgba(255, 255, 255, 0.18);
-            --text: #eef2f8;
-            --text-2: #9aa5b8;
-            --text-3: #5d6880;
-            --brand-1: #6366f1;
-            --brand-2: #22d3ee;
-            --brand-3: #a855f7;
-            --ok: #34d399;
-            --danger: #fb7185;
+            color-scheme: light;
+            --bg: #f6f8fb;
+            --bg-soft: #f8fafc;
+            --surface: #ffffff;
+            --surface-2: #f1f5f9;
+            --surface-hover: #f8fafc;
+            --border: #e4e9f0;
+            --border-hover: #c9d4e3;
+            --text: #1e293b;
+            --text-2: #5b6b81;
+            --text-3: #94a3b8;
+            --brand-1: #5b6cf9;
+            --brand-2: #0ea5e9;
+            --brand-3: #8b5cf6;
+            --ok: #10b981;
+            --danger: #ef4444;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 6px 24px -8px rgba(15, 23, 42, 0.14);
             --radius: 16px;
             --ease: cubic-bezier(0.16, 1, 0.3, 1);
             --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        [hidden] { display: none !important; }
 
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after {
@@ -42,7 +46,10 @@
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
+            min-height: 100dvh;
             line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
         /* ===== 背景氛围 ===== */
@@ -52,9 +59,9 @@
             z-index: -1;
             pointer-events: none;
             background:
-                radial-gradient(ellipse 60% 45% at 18% -8%, rgba(99, 102, 241, 0.16), transparent 62%),
-                radial-gradient(ellipse 55% 40% at 85% 4%, rgba(34, 211, 238, 0.1), transparent 60%),
-                radial-gradient(ellipse 50% 45% at 55% 108%, rgba(168, 85, 247, 0.09), transparent 60%),
+                radial-gradient(ellipse 60% 45% at 18% -8%, rgba(91, 108, 249, 0.08), transparent 62%),
+                radial-gradient(ellipse 55% 40% at 85% 4%, rgba(14, 165, 233, 0.06), transparent 60%),
+                radial-gradient(ellipse 50% 45% at 55% 108%, rgba(139, 92, 246, 0.05), transparent 60%),
                 var(--bg);
         }
 
@@ -63,17 +70,22 @@
             position: absolute;
             inset: 0;
             background-image:
-                linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+                linear-gradient(rgba(15, 23, 42, 0.028) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(15, 23, 42, 0.028) 1px, transparent 1px);
             background-size: 44px 44px;
             -webkit-mask-image: radial-gradient(ellipse 80% 65% at 50% 0%, #000 30%, transparent 100%);
             mask-image: radial-gradient(ellipse 80% 65% at 50% 0%, #000 30%, transparent 100%);
         }
 
         .wrap {
-            max-width: 880px;
+            min-height: 100vh;
+            min-height: 100dvh;
+            max-width: min(1520px, 100%);
             margin: 0 auto;
-            padding: clamp(1rem, 4vw, 2.2rem) clamp(1rem, 3vw, 1.5rem) 3.5rem;
+            padding: clamp(1rem, 4vw, 2.4rem)
+                calc(clamp(1rem, 3vw, 2rem) + env(safe-area-inset-right))
+                3.5rem
+                calc(clamp(1rem, 3vw, 2rem) + env(safe-area-inset-left));
         }
 
         svg.icon {
@@ -136,10 +148,7 @@
         }
 
         h1 .grad {
-            background: linear-gradient(100deg, #22d3ee, #6366f1, #a855f7);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            color: #2563eb;
         }
 
         h1 svg.icon { color: var(--brand-2); font-size: 0.85em; }
@@ -159,6 +168,7 @@
             -webkit-backdrop-filter: blur(8px);
             padding: 1.35rem 1.45rem;
             margin-bottom: 1.35rem;
+            box-shadow: var(--shadow-sm);
             transition: transform 0.4s var(--ease), border-color 0.4s var(--ease), background 0.4s var(--ease);
         }
 
@@ -265,7 +275,7 @@
             border-radius: 10px;
             border: 1px solid rgba(99, 102, 241, 0.35);
             background: rgba(99, 102, 241, 0.14);
-            color: #c7d2fe;
+            color: var(--brand-1);
             cursor: pointer;
             transition: background 0.25s, border-color 0.25s, transform 0.25s var(--ease);
         }
@@ -525,8 +535,8 @@
             padding: 1rem 1.05rem;
             border-radius: var(--radius);
             border: 1px solid var(--border-hover);
-            background: #0e1220;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            background: var(--surface);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.16);
         }
 
         .dt-popover[hidden] { display: none !important; }
@@ -699,6 +709,19 @@
 
         /* ===== 响应式 ===== */
         @media (max-width: 640px) {
+            .wrap {
+                padding-top: max(1rem, env(safe-area-inset-top));
+                padding-bottom: max(2rem, env(safe-area-inset-bottom));
+            }
+            .top { align-items: flex-start; margin-bottom: 1.4rem; }
+            .live { width: 100%; text-align: left; }
+            h1 { align-items: flex-start; }
+            .lead { margin-bottom: 1.35rem; }
+            .panel { padding: 1rem; border-radius: 14px; }
+            .row { align-items: stretch; }
+            label { width: 100%; min-width: 0; }
+            input[type="text"], textarea, .dt-custom { flex-basis: 100%; }
+            .seg, .btn { width: 100%; justify-content: center; }
             .seq-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
             .out-row { flex-wrap: wrap; }
             .out-label { width: 100%; }

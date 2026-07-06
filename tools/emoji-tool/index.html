@@ -2,31 +2,34 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Emoji 表情大全 · zktool</title>
     <meta name="description" content="按分类浏览 Unicode Emoji，支持中英文搜索、收藏、肤色切换与一键复制；数据来自开源 emoji 列表与 Unicode CLDR 中文标注。" />
-    <meta name="theme-color" content="#07090f" />
+    <meta name="theme-color" content="#f6f8fb" />
     <style>
         :root {
-            color-scheme: dark;
-            --bg: #07090f;
-            --bg-soft: #0b0e17;
-            --surface: rgba(255, 255, 255, 0.03);
-            --surface-hover: rgba(255, 255, 255, 0.06);
-            --border: rgba(255, 255, 255, 0.08);
-            --border-hover: rgba(255, 255, 255, 0.18);
-            --text: #eef2f8;
-            --text-2: #9aa5b8;
-            --text-3: #5d6880;
-            --brand-1: #6366f1;
-            --brand-2: #22d3ee;
-            --brand-3: #a855f7;
+            color-scheme: light;
+            --bg: #f6f8fb;
+            --bg-soft: #f8fafc;
+            --surface: #ffffff;
+            --surface-hover: #f1f5f9;
+            --border: #e4e9f0;
+            --border-hover: #c9d4e3;
+            --text: #1e293b;
+            --text-2: #5b6b81;
+            --text-3: #94a3b8;
+            --brand-1: #5b6cf9;
+            --brand-2: #0ea5e9;
+            --brand-3: #8b5cf6;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 6px 24px -8px rgba(15, 23, 42, 0.14);
             --radius: 16px;
             --ease: cubic-bezier(0.16, 1, 0.3, 1);
             --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        [hidden] { display: none !important; }
 
         html { scroll-behavior: smooth; }
 
@@ -35,8 +38,10 @@
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
+            min-height: 100dvh;
             line-height: 1.55;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -55,9 +60,10 @@
             z-index: -1;
             pointer-events: none;
             background:
-                radial-gradient(620px 420px at 12% -5%, rgba(99, 102, 241, 0.16), transparent 65%),
-                radial-gradient(720px 480px at 88% 8%, rgba(34, 211, 238, 0.10), transparent 65%),
-                radial-gradient(900px 620px at 50% 110%, rgba(168, 85, 247, 0.09), transparent 65%);
+                radial-gradient(620px 420px at 12% -5%, rgba(91, 108, 249, 0.08), transparent 65%),
+                radial-gradient(720px 480px at 88% 8%, rgba(14, 165, 233, 0.07), transparent 65%),
+                radial-gradient(900px 620px at 50% 110%, rgba(139, 92, 246, 0.05), transparent 65%),
+                var(--bg);
         }
 
         .bg-fx::after {
@@ -65,17 +71,22 @@
             position: absolute;
             inset: 0;
             background-image:
-                linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+                linear-gradient(rgba(15, 23, 42, 0.028) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(15, 23, 42, 0.028) 1px, transparent 1px);
             background-size: 44px 44px;
             -webkit-mask-image: radial-gradient(ellipse 85% 65% at 50% 0%, #000 25%, transparent 78%);
             mask-image: radial-gradient(ellipse 85% 65% at 50% 0%, #000 25%, transparent 78%);
         }
 
         .wrap {
-            max-width: 1080px;
+            min-height: 100vh;
+            min-height: 100dvh;
+            max-width: min(1280px, 100%);
             margin: 0 auto;
-            padding: clamp(1rem, 4vw, 2rem) clamp(1rem, 3vw, 1.5rem) 3.5rem;
+            padding: clamp(1rem, 4vw, 2rem)
+                calc(clamp(1rem, 3vw, 1.5rem) + env(safe-area-inset-right))
+                max(3.5rem, env(safe-area-inset-bottom))
+                calc(clamp(1rem, 3vw, 1.5rem) + env(safe-area-inset-left));
         }
 
         /* ===== 顶部 ===== */
@@ -131,10 +142,7 @@
         }
 
         h1 .grad {
-            background: linear-gradient(100deg, #22d3ee, #6366f1, #a855f7);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            color: #2563eb;
         }
 
         h1 svg { color: var(--brand-2); flex: none; }
@@ -164,6 +172,7 @@
             margin-bottom: 1rem;
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
+            box-shadow: var(--shadow-sm);
         }
 
         /* ===== 吸顶控制栏 ===== */
@@ -171,7 +180,7 @@
             position: sticky;
             top: 0.6rem;
             z-index: 40;
-            background: rgba(11, 14, 23, 0.82);
+            background: rgba(255, 255, 255, 0.86);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
         }
@@ -203,7 +212,7 @@
             padding: 0.62rem 0.85rem 0.62rem 2.45rem;
             border-radius: 12px;
             border: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.04);
+            background: var(--bg-soft);
             color: var(--text);
             font-size: 0.95rem;
             font-family: inherit;
@@ -311,13 +320,13 @@
             scroll-snap-type: x proximity;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+            scrollbar-color: rgba(148, 163, 184, 0.28) transparent;
         }
 
         .cat-scroll::-webkit-scrollbar { height: 5px; }
 
         .cat-scroll::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.16);
+            background: rgba(148, 163, 184, 0.28);
             border-radius: 99px;
         }
 
@@ -500,7 +509,7 @@
             height: 1.5rem;
             border-radius: 8px;
             border: none;
-            background: rgba(7, 9, 15, 0.55);
+            background: rgba(255, 255, 255, 0.88);
             color: var(--text-3);
             cursor: pointer;
             display: inline-flex;
@@ -512,7 +521,7 @@
 
         .cell-tools button:hover, .cell-tools button:focus-visible {
             color: var(--text);
-            background: rgba(7, 9, 15, 0.85);
+            background: var(--surface);
             outline: none;
         }
 
@@ -568,14 +577,14 @@
             gap: 0.5rem;
             padding: 0.62rem 1.2rem;
             border-radius: 999px;
-            background: rgba(11, 14, 23, 0.92);
-            border: 1px solid rgba(34, 211, 238, 0.45);
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(14, 165, 233, 0.35);
             color: var(--brand-2);
             font-size: 0.9rem;
             pointer-events: none;
             transition: transform 0.35s var(--ease), opacity 0.35s var(--ease);
             z-index: 90;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+            box-shadow: var(--shadow-md);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
         }
@@ -596,7 +605,7 @@
             align-items: center;
             justify-content: center;
             padding: 1rem;
-            background: rgba(4, 6, 10, 0.68);
+            background: rgba(15, 23, 42, 0.28);
             backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
             opacity: 0;
@@ -608,11 +617,11 @@
 
         .modal {
             width: min(26rem, 100%);
-            background: var(--bg-soft);
+            background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             padding: 1.4rem 1.4rem 1.25rem;
-            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
             transform: translateY(14px) scale(0.97);
             transition: transform 0.3s var(--ease);
             position: relative;
@@ -721,8 +730,19 @@
         .footnote a:hover { text-decoration: underline; }
 
         @media (max-width: 560px) {
+            .wrap {
+                padding-top: max(1rem, env(safe-area-inset-top));
+                padding-bottom: max(2rem, env(safe-area-inset-bottom));
+            }
+            .top { align-items: flex-start; }
             .stat { display: none; }
             .tone-hint { display: none; }
+            .panel { padding: 0.95rem; border-radius: 14px; }
+            .sticky-bar { top: 0.45rem; }
+            .search-wrap { min-width: 100%; }
+            .btn-ghost { flex: 1; justify-content: center; }
+            .tone-row { align-items: flex-start; }
+            .tone-opts { overflow-x: auto; padding-bottom: 0.25rem; }
             .grid { grid-template-columns: repeat(auto-fill, minmax(4.6rem, 1fr)); }
             .cell { min-height: 5rem; }
             .cell .glyph { font-size: 1.6rem; }

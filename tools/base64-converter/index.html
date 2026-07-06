@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Base64 编码转换 · zktool</title>
+    <meta name="description" content="文本 Base64 编码解码、Hex 与 Unicode escape 转换，浏览器本地处理。" />
+    <meta name="theme-color" content="#f6f8fb" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">Base64 / Hex</p></div>
+    <h1><span class="title">Base64 编码转换</span></h1>
+    <p class="lead">支持 UTF-8 文本 Base64 编码/解码，并提供 Hex、Unicode escape 与字节统计。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>输入</h2>
+            <textarea id="input" spellcheck="false" placeholder="输入文本或 Base64..."></textarea>
+            <div class="row">
+                <button class="btn primary" id="enc">Base64 编码</button>
+                <button class="btn" id="dec">Base64 解码</button>
+                <button class="btn" id="hex">转 Hex</button>
+                <button class="btn" id="uni">转 Unicode</button>
+                <button class="btn danger" id="clear">清空</button>
+            </div>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>结果</h2>
+                <pre class="output" id="output"></pre>
+                <div class="row"><button class="btn primary" id="copy">复制结果</button></div>
+                <p class="hint" id="status">UTF-8 安全编码，中文不会乱码。</p>
+            </section>
+            <section class="panel">
+                <h2>统计</h2>
+                <div class="chips" id="stats"></div>
+            </section>
+        </aside>
+    </div>
+</main>
+<script>
+(function () {
+    "use strict";
+    var input = document.getElementById("input"), output = document.getElementById("output"), status = document.getElementById("status"), stats = document.getElementById("stats");
+    var enc = new TextEncoder(), dec = new TextDecoder();
+    function bytes(s) { return enc.encode(s); }
+    function b64(s) {
+        var bin = "", arr = bytes(s);
+        for (var i = 0; i < arr.length; i++) bin += String.fromCharCode(arr[i]);
+        return btoa(bin);
+    }
+    function fromB64(s) {
+        var bin = atob(s.replace(/\s+/g, ""));
+        var arr = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        return dec.decode(arr);
+    }
+    function set(text, ok) { output.textContent = text; status.textContent = ok || "完成"; status.className = "hint ok"; updateStats(); }
+    function fail(e) { status.textContent = "转换失败：" + e.message; status.className = "hint bad"; }
+    function updateStats() {
+        var b = bytes(input.value);
+        stats.innerHTML = "<span class='chip'>字符 " + input.value.length + "</span><span class='chip'>字节 " + b.length + "</span><span class='chip'>结果 " + output.textContent.length + "</span>";
+    }
+    document.getElementById("enc").onclick = function () { set(b64(input.value), "Base64 编码完成"); };
+    document.getElementById("dec").onclick = function () { try { set(fromB64(input.value), "Base64 解码完成"); } catch (e) { fail(e); } };
+    document.getElementById("hex").onclick = function () { set(Array.from(bytes(input.value)).map(function (n) { return n.toString(16).padStart(2, "0"); }).join(" "), "Hex 转换完成"); };
+    document.getElementById("uni").onclick = function () { set(Array.from(input.value).map(function (ch) { return "\\u{" + ch.codePointAt(0).toString(16).toUpperCase() + "}"; }).join(""), "Unicode escape 转换完成"); };
+    document.getElementById("clear").onclick = function () { input.value = ""; output.textContent = ""; updateStats(); status.textContent = "已清空"; status.className = "hint"; };
+    document.getElementById("copy").onclick = function () { navigator.clipboard.writeText(output.textContent || ""); status.textContent = "结果已复制"; status.className = "hint ok"; };
+    input.addEventListener("input", updateStats); updateStats();
+})();
+</script>
+</body>
+</html>

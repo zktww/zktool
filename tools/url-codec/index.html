@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>URL 编码与参数解析 · zktool</title>
+    <meta name="description" content="URL encode/decode、查询参数解析与参数对象互转，全部在浏览器本地处理。" />
+    <meta name="theme-color" content="#f6f8fb" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top">
+        <a class="back" href="../../">← 返回主页</a>
+        <p class="meta">URL codec</p>
+    </div>
+    <h1><span class="title">URL 编码与参数解析</span></h1>
+    <p class="lead">处理 URL 编码、解码、查询参数拆解与对象互转；适合排查接口参数、分享链接和重定向地址。</p>
+
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>输入</h2>
+            <textarea id="input" spellcheck="false" placeholder="粘贴 URL、查询字符串或普通文本..."></textarea>
+            <div class="row">
+                <button class="btn primary" id="btnEncode">编码</button>
+                <button class="btn" id="btnDecode">解码</button>
+                <button class="btn" id="btnParams">解析参数</button>
+                <button class="btn danger" id="btnClear">清空</button>
+            </div>
+        </section>
+
+        <aside>
+            <section class="panel">
+                <h2>结果</h2>
+                <pre class="output" id="output"></pre>
+                <div class="row">
+                    <button class="btn primary" id="btnCopy">复制结果</button>
+                </div>
+                <p class="hint" id="status">支持完整 URL、?a=1&b=2 或 a=1&b=2。</p>
+            </section>
+            <section class="panel">
+                <h2>参数表</h2>
+                <div class="output" id="tableBox" style="min-height:4rem">暂无参数</div>
+            </section>
+        </aside>
+    </div>
+</main>
+
+<script>
+(function () {
+    "use strict";
+    var input = document.getElementById("input");
+    var output = document.getElementById("output");
+    var tableBox = document.getElementById("tableBox");
+    var status = document.getElementById("status");
+
+    function setOut(text) { output.textContent = text; }
+    function value() { return input.value.trim(); }
+    function msg(text, ok) { status.textContent = text; status.className = "hint " + (ok ? "ok" : "bad"); }
+
+    function parseParams() {
+        var raw = value();
+        if (!raw) { setOut(""); tableBox.textContent = "暂无参数"; return; }
+        var search = raw;
+        try {
+            if (/^[a-z][a-z0-9+.-]*:\/\//i.test(raw)) search = new URL(raw).search;
+        } catch (e) { /* fall through */ }
+        if (search.indexOf("?") >= 0) search = search.slice(search.indexOf("?") + 1);
+        if (search.indexOf("#") >= 0) search = search.slice(0, search.indexOf("#"));
+        var params = new URLSearchParams(search);
+        var rows = [];
+        params.forEach(function (v, k) { rows.push([k, v]); });
+        if (!rows.length) {
+            tableBox.textContent = "未识别到查询参数";
+            setOut("{}");
+            msg("没有可解析的查询参数", false);
+            return;
+        }
+        var obj = {};
+        rows.forEach(function (r) {
+            if (Object.prototype.hasOwnProperty.call(obj, r[0])) {
+                if (!Array.isArray(obj[r[0]])) obj[r[0]] = [obj[r[0]]];
+                obj[r[0]].push(r[1]);
+            } else obj[r[0]] = r[1];
+        });
+        setOut(JSON.stringify(obj, null, 2));
+        tableBox.innerHTML = "<table><thead><tr><th>Key</th><th>Value</th></tr></thead><tbody>" +
+            rows.map(function (r) {
+                return "<tr><td class='mono'>" + esc(r[0]) + "</td><td class='mono'>" + esc(r[1]) + "</td></tr>";
+            }).join("") + "</tbody></table>";
+        msg("已解析 " + rows.length + " 个参数", true);
+    }
+
+    function esc(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+            return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
+        });
+    }
+
+    document.getElementById("btnEncode").onclick = function () {
+        setOut(encodeURIComponent(input.value));
+        msg("已使用 encodeURIComponent 编码", true);
+    };
+    document.getElementById("btnDecode").onclick = function () {
+        try { setOut(decodeURIComponent(input.value.replace(/\+/g, " "))); msg("解码完成", true); }
+        catch (e) { msg("解码失败：" + e.message, false); }
+    };
+    document.getElementById("btnParams").onclick = parseParams;
+    document.getElementById("btnClear").onclick = function () { input.value = ""; setOut(""); tableBox.textContent = "暂无参数"; status.className = "hint"; status.textContent = "已清空"; };
+    document.getElementById("btnCopy").onclick = function () { navigator.clipboard.writeText(output.textContent || ""); msg("结果已复制", true); };
+})();
+</script>
+</body>
+</html>

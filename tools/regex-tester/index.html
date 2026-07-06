@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>正则表达式测试 · zktool</title>
+    <meta name="description" content="在线测试 JavaScript 正则表达式，展示匹配、捕获组和替换结果。" />
+    <meta name="theme-color" content="#f6f8fb" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <style>.match{background:rgba(37,99,235,.14);border-radius:4px;padding:0 .15rem}.group-card{margin:.35rem 0;padding:.55rem .7rem;border:1px solid var(--border);border-radius:10px;background:var(--bg-soft)}</style>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">RegExp</p></div>
+    <h1><span class="title">正则表达式测试</span></h1>
+    <p class="lead">实时运行 JavaScript 正则，展示匹配高亮、捕获组、替换结果和常用 flag。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>表达式</h2>
+            <div class="row"><span class="label">/</span><input class="grow mono" id="pattern" value="(\w+)@(\w+\.\w+)" /><span class="label">/</span><input style="max-width:8rem" class="mono" id="flags" value="gi" /></div>
+            <label>测试文本</label>
+            <textarea id="text" spellcheck="false">联系 test@example.com 或 hello@zktool.dev</textarea>
+            <label>替换模板</label>
+            <input id="replace" class="mono" value="$1 at $2" />
+            <div class="row"><button class="btn primary" id="run">测试</button><button class="btn" id="sample">示例</button><button class="btn danger" id="clear">清空</button></div>
+        </section>
+        <aside>
+            <section class="panel"><h2>匹配高亮</h2><div class="output" id="highlight"></div><p class="hint" id="status"></p></section>
+            <section class="panel"><h2>捕获组</h2><div id="groups" class="output" style="min-height:5rem"></div></section>
+            <section class="panel"><h2>替换结果</h2><pre class="output" id="replaced" style="min-height:5rem"></pre></section>
+        </aside>
+    </div>
+</main>
+<script>
+(function () {
+    "use strict";
+    var pattern = document.getElementById("pattern"), flags = document.getElementById("flags"), text = document.getElementById("text"), replace = document.getElementById("replace");
+    var highlight = document.getElementById("highlight"), groups = document.getElementById("groups"), replaced = document.getElementById("replaced"), status = document.getElementById("status");
+    function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+    function run() {
+        var fl = flags.value || "";
+        if (fl.indexOf("g") < 0) fl += "g";
+        var re;
+        try { re = new RegExp(pattern.value, fl); } catch (e) { status.textContent = e.message; status.className = "hint bad"; return; }
+        var s = text.value, out = "", last = 0, count = 0, groupHtml = "";
+        s.replace(re, function () {
+            var m = arguments[0], idx = arguments[arguments.length - 2];
+            out += esc(s.slice(last, idx)) + "<span class='match'>" + esc(m) + "</span>";
+            last = idx + m.length; count++;
+            var caps = Array.prototype.slice.call(arguments, 1, -2);
+            groupHtml += "<div class='group-card'><b>#" + count + "</b> <span class='mono'>" + esc(m) + "</span>";
+            caps.forEach(function (g, i) { groupHtml += "<br><span class='mono'>$" + (i + 1) + " = " + esc(g) + "</span>"; });
+            groupHtml += "</div>";
+            if (m === "") re.lastIndex++;
+            return m;
+        });
+        highlight.innerHTML = out + esc(s.slice(last));
+        groups.innerHTML = groupHtml || "无匹配";
+        replaced.textContent = s.replace(re, replace.value);
+        status.textContent = "匹配 " + count + " 处"; status.className = "hint " + (count ? "ok" : "warn");
+    }
+    ["input","change"].forEach(function (ev) { [pattern, flags, text, replace].forEach(function (el) { el.addEventListener(ev, run); }); });
+    document.getElementById("run").onclick = run;
+    document.getElementById("sample").onclick = function () { pattern.value = "(https?:\\/\\/[^\\s]+)"; flags.value = "gi"; text.value = "官网 https://example.com 文档 http://docs.example.com"; replace.value = "<a href=\"$1\">$1</a>"; run(); };
+    document.getElementById("clear").onclick = function () { text.value = ""; run(); };
+    run();
+})();
+</script>
+</body>
+</html>

@@ -17,28 +17,63 @@
 
 | 入口 | 说明 |
 |------|------|
-| [tools/timestamp-converter/](tools/timestamp-converter/) | 时间戳与日期时间互转（秒/毫秒、UTC、复制） |
-| [tools/json-formatter/](tools/json-formatter/) | JSON 校验、美化与压缩（缩进、键排序、复制） |
-| [tools/emoji-tool/](tools/emoji-tool/) | Emoji 分类大全、CLDR 中文名、搜索与一键复制 |
+| [tools/timestamp-converter/](tools/timestamp-converter/) | 时间转换：时间戳与日期时间互转（秒/毫秒、UTC、复制） |
+| [tools/json-formatter/](tools/json-formatter/) | JSON 格式化与校验：美化、压缩、树形视图与统计 |
+| [tools/emoji-tool/](tools/emoji-tool/) | Emoji 符号库：分类浏览、CLDR 中文名、搜索与一键复制 |
 | [tools/mermaid-editor/](tools/mermaid-editor/) | Mermaid 图表实时编辑与预览，支持导出 PNG / SVG |
+| [tools/url-codec/](tools/url-codec/) | URL 编码与参数解析：编解码、查询参数解析与对象互转 |
+| [tools/base64-converter/](tools/base64-converter/) | Base64 编码转换：Base64、Hex 与 Unicode escape 转换 |
+| [tools/regex-tester/](tools/regex-tester/) | 正则表达式测试：匹配高亮、捕获组与替换预览 |
+| [tools/random-generator/](tools/random-generator/) | 随机 ID 生成器：UUID v4、随机密码、Token 与批量字符串 |
+| [tools/cron-tool/](tools/cron-tool/) | Cron 表达式解析：字段解释与未来执行时间预览 |
+| [tools/color-tool/](tools/color-tool/) | 颜色转换与对比度：格式互转、色阶生成与 WCAG 检查 |
+| [tools/text-diff/](tools/text-diff/) | 文本差异比较：左右文本行级差异对比 |
 
 ## 工具说明
 
-### 时间戳转换工具（`tools/timestamp-converter/`）
+### 时间转换（`tools/timestamp-converter/`）
 
-与索引页同系的深色界面：Unix 时间戳与可读日期互转，秒/毫秒分段开关、当前时间戳跳动展示、本地与 UTC ISO 输出及复制；支持文本解析与 `datetime-local` 选择器。
+与索引页同系的浅色界面：Unix 时间戳与可读日期互转，秒/毫秒自动识别、当前时间拆解、本地与 UTC ISO 输出、时区对照、批量转换及复制；支持文本解析与自定义日期时间选择器。
 
-### JSON 格式化工具（`tools/json-formatter/`）
+### JSON 格式化与校验（`tools/json-formatter/`）
 
 双栏输入与结果区：基于原生 `JSON.parse` 校验，一键美化或压缩；可选 2/4 空格或 Tab 缩进、对象键排序；支持复制输入/结果与 `Ctrl+Enter` 快捷美化。
 
-### Emoji 表情大全（`tools/emoji-tool/`）
+### Emoji 符号库（`tools/emoji-tool/`）
 
-与索引同系的深色界面：从 CDN 加载 `unicode-emoji-json` 分组列表，并用 Unicode CLDR `cldr-annotations-modern` 的 `annotations/zh` 提供中文名称与关键词（搜索支持中文）；无匹配时回退英文。失败时回退内置示例；含「最近使用」与显示差异说明。
+从 CDN 加载 `unicode-emoji-json` 分组列表，并用 Unicode CLDR `cldr-annotations-modern` 的 `annotations/zh` 提供中文名称与关键词（搜索支持中文）；无匹配时回退英文。失败时回退内置示例；含收藏、最近使用、肤色切换与详情弹层。
 
 ### Mermaid 图表编辑器（`tools/mermaid-editor/`）
 
-左右分栏布局：左侧 textarea 编辑 Mermaid 代码，右侧实时渲染图表；输入防抖 600ms 自动刷新，`Ctrl+Enter` 手动刷新。内置流程图、时序图、甘特图、类图、状态图、饼图六种中文示例模板；支持导出 SVG 与高清 PNG（2x 缩放，深色背景）。基于 CDN 加载 `mermaid@11`，暗色主题与项目风格统一。
+左右分栏布局，移动端上下分栏：左侧 textarea 编辑 Mermaid 代码，右侧实时渲染图表；输入防抖自动刷新。内置流程图、时序图、类图、状态图、ER 图、甘特图、饼图、思维导图、Git 图等中文示例模板；支持复制代码、分享链接、导出 SVG 与高清 PNG。基于 CDN 加载 `mermaid@11`。
+
+### URL 编码与参数解析（`tools/url-codec/`）
+
+支持 `encodeURIComponent` / `decodeURIComponent`、完整 URL 查询参数解析、`URLSearchParams` 参数表展示，以及参数对象 JSON 输出与复制。
+
+### Base64 编码转换（`tools/base64-converter/`）
+
+基于 `TextEncoder` / `TextDecoder` 做 UTF-8 安全的 Base64 编码解码；同时提供 Hex、Unicode escape 转换与字符/字节统计。
+
+### 正则表达式测试（`tools/regex-tester/`）
+
+运行 JavaScript `RegExp`，实时显示匹配高亮、捕获组列表与替换结果；支持 flags 和替换模板调试。
+
+### 随机 ID 生成器（`tools/random-generator/`）
+
+基于浏览器 Crypto API 生成 UUID v4、随机密码、Token、数字串和自定义字符集字符串，支持批量输出与复制。
+
+### Cron 表达式解析（`tools/cron-tool/`）
+
+解析常见 Linux crontab 风格 5 字段表达式（分钟、小时、日期、月份、星期），展示字段展开结果并预览未来 10 次执行时间。
+
+### 颜色转换与对比度（`tools/color-tool/`）
+
+支持 HEX、RGB、HSL 互转，生成浅深色阶，并计算前景色与背景色的 WCAG 对比度等级。
+
+### 文本差异比较（`tools/text-diff/`）
+
+左右输入两段文本，基于 LCS 做行级差异对比，高亮新增、删除和未变内容，适合快速比较配置、日志和接口响应片段。
 
 ## Demo 附录
 

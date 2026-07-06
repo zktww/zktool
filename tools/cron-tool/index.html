@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Cron 表达式解析 · zktool</title>
+    <meta name="description" content="解析常见 5 字段 Cron 表达式，预览未来执行时间。" />
+    <meta name="theme-color" content="#f6f8fb" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">Cron</p></div>
+    <h1><span class="title">Cron 表达式解析</span></h1>
+    <p class="lead">解析常见 5 字段 Cron：分钟、小时、日期、月份、星期，预览未来执行时间。适合 Linux crontab 风格表达式。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>表达式</h2>
+            <input id="expr" class="mono" value="*/15 9-18 * * 1-5" />
+            <div class="row">
+                <button class="btn primary" data-exp="*/5 * * * *">每 5 分钟</button>
+                <button class="btn" data-exp="0 9 * * 1-5">工作日 9 点</button>
+                <button class="btn" data-exp="30 2 1 * *">每月 1 日 2:30</button>
+                <button class="btn" data-exp="0 0 * * 0">每周日</button>
+            </div>
+            <div class="row"><button class="btn primary" id="run">解析</button><span class="hint" id="status"></span></div>
+        </section>
+        <aside>
+            <section class="panel"><h2>字段说明</h2><div class="output" id="desc" style="min-height:6rem"></div></section>
+            <section class="panel"><h2>未来 10 次</h2><div class="output" id="next"></div></section>
+        </aside>
+    </div>
+</main>
+<script>
+(function () {
+    "use strict";
+    var expr = document.getElementById("expr"), desc = document.getElementById("desc"), next = document.getElementById("next"), status = document.getElementById("status");
+    var ranges = [[0,59,"分钟"],[0,23,"小时"],[1,31,"日期"],[1,12,"月份"],[0,6,"星期"]];
+    function parseField(part, min, max) {
+        var set = new Set();
+        part.split(",").forEach(function (piece) {
+            var step = 1;
+            if (piece.indexOf("/") >= 0) { var ps = piece.split("/"); piece = ps[0]; step = parseInt(ps[1], 10) || 1; }
+            var a = min, b = max;
+            if (piece !== "*" && piece !== "?") {
+                if (piece.indexOf("-") >= 0) { var rs = piece.split("-"); a = parseInt(rs[0], 10); b = parseInt(rs[1], 10); }
+                else { a = b = parseInt(piece, 10); }
+            }
+            if (isNaN(a) || isNaN(b) || a < min || b > max || a > b) throw new Error("字段超出范围：" + part);
+            for (var i = a; i <= b; i += step) set.add(i);
+        });
+        return set;
+    }
+    function fmt(d) {
+        return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+    }
+    function pad(n) { return String(n).padStart(2, "0"); }
+    function run() {
+        try {
+            var parts = expr.value.trim().split(/\s+/);
+            if (parts.length !== 5) throw new Error("请使用 5 字段 Cron，例如 */5 * * * *");
+            var sets = parts.map(function (p, i) { return parseField(p, ranges[i][0], ranges[i][1]); });
+            desc.innerHTML = ranges.map(function (r, i) {
+                var vals = Array.from(sets[i]).sort(function (a,b) { return a-b; });
+                return "<b>" + r[2] + "</b> <span class='mono'>" + parts[i] + "</span><br><span class='mono'>" + (vals.length > 18 ? vals.slice(0,18).join(", ") + " ..." : vals.join(", ")) + "</span>";
+            }).join("<br><br>");
+            var out = [], d = new Date(); d.setSeconds(0,0); d.setMinutes(d.getMinutes()+1);
+            var guard = 0;
+            while (out.length < 10 && guard < 600000) {
+                if (sets[0].has(d.getMinutes()) && sets[1].has(d.getHours()) && sets[2].has(d.getDate()) && sets[3].has(d.getMonth()+1) && sets[4].has(d.getDay())) out.push(fmt(d));
+                d.setMinutes(d.getMinutes()+1); guard++;
+            }
+            next.textContent = out.join("\n") || "未来范围内没有匹配";
+            status.textContent = "解析成功"; status.className = "hint ok";
+        } catch (e) {
+            status.textContent = e.message; status.className = "hint bad"; next.textContent = ""; desc.textContent = "";
+        }
+    }
+    document.getElementById("run").onclick = run;
+    Array.from(document.querySelectorAll("[data-exp]")).forEach(function (b) { b.onclick = function () { expr.value = b.getAttribute("data-exp"); run(); }; });
+    expr.addEventListener("input", run); run();
+})();
+</script>
+</body>
+</html>

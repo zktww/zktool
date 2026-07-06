@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>文本差异比较 · zktool</title>
+    <meta name="description" content="本地文本差异比较，行级新增、删除与未变内容高亮。" />
+    <meta name="theme-color" content="#f6f8fb" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <style>.diff-line{display:grid;grid-template-columns:3rem 1fr;gap:.6rem;padding:.18rem .35rem;border-radius:6px}.diff-line.add{background:rgba(16,185,129,.1)}.diff-line.del{background:rgba(239,68,68,.08)}.diff-line.same{color:var(--text-2)}.mark{font-family:var(--mono);color:var(--text-3)}</style>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">Text diff</p></div>
+    <h1><span class="title">文本差异比较</span></h1>
+    <p class="lead">左右输入两段文本，进行行级差异对比；适合配置、日志片段、接口返回内容的快速比较。</p>
+    <section class="panel">
+        <h2>输入</h2>
+        <div class="tool-grid">
+            <label>原文本<textarea id="left" spellcheck="false">name: zktool
+theme: dark
+tools: 4</textarea></label>
+            <label>新文本<textarea id="right" spellcheck="false">name: zktool
+theme: light
+tools: 11</textarea></label>
+        </div>
+        <div class="row"><button class="btn primary" id="run">对比</button><button class="btn" id="swap">左右互换</button><button class="btn danger" id="clear">清空</button><span class="hint" id="status"></span></div>
+    </section>
+    <section class="panel">
+        <h2>差异</h2>
+        <div class="output" id="out"></div>
+    </section>
+</main>
+<script>
+(function () {
+    "use strict";
+    var left = document.getElementById("left"), right = document.getElementById("right"), out = document.getElementById("out"), status = document.getElementById("status");
+    function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+    function diff(a, b) {
+        var n=a.length,m=b.length,dp=Array.from({length:n+1},function(){return Array(m+1).fill(0);});
+        for(var i=n-1;i>=0;i--) for(var j=m-1;j>=0;j--) dp[i][j]=a[i]===b[j]?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1]);
+        var res=[],x=0,y=0;
+        while(x<n||y<m){ if(x<n&&y<m&&a[x]===b[y]){res.push(["same",a[x++]]);y++;} else if(y<m&&(x===n||dp[x][y+1]>=dp[x+1][y])) res.push(["add",b[y++]]); else res.push(["del",a[x++]]); }
+        return res;
+    }
+    function run() {
+        var a=left.value.split(/\r?\n/), b=right.value.split(/\r?\n/), rows=diff(a,b), add=0, del=0;
+        out.innerHTML = rows.map(function (r) {
+            if(r[0]==="add") add++; if(r[0]==="del") del++;
+            var mark = r[0]==="add" ? "+" : r[0]==="del" ? "-" : " ";
+            return "<div class='diff-line "+r[0]+"'><span class='mark'>"+mark+"</span><span>"+esc(r[1] || " ")+"</span></div>";
+        }).join("");
+        status.textContent = "新增 " + add + " 行，删除 " + del + " 行"; status.className = "hint " + (add||del ? "warn" : "ok");
+    }
+    document.getElementById("run").onclick = run;
+    document.getElementById("swap").onclick = function(){ var t=left.value; left.value=right.value; right.value=t; run(); };
+    document.getElementById("clear").onclick = function(){ left.value=""; right.value=""; run(); };
+    [left,right].forEach(function(el){ el.addEventListener("input", run); }); run();
+})();
+</script>
+</body>
+</html>

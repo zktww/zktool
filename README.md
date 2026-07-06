@@ -28,6 +28,7 @@
 | [tools/cron-tool/](tools/cron-tool/) | Cron 表达式解析：字段解释与未来执行时间预览 |
 | [tools/color-tool/](tools/color-tool/) | 颜色转换与对比度：格式互转、色阶生成与 WCAG 检查 |
 | [tools/text-diff/](tools/text-diff/) | 文本差异比较：左右文本行级差异对比 |
+| [二维码生成器](https://qc.zktww.cn/) | 外部工具：二维码生成服务 |
 
 ## 工具说明
 
@@ -74,6 +75,10 @@
 ### 文本差异比较（`tools/text-diff/`）
 
 左右输入两段文本，基于 LCS 做行级差异对比，高亮新增、删除和未变内容，适合快速比较配置、日志和接口响应片段。
+
+### 二维码生成器（外部工具）
+
+跳转到 [https://qc.zktww.cn/](https://qc.zktww.cn/)，用于快速生成二维码。
 
 ## Demo 附录
 

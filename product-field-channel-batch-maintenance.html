@@ -161,7 +161,7 @@
 
     .dimension-row {
       display: grid;
-      grid-template-columns: 96px minmax(0, 1fr) 52px;
+      grid-template-columns: 112px minmax(0, 1fr) 52px;
       gap: 10px;
       align-items: start;
       padding: 10px 0;
@@ -183,23 +183,28 @@
     .dimension-mode-select {
       position: relative;
       display: inline-block;
-      width: 86px;
+      width: 96px;
       text-align: left;
       font-weight: 500;
+      vertical-align: middle;
     }
 
     .dimension-mode-trigger {
-      height: 26px;
+      height: 32px;
       width: 100%;
-      padding: 0 22px 0 8px;
-      border: 1px solid var(--border);
+      padding: 0 28px 0 10px;
+      border: 1px solid #dcdfe6;
       border-radius: 4px;
       background: #fff;
-      color: var(--text-regular);
+      color: #606266;
       cursor: pointer;
       font-size: 12px;
       text-align: left;
-      line-height: 24px;
+      line-height: 30px;
+      box-sizing: border-box;
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
       transition: border-color .15s ease, box-shadow .15s ease;
     }
 
@@ -210,23 +215,32 @@
     }
 
     .dimension-mode-trigger::after {
-      content: "⌄";
+      content: "";
       position: absolute;
-      right: 8px;
-      top: 3px;
-      color: #c0c4cc;
-      font-size: 12px;
+      right: 10px;
+      top: 50%;
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid #c0c4cc;
+      transform: translateY(-50%);
+      transition: transform .18s ease;
       pointer-events: none;
+    }
+
+    .dimension-mode-select.is-open .dimension-mode-trigger::after {
+      transform: translateY(-50%) rotate(180deg);
     }
 
     .dimension-mode-menu {
       display: none;
       position: absolute;
-      top: 30px;
+      top: 36px;
       right: 0;
       z-index: 25;
-      min-width: 96px;
-      padding: 4px 0;
+      width: 112px;
+      padding: 6px 0;
       border: 1px solid var(--border-light);
       border-radius: 4px;
       background: #fff;
@@ -238,8 +252,8 @@
     }
 
     .dimension-mode-option {
-      height: 30px;
-      padding: 0 10px;
+      height: 32px;
+      padding: 0 12px;
       display: flex;
       align-items: center;
       cursor: pointer;
@@ -834,14 +848,17 @@
     }
 
     .inline-el-control.is-select::after {
-      content: "⌄";
+      content: "";
       position: absolute;
       right: 10px;
       top: 50%;
-      color: #c0c4cc;
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid #c0c4cc;
       transform: translateY(-50%);
       pointer-events: none;
-      font-size: 12px;
     }
 
     .inline-el-control.is-time::after {
@@ -922,10 +939,20 @@
       position: absolute;
       right: 10px;
       top: 16px;
-      color: #c0c4cc;
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid #c0c4cc;
       transform: translateY(-50%);
       pointer-events: none;
-      font-size: 12px;
+      transition: transform .18s ease;
+      font-size: 0;
+      line-height: 0;
+    }
+
+    .inline-select-control.is-open .inline-select-arrow {
+      transform: translateY(-50%) rotate(180deg);
     }
 
     .inline-select-dropdown {
@@ -2494,10 +2521,20 @@
       position: absolute;
       right: 10px;
       top: 50%;
-      color: #c0c4cc;
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid #c0c4cc;
       transform: translateY(-50%);
       pointer-events: none;
-      font-size: 10px;
+      transition: transform .18s ease;
+      font-size: 0;
+      line-height: 0;
+    }
+
+    .batch-channel-select.is-open .batch-channel-arrow {
+      transform: translateY(-50%) rotate(180deg);
     }
 
     .batch-channel-dropdown {
@@ -3658,7 +3695,7 @@
       return '<div class="inline-el-control inline-select-control ' + (multiple ? 'is-multiple' : 'is-select') + '" data-inline-select="' + row.id + '">' +
         '<button class="inline-select-trigger" type="button" data-inline-select-toggle="' + row.id + '">' +
         '<span class="inline-select-label">' + escapeHtml(label) + '</span>' +
-        '<span class="inline-select-arrow">⌄</span>' +
+        '<span class="inline-select-arrow"></span>' +
         '</button>' +
         '<div class="inline-select-dropdown">' +
         meta.options.map(function(option) {
@@ -4247,7 +4284,7 @@
         '<input class="batch-channel-hidden" type="hidden" data-batch-channel="' + escapeHtml(key) + '" value="' + escapeHtml(active.id) + '">' +
         '<button class="batch-channel-trigger" type="button" data-batch-channel-toggle="' + escapeHtml(key) + '">' +
         '<span class="batch-channel-label">' + escapeHtml(active.id + ' - ' + active.name) + '</span>' +
-        '<span class="batch-channel-arrow">⌄</span>' +
+        '<span class="batch-channel-arrow"></span>' +
         '</button>' +
         '<div class="batch-channel-dropdown">' +
         channels.map(function(channel, index) {
@@ -4269,7 +4306,7 @@
         '<input type="hidden" data-batch-value="' + escapeHtml(key) + '" data-batch-field="' + escapeHtml(fieldId) + '" value="' + escapeHtml(multiple ? values.join(", ") : values[0]) + '">' +
         '<button class="inline-select-trigger" type="button" data-batch-select-toggle="' + escapeHtml(key) + '">' +
         '<span class="inline-select-label">' + escapeHtml(label) + '</span>' +
-        '<span class="inline-select-arrow">⌄</span>' +
+        '<span class="inline-select-arrow"></span>' +
         '</button>' +
         '<div class="inline-select-dropdown">' +
         meta.options.map(function(option) {

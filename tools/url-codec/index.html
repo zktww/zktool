@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>URL 编码与参数解析 · zktool</title>
     <meta name="description" content="URL encode/decode、查询参数解析与参数对象互转，全部在浏览器本地处理。" />
-    <meta name="theme-color" content="#f6f8fb" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
     <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/clipboard.js"></script>
 </head>
 <body>
 <div class="bg-fx" aria-hidden="true"></div>
@@ -29,6 +31,7 @@
                 <button class="btn" id="btnParams">解析参数</button>
                 <button class="btn danger" id="btnClear">清空</button>
             </div>
+            <div class="row"><label class="hint"><input type="checkbox" id="plusSpace" /> 解码时将 + 视为空格（表单查询字符串）</label></div>
         </section>
 
         <aside>
@@ -42,7 +45,7 @@
             </section>
             <section class="panel">
                 <h2>参数表</h2>
-                <div class="output" id="tableBox" style="min-height:4rem">暂无参数</div>
+                <div class="output min-h-4" id="tableBox">暂无参数</div>
             </section>
         </aside>
     </div>
@@ -104,12 +107,17 @@
         msg("已使用 encodeURIComponent 编码", true);
     };
     document.getElementById("btnDecode").onclick = function () {
-        try { setOut(decodeURIComponent(input.value.replace(/\+/g, " "))); msg("解码完成", true); }
+        var raw = input.value;
+        if (document.getElementById("plusSpace").checked) raw = raw.replace(/\+/g, " ");
+        try { setOut(decodeURIComponent(raw)); msg("解码完成", true); }
         catch (e) { msg("解码失败：" + e.message, false); }
     };
     document.getElementById("btnParams").onclick = parseParams;
     document.getElementById("btnClear").onclick = function () { input.value = ""; setOut(""); tableBox.textContent = "暂无参数"; status.className = "hint"; status.textContent = "已清空"; };
-    document.getElementById("btnCopy").onclick = function () { navigator.clipboard.writeText(output.textContent || ""); msg("结果已复制", true); };
+    document.getElementById("btnCopy").onclick = function () {
+        copyText(output.textContent || "").then(function () { msg("结果已复制", true); },
+            function () { msg("复制失败，请手动选择复制", false); });
+    };
 })();
 </script>
 </body>

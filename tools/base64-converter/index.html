@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Base64 编码转换 · zktool</title>
     <meta name="description" content="文本 Base64 编码解码、Hex 与 Unicode escape 转换，浏览器本地处理。" />
-    <meta name="theme-color" content="#f6f8fb" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
     <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/clipboard.js"></script>
 </head>
 <body>
 <div class="bg-fx" aria-hidden="true"></div>
@@ -22,9 +24,13 @@
             <div class="row">
                 <button class="btn primary" id="enc">Base64 编码</button>
                 <button class="btn" id="dec">Base64 解码</button>
-                <button class="btn" id="hex">转 Hex</button>
-                <button class="btn" id="uni">转 Unicode</button>
                 <button class="btn danger" id="clear">清空</button>
+            </div>
+            <div class="row">
+                <button class="btn" id="hex">转 Hex</button>
+                <button class="btn" id="unhex">Hex 转文本</button>
+                <button class="btn" id="uni">转 Unicode</button>
+                <button class="btn" id="ununi">Unicode 转文本</button>
             </div>
         </section>
         <aside>
@@ -53,10 +59,27 @@
         return btoa(bin);
     }
     function fromB64(s) {
-        var bin = atob(s.replace(/\s+/g, ""));
+        // 兼容 URL-safe 变体并补齐缺失的 padding
+        s = s.replace(/\s+/g, "").replace(/-/g, "+").replace(/_/g, "/");
+        if (s.length % 4) s += "====".slice(s.length % 4);
+        var bin = atob(s);
         var arr = new Uint8Array(bin.length);
         for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
         return dec.decode(arr);
+    }
+    function fromHex(s) {
+        s = s.replace(/(0x|[\s,])/g, "");
+        if (!s.length || s.length % 2 || /[^0-9a-f]/i.test(s)) throw new Error("不是有效的 Hex 字符串");
+        var arr = new Uint8Array(s.length / 2);
+        for (var i = 0; i < arr.length; i++) arr[i] = parseInt(s.substr(i * 2, 2), 16);
+        return dec.decode(arr);
+    }
+    function fromUnicode(s) {
+        var out = s.replace(/\\u\{([0-9a-f]+)\}|\\u([0-9a-f]{4})/gi, function (_, br, four) {
+            return String.fromCodePoint(parseInt(br || four, 16));
+        });
+        if (out === s && s.indexOf("\\u") >= 0) throw new Error("未识别到 \\u 转义序列");
+        return out;
     }
     function set(text, ok) { output.textContent = text; status.textContent = ok || "完成"; status.className = "hint ok"; updateStats(); }
     function fail(e) { status.textContent = "转换失败：" + e.message; status.className = "hint bad"; }
@@ -67,9 +90,14 @@
     document.getElementById("enc").onclick = function () { set(b64(input.value), "Base64 编码完成"); };
     document.getElementById("dec").onclick = function () { try { set(fromB64(input.value), "Base64 解码完成"); } catch (e) { fail(e); } };
     document.getElementById("hex").onclick = function () { set(Array.from(bytes(input.value)).map(function (n) { return n.toString(16).padStart(2, "0"); }).join(" "), "Hex 转换完成"); };
+    document.getElementById("unhex").onclick = function () { try { set(fromHex(input.value), "Hex 解码完成"); } catch (e) { fail(e); } };
     document.getElementById("uni").onclick = function () { set(Array.from(input.value).map(function (ch) { return "\\u{" + ch.codePointAt(0).toString(16).toUpperCase() + "}"; }).join(""), "Unicode escape 转换完成"); };
+    document.getElementById("ununi").onclick = function () { try { set(fromUnicode(input.value), "Unicode 解码完成"); } catch (e) { fail(e); } };
     document.getElementById("clear").onclick = function () { input.value = ""; output.textContent = ""; updateStats(); status.textContent = "已清空"; status.className = "hint"; };
-    document.getElementById("copy").onclick = function () { navigator.clipboard.writeText(output.textContent || ""); status.textContent = "结果已复制"; status.className = "hint ok"; };
+    document.getElementById("copy").onclick = function () {
+        copyText(output.textContent || "").then(function () { status.textContent = "结果已复制"; status.className = "hint ok"; },
+            function () { status.textContent = "复制失败，请手动选择复制"; status.className = "hint bad"; });
+    };
     input.addEventListener("input", updateStats); updateStats();
 })();
 </script>

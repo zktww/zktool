@@ -1,28 +1,5 @@
 @charset "UTF-8";
-
-:root {
-    color-scheme: light;
-    --bg: #f6f8fb;
-    --bg-soft: #f8fafc;
-    --surface: #ffffff;
-    --surface-hover: #f1f5f9;
-    --border: #e4e9f0;
-    --border-hover: #c9d4e3;
-    --text: #1e293b;
-    --text-2: #5b6b81;
-    --text-3: #94a3b8;
-    --brand: #2563eb;
-    --brand-soft: rgba(37, 99, 235, 0.1);
-    --ok: #10b981;
-    --danger: #ef4444;
-    --warn: #d97706;
-    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
-    --shadow-md: 0 8px 28px -14px rgba(15, 23, 42, 0.22);
-    --radius: 16px;
-    --font: "Inter", "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
-    --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
-    --ease: cubic-bezier(0.16, 1, 0.3, 1);
-}
+@import url("tokens.css");
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 [hidden] { display: none !important; }
@@ -45,7 +22,7 @@ body {
     z-index: -1;
     pointer-events: none;
     background:
-        radial-gradient(ellipse 55% 42% at 15% -8%, rgba(37, 99, 235, 0.075), transparent 62%),
+        radial-gradient(ellipse 55% 42% at 15% -8%, var(--brand-soft), transparent 62%),
         radial-gradient(ellipse 42% 34% at 88% 0%, rgba(14, 165, 233, 0.06), transparent 58%),
         radial-gradient(ellipse 46% 35% at 52% 110%, rgba(16, 185, 129, 0.045), transparent 62%),
         var(--bg);
@@ -56,8 +33,8 @@ body {
     position: absolute;
     inset: 0;
     background-image:
-        linear-gradient(rgba(15, 23, 42, 0.028) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(15, 23, 42, 0.028) 1px, transparent 1px);
+        linear-gradient(var(--grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size: 44px 44px;
     -webkit-mask-image: radial-gradient(ellipse 80% 62% at 50% 0%, #000 25%, transparent 88%);
     mask-image: radial-gradient(ellipse 80% 62% at 50% 0%, #000 25%, transparent 88%);
@@ -132,6 +109,15 @@ h1 .title { color: var(--brand); }
     align-items: start;
 }
 
+.tool-grid > aside {
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100vh - 2rem);
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+    min-width: 0;
+}
+
 .panel {
     min-width: 0;
     padding: 1.15rem;
@@ -157,9 +143,17 @@ h1 .title { color: var(--brand); }
 
 .row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.65rem; margin-bottom: 0.8rem; }
 .row:last-child { margin-bottom: 0; }
+.row .hint { margin-top: 0; }
 .grow { flex: 1; min-width: 0; }
+.w-8 { width: 8rem; }
+.min-h-4 { min-height: 4rem; }
+.min-h-5 { min-height: 5rem; }
+.min-h-6 { min-height: 6rem; }
+.min-h-8 { min-height: 8rem; }
 
 label, .label { color: var(--text-2); font-size: 0.86rem; }
+label > input, label > select, label > textarea { margin-top: 0.3rem; }
+
 input, textarea, select {
     width: 100%;
     min-width: 0;
@@ -173,6 +167,23 @@ input, textarea, select {
 }
 
 input, select { min-height: 2.5rem; padding: 0.55rem 0.75rem; }
+
+input[type="checkbox"], input[type="radio"] {
+    width: auto;
+    min-height: 0;
+    padding: 0;
+    margin-right: 0.35rem;
+    accent-color: var(--brand);
+    vertical-align: -0.1em;
+}
+
+input[type="color"] {
+    width: 3.2rem;
+    flex: 0 0 auto;
+    padding: 0.25rem;
+    cursor: pointer;
+}
+
 textarea {
     min-height: 14rem;
     padding: 0.75rem 0.85rem;
@@ -183,8 +194,13 @@ textarea {
 }
 
 input:focus, textarea:focus, select:focus {
-    border-color: rgba(37, 99, 235, 0.55);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    border-color: var(--brand-ring);
+    box-shadow: 0 0 0 3px var(--brand-ring-soft);
+}
+
+input:disabled, textarea:disabled, select:disabled, .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .btn {
@@ -214,32 +230,10 @@ input:focus, textarea:focus, select:focus {
     outline: none;
 }
 
+.btn:focus-visible { box-shadow: 0 0 0 3px var(--brand-ring-soft); }
 .btn:active { transform: scale(0.98); }
-.btn.primary { color: var(--brand); border-color: rgba(37, 99, 235, 0.28); background: var(--brand-soft); }
-.btn.danger { color: var(--danger); border-color: rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.06); }
-
-.seg {
-    display: inline-flex;
-    padding: 0.22rem;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: var(--surface);
-    box-shadow: var(--shadow-sm);
-}
-
-.seg button {
-    min-height: 2.05rem;
-    padding: 0.35rem 0.75rem;
-    border: 0;
-    border-radius: 9px;
-    background: transparent;
-    color: var(--text-2);
-    font: inherit;
-    font-size: 0.82rem;
-    cursor: pointer;
-}
-
-.seg button[aria-pressed="true"] { color: #fff; background: var(--brand); }
+.btn.primary { color: var(--brand); border-color: var(--brand-ring-soft); background: var(--brand-soft); }
+.btn.danger { color: var(--danger); border-color: var(--danger-border); background: var(--danger-soft); }
 
 .output {
     min-height: 10rem;
@@ -277,7 +271,7 @@ input:focus, textarea:focus, select:focus {
 .mono { font-family: var(--mono); }
 
 table { width: 100%; border-collapse: collapse; }
-th, td { padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.86rem; }
+th, td { padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.86rem; word-break: break-word; }
 th { color: var(--text-3); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
 tr:last-child td { border-bottom: 0; }
 
@@ -287,8 +281,14 @@ tr:last-child td { border-bottom: 0; }
     .meta { width: 100%; }
     h1 { align-items: flex-start; }
     .tool-grid { grid-template-columns: 1fr; }
+    .tool-grid > aside { position: static; max-height: none; overflow: visible; }
     .panel { padding: 1rem; border-radius: 14px; }
-    .btn, .seg { flex: 1 1 auto; }
+    .btn { flex: 1 1 auto; }
     .row { align-items: stretch; }
     textarea { min-height: 12rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
 }

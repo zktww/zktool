@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>文本差异比较 · zktool</title>
     <meta name="description" content="本地文本差异比较，行级新增、删除与未变内容高亮。" />
-    <meta name="theme-color" content="#f6f8fb" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
     <script src="../../assets/analytics.js"></script>
     <style>.diff-line{display:grid;grid-template-columns:3rem 1fr;gap:.6rem;padding:.18rem .35rem;border-radius:6px}.diff-line.add{background:rgba(16,185,129,.1)}.diff-line.del{background:rgba(239,68,68,.08)}.diff-line.same{color:var(--text-2)}.mark{font-family:var(--mono);color:var(--text-3)}</style>
@@ -39,6 +40,24 @@ tools: 11</textarea></label>
     var left = document.getElementById("left"), right = document.getElementById("right"), out = document.getElementById("out"), status = document.getElementById("status");
     function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
     function diff(a, b) {
+        // 先剥离公共前后缀，缩小 DP 规模
+        var pre = 0, suf = 0;
+        while (pre < a.length && pre < b.length && a[pre] === b[pre]) pre++;
+        while (suf < a.length - pre && suf < b.length - pre && a[a.length-1-suf] === b[b.length-1-suf]) suf++;
+        var ca = a.slice(pre, a.length - suf), cb = b.slice(pre, b.length - suf);
+        var mid;
+        if (ca.length * cb.length > 4000000) {
+            // 差异区过大时降级为整段删除+新增，避免 DP 表撑爆内存
+            mid = ca.map(function (l) { return ["del", l]; }).concat(cb.map(function (l) { return ["add", l]; }));
+            mid.degraded = true;
+        } else {
+            mid = lcsDiff(ca, cb);
+        }
+        var res = a.slice(0, pre).map(function (l) { return ["same", l]; }).concat(mid, a.slice(a.length - suf).map(function (l) { return ["same", l]; }));
+        res.degraded = mid.degraded;
+        return res;
+    }
+    function lcsDiff(a, b) {
         var n=a.length,m=b.length,dp=Array.from({length:n+1},function(){return Array(m+1).fill(0);});
         for(var i=n-1;i>=0;i--) for(var j=m-1;j>=0;j--) dp[i][j]=a[i]===b[j]?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1]);
         var res=[],x=0,y=0;
@@ -52,12 +71,15 @@ tools: 11</textarea></label>
             var mark = r[0]==="add" ? "+" : r[0]==="del" ? "-" : " ";
             return "<div class='diff-line "+r[0]+"'><span class='mark'>"+mark+"</span><span>"+esc(r[1] || " ")+"</span></div>";
         }).join("");
-        status.textContent = "新增 " + add + " 行，删除 " + del + " 行"; status.className = "hint " + (add||del ? "warn" : "ok");
+        status.textContent = "新增 " + add + " 行，删除 " + del + " 行" + (rows.degraded ? "（差异区过大，已降级为整段对比）" : "");
+        status.className = "hint " + (add||del ? "warn" : "ok");
     }
+    var timer = null;
+    function runDebounced() { clearTimeout(timer); timer = setTimeout(run, 200); }
     document.getElementById("run").onclick = run;
     document.getElementById("swap").onclick = function(){ var t=left.value; left.value=right.value; right.value=t; run(); };
     document.getElementById("clear").onclick = function(){ left.value=""; right.value=""; run(); };
-    [left,right].forEach(function(el){ el.addEventListener("input", run); }); run();
+    [left,right].forEach(function(el){ el.addEventListener("input", runDebounced); }); run();
 })();
 </script>
 </body>

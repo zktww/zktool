@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>正则表达式测试 · zktool</title>
     <meta name="description" content="在线测试 JavaScript 正则表达式，展示匹配、捕获组和替换结果。" />
-    <meta name="theme-color" content="#f6f8fb" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
     <script src="../../assets/analytics.js"></script>
-    <style>.match{background:rgba(37,99,235,.14);border-radius:4px;padding:0 .15rem}.group-card{margin:.35rem 0;padding:.55rem .7rem;border:1px solid var(--border);border-radius:10px;background:var(--bg-soft)}</style>
+    <style>.match{background:var(--brand-soft);border-radius:4px;padding:0 .15rem}.group-card{margin:.35rem 0;padding:.55rem .7rem;border:1px solid var(--border);border-radius:10px;background:var(--bg-soft)}</style>
 </head>
 <body>
 <div class="bg-fx" aria-hidden="true"></div>
@@ -19,7 +20,7 @@
     <div class="tool-grid">
         <section class="panel">
             <h2>表达式</h2>
-            <div class="row"><span class="label">/</span><input class="grow mono" id="pattern" value="(\w+)@(\w+\.\w+)" /><span class="label">/</span><input style="max-width:8rem" class="mono" id="flags" value="gi" /></div>
+            <div class="row"><span class="label">/</span><input class="grow mono" id="pattern" value="(\w+)@(\w+\.\w+)" /><span class="label">/</span><input class="mono w-8" id="flags" value="gi" /></div>
             <label>测试文本</label>
             <textarea id="text" spellcheck="false">联系 test@example.com 或 hello@zktool.dev</textarea>
             <label>替换模板</label>
@@ -28,8 +29,8 @@
         </section>
         <aside>
             <section class="panel"><h2>匹配高亮</h2><div class="output" id="highlight"></div><p class="hint" id="status"></p></section>
-            <section class="panel"><h2>捕获组</h2><div id="groups" class="output" style="min-height:5rem"></div></section>
-            <section class="panel"><h2>替换结果</h2><pre class="output" id="replaced" style="min-height:5rem"></pre></section>
+            <section class="panel"><h2>捕获组</h2><div id="groups" class="output min-h-5"></div></section>
+            <section class="panel"><h2>替换结果</h2><pre class="output min-h-5" id="replaced"></pre></section>
         </aside>
     </div>
 </main>
@@ -39,31 +40,66 @@
     var pattern = document.getElementById("pattern"), flags = document.getElementById("flags"), text = document.getElementById("text"), replace = document.getElementById("replace");
     var highlight = document.getElementById("highlight"), groups = document.getElementById("groups"), replaced = document.getElementById("replaced"), status = document.getElementById("status");
     function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
-    function run() {
-        var fl = flags.value || "";
-        if (fl.indexOf("g") < 0) fl += "g";
-        var re;
-        try { re = new RegExp(pattern.value, fl); } catch (e) { status.textContent = e.message; status.className = "hint bad"; return; }
-        var s = text.value, out = "", last = 0, count = 0, groupHtml = "";
-        s.replace(re, function () {
-            var m = arguments[0], idx = arguments[arguments.length - 2];
-            out += esc(s.slice(last, idx)) + "<span class='match'>" + esc(m) + "</span>";
-            last = idx + m.length; count++;
-            var caps = Array.prototype.slice.call(arguments, 1, -2);
-            groupHtml += "<div class='group-card'><b>#" + count + "</b> <span class='mono'>" + esc(m) + "</span>";
-            caps.forEach(function (g, i) { groupHtml += "<br><span class='mono'>$" + (i + 1) + " = " + esc(g) + "</span>"; });
+
+    function compute(data) {
+        var re = new RegExp(data.pattern, data.flags);
+        var matches = [], m;
+        while ((m = re.exec(data.text)) !== null) {
+            matches.push({ m: m[0], i: m.index, caps: m.slice(1), named: m.groups || null });
+            if (m[0] === "") re.lastIndex++;
+            if (matches.length >= 5000) break;
+        }
+        return { matches: matches, replaced: data.text.replace(new RegExp(data.pattern, data.flags), data.template) };
+    }
+
+    var workerSrc = "self.onmessage=function(e){try{var f=(" + compute.toString() + ")(e.data);self.postMessage({ok:true,matches:f.matches,replaced:f.replaced})}catch(err){self.postMessage({ok:false,error:err.message})}};";
+    var workerUrl = null, worker = null, timer = null, watchdog = null;
+    try { workerUrl = URL.createObjectURL(new Blob([workerSrc], { type: "text/javascript" })); } catch (e) { /* 降级为同步执行 */ }
+
+    function render(result, s) {
+        var out = "", last = 0, groupHtml = "";
+        result.matches.forEach(function (m, idx) {
+            out += esc(s.slice(last, m.i)) + "<span class='match'>" + esc(m.m) + "</span>";
+            last = m.i + m.m.length;
+            groupHtml += "<div class='group-card'><b>#" + (idx + 1) + "</b> <span class='mono'>" + esc(m.m) + "</span>";
+            m.caps.forEach(function (g, i) { groupHtml += "<br><span class='mono'>$" + (i + 1) + " = " + esc(g == null ? "undefined" : g) + "</span>"; });
+            if (m.named) Object.keys(m.named).forEach(function (k) { groupHtml += "<br><span class='mono'>$&lt;" + esc(k) + "&gt; = " + esc(m.named[k] == null ? "undefined" : m.named[k]) + "</span>"; });
             groupHtml += "</div>";
-            if (m === "") re.lastIndex++;
-            return m;
         });
         highlight.innerHTML = out + esc(s.slice(last));
         groups.innerHTML = groupHtml || "无匹配";
-        replaced.textContent = s.replace(re, replace.value);
-        status.textContent = "匹配 " + count + " 处"; status.className = "hint " + (count ? "ok" : "warn");
+        replaced.textContent = result.replaced;
+        status.textContent = "匹配 " + result.matches.length + " 处" + (result.matches.length >= 5000 ? "（仅展示前 5000 处）" : "");
+        status.className = "hint " + (result.matches.length ? "ok" : "warn");
     }
-    ["input","change"].forEach(function (ev) { [pattern, flags, text, replace].forEach(function (el) { el.addEventListener(ev, run); }); });
+
+    function run() {
+        var fl = flags.value || "";
+        if (fl.indexOf("g") < 0) fl += "g";
+        try { new RegExp(pattern.value, fl); } catch (e) { status.textContent = e.message; status.className = "hint bad"; return; }
+        var data = { pattern: pattern.value, flags: fl, text: text.value, template: replace.value };
+        if (!workerUrl) {
+            try { render(compute(data), data.text); } catch (e) { status.textContent = e.message; status.className = "hint bad"; }
+            return;
+        }
+        if (worker) { worker.terminate(); clearTimeout(watchdog); }
+        worker = new Worker(workerUrl);
+        status.textContent = "运行中..."; status.className = "hint";
+        watchdog = setTimeout(function () {
+            worker.terminate(); worker = null;
+            status.textContent = "执行超时（可能存在灾难性回溯），已中止"; status.className = "hint bad";
+        }, 1000);
+        worker.onmessage = function (e) {
+            clearTimeout(watchdog); worker.terminate(); worker = null;
+            if (e.data.ok) render(e.data, data.text);
+            else { status.textContent = e.data.error; status.className = "hint bad"; }
+        };
+        worker.postMessage(data);
+    }
+    function runDebounced() { clearTimeout(timer); timer = setTimeout(run, 200); }
+    ["input","change"].forEach(function (ev) { [pattern, flags, text, replace].forEach(function (el) { el.addEventListener(ev, runDebounced); }); });
     document.getElementById("run").onclick = run;
-    document.getElementById("sample").onclick = function () { pattern.value = "(https?:\\/\\/[^\\s]+)"; flags.value = "gi"; text.value = "官网 https://example.com 文档 http://docs.example.com"; replace.value = "<a href=\"$1\">$1</a>"; run(); };
+    document.getElementById("sample").onclick = function () { pattern.value = "(?<user>\\w+)@(?<domain>\\w+\\.\\w+)"; flags.value = "gi"; text.value = "联系 test@example.com 或 hello@zktool.dev"; replace.value = "$<user> at $<domain>"; run(); };
     document.getElementById("clear").onclick = function () { text.value = ""; run(); };
     run();
 })();

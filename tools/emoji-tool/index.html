@@ -5,29 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Emoji 符号库 · zktool</title>
     <meta name="description" content="按分类浏览 Unicode Emoji，支持中英文搜索、收藏、肤色切换与一键复制；数据来自开源 emoji 列表与 Unicode CLDR 中文标注。" />
-    <meta name="theme-color" content="#f6f8fb" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tokens.css" />
     <style>
-        :root {
-            color-scheme: light;
-            --bg: #f6f8fb;
-            --bg-soft: #f8fafc;
-            --surface: #ffffff;
-            --surface-hover: #f1f5f9;
-            --border: #e4e9f0;
-            --border-hover: #c9d4e3;
-            --text: #1e293b;
-            --text-2: #5b6b81;
-            --text-3: #94a3b8;
-            --brand-1: #5b6cf9;
-            --brand-2: #0ea5e9;
-            --brand-3: #8b5cf6;
-            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
-            --shadow-md: 0 6px 24px -8px rgba(15, 23, 42, 0.14);
-            --radius: 16px;
-            --ease: cubic-bezier(0.16, 1, 0.3, 1);
-            --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
-        }
-
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         [hidden] { display: none !important; }
 
@@ -71,8 +52,8 @@
             position: absolute;
             inset: 0;
             background-image:
-                linear-gradient(rgba(15, 23, 42, 0.028) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(15, 23, 42, 0.028) 1px, transparent 1px);
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
             background-size: 44px 44px;
             -webkit-mask-image: radial-gradient(ellipse 85% 65% at 50% 0%, #000 25%, transparent 78%);
             mask-image: radial-gradient(ellipse 85% 65% at 50% 0%, #000 25%, transparent 78%);
@@ -142,7 +123,7 @@
         }
 
         h1 .grad {
-            color: #2563eb;
+            color: var(--brand);
         }
 
         h1 svg { color: var(--brand-2); flex: none; }
@@ -180,7 +161,7 @@
             position: sticky;
             top: 0.6rem;
             z-index: 40;
-            background: rgba(255, 255, 255, 0.86);
+            background: var(--glass);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
         }
@@ -509,7 +490,7 @@
             height: 1.5rem;
             border-radius: 8px;
             border: none;
-            background: rgba(255, 255, 255, 0.88);
+            background: var(--glass);
             color: var(--text-3);
             cursor: pointer;
             display: inline-flex;
@@ -577,7 +558,7 @@
             gap: 0.5rem;
             padding: 0.62rem 1.2rem;
             border-radius: 999px;
-            background: rgba(255, 255, 255, 0.94);
+            background: var(--glass);
             border: 1px solid rgba(14, 165, 233, 0.35);
             color: var(--brand-2);
             font-size: 0.9rem;

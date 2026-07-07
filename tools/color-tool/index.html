@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>颜色转换与对比度 · zktool</title>
     <meta name="description" content="HEX、RGB、HSL 互转，调色、预览与 WCAG 对比度检查。" />
-    <meta name="theme-color" content="#f6f8fb" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
     <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/clipboard.js"></script>
     <style>.swatch{height:7rem;border-radius:14px;border:1px solid var(--border);box-shadow:var(--shadow-sm)}.mini{width:2.4rem;height:2.4rem;border-radius:10px;border:1px solid var(--border)}</style>
 </head>
 <body>
@@ -19,14 +21,14 @@
     <div class="tool-grid">
         <section class="panel">
             <h2>颜色</h2>
-            <div class="row"><input id="color" type="color" value="#2563eb" style="max-width:5rem;padding:.2rem" /><input id="text" class="mono grow" value="#2563eb" /></div>
+            <div class="row"><input id="color" type="color" value="#2563eb" /><input id="text" class="mono grow" value="#2563eb" /></div>
             <div class="swatch" id="swatch"></div>
-            <div class="row" style="margin-top:.9rem"><label class="grow">前景色<input id="fg" class="mono" value="#1e293b" /></label><label class="grow">背景色<input id="bg" class="mono" value="#ffffff" /></label></div>
+            <div class="row"><label class="grow">前景色<input id="fg" class="mono" value="#1e293b" /></label><label class="grow">背景色<input id="bg" class="mono" value="#ffffff" /></label></div>
         </section>
         <aside>
-            <section class="panel"><h2>格式</h2><pre class="output" id="formats" style="min-height:8rem"></pre><div class="row"><button class="btn primary" id="copy">复制格式</button></div></section>
+            <section class="panel"><h2>格式</h2><pre class="output min-h-8" id="formats"></pre><div class="row"><button class="btn primary" id="copy">复制格式</button></div><p class="hint" id="copyStatus"></p></section>
             <section class="panel"><h2>色阶</h2><div class="chips" id="palette"></div></section>
-            <section class="panel"><h2>对比度</h2><div class="output" id="contrast" style="min-height:4rem"></div></section>
+            <section class="panel"><h2>对比度</h2><div class="output min-h-4" id="contrast"></div></section>
         </aside>
     </div>
 </main>
@@ -56,13 +58,25 @@
             formats.textContent = [hx, "rgb(" + rgb.join(", ") + ")", "hsl(" + hs[0] + " " + hs[1] + "% " + hs[2] + "%)", "css var: --color: " + hx + ";"].join("\n");
             var shades = [0.75,0.5,0.25,0,0.25,0.5,0.75].map(function (t,i) { return i<3 ? mix(rgb,[255,255,255],t) : i===3 ? rgb : mix(rgb,[0,0,0],t); });
             palette.innerHTML = shades.map(function (c) { var h=hex(c); return "<span class='chip'><span class='mini' style='background:"+h+"'></span>"+h+"</span>"; }).join("");
-            var ratio = (Math.max(lum(parse(fg.value)), lum(parse(bg.value))) + .05) / (Math.min(lum(parse(fg.value)), lum(parse(bg.value))) + .05);
-            contrast.innerHTML = "<b class='mono'>" + ratio.toFixed(2) + ":1</b><br>" + (ratio >= 7 ? "<span class='ok'>AAA 通过</span>" : ratio >= 4.5 ? "<span class='ok'>AA 通过</span>" : "<span class='bad'>普通正文不达标</span>");
         } catch (e) { formats.textContent = e.message; }
+        renderContrast();
+    }
+    function renderContrast() {
+        try {
+            var lf = lum(parse(fg.value)), lb = lum(parse(bg.value));
+            var ratio = (Math.max(lf, lb) + .05) / (Math.min(lf, lb) + .05);
+            var normal = ratio >= 7 ? "<span class='ok'>AAA 通过</span>" : ratio >= 4.5 ? "<span class='ok'>AA 通过</span>" : "<span class='bad'>不达标</span>";
+            var large = ratio >= 4.5 ? "<span class='ok'>AAA 通过</span>" : ratio >= 3 ? "<span class='ok'>AA 通过</span>" : "<span class='bad'>不达标</span>";
+            contrast.innerHTML = "<b class='mono'>" + ratio.toFixed(2) + ":1</b><br>普通正文（≥4.5:1）：" + normal + "<br>大字号（≥3:1）：" + large;
+        } catch (e) { contrast.innerHTML = "<span class='bad'>" + e.message + "</span>"; }
     }
     color.oninput = function () { text.value = color.value; render(); };
     [text, fg, bg].forEach(function (el) { el.addEventListener("input", render); });
-    document.getElementById("copy").onclick = function () { navigator.clipboard.writeText(formats.textContent); };
+    document.getElementById("copy").onclick = function () {
+        var cs = document.getElementById("copyStatus");
+        copyText(formats.textContent).then(function () { cs.textContent = "已复制"; cs.className = "hint ok"; },
+            function () { cs.textContent = "复制失败，请手动选择复制"; cs.className = "hint bad"; });
+    };
     render();
 })();
 </script>

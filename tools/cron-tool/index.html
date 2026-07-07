@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Cron 表达式解析 · zktool</title>
     <meta name="description" content="解析常见 5 字段 Cron 表达式，预览未来执行时间。" />
-    <meta name="theme-color" content="#f6f8fb" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
     <script src="../../assets/analytics.js"></script>
 </head>
@@ -14,7 +15,7 @@
 <main class="wrap">
     <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">Cron</p></div>
     <h1><span class="title">Cron 表达式解析</span></h1>
-    <p class="lead">解析常见 5 字段 Cron：分钟、小时、日期、月份、星期，预览未来执行时间。适合 Linux crontab 风格表达式。</p>
+    <p class="lead">解析常见 5 字段 Cron：分钟、小时、日期、月份、星期，预览未来执行时间。日期与星期同时指定时按交集匹配。</p>
     <div class="tool-grid">
         <section class="panel">
             <h2>表达式</h2>
@@ -28,7 +29,7 @@
             <div class="row"><button class="btn primary" id="run">解析</button><span class="hint" id="status"></span></div>
         </section>
         <aside>
-            <section class="panel"><h2>字段说明</h2><div class="output" id="desc" style="min-height:6rem"></div></section>
+            <section class="panel"><h2>字段说明</h2><div class="output min-h-6" id="desc"></div></section>
             <section class="panel"><h2>未来 10 次</h2><div class="output" id="next"></div></section>
         </aside>
     </div>
@@ -67,12 +68,23 @@
                 return "<b>" + r[2] + "</b> <span class='mono'>" + parts[i] + "</span><br><span class='mono'>" + (vals.length > 18 ? vals.slice(0,18).join(", ") + " ..." : vals.join(", ")) + "</span>";
             }).join("<br><br>");
             var out = [], d = new Date(); d.setSeconds(0,0); d.setMinutes(d.getMinutes()+1);
-            var guard = 0;
-            while (out.length < 10 && guard < 600000) {
-                if (sets[0].has(d.getMinutes()) && sets[1].has(d.getHours()) && sets[2].has(d.getDate()) && sets[3].has(d.getMonth()+1) && sets[4].has(d.getDay())) out.push(fmt(d));
-                d.setMinutes(d.getMinutes()+1); guard++;
+            var minutes = Array.from(sets[0]).sort(function (a,b) { return a-b; });
+            var hours = Array.from(sets[1]).sort(function (a,b) { return a-b; });
+            var limit = new Date(d.getFullYear()+5, d.getMonth(), d.getDate());
+            while (out.length < 10 && d < limit) {
+                if (sets[2].has(d.getDate()) && sets[3].has(d.getMonth()+1) && sets[4].has(d.getDay())) {
+                    for (var hi = 0; hi < hours.length && out.length < 10; hi++) {
+                        if (hours[hi] < d.getHours()) continue;
+                        for (var mi = 0; mi < minutes.length && out.length < 10; mi++) {
+                            if (hours[hi] === d.getHours() && minutes[mi] < d.getMinutes()) continue;
+                            var t = new Date(d); t.setHours(hours[hi], minutes[mi], 0, 0);
+                            out.push(fmt(t));
+                        }
+                    }
+                }
+                d.setDate(d.getDate()+1); d.setHours(0,0,0,0);
             }
-            next.textContent = out.join("\n") || "未来范围内没有匹配";
+            next.textContent = out.join("\n") || "未来 5 年内没有匹配";
             status.textContent = "解析成功"; status.className = "hint ok";
         } catch (e) {
             status.textContent = e.message; status.className = "hint bad"; next.textContent = ""; desc.textContent = "";

@@ -6,7 +6,8 @@
 
 - **`tools/`** — 主角，日常开发辅助的小工具页；每模块独立文件夹，入口为 **`index.html`**。
 - **`demos/`** — 附属，交互探索、演示稿等偏展示向页面；同样每模块一个子文件夹 + **`index.html`**。
-- 根目录保留 **`index.html`** 总索引与 **`favicon.ico`**。
+- **`assets/`** — 公共资源：`tokens.css`（全站设计变量，含暗色模式）、`tool-page.css`（工具页公共样式）、`clipboard.js`（复制封装）、`vendor/`（第三方库本地副本）。
+- 根目录保留 **`index.html`** 总索引、**`favicon.ico`**、**`manifest.webmanifest`** 与 **`sw.js`**（PWA：托管到静态站点后支持离线使用；主页卡片支持收藏与最近使用置顶，数据存 localStorage）。
 
 ## 快速开始
 
@@ -28,6 +29,14 @@
 | [tools/cron-tool/](tools/cron-tool/) | Cron 表达式解析：字段解释与未来执行时间预览 |
 | [tools/color-tool/](tools/color-tool/) | 颜色转换与对比度：格式互转、色阶生成与 WCAG 检查 |
 | [tools/text-diff/](tools/text-diff/) | 文本差异比较：左右文本行级差异对比 |
+| [tools/hash-tool/](tools/hash-tool/) | Hash 计算器：文本/文件的 MD5、SHA-1、SHA-256、SHA-512 |
+| [tools/jwt-decoder/](tools/jwt-decoder/) | JWT 解析器：解码 Header/Payload、过期标注与 HS256 验签 |
+| [tools/json-converter/](tools/json-converter/) | JSON 格式互转：转 YAML、TS interface、Go struct、CSV |
+| [tools/text-case/](tools/text-case/) | 文本命名与行处理：命名风格互转、去重排序与统计 |
+| [tools/image-compressor/](tools/image-compressor/) | 图片压缩与转换：本地压缩转 WebP/JPEG/PNG |
+| [tools/http-reference/](tools/http-reference/) | HTTP 状态码与 MIME 速查：搜索过滤、点击复制 |
+| [tools/unicode-inspector/](tools/unicode-inspector/) | Unicode 字符检查器：码点/编码明细、零宽字符排查 |
+| [tools/sql-formatter/](tools/sql-formatter/) | SQL 格式化：多方言格式化与单行压缩 |
 | [二维码生成器](https://qc.zktww.cn/) | 外部工具：二维码生成服务 |
 
 ## 工具说明
@@ -75,6 +84,38 @@
 ### 文本差异比较（`tools/text-diff/`）
 
 左右输入两段文本，基于 LCS 做行级差异对比，高亮新增、删除和未变内容，适合快速比较配置、日志和接口响应片段。
+
+### Hash 计算器（`tools/hash-tool/`）
+
+计算文本或文件（拖拽/选择）的 MD5、SHA-1、SHA-256、SHA-512 摘要；SHA 系列基于 Web Crypto，MD5 为内置实现，文件不会上传。
+
+### JWT 解析器（`tools/jwt-decoder/`）
+
+本地解码 JWT 的 Header 与 Payload，标注 `exp` / `iat` / `nbf` 的本地时间与过期状态；填入密钥可用 Web Crypto 做 HS256 本地验签，Token 不离开浏览器。
+
+### JSON 格式互转（`tools/json-converter/`）
+
+把 JSON 转换为 YAML、TypeScript interface、Go struct（含 json tag）或 CSV（要求对象数组），适合写配置、定义类型与导出数据。
+
+### 文本命名与行处理（`tools/text-case/`）
+
+camelCase、PascalCase、snake_case、kebab-case、CONSTANT_CASE 等命名风格互转（多行批量、支持 HTTPResponse 类缩写边界），以及行去重、排序、去空行、倒序与字符/词/行统计；支持「用结果替换输入」叠加操作。
+
+### 图片压缩与转换（`tools/image-compressor/`）
+
+基于 Canvas 在本地压缩图片并转换 WebP / JPEG / PNG，可调质量与最大边长，展示转换前后体积对比；支持拖拽和粘贴图片，不上传服务器。
+
+### HTTP 状态码与 MIME 速查（`tools/http-reference/`）
+
+常用 HTTP 状态码含义（含排查提示）与常用 MIME 类型 / 扩展名对照，双页签切换、关键词过滤、点击条目复制。
+
+### Unicode 字符检查器（`tools/unicode-inspector/`）
+
+逐字符展示码点、UTF-8 / UTF-16 编码与字符类别，高亮零宽字符、控制字符、BOM 等不可见字符并支持一键清除（保留换行和制表符）；适合排查"看起来一样但比对不过"的文本问题。
+
+### SQL 格式化（`tools/sql-formatter/`）
+
+基于本地 vendor 的 [sql-formatter](https://github.com/sql-formatter-org/sql-formatter) 格式化 SQL，支持 MySQL、PostgreSQL、SQLite、T-SQL 等方言与关键字大小写、缩进风格；另提供保留字符串字面量的单行压缩。
 
 ### 二维码生成器（外部工具）
 

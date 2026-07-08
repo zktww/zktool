@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>文本命名与行处理 · zktool</title>
+    <meta name="description" content="camelCase、snake_case、kebab-case 等命名风格互转，行去重、排序与统计。" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/clipboard.js"></script>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">Text case</p></div>
+    <h1><span class="title">文本命名与行处理</span></h1>
+    <p class="lead">命名风格互转（支持多行批量），以及行级去重、排序、去空行；改字段名、整理清单的顺手工具。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>输入（每行一条）</h2>
+            <textarea id="input" spellcheck="false">user_name
+createdAt
+order-item-id
+HTTPResponseCode</textarea>
+            <div class="row">
+                <button class="btn primary" data-case="camel">camelCase</button>
+                <button class="btn" data-case="pascal">PascalCase</button>
+                <button class="btn" data-case="snake">snake_case</button>
+                <button class="btn" data-case="kebab">kebab-case</button>
+                <button class="btn" data-case="constant">CONSTANT_CASE</button>
+            </div>
+            <div class="row">
+                <button class="btn" data-case="upper">全大写</button>
+                <button class="btn" data-case="lower">全小写</button>
+                <button class="btn" data-case="title">Title Case</button>
+            </div>
+            <div class="row">
+                <button class="btn" data-line="dedupe">去重</button>
+                <button class="btn" data-line="sort">排序 A→Z</button>
+                <button class="btn" data-line="rsort">排序 Z→A</button>
+                <button class="btn" data-line="trim">去空行/首尾空白</button>
+                <button class="btn" data-line="reverse">倒序</button>
+                <button class="btn danger" id="clear">清空</button>
+            </div>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>结果</h2>
+                <pre class="output" id="output"></pre>
+                <div class="row"><button class="btn primary" id="copy">复制结果</button><button class="btn" id="use">用结果替换输入</button></div>
+                <p class="hint" id="status"></p>
+            </section>
+            <section class="panel"><h2>统计</h2><div class="chips" id="stats"></div></section>
+        </aside>
+    </div>
+</main>
+<script>
+(function () {
+    "use strict";
+    var input = document.getElementById("input"), output = document.getElementById("output"), status = document.getElementById("status"), stats = document.getElementById("stats");
+
+    /* 拆词：兼容 snake/kebab/space 分隔与驼峰边界（含 HTTPResponse → HTTP Response） */
+    function words(s) {
+        return s
+            .replace(/[_\-./]+/g, " ")
+            .replace(/([a-z\d])([A-Z])/g, "$1 $2")
+            .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+            .trim().split(/\s+/).filter(Boolean);
+    }
+    var cases = {
+        camel: function (s) { return words(s).map(function (w, i) { return i ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toLowerCase(); }).join(""); },
+        pascal: function (s) { return words(s).map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }).join(""); },
+        snake: function (s) { return words(s).map(function (w) { return w.toLowerCase(); }).join("_"); },
+        kebab: function (s) { return words(s).map(function (w) { return w.toLowerCase(); }).join("-"); },
+        constant: function (s) { return words(s).map(function (w) { return w.toUpperCase(); }).join("_"); },
+        upper: function (s) { return s.toUpperCase(); },
+        lower: function (s) { return s.toLowerCase(); },
+        title: function (s) { return words(s).map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }).join(" "); },
+    };
+    var lineOps = {
+        dedupe: function (ls) { var seen = new Set(); return ls.filter(function (l) { if (seen.has(l)) return false; seen.add(l); return true; }); },
+        sort: function (ls) { return ls.slice().sort(function (a, b) { return a.localeCompare(b, "zh-Hans-CN"); }); },
+        rsort: function (ls) { return ls.slice().sort(function (a, b) { return b.localeCompare(a, "zh-Hans-CN"); }); },
+        trim: function (ls) { return ls.map(function (l) { return l.trim(); }).filter(Boolean); },
+        reverse: function (ls) { return ls.slice().reverse(); },
+    };
+
+    function lines() { return input.value.split(/\r?\n/); }
+    function setOut(arr, label) {
+        output.textContent = arr.join("\n");
+        status.textContent = label + "（" + arr.length + " 行）"; status.className = "hint ok";
+        updateStats();
+    }
+    function updateStats() {
+        var v = input.value, ls = v ? v.split(/\r?\n/) : [];
+        var wordsCount = v.trim() ? v.trim().split(/\s+/).length : 0;
+        stats.innerHTML = "<span class='chip'>行 " + ls.length + "</span><span class='chip'>词 " + wordsCount + "</span><span class='chip'>字符 " + v.length + "</span><span class='chip'>去重后 " + new Set(ls).size + " 行</span>";
+    }
+
+    Array.from(document.querySelectorAll("[data-case]")).forEach(function (b) {
+        b.onclick = function () {
+            var fn = cases[b.getAttribute("data-case")];
+            setOut(lines().map(function (l) { return l.trim() ? fn(l.trim()) : l; }), b.textContent);
+        };
+    });
+    Array.from(document.querySelectorAll("[data-line]")).forEach(function (b) {
+        b.onclick = function () { setOut(lineOps[b.getAttribute("data-line")](lines()), b.textContent); };
+    });
+    document.getElementById("clear").onclick = function () { input.value = ""; output.textContent = ""; status.textContent = "已清空"; status.className = "hint"; updateStats(); };
+    document.getElementById("use").onclick = function () { if (output.textContent) { input.value = output.textContent; updateStats(); status.textContent = "已替换输入，可继续叠加操作"; status.className = "hint ok"; } };
+    document.getElementById("copy").onclick = function () {
+        copyText(output.textContent || "").then(function () { status.textContent = "结果已复制"; status.className = "hint ok"; },
+            function () { status.textContent = "复制失败，请手动选择复制"; status.className = "hint bad"; });
+    };
+    input.addEventListener("input", updateStats);
+    updateStats();
+})();
+</script>
+</body>
+</html>

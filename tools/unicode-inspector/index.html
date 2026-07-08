@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Unicode 字符检查器 · zktool</title>
+    <meta name="description" content="逐字符查看码点、UTF-8/UTF-16 编码，高亮零宽字符与不可见字符，排查诡异文本问题。" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/clipboard.js"></script>
+    <style>
+        .char-row { display:grid; grid-template-columns:3rem 7rem 1fr; gap:.6rem; align-items:center; padding:.4rem .55rem; border:1px solid var(--border); border-radius:8px; background:var(--surface); margin-bottom:.35rem; font-size:.82rem; }
+        .char-row .glyph { font-size:1.3rem; text-align:center; background:var(--bg-soft); border-radius:6px; padding:.15rem 0; min-height:2rem; display:flex; align-items:center; justify-content:center; }
+        .char-row .cp { font-family:var(--mono); }
+        .char-row .info { color:var(--text-2); min-width:0; word-break:break-all; }
+        .char-row.invisible-char { border-color: var(--danger-border); background: var(--danger-soft); }
+        .char-row.invisible-char .cp { color: var(--danger); font-weight:700; }
+    </style>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">Unicode</p></div>
+    <h1><span class="title">Unicode 字符检查器</span></h1>
+    <p class="lead">逐字符展示码点与编码，高亮零宽字符、控制字符等「看不见的坑」；排查"看起来一样但比对不过"的文本问题。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>输入</h2>
+            <textarea id="input" spellcheck="false" placeholder="粘贴要检查的文本...">zk​tool（这段里藏了一个零宽空格）</textarea>
+            <div class="row">
+                <button class="btn primary" id="cleanBtn">清除不可见字符</button>
+                <button class="btn danger" id="clear">清空</button>
+            </div>
+            <p class="hint" id="status"></p>
+            <div class="chips" id="stats"></div>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>字符明细</h2>
+                <div id="list"></div>
+                <p class="hint" id="more"></p>
+            </section>
+        </aside>
+    </div>
+</main>
+<script>
+(function () {
+    "use strict";
+    var input = document.getElementById("input"), list = document.getElementById("list"), stats = document.getElementById("stats"), status = document.getElementById("status"), more = document.getElementById("more");
+    var MAX_ROWS = 300;
+    var NAMES = {
+        0x0009:"TAB 制表符",0x000A:"LF 换行",0x000D:"CR 回车",0x0020:"空格",
+        0x00A0:"不间断空格 NBSP",0x00AD:"软连字符 SHY",
+        0x200B:"零宽空格 ZWSP",0x200C:"零宽不连字 ZWNJ",0x200D:"零宽连字 ZWJ",
+        0x200E:"从左到右标记 LRM",0x200F:"从右到左标记 RLM",
+        0x2028:"行分隔符 LS",0x2029:"段分隔符 PS",0x202A:"LRE",0x202B:"RLE",0x202C:"PDF",0x202D:"LRO",0x202E:"RLO（方向覆盖，常用于伪装文件名）",
+        0x2060:"词连接符 WJ",0x3000:"全角空格",0xFEFF:"BOM / 零宽不间断空格",0xFE0F:"变体选择符 VS16（emoji 化）",0xFE0E:"变体选择符 VS15（文本化）",
+    };
+    function isInvisible(cp) {
+        if (NAMES[cp] && cp !== 0x0020 && cp !== 0x3000) return cp !== 0x0009 && cp !== 0x000A && cp !== 0x000D ? true : false;
+        if (cp < 0x20 || (cp >= 0x7F && cp <= 0x9F)) return true;
+        if (cp >= 0x2000 && cp <= 0x200A) return true;   /* 各种宽度空格 */
+        if (cp >= 0xE0000 && cp <= 0xE007F) return true; /* tag 字符 */
+        return false;
+    }
+    function utf8Hex(ch) {
+        return Array.from(new TextEncoder().encode(ch)).map(function (b) { return b.toString(16).toUpperCase().padStart(2, "0"); }).join(" ");
+    }
+    function utf16Hex(ch) {
+        var out = [];
+        for (var i = 0; i < ch.length; i++) out.push(ch.charCodeAt(i).toString(16).toUpperCase().padStart(4, "0"));
+        return out.join(" ");
+    }
+    function describe(cp) {
+        if (NAMES[cp]) return NAMES[cp];
+        if (cp < 0x20) return "控制字符";
+        if (cp >= 0x4E00 && cp <= 0x9FFF) return "CJK 统一汉字";
+        if (cp >= 0x3040 && cp <= 0x30FF) return "日文假名";
+        if (cp >= 0xAC00 && cp <= 0xD7AF) return "谚文音节";
+        if (cp >= 0x0400 && cp <= 0x04FF) return "西里尔字母（注意与拉丁字母同形）";
+        if (cp >= 0x1F000) return "Emoji / 符号补充区";
+        if (cp >= 0xD800 && cp <= 0xDFFF) return "孤立代理项（损坏的编码）";
+        return "";
+    }
+    function render() {
+        var chars = Array.from(input.value);
+        var invisibleCount = 0, html = "";
+        chars.slice(0, MAX_ROWS).forEach(function (ch, i) {
+            var cp = ch.codePointAt(0);
+            var inv = isInvisible(cp);
+            if (inv) invisibleCount++;
+            var glyph = inv ? "·" : ch === "\n" ? "⏎" : ch === "\t" ? "⇥" : ch;
+            html += "<div class='char-row" + (inv ? " invisible-char" : "") + "'>" +
+                "<span class='glyph'>" + (glyph === "<" ? "&lt;" : glyph === "&" ? "&amp;" : glyph) + "</span>" +
+                "<span class='cp'>U+" + cp.toString(16).toUpperCase().padStart(4, "0") + "</span>" +
+                "<span class='info'>" + (describe(cp) || "#" + (i + 1)) + " · UTF-8: " + utf8Hex(ch) + " · UTF-16: " + utf16Hex(ch) + "</span></div>";
+        });
+        /* 超出展示上限的部分也要统计不可见字符 */
+        chars.slice(MAX_ROWS).forEach(function (ch) { if (isInvisible(ch.codePointAt(0))) invisibleCount++; });
+        list.innerHTML = html || "<p class='hint'>暂无内容</p>";
+        more.textContent = chars.length > MAX_ROWS ? "仅展示前 " + MAX_ROWS + " 个字符（共 " + chars.length + " 个）" : "";
+        var bytes = new TextEncoder().encode(input.value).length;
+        stats.innerHTML = "<span class='chip'>码点 " + chars.length + "</span><span class='chip'>UTF-16 单元 " + input.value.length + "</span><span class='chip'>UTF-8 字节 " + bytes + "</span>" +
+            (invisibleCount ? "<span class='chip' style='color:var(--danger)'>不可见字符 " + invisibleCount + "</span>" : "<span class='chip'>无不可见字符</span>");
+        if (invisibleCount) { status.textContent = "发现 " + invisibleCount + " 个不可见/零宽字符，已在右侧高亮"; status.className = "hint warn"; }
+        else { status.textContent = "未发现不可见字符"; status.className = "hint ok"; }
+    }
+    var t; input.addEventListener("input", function () { clearTimeout(t); t = setTimeout(render, 200); });
+    document.getElementById("cleanBtn").onclick = function () {
+        var cleaned = Array.from(input.value).filter(function (ch) {
+            var cp = ch.codePointAt(0);
+            return !isInvisible(cp) || cp === 0x0009 || cp === 0x000A || cp === 0x000D;
+        }).join("");
+        var removed = Array.from(input.value).length - Array.from(cleaned).length;
+        input.value = cleaned; render();
+        status.textContent = removed ? "已移除 " + removed + " 个不可见字符（保留换行和制表符）" : "没有需要移除的字符";
+        status.className = "hint ok";
+    };
+    document.getElementById("clear").onclick = function () { input.value = ""; render(); status.textContent = "已清空"; status.className = "hint"; };
+    render();
+})();
+</script>
+</body>
+</html>

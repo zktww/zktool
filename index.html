@@ -8,6 +8,7 @@
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="favicon.ico" />
+    <link rel="manifest" href="manifest.webmanifest" />
     <link rel="stylesheet" href="assets/tokens.css" />
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -324,6 +325,42 @@
         .card:hover .card-cta { gap: 0.6rem; }
         .card-cta svg { width: 13px; height: 13px; }
 
+        /* ── 收藏与最近使用 ── */
+        .fav-btn {
+            position: absolute;
+            top: 0.6rem;
+            right: 0.6rem;
+            z-index: 2;
+            width: 2rem; height: 2rem;
+            display: grid;
+            place-items: center;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-3);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s, color 0.2s, background 0.2s;
+        }
+        .card:hover .fav-btn, .fav-btn:focus-visible, .fav-btn.on { opacity: 1; }
+        .fav-btn:hover, .fav-btn:focus-visible { background: var(--surface-2); outline: none; }
+        .fav-btn.on { color: #f59e0b; }
+        .fav-btn svg { width: 16px; height: 16px; }
+        .fav-btn.on svg { fill: currentColor; }
+        .card .tag { margin-right: 1.6rem; }
+        .badge-recent {
+            font-size: 0.62rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            color: var(--brand-1);
+            background: var(--brand-soft);
+            border-radius: 999px;
+            padding: 0.1rem 0.5rem;
+            margin-left: 0.4rem;
+            flex-shrink: 0;
+        }
+        @media (hover: none) { .fav-btn { opacity: 0.6; } }
+
         /* ── 空状态 ── */
         .empty {
             text-align: center;
@@ -397,8 +434,8 @@
             <kbd>/</kbd>
         </div>
         <div class="filters" role="tablist" aria-label="分类筛选">
-            <button class="active" data-filter="all" role="tab" aria-selected="true">全部 <span class="count">16</span></button>
-            <button data-filter="tool" role="tab" aria-selected="false">工具 <span class="count">12</span></button>
+            <button class="active" data-filter="all" role="tab" aria-selected="true">全部 <span class="count">24</span></button>
+            <button data-filter="tool" role="tab" aria-selected="false">工具 <span class="count">20</span></button>
             <button data-filter="demo" role="tab" aria-selected="false">演示 <span class="count">4</span></button>
         </div>
     </div>
@@ -538,6 +575,102 @@
                 <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
+            <a class="card" href="tools/hash-tool/" data-kw="hash md5 sha1 sha256 sha512 摘要 校验 checksum 文件">
+                <div class="card-head">
+                    <span class="card-icon" style="--c1:#65a30d;--c2:#0d9488" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16"/><path d="M4 15h16"/><path d="M10 3 8 21"/><path d="M16 3l-2 18"/></svg>
+                    </span>
+                    <span class="card-title">Hash 计算器</span>
+                    <span class="tag">摘要</span>
+                </div>
+                <p class="card-desc">计算文本或文件的 MD5 / SHA-1 / SHA-256 / SHA-512，支持拖拽文件。</p>
+                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+            </a>
+
+            <a class="card" href="tools/jwt-decoder/" data-kw="jwt token 解析 解码 decode 过期 签名 hs256 bearer">
+                <div class="card-head">
+                    <span class="card-icon" style="--c1:#d946ef;--c2:#f43f5e" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </span>
+                    <span class="card-title">JWT 解析器</span>
+                    <span class="tag">Token</span>
+                </div>
+                <p class="card-desc">本地解码 JWT 的 Header 与 Payload，标注过期状态，可选 HS256 验签。</p>
+                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+            </a>
+
+            <a class="card" href="tools/json-converter/" data-kw="json yaml typescript interface go struct csv 转换 convert 类型">
+                <div class="card-head">
+                    <span class="card-icon" style="--c1:#ea580c;--c2:#eab308" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></svg>
+                    </span>
+                    <span class="card-title">JSON 格式互转</span>
+                    <span class="tag">转换</span>
+                </div>
+                <p class="card-desc">JSON 转 YAML、TypeScript interface、Go struct 与 CSV，写配置定类型一步到位。</p>
+                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+            </a>
+
+            <a class="card" href="tools/text-case/" data-kw="大小写 camel snake kebab pascal constant 命名 转换 去重 排序 行">
+                <div class="card-head">
+                    <span class="card-icon" style="--c1:#2563eb;--c2:#7c3aed" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4-10 4 10"/><path d="M4.5 13h5"/><path d="M15 9a3 3 0 0 1 6 0v7"/><path d="M21 12.5c-1 .5-2.5 1-4 1a2 2 0 0 0 0 4c1.5 0 3-.8 4-1.5"/></svg>
+                    </span>
+                    <span class="card-title">文本命名与行处理</span>
+                    <span class="tag">文本</span>
+                </div>
+                <p class="card-desc">camelCase / snake_case 等命名互转，行去重、排序、去空行与统计。</p>
+                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+            </a>
+
+            <a class="card" href="tools/image-compressor/" data-kw="图片 压缩 webp jpeg png 转换 image compress 体积">
+                <div class="card-head">
+                    <span class="card-icon" style="--c1:#0ea5e9;--c2:#10b981" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>
+                    </span>
+                    <span class="card-title">图片压缩与转换</span>
+                    <span class="tag">图片</span>
+                </div>
+                <p class="card-desc">本地压缩并转换 WebP / JPEG / PNG，调质量看体积对比，不上传服务器。</p>
+                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+            </a>
+
+            <a class="card" href="tools/http-reference/" data-kw="http 状态码 status code mime content-type 速查 404 500">
+                <div class="card-head">
+                    <span class="card-icon" style="--c1:#f59e0b;--c2:#ef4444" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                    </span>
+                    <span class="card-title">HTTP 状态码与 MIME 速查</span>
+                    <span class="tag">速查</span>
+                </div>
+                <p class="card-desc">常用状态码含义与 MIME 类型对照，搜索过滤、点击复制。</p>
+                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+            </a>
+
+            <a class="card" href="tools/unicode-inspector/" data-kw="unicode 字符 码点 零宽 不可见 编码 utf8 utf16 检查">
+                <div class="card-head">
+                    <span class="card-icon" style="--c1:#8b5cf6;--c2:#0ea5e9" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 9 6 6"/><path d="M15 9v6h-6"/></svg>
+                    </span>
+                    <span class="card-title">Unicode 字符检查器</span>
+                    <span class="tag">Unicode</span>
+                </div>
+                <p class="card-desc">逐字符查看码点与编码，揪出零宽字符、同形字等看不见的坑。</p>
+                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+            </a>
+
+            <a class="card" href="tools/sql-formatter/" data-kw="sql 格式化 美化 压缩 mysql postgresql format">
+                <div class="card-head">
+                    <span class="card-icon" style="--c1:#0d9488;--c2:#2563eb" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>
+                    </span>
+                    <span class="card-title">SQL 格式化</span>
+                    <span class="tag">SQL</span>
+                </div>
+                <p class="card-desc">格式化或压缩 SQL，支持 MySQL、PostgreSQL 等常见方言与关键字风格。</p>
+                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+            </a>
+
             <a class="card" href="https://qc.zktww.cn/" target="_blank" rel="noopener noreferrer" data-kw="二维码 生成器 qrcode qr code 链接 外部">
                 <div class="card-head">
                     <span class="card-icon" style="--c1:#0f766e;--c2:#2563eb" aria-hidden="true">
@@ -621,6 +754,86 @@
         var emptyQ = document.getElementById('empty-q');
         var activeFilter = 'all';
 
+        /* ── 收藏与最近使用（localStorage，失败时静默降级） ── */
+        function readLS(key) {
+            try { return JSON.parse(localStorage.getItem(key)) || []; } catch (e) { return []; }
+        }
+        function writeLS(key, val) {
+            try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* 隐私模式等场景忽略 */ }
+        }
+        var favs = readLS('zktool.favs');
+        var recents = readLS('zktool.recents');
+        var starSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+
+        function cardId(card) { return card.getAttribute('href'); }
+
+        function sortCards() {
+            groups.forEach(function (g) {
+                var grid = g.querySelector('.grid');
+                if (!grid) return;
+                var cards = Array.prototype.slice.call(grid.querySelectorAll('.card'));
+                cards
+                    .map(function (c, i) {
+                        var id = cardId(c);
+                        var fav = favs.indexOf(id) >= 0 ? 1 : 0;
+                        var ri = recents.indexOf(id);
+                        return { el: c, fav: fav, recent: ri >= 0 ? recents.length - ri : 0, idx: i };
+                    })
+                    .sort(function (a, b) { return (b.fav - a.fav) || (b.recent - a.recent) || (a.idx - b.idx); })
+                    .forEach(function (item) { grid.appendChild(item.el); });
+            });
+        }
+
+        function decorate() {
+            groups.forEach(function (g) {
+                Array.prototype.forEach.call(g.querySelectorAll('.card'), function (card) {
+                    var id = cardId(card);
+                    /* 星标按钮 */
+                    var btn = card.querySelector('.fav-btn');
+                    if (!btn) {
+                        btn = document.createElement('button');
+                        btn.className = 'fav-btn';
+                        btn.type = 'button';
+                        btn.innerHTML = starSvg;
+                        btn.addEventListener('click', function (e) {
+                            e.preventDefault(); e.stopPropagation();
+                            var i = favs.indexOf(id);
+                            if (i >= 0) favs.splice(i, 1); else favs.unshift(id);
+                            writeLS('zktool.favs', favs);
+                            decorate(); sortCards();
+                        });
+                        card.appendChild(btn);
+                    }
+                    var on = favs.indexOf(id) >= 0;
+                    btn.classList.toggle('on', on);
+                    btn.setAttribute('aria-label', on ? '取消收藏' : '收藏');
+                    btn.title = on ? '取消收藏' : '收藏';
+                    /* 最近使用徽标（收藏优先，不重复挂） */
+                    var head = card.querySelector('.card-head');
+                    var mark = head.querySelector('.badge-recent');
+                    var isRecent = !on && recents.indexOf(id) >= 0 && recents.indexOf(id) < 3;
+                    if (isRecent && !mark) {
+                        mark = document.createElement('span');
+                        mark.className = 'badge-recent';
+                        mark.textContent = '最近';
+                        head.appendChild(mark);
+                    } else if (!isRecent && mark) mark.remove();
+                });
+            });
+        }
+
+        /* 记录点击（捕获阶段，中键/新标签也算）——只挂一次 */
+        document.addEventListener('click', function (e) {
+            var card = e.target.closest && e.target.closest('.card');
+            if (!card || e.target.closest('.fav-btn')) return;
+            var id = cardId(card);
+            var i = recents.indexOf(id);
+            if (i >= 0) recents.splice(i, 1);
+            recents.unshift(id);
+            if (recents.length > 8) recents.length = 8;
+            writeLS('zktool.recents', recents);
+        }, true);
+
         function apply() {
             var kw = q.value.trim().toLowerCase();
             var visibleTotal = 0;
@@ -667,6 +880,13 @@
                 q.blur();
             }
         });
+
+        decorate();
+        sortCards();
+
+        if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+            navigator.serviceWorker.register('sw.js').catch(function () { /* 注册失败不影响使用 */ });
+        }
     })();
 </script>
 </body>

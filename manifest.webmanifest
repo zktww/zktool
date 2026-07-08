@@ -1,0 +1,15 @@
+{
+    "name": "zktool 工具与演示集",
+    "short_name": "zktool",
+    "description": "纯静态本地处理的开发者小工具集",
+    "lang": "zh-CN",
+    "start_url": "./",
+    "scope": "./",
+    "display": "standalone",
+    "background_color": "#f6f8fb",
+    "theme_color": "#2563eb",
+    "icons": [
+        { "src": "favicon.ico", "sizes": "48x48", "type": "image/x-icon" },
+        { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    ]
+}

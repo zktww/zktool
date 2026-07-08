@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>图片压缩与格式转换 · zktool</title>
+    <meta name="description" content="浏览器本地压缩图片并转换 WebP / JPEG / PNG，不上传服务器。" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <style>
+        .drop { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.4rem; min-height:9rem; border:2px dashed var(--border); border-radius:12px; color:var(--text-3); font-size:.86rem; cursor:pointer; transition:border-color .2s, background .2s; }
+        .drop.over, .drop:hover { border-color: var(--brand-ring); background: var(--brand-soft); color: var(--text-2); }
+        .preview { display:block; max-width:100%; max-height:20rem; margin:0 auto .8rem; border-radius:10px; border:1px solid var(--border); background:repeating-conic-gradient(var(--surface-2) 0% 25%, var(--surface) 0% 50%) 0 0/16px 16px; }
+        .cmp { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; text-align:center; }
+        .cmp .box { padding:.6rem; border:1px solid var(--border); border-radius:10px; background:var(--bg-soft); }
+        .cmp .num { font-family:var(--mono); font-size:1.05rem; font-weight:700; }
+        .cmp small { color:var(--text-3); }
+        .quality-row output { font-family:var(--mono); min-width:3ch; }
+        input[type="range"] { min-height:0; padding:0; accent-color:var(--brand); border:none; background:transparent; }
+    </style>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">Image</p></div>
+    <h1><span class="title">图片压缩与格式转换</span></h1>
+    <p class="lead">选择图片，本地压缩并转换为 WebP / JPEG / PNG，可调质量与最大边长；图片不会上传，全部在浏览器内完成。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>图片</h2>
+            <div class="drop" id="drop" tabindex="0" role="button" aria-label="选择或拖入图片">
+                <span>拖入图片，或点击选择</span>
+                <span class="mono" id="fileInfo">支持 PNG / JPEG / WebP / GIF / AVIF</span>
+            </div>
+            <input type="file" id="file" accept="image/*" hidden />
+            <div class="row quality-row">
+                <label class="grow">输出格式<select id="format"><option value="image/webp">WebP</option><option value="image/jpeg">JPEG</option><option value="image/png">PNG（无损，忽略质量）</option></select></label>
+                <label class="grow">最大边长<select id="maxSize"><option value="0">不缩放</option><option value="2560">2560px</option><option value="1920">1920px</option><option value="1280">1280px</option><option value="800">800px</option></select></label>
+            </div>
+            <div class="row quality-row">
+                <label class="grow">质量 <output id="qOut">80</output>%<input id="quality" type="range" min="10" max="100" step="5" value="80" /></label>
+            </div>
+            <div class="row"><button class="btn primary" id="convert" disabled>压缩转换</button><button class="btn" id="download" disabled>下载结果</button><span class="hint" id="status"></span></div>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>预览与对比</h2>
+                <img class="preview" id="preview" hidden alt="转换结果预览" />
+                <div class="cmp" id="cmp" hidden>
+                    <div class="box"><small>原图</small><div class="num" id="srcSize">-</div><small id="srcDim"></small></div>
+                    <div class="box"><small>转换后</small><div class="num" id="dstSize">-</div><small id="dstDim"></small></div>
+                </div>
+                <p class="hint" id="ratio"></p>
+            </section>
+        </aside>
+    </div>
+</main>
+<script>
+(function () {
+    "use strict";
+    var drop = document.getElementById("drop"), file = document.getElementById("file"), fileInfo = document.getElementById("fileInfo"), format = document.getElementById("format"), maxSize = document.getElementById("maxSize"), quality = document.getElementById("quality"), qOut = document.getElementById("qOut"), convertBtn = document.getElementById("convert"), downloadBtn = document.getElementById("download"), status = document.getElementById("status"), preview = document.getElementById("preview"), cmp = document.getElementById("cmp"), ratio = document.getElementById("ratio");
+    var srcFile = null, srcBitmap = null, resultBlob = null, resultUrl = null;
+
+    function fmtSize(n) { return n >= 1048576 ? (n / 1048576).toFixed(2) + " MB" : (n / 1024).toFixed(1) + " KB"; }
+    function msg(t, cls) { status.textContent = t; status.className = "hint " + (cls || ""); }
+
+    function load(f) {
+        if (!f || !/^image\//.test(f.type)) { msg("请选择图片文件", "bad"); return; }
+        srcFile = f;
+        createImageBitmap(f).then(function (bmp) {
+            srcBitmap = bmp;
+            fileInfo.textContent = f.name + " · " + fmtSize(f.size) + " · " + bmp.width + "×" + bmp.height;
+            document.getElementById("srcSize").textContent = fmtSize(f.size);
+            document.getElementById("srcDim").textContent = bmp.width + "×" + bmp.height;
+            convertBtn.disabled = false;
+            msg("已载入，点击「压缩转换」", "ok");
+            convert();
+        }, function () { msg("图片解码失败，格式可能不受支持", "bad"); });
+    }
+
+    function convert() {
+        if (!srcBitmap) return;
+        var max = parseInt(maxSize.value, 10);
+        var w = srcBitmap.width, h = srcBitmap.height;
+        if (max && Math.max(w, h) > max) {
+            var k = max / Math.max(w, h);
+            w = Math.round(w * k); h = Math.round(h * k);
+        }
+        var canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        canvas.getContext("2d").drawImage(srcBitmap, 0, 0, w, h);
+        msg("转换中...");
+        canvas.toBlob(function (blob) {
+            if (!blob) { msg("转换失败：浏览器不支持该输出格式", "bad"); return; }
+            resultBlob = blob;
+            if (resultUrl) URL.revokeObjectURL(resultUrl);
+            resultUrl = URL.createObjectURL(blob);
+            preview.src = resultUrl; preview.hidden = false; cmp.hidden = false;
+            document.getElementById("dstSize").textContent = fmtSize(blob.size);
+            document.getElementById("dstDim").textContent = w + "×" + h;
+            var pct = (100 - blob.size / srcFile.size * 100);
+            ratio.textContent = pct >= 0 ? "体积减少 " + pct.toFixed(1) + "%" : "体积增加 " + (-pct).toFixed(1) + "%（试试降低质量或换 WebP）";
+            ratio.className = "hint " + (pct > 0 ? "ok" : "warn");
+            downloadBtn.disabled = false;
+            msg("转换完成", "ok");
+        }, format.value, parseInt(quality.value, 10) / 100);
+    }
+
+    quality.oninput = function () { qOut.textContent = quality.value; };
+    [format, maxSize].forEach(function (el) { el.onchange = convert; });
+    quality.onchange = convert;
+    convertBtn.onclick = convert;
+    downloadBtn.onclick = function () {
+        if (!resultBlob) return;
+        var ext = { "image/webp": ".webp", "image/jpeg": ".jpg", "image/png": ".png" }[format.value];
+        var a = document.createElement("a");
+        a.href = resultUrl;
+        a.download = (srcFile.name.replace(/\.[^.]+$/, "") || "image") + ext;
+        a.click();
+    };
+    drop.onclick = function () { file.click(); };
+    drop.onkeydown = function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); file.click(); } };
+    file.onchange = function () { load(file.files[0]); };
+    ["dragover", "dragenter"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("over"); }); });
+    ["dragleave", "drop"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("over"); }); });
+    drop.addEventListener("drop", function (e) { load(e.dataTransfer.files[0]); });
+    document.addEventListener("paste", function (e) {
+        var items = e.clipboardData && e.clipboardData.files;
+        if (items && items.length) load(items[0]);
+    });
+})();
+</script>
+</body>
+</html>

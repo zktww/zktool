@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>JWT 解析器 · zktool</title>
+    <meta name="description" content="本地解析 JWT：解码 Header 与 Payload，标注过期时间，可选 HS256 签名校验。" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/clipboard.js"></script>
+    <style>
+        .seg-h { color: var(--danger); }
+        .seg-p { color: var(--brand); }
+        .seg-s { color: var(--ok); }
+        .claim { margin: .3rem 0; padding: .45rem .6rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-soft); font-size: .82rem; }
+        .claim .mono { word-break: break-all; }
+        .claim small { display: block; color: var(--text-3); }
+    </style>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">JWT</p></div>
+    <h1><span class="title">JWT 解析器</span></h1>
+    <p class="lead">解码 JWT 的 Header 与 Payload，标注时间字段与过期状态，可选 HS256 本地验签。Token 不会离开浏览器。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>Token</h2>
+            <textarea id="input" spellcheck="false" placeholder="粘贴 JWT（xxx.yyy.zzz）..."></textarea>
+            <label>HS256 密钥（可选，用于本地验签）</label>
+            <input id="secret" class="mono" placeholder="留空则跳过签名校验" />
+            <div class="row"><button class="btn" id="sample">示例</button><button class="btn danger" id="clear">清空</button><span class="hint" id="status"></span></div>
+        </section>
+        <aside>
+            <section class="panel"><h2>Header</h2><pre class="output min-h-4" id="header"></pre></section>
+            <section class="panel"><h2>Payload</h2><pre class="output min-h-6" id="payload"></pre><div id="claims"></div></section>
+            <section class="panel"><h2>签名</h2><div class="output min-h-4" id="sig"></div></section>
+        </aside>
+    </div>
+</main>
+<script>
+(function () {
+    "use strict";
+    var input = document.getElementById("input"), secret = document.getElementById("secret"), header = document.getElementById("header"), payload = document.getElementById("payload"), claims = document.getElementById("claims"), sig = document.getElementById("sig"), status = document.getElementById("status");
+    var TIME_CLAIMS = { exp: "过期时间", iat: "签发时间", nbf: "生效时间" };
+    function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+    function b64uToBytes(s) {
+        s = s.replace(/-/g, "+").replace(/_/g, "/");
+        if (s.length % 4) s += "====".slice(s.length % 4);
+        var bin = atob(s), arr = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        return arr;
+    }
+    function decodeSeg(s) { return JSON.parse(new TextDecoder().decode(b64uToBytes(s))); }
+    function fmtTime(sec) {
+        var d = new Date(sec * 1000);
+        return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0") + " " + String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0") + ":" + String(d.getSeconds()).padStart(2,"0");
+    }
+    function rel(sec) {
+        var diff = sec - Date.now() / 1000, abs = Math.abs(diff);
+        var unit = abs >= 86400 ? [86400, "天"] : abs >= 3600 ? [3600, "小时"] : [60, "分钟"];
+        var n = Math.max(1, Math.round(abs / unit[0]));
+        return diff >= 0 ? n + " " + unit[1] + "后" : n + " " + unit[1] + "前";
+    }
+    function verify(parts, key) {
+        var enc = new TextEncoder();
+        return crypto.subtle.importKey("raw", enc.encode(key), { name: "HMAC", hash: "SHA-256" }, false, ["verify"]).then(function (k) {
+            return crypto.subtle.verify("HMAC", k, b64uToBytes(parts[2]), enc.encode(parts[0] + "." + parts[1]));
+        });
+    }
+    function run() {
+        var raw = input.value.trim().replace(/^Bearer\s+/i, "");
+        header.textContent = ""; payload.textContent = ""; claims.innerHTML = ""; sig.textContent = "";
+        if (!raw) { status.textContent = ""; status.className = "hint"; return; }
+        var parts = raw.split(".");
+        if (parts.length !== 3) { status.textContent = "不是有效的 JWT：应为 header.payload.signature 三段"; status.className = "hint bad"; return; }
+        var h, p;
+        try { h = decodeSeg(parts[0]); header.textContent = JSON.stringify(h, null, 2); }
+        catch (e) { status.textContent = "Header 解码失败：" + e.message; status.className = "hint bad"; return; }
+        try { p = decodeSeg(parts[1]); payload.textContent = JSON.stringify(p, null, 2); }
+        catch (e) { status.textContent = "Payload 解码失败：" + e.message; status.className = "hint bad"; return; }
+        var html = "", now = Date.now() / 1000;
+        Object.keys(TIME_CLAIMS).forEach(function (k) {
+            if (typeof p[k] !== "number") return;
+            var state = "";
+            if (k === "exp") state = p[k] < now ? " <b class='bad'>已过期</b>" : " <b class='ok'>未过期</b>";
+            if (k === "nbf" && p[k] > now) state = " <b class='warn'>尚未生效</b>";
+            html += "<div class='claim'><span class='mono'>" + k + " = " + p[k] + "</span>" + state + "<small>" + TIME_CLAIMS[k] + "：" + fmtTime(p[k]) + "（" + rel(p[k]) + "）</small></div>";
+        });
+        claims.innerHTML = html;
+        status.textContent = "解析成功"; status.className = "hint ok";
+        var alg = h && h.alg;
+        if (!secret.value) { sig.innerHTML = "<span class='mono'>" + esc(parts[2].slice(0, 40)) + (parts[2].length > 40 ? "..." : "") + "</span><br><span class='hint'>填入密钥可本地校验 HS256 签名</span>"; return; }
+        if (alg !== "HS256") { sig.innerHTML = "<span class='warn'>仅支持 HS256 本地验签，当前 alg=" + esc(String(alg)) + "</span>"; return; }
+        verify(parts, secret.value).then(function (ok) {
+            sig.innerHTML = ok ? "<b class='ok'>签名有效</b>" : "<b class='bad'>签名无效（密钥不匹配或 Token 被篡改）</b>";
+        }, function (e) { sig.innerHTML = "<span class='bad'>验签失败：" + esc(e.message) + "</span>"; });
+    }
+    var t; function runDebounced() { clearTimeout(t); t = setTimeout(run, 200); }
+    [input, secret].forEach(function (el) { el.addEventListener("input", runDebounced); });
+    document.getElementById("sample").onclick = function () {
+        input.value = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+        secret.value = "your-256-bit-secret"; run();
+    };
+    document.getElementById("clear").onclick = function () { input.value = ""; secret.value = ""; run(); status.textContent = "已清空"; };
+    run();
+})();
+</script>
+</body>
+</html>

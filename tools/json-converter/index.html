@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>JSON 格式互转 · zktool</title>
+    <meta name="description" content="JSON 转 YAML、TypeScript interface、Go struct、CSV，浏览器本地处理。" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/clipboard.js"></script>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">JSON convert</p></div>
+    <h1><span class="title">JSON 格式互转</span></h1>
+    <p class="lead">把 JSON 转换为 YAML、TypeScript interface、Go struct 或 CSV，适合写配置、定义类型和导出数据。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>JSON 输入</h2>
+            <textarea id="input" spellcheck="false">{
+  "id": 1024,
+  "name": "zktool",
+  "active": true,
+  "tags": ["dev", "web"],
+  "owner": { "name": "zk", "email": "zk@example.com" },
+  "score": 99.5
+}</textarea>
+            <div class="row">
+                <button class="btn primary" data-to="yaml">转 YAML</button>
+                <button class="btn" data-to="ts">TS interface</button>
+                <button class="btn" data-to="go">Go struct</button>
+                <button class="btn" data-to="csv">转 CSV</button>
+                <button class="btn danger" id="clear">清空</button>
+            </div>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>结果</h2>
+                <pre class="output" id="output"></pre>
+                <div class="row"><button class="btn primary" id="copy">复制结果</button></div>
+                <p class="hint" id="status">CSV 需要输入是对象数组（如 [{...}, {...}]）。</p>
+            </section>
+        </aside>
+    </div>
+</main>
+<script>
+(function () {
+    "use strict";
+    var input = document.getElementById("input"), output = document.getElementById("output"), status = document.getElementById("status");
+    var lastMode = "yaml";
+
+    /* ---- YAML ---- */
+    function yamlScalar(v) {
+        if (v === null) return "null";
+        if (typeof v === "number" || typeof v === "boolean") return String(v);
+        var s = String(v);
+        if (s === "" || /^[\s#&*?|>%@`"'{}\[\],:-]|[:#]\s|\s$|^(true|false|null|yes|no|on|off|~)$|^-?\d/i.test(s) || s.indexOf("\n") >= 0)
+            return JSON.stringify(s);
+        return s;
+    }
+    function toYaml(v, indent) {
+        var pad = "  ".repeat(indent);
+        if (Array.isArray(v)) {
+            if (!v.length) return pad + "[]";
+            return v.map(function (item) {
+                if (item !== null && typeof item === "object")
+                    return pad + "-\n" + toYaml(item, indent + 1);
+                return pad + "- " + yamlScalar(item);
+            }).join("\n");
+        }
+        if (v !== null && typeof v === "object") {
+            var keys = Object.keys(v);
+            if (!keys.length) return pad + "{}";
+            return keys.map(function (k) {
+                var val = v[k], key = /^[\w-]+$/.test(k) ? k : JSON.stringify(k);
+                if (val !== null && typeof val === "object" && (Array.isArray(val) ? val.length : Object.keys(val).length))
+                    return pad + key + ":\n" + toYaml(val, indent + 1);
+                var inline = Array.isArray(val) ? "[]" : (val !== null && typeof val === "object") ? "{}" : yamlScalar(val);
+                return pad + key + ": " + inline;
+            }).join("\n");
+        }
+        return pad + yamlScalar(v);
+    }
+
+    /* ---- TypeScript interface ---- */
+    function tsType(v, name, defs) {
+        if (v === null) return "null";
+        if (Array.isArray(v)) {
+            if (!v.length) return "unknown[]";
+            var inner = tsType(v[0], name + "Item", defs);
+            return inner.indexOf(" ") >= 0 ? "(" + inner + ")[]" : inner + "[]";
+        }
+        if (typeof v === "object") {
+            var iface = name.charAt(0).toUpperCase() + name.slice(1);
+            var lines = Object.keys(v).map(function (k) {
+                var key = /^[A-Za-z_$][\w$]*$/.test(k) ? k : JSON.stringify(k);
+                return "  " + key + ": " + tsType(v[k], k, defs) + ";";
+            });
+            defs.push("interface " + iface + " {\n" + lines.join("\n") + "\n}");
+            return iface;
+        }
+        return typeof v;
+    }
+    function toTs(v) {
+        var defs = [];
+        var root = tsType(v, "Root", defs);
+        if (!defs.length) return "type Root = " + root + ";";
+        return defs.reverse().join("\n\n");
+    }
+
+    /* ---- Go struct ---- */
+    function goType(v, name, defs) {
+        if (v === null) return "any";
+        if (Array.isArray(v)) return "[]" + (v.length ? goType(v[0], name + "Item", defs) : "any");
+        if (typeof v === "object") {
+            var st = name.charAt(0).toUpperCase() + name.slice(1).replace(/[^\w]/g, "");
+            var lines = Object.keys(v).map(function (k) {
+                var field = k.replace(/(^|[_-])(\w)/g, function (_, __, c) { return c.toUpperCase(); }).replace(/[^\w]/g, "");
+                if (!/^[A-Za-z]/.test(field)) field = "F" + field;
+                return "\t" + field + " " + goType(v[k], k, defs) + " `json:\"" + k + "\"`";
+            });
+            defs.push("type " + st + " struct {\n" + lines.join("\n") + "\n}");
+            return st;
+        }
+        if (typeof v === "number") return Number.isInteger(v) ? "int64" : "float64";
+        if (typeof v === "boolean") return "bool";
+        return "string";
+    }
+    function toGo(v) {
+        var defs = [];
+        var root = goType(v, "Root", defs);
+        return defs.length ? defs.reverse().join("\n\n") : "// 根节点是 " + root + "，无需 struct";
+    }
+
+    /* ---- CSV ---- */
+    function csvCell(v) {
+        if (v === null || v === undefined) return "";
+        var s = typeof v === "object" ? JSON.stringify(v) : String(v);
+        return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }
+    function toCsv(v) {
+        if (!Array.isArray(v) || !v.length || v.some(function (r) { return r === null || typeof r !== "object" || Array.isArray(r); }))
+            throw new Error("CSV 转换要求输入为对象数组，例如 [{\"a\":1},{\"a\":2}]");
+        var cols = [];
+        v.forEach(function (row) { Object.keys(row).forEach(function (k) { if (cols.indexOf(k) < 0) cols.push(k); }); });
+        var lines = [cols.map(csvCell).join(",")];
+        v.forEach(function (row) { lines.push(cols.map(function (c) { return csvCell(row[c]); }).join(",")); });
+        return lines.join("\n");
+    }
+
+    function run(mode) {
+        lastMode = mode;
+        var v;
+        try { v = JSON.parse(input.value); }
+        catch (e) { status.textContent = "JSON 解析失败：" + e.message; status.className = "hint bad"; return; }
+        try {
+            output.textContent = mode === "yaml" ? toYaml(v, 0) : mode === "ts" ? toTs(v) : mode === "go" ? toGo(v) : toCsv(v);
+            status.textContent = { yaml: "YAML", ts: "TypeScript", go: "Go struct", csv: "CSV" }[mode] + " 转换完成";
+            status.className = "hint ok";
+        } catch (e) { status.textContent = e.message; status.className = "hint bad"; }
+    }
+    Array.from(document.querySelectorAll("[data-to]")).forEach(function (b) { b.onclick = function () { run(b.getAttribute("data-to")); }; });
+    var t; input.addEventListener("input", function () { clearTimeout(t); t = setTimeout(function () { if (output.textContent) run(lastMode); }, 300); });
+    document.getElementById("clear").onclick = function () { input.value = ""; output.textContent = ""; status.textContent = "已清空"; status.className = "hint"; };
+    document.getElementById("copy").onclick = function () {
+        copyText(output.textContent || "").then(function () { status.textContent = "结果已复制"; status.className = "hint ok"; },
+            function () { status.textContent = "复制失败，请手动选择复制"; status.className = "hint bad"; });
+    };
+    run("yaml");
+})();
+</script>
+</body>
+</html>

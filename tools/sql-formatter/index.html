@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>SQL 格式化 · zktool</title>
+    <meta name="description" content="SQL 语句格式化与压缩，支持 MySQL、PostgreSQL、SQLite 等方言，浏览器本地处理。" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/clipboard.js"></script>
+    <script src="../../assets/vendor/sql-formatter.min.js"></script>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">SQL</p></div>
+    <h1><span class="title">SQL 格式化</span></h1>
+    <p class="lead">格式化或压缩 SQL 语句，支持常见方言与大小写风格；基于 sql-formatter，本地运行。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>SQL 输入</h2>
+            <textarea id="input" spellcheck="false">select u.id, u.name, count(o.id) as order_count from users u left join orders o on o.user_id = u.id where u.created_at >= '2026-01-01' and u.status in ('active','vip') group by u.id, u.name having count(o.id) > 3 order by order_count desc limit 20;</textarea>
+            <div class="row">
+                <label class="grow">方言<select id="dialect">
+                    <option value="sql">标准 SQL</option>
+                    <option value="mysql" selected>MySQL</option>
+                    <option value="postgresql">PostgreSQL</option>
+                    <option value="sqlite">SQLite</option>
+                    <option value="tsql">SQL Server (T-SQL)</option>
+                    <option value="plsql">Oracle (PL/SQL)</option>
+                    <option value="hive">Hive</option>
+                    <option value="spark">Spark SQL</option>
+                    <option value="bigquery">BigQuery</option>
+                </select></label>
+                <label class="grow">关键字<select id="kwCase">
+                    <option value="upper" selected>UPPER</option>
+                    <option value="lower">lower</option>
+                    <option value="preserve">保持原样</option>
+                </select></label>
+                <label class="w-8">缩进<select id="indent">
+                    <option value="2" selected>2 空格</option>
+                    <option value="4">4 空格</option>
+                    <option value="tab">Tab</option>
+                </select></label>
+            </div>
+            <div class="row">
+                <button class="btn primary" id="fmt">格式化</button>
+                <button class="btn" id="minify">压缩为单行</button>
+                <button class="btn danger" id="clear">清空</button>
+            </div>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>结果</h2>
+                <pre class="output" id="output"></pre>
+                <div class="row"><button class="btn primary" id="copy">复制结果</button></div>
+                <p class="hint" id="status"></p>
+            </section>
+        </aside>
+    </div>
+</main>
+<script>
+(function () {
+    "use strict";
+    var input = document.getElementById("input"), output = document.getElementById("output"), status = document.getElementById("status");
+    var dialect = document.getElementById("dialect"), kwCase = document.getElementById("kwCase"), indent = document.getElementById("indent");
+    function msg(t, cls) { status.textContent = t; status.className = "hint " + (cls || ""); }
+    function fmt() {
+        if (!window.sqlFormatter) { msg("sql-formatter 库未加载", "bad"); return; }
+        try {
+            output.textContent = sqlFormatter.format(input.value, {
+                language: dialect.value,
+                keywordCase: kwCase.value,
+                tabWidth: indent.value === "tab" ? 1 : parseInt(indent.value, 10),
+                useTabs: indent.value === "tab",
+            });
+            msg("格式化完成", "ok");
+        } catch (e) { msg("格式化失败：" + e.message, "bad"); }
+    }
+    function minify() {
+        var s = input.value
+            .replace(/--[^\n]*/g, " ")
+            .replace(/\/\*[\s\S]*?\*\//g, " ");
+        /* 压缩空白但保留字符串字面量 */
+        var out = "", inStr = null;
+        for (var i = 0; i < s.length; i++) {
+            var c = s[i];
+            if (inStr) {
+                out += c;
+                if (c === inStr && s[i-1] !== "\\") inStr = null;
+            } else if (c === "'" || c === '"' || c === "`") {
+                inStr = c; out += c;
+            } else if (/\s/.test(c)) {
+                if (out && !/\s/.test(out[out.length - 1])) out += " ";
+            } else out += c;
+        }
+        output.textContent = out.trim();
+        msg("已压缩为单行（注释已移除）", "ok");
+    }
+    document.getElementById("fmt").onclick = fmt;
+    document.getElementById("minify").onclick = minify;
+    [dialect, kwCase, indent].forEach(function (el) { el.onchange = fmt; });
+    var t; input.addEventListener("input", function () { clearTimeout(t); t = setTimeout(fmt, 300); });
+    document.getElementById("clear").onclick = function () { input.value = ""; output.textContent = ""; msg("已清空"); };
+    document.getElementById("copy").onclick = function () {
+        copyText(output.textContent || "").then(function () { msg("结果已复制", "ok"); },
+            function () { msg("复制失败，请手动选择复制", "bad"); });
+    };
+    fmt();
+})();
+</script>
+</body>
+</html>

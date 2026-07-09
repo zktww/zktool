@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Emoji 符号库 · zktool</title>
-    <meta name="description" content="按分类浏览 Unicode Emoji，支持中英文搜索、收藏、肤色切换与一键复制；数据来自开源 emoji 列表与 Unicode CLDR 中文标注。" />
+    <title>Emoji大全 - emoji表情符号在线复制（中文搜索） | zktool</title>
+    <meta name="description" content="免费 Emoji 表情大全：按分类浏览全部 Unicode Emoji，支持中文搜索、一键复制、肤色切换和收藏，附 Unicode 码点，适合文案、代码注释和聊天。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="Emoji大全 - emoji表情符号在线复制（中文搜索） | zktool" />
+    <meta property="og:description" content="免费 Emoji 表情大全：按分类浏览全部 Unicode Emoji，支持中文搜索、一键复制、肤色切换和收藏，附 Unicode 码点，适合文案、代码注释和聊天。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/emoji-tool/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tokens.css" />
@@ -730,6 +737,8 @@
         }
     </style>
     <script src="../../assets/analytics.js"></script>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
 </head>
 <body>
 <div class="bg-fx" aria-hidden="true"></div>
@@ -1647,5 +1656,16 @@
         init();
     })();
 </script>
+
+<style>.seo-notes{max-width:72rem;margin:2.2rem auto 0;padding:0 .2rem;font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
+<section class="seo-notes">
+    <h2>关于Emoji大全</h2>
+    <p>本工具收录全部 Unicode 标准 Emoji，按笑脸、人物、动物、食物等分类浏览，基于 Unicode CLDR 官方中文标注支持中文关键词搜索（比如搜"庆祝"或"猫"），点击即可复制到剪贴板。支持肤色切换、收藏常用表情和最近使用记录，也能查看每个 Emoji 的 Unicode 码点，方便在代码中使用转义形式。</p>
+    <h2>常见问题</h2>
+    <details><summary>为什么有的 Emoji 在我的设备上显示为方框？</summary><p>不同操作系统的 Emoji 字体版本不同：较新的 Emoji（新版 Unicode 加入的）在旧系统上没有对应字形，就会显示方框或问号。发送给别人时对方能否看到取决于对方设备。</p></details>
+    <details><summary>Emoji 可以用在代码里吗？</summary><p>可以，Emoji 是合法的 Unicode 字符，能用于字符串、注释甚至部分语言的变量名。注意一个 Emoji 可能占多个 UTF-16 编码单元，用 JavaScript 的 length 计算长度会"偏大"。</p></details>
+    <details><summary>如何搜索想要的表情？</summary><p>直接输入中文或英文关键词，如"爱心""火箭"或 rocket；搜索基于 Unicode CLDR 的官方中文名称和关键词标注，无匹配时会回退英文名称匹配。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"Emoji大全","url":"https://zktool.zktww.cn/tools/emoji-tool/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费 Emoji 表情大全：按分类浏览全部 Unicode Emoji，支持中文搜索、一键复制、肤色切换和收藏，附 Unicode 码点，适合文案、代码注释和聊天。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"为什么有的 Emoji 在我的设备上显示为方框？","acceptedAnswer":{"@type":"Answer","text":"不同操作系统的 Emoji 字体版本不同：较新的 Emoji（新版 Unicode 加入的）在旧系统上没有对应字形，就会显示方框或问号。发送给别人时对方能否看到取决于对方设备。"}},{"@type":"Question","name":"Emoji 可以用在代码里吗？","acceptedAnswer":{"@type":"Answer","text":"可以，Emoji 是合法的 Unicode 字符，能用于字符串、注释甚至部分语言的变量名。注意一个 Emoji 可能占多个 UTF-16 编码单元，用 JavaScript 的 length 计算长度会\"偏大\"。"}},{"@type":"Question","name":"如何搜索想要的表情？","acceptedAnswer":{"@type":"Answer","text":"直接输入中文或英文关键词，如\"爱心\"\"火箭\"或 rocket；搜索基于 Unicode CLDR 的官方中文名称和关键词标注，无匹配时会回退英文名称匹配。"}}]}]}</script>
 </body>
 </html>

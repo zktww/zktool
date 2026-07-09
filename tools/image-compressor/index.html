@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>图片压缩与格式转换 · zktool</title>
-    <meta name="description" content="浏览器本地压缩图片并转换 WebP / JPEG / PNG，不上传服务器。" />
+    <title>图片压缩 - 在线图片转WebP/JPEG压缩工具（不上传） | zktool</title>
+    <meta name="description" content="免费在线图片压缩工具：本地压缩图片并转换 WebP、JPEG、PNG 格式，可调质量和尺寸，实时对比压缩前后体积，图片不上传保护隐私。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="图片压缩 - 在线图片转WebP/JPEG压缩工具（不上传） | zktool" />
+    <meta property="og:description" content="免费在线图片压缩工具：本地压缩图片并转换 WebP、JPEG、PNG 格式，可调质量和尺寸，实时对比压缩前后体积，图片不上传保护隐私。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/image-compressor/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
@@ -20,6 +27,8 @@
         .quality-row output { font-family:var(--mono); min-width:3ch; }
         input[type="range"] { min-height:0; padding:0; accent-color:var(--brand); border:none; background:transparent; }
     </style>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
 </head>
 <body>
 <div class="bg-fx" aria-hidden="true"></div>
@@ -56,6 +65,17 @@
             </section>
         </aside>
     </div>
+
+<style>.seo-notes{max-width:72rem;margin:2.2rem auto 0;padding:0 .2rem;font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
+<section class="seo-notes">
+    <h2>关于图片压缩</h2>
+    <p>图片往往是网页和文档里最大的资源，压缩能显著提升加载速度。本工具用浏览器 Canvas 在本地完成压缩和格式转换（WebP/JPEG/PNG），支持调节质量（10%-100%）和最大边长缩放，实时显示压缩前后的体积对比；支持拖拽和粘贴图片。与多数在线压缩站不同，图片全程不离开你的设备，隐私敏感的截图也能放心处理。</p>
+    <h2>常见问题</h2>
+    <details><summary>WebP、JPEG、PNG 该选哪个格式？</summary><p>照片类图像选 WebP（同质量比 JPEG 小 25-35%）或 JPEG（兼容性最好）；需要透明背景或图标线条锐利的选 PNG（无损）。现代浏览器都支持 WebP，网页图片优先考虑它。</p></details>
+    <details><summary>质量设多少合适？</summary><p>75-85% 是照片的甜点区间：肉眼几乎无损，体积大幅下降。头像、缩略图可以降到 60-70%；需要后期编辑的原图建议保留原文件，压缩版只用于展示。</p></details>
+    <details><summary>为什么转 PNG 后体积反而变大了？</summary><p>PNG 是无损格式，对色彩丰富的照片压缩率远差于 JPEG/WebP，转换后变大很正常。PNG 适合图标、截图、纯色块图像；照片请用 WebP 或 JPEG。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"图片压缩","url":"https://zktool.zktww.cn/tools/image-compressor/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线图片压缩工具：本地压缩图片并转换 WebP、JPEG、PNG 格式，可调质量和尺寸，实时对比压缩前后体积，图片不上传保护隐私。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"WebP、JPEG、PNG 该选哪个格式？","acceptedAnswer":{"@type":"Answer","text":"照片类图像选 WebP（同质量比 JPEG 小 25-35%）或 JPEG（兼容性最好）；需要透明背景或图标线条锐利的选 PNG（无损）。现代浏览器都支持 WebP，网页图片优先考虑它。"}},{"@type":"Question","name":"质量设多少合适？","acceptedAnswer":{"@type":"Answer","text":"75-85% 是照片的甜点区间：肉眼几乎无损，体积大幅下降。头像、缩略图可以降到 60-70%；需要后期编辑的原图建议保留原文件，压缩版只用于展示。"}},{"@type":"Question","name":"为什么转 PNG 后体积反而变大了？","acceptedAnswer":{"@type":"Answer","text":"PNG 是无损格式，对色彩丰富的照片压缩率远差于 JPEG/WebP，转换后变大很正常。PNG 适合图标、截图、纯色块图像；照片请用 WebP 或 JPEG。"}}]}]}</script>
 </main>
 <script>
 (function () {

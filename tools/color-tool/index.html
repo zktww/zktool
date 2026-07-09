@@ -3,14 +3,23 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>颜色转换与对比度 · zktool</title>
-    <meta name="description" content="HEX、RGB、HSL 互转，调色、预览与 WCAG 对比度检查。" />
+    <title>颜色转换 - HEX/RGB/HSL在线互转与对比度检查 | zktool</title>
+    <meta name="description" content="免费在线颜色转换工具：HEX、RGB、HSL 颜色代码互转，自动生成深浅色阶，WCAG 对比度检查确保文字可读性，前端设计配色必备。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="颜色转换 - HEX/RGB/HSL在线互转与对比度检查 | zktool" />
+    <meta property="og:description" content="免费在线颜色转换工具：HEX、RGB、HSL 颜色代码互转，自动生成深浅色阶，WCAG 对比度检查确保文字可读性，前端设计配色必备。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/color-tool/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
     <script src="../../assets/analytics.js"></script>
     <script src="../../assets/clipboard.js"></script>
     <style>.swatch{height:7rem;border-radius:14px;border:1px solid var(--border);box-shadow:var(--shadow-sm)}.mini{width:2.4rem;height:2.4rem;border-radius:10px;border:1px solid var(--border)}</style>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
 </head>
 <body>
 <div class="bg-fx" aria-hidden="true"></div>
@@ -31,6 +40,17 @@
             <section class="panel"><h2>对比度</h2><div class="output min-h-4" id="contrast"></div></section>
         </aside>
     </div>
+
+<style>.seo-notes{max-width:72rem;margin:2.2rem auto 0;padding:0 .2rem;font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
+<section class="seo-notes">
+    <h2>关于颜色转换</h2>
+    <p>本工具支持 HEX（#2563eb）、RGB、HSL 三种颜色格式互转，输入任一格式即可得到全部写法；同时自动生成该颜色的 7 级深浅色阶（适合做主题色梯度），并按 WCAG 2.1 标准计算前景色与背景色的对比度，分别判定普通正文（4.5:1）和大字号（3:1）的 AA/AAA 达标情况，帮你在设计阶段就避免"文字看不清"的可访问性问题。</p>
+    <h2>常见问题</h2>
+    <details><summary>WCAG 对比度多少才算达标？</summary><p>普通正文要求至少 4.5:1（AA 级）、7:1 更佳（AAA 级）；18pt 以上大字或 14pt 粗体放宽到 3:1。灰字配白底很容易不达标，上线前值得检查一遍。</p></details>
+    <details><summary>HEX、RGB、HSL 该用哪种？</summary><p>三者表示同一颜色：HEX 最紧凑通用；RGB 便于程序计算；HSL 按色相/饱和度/亮度描述，调"同色系深浅"时最直观（只改 L 值）。CSS 中三种都可以用。</p></details>
+    <details><summary>三位的 #fff 和六位的 #ffffff 一样吗？</summary><p>一样。三位是缩写形式，每一位重复一次展开：#fff = #ffffff、#f80 = #ff8800。本工具两种写法都能识别。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"颜色转换","url":"https://zktool.zktww.cn/tools/color-tool/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线颜色转换工具：HEX、RGB、HSL 颜色代码互转，自动生成深浅色阶，WCAG 对比度检查确保文字可读性，前端设计配色必备。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"WCAG 对比度多少才算达标？","acceptedAnswer":{"@type":"Answer","text":"普通正文要求至少 4.5:1（AA 级）、7:1 更佳（AAA 级）；18pt 以上大字或 14pt 粗体放宽到 3:1。灰字配白底很容易不达标，上线前值得检查一遍。"}},{"@type":"Question","name":"HEX、RGB、HSL 该用哪种？","acceptedAnswer":{"@type":"Answer","text":"三者表示同一颜色：HEX 最紧凑通用；RGB 便于程序计算；HSL 按色相/饱和度/亮度描述，调\"同色系深浅\"时最直观（只改 L 值）。CSS 中三种都可以用。"}},{"@type":"Question","name":"三位的 #fff 和六位的 #ffffff 一样吗？","acceptedAnswer":{"@type":"Answer","text":"一样。三位是缩写形式，每一位重复一次展开：#fff = #ffffff、#f80 = #ff8800。本工具两种写法都能识别。"}}]}]}</script>
 </main>
 <script>
 (function () {

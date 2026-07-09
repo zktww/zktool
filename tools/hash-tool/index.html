@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Hash 计算器 · zktool</title>
-    <meta name="description" content="计算文本或文件的 MD5、SHA-1、SHA-256、SHA-512 摘要，浏览器本地处理。" />
+    <title>MD5在线加密 - 文件MD5校验与SHA256哈希计算 | zktool</title>
+    <meta name="description" content="免费在线 MD5、SHA-1、SHA-256、SHA-512 哈希计算工具：支持文本和文件（拖拽即算），校验下载文件完整性，本地计算文件不上传。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="MD5在线加密 - 文件MD5校验与SHA256哈希计算 | zktool" />
+    <meta property="og:description" content="免费在线 MD5、SHA-1、SHA-256、SHA-512 哈希计算工具：支持文本和文件（拖拽即算），校验下载文件完整性，本地计算文件不上传。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/hash-tool/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
@@ -19,6 +26,8 @@
         .hash-val code { flex:1; min-width:0; padding:.5rem .65rem; border:1px solid var(--border); border-radius:8px; background:var(--bg-soft); font-family:var(--mono); font-size:.8rem; word-break:break-all; }
         .hash-val .btn { min-height:2.1rem; padding:.3rem .7rem; font-size:.78rem; }
     </style>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
 </head>
 <body>
 <div class="bg-fx" aria-hidden="true"></div>
@@ -45,6 +54,17 @@
             </section>
         </aside>
     </div>
+
+<style>.seo-notes{max-width:72rem;margin:2.2rem auto 0;padding:0 .2rem;font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
+<section class="seo-notes">
+    <h2>关于MD5在线加密</h2>
+    <p>哈希（Hash）把任意长度的数据变成固定长度的"指纹"，内容变一个字节指纹就完全不同，因此常用于校验文件完整性、生成缓存键和签名比对。本工具同时计算 MD5、SHA-1、SHA-256、SHA-512 四种摘要，支持直接输入文本或拖入文件（最大 256MB）；SHA 系列基于浏览器原生 Web Crypto，文件在本地读取计算，不会上传到任何服务器。</p>
+    <h2>常见问题</h2>
+    <details><summary>如何校验下载的文件是否完整？</summary><p>把下载的文件拖入本工具，对比计算出的 SHA-256（或官网提供的对应算法）值与官网公布的校验值是否一致；一致说明文件完整未被篡改。</p></details>
+    <details><summary>MD5 还能用吗？</summary><p>MD5 已被证实可以人为构造碰撞，不能再用于签名、证书等安全场景；但作为文件完整性校验、缓存键、去重标识等非对抗性用途仍然普遍且够用。安全场景请用 SHA-256 及以上。</p></details>
+    <details><summary>同样的文本为什么算出的哈希和别人不一样？</summary><p>检查三点：是否混入了首尾空格或换行、编码是否一致（本工具按 UTF-8 处理）、对方是否对内容做过其他预处理（如加盐）。哈希对每个字节都敏感。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"MD5在线加密","url":"https://zktool.zktww.cn/tools/hash-tool/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 MD5、SHA-1、SHA-256、SHA-512 哈希计算工具：支持文本和文件（拖拽即算），校验下载文件完整性，本地计算文件不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"如何校验下载的文件是否完整？","acceptedAnswer":{"@type":"Answer","text":"把下载的文件拖入本工具，对比计算出的 SHA-256（或官网提供的对应算法）值与官网公布的校验值是否一致；一致说明文件完整未被篡改。"}},{"@type":"Question","name":"MD5 还能用吗？","acceptedAnswer":{"@type":"Answer","text":"MD5 已被证实可以人为构造碰撞，不能再用于签名、证书等安全场景；但作为文件完整性校验、缓存键、去重标识等非对抗性用途仍然普遍且够用。安全场景请用 SHA-256 及以上。"}},{"@type":"Question","name":"同样的文本为什么算出的哈希和别人不一样？","acceptedAnswer":{"@type":"Answer","text":"检查三点：是否混入了首尾空格或换行、编码是否一致（本工具按 UTF-8 处理）、对方是否对内容做过其他预处理（如加盐）。哈希对每个字节都敏感。"}}]}]}</script>
 </main>
 <script>
 (function () {

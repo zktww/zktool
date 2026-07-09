@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>HTTP 状态码与 MIME 速查 · zktool</title>
-    <meta name="description" content="HTTP 状态码含义速查与常用 MIME 类型对照，支持搜索过滤。" />
+    <title>HTTP状态码大全 - 404/500/502含义速查与MIME类型 | zktool</title>
+    <meta name="description" content="免费 HTTP 状态码速查表：200、301、404、500、502 等状态码含义与排查提示，附常用 MIME 类型（Content-Type）对照，搜索过滤点击复制。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="HTTP状态码大全 - 404/500/502含义速查与MIME类型 | zktool" />
+    <meta property="og:description" content="免费 HTTP 状态码速查表：200、301、404、500、502 等状态码含义与排查提示，附常用 MIME 类型（Content-Type）对照，搜索过滤点击复制。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/http-reference/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
@@ -19,6 +26,8 @@
         .c2xx b { color:var(--ok); } .c3xx b { color:var(--brand); } .c4xx b { color:var(--warn); } .c5xx b { color:var(--danger); } .c1xx b { color:var(--text-3); }
         .tabs { margin-bottom: .9rem; }
     </style>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
 </head>
 <body>
 <div class="bg-fx" aria-hidden="true"></div>
@@ -35,6 +44,17 @@
         <div id="list"></div>
         <p class="hint" id="status">共 <span id="count"></span> 条 · 点击条目复制</p>
     </section>
+
+<style>.seo-notes{max-width:72rem;margin:2.2rem auto 0;padding:0 .2rem;font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
+<section class="seo-notes">
+    <h2>关于HTTP状态码大全</h2>
+    <p>HTTP 状态码是排查接口和网页问题的第一线索：2xx 成功、3xx 重定向、4xx 客户端错误、5xx 服务端错误。本速查表收录 30 余个常用状态码，每条附中文含义和实际排查提示（比如 429 要看 Retry-After、502 通常是后端挂了）；另有常用 MIME 类型（Content-Type）与文件扩展名对照表。支持关键词搜索，点击条目直接复制。</p>
+    <h2>常见问题</h2>
+    <details><summary>401 和 403 有什么区别？</summary><p>401 Unauthorized 是"没登录或凭证无效"——缺 Token、Token 过期都返回它；403 Forbidden 是"登录了但没权限"——身份有效但该资源不允许你访问。前者去检查认证，后者去检查授权。</p></details>
+    <details><summary>502 和 504 都是网关错误，怎么区分？</summary><p>502 Bad Gateway：网关收到了上游的响应但无效，通常是后端进程崩溃或返回格式错误；504 Gateway Timeout：网关等上游等到超时，通常是后端处理太慢或卡死。一个是"回了但坏了"，一个是"根本没回"。</p></details>
+    <details><summary>接口返回乱码和 Content-Type 有关吗？</summary><p>很可能有关：响应头的 Content-Type 缺少 charset=utf-8 时，浏览器可能按错误编码解析。后端确保返回 application/json; charset=utf-8 这类完整声明即可。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"HTTP状态码大全","url":"https://zktool.zktww.cn/tools/http-reference/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费 HTTP 状态码速查表：200、301、404、500、502 等状态码含义与排查提示，附常用 MIME 类型（Content-Type）对照，搜索过滤点击复制。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"401 和 403 有什么区别？","acceptedAnswer":{"@type":"Answer","text":"401 Unauthorized 是\"没登录或凭证无效\"——缺 Token、Token 过期都返回它；403 Forbidden 是\"登录了但没权限\"——身份有效但该资源不允许你访问。前者去检查认证，后者去检查授权。"}},{"@type":"Question","name":"502 和 504 都是网关错误，怎么区分？","acceptedAnswer":{"@type":"Answer","text":"502 Bad Gateway：网关收到了上游的响应但无效，通常是后端进程崩溃或返回格式错误；504 Gateway Timeout：网关等上游等到超时，通常是后端处理太慢或卡死。一个是\"回了但坏了\"，一个是\"根本没回\"。"}},{"@type":"Question","name":"接口返回乱码和 Content-Type 有关吗？","acceptedAnswer":{"@type":"Answer","text":"很可能有关：响应头的 Content-Type 缺少 charset=utf-8 时，浏览器可能按错误编码解析。后端确保返回 application/json; charset=utf-8 这类完整声明即可。"}}]}]}</script>
 </main>
 <script>
 (function () {

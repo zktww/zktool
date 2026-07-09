@@ -3,13 +3,22 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>文本差异比较 · zktool</title>
-    <meta name="description" content="本地文本差异比较，行级新增、删除与未变内容高亮。" />
+    <title>文本对比 - 在线文本差异比较工具（diff高亮） | zktool</title>
+    <meta name="description" content="免费在线文本对比工具：两段文本行级差异比较，新增删除高亮显示，支持大文本，适合对比配置文件、代码片段和接口返回，本地处理。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="文本对比 - 在线文本差异比较工具（diff高亮） | zktool" />
+    <meta property="og:description" content="免费在线文本对比工具：两段文本行级差异比较，新增删除高亮显示，支持大文本，适合对比配置文件、代码片段和接口返回，本地处理。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/text-diff/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
     <script src="../../assets/analytics.js"></script>
     <style>.diff-line{display:grid;grid-template-columns:3rem 1fr;gap:.6rem;padding:.18rem .35rem;border-radius:6px}.diff-line.add{background:rgba(16,185,129,.1)}.diff-line.del{background:rgba(239,68,68,.08)}.diff-line.same{color:var(--text-2)}.mark{font-family:var(--mono);color:var(--text-3)}</style>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
 </head>
 <body>
 <div class="bg-fx" aria-hidden="true"></div>
@@ -33,6 +42,17 @@ tools: 11</textarea></label>
         <h2>差异</h2>
         <div class="output" id="out"></div>
     </section>
+
+<style>.seo-notes{max-width:72rem;margin:2.2rem auto 0;padding:0 .2rem;font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
+<section class="seo-notes">
+    <h2>关于文本对比</h2>
+    <p>本工具对左右两段文本做行级差异对比（基于 LCS 最长公共子序列算法），新增行绿色、删除行红色高亮，一眼看出两个版本改了什么。适合对比配置文件修改前后、两次接口返回、日志片段和文档版本；针对大文本做了优化（自动剥离相同的开头结尾），万行文本也能秒出结果，全程本地处理不上传。</p>
+    <h2>常见问题</h2>
+    <details><summary>和 git diff 有什么区别？</summary><p>算法同源（都是行级 diff），但本工具即贴即比，不需要文件进 Git；适合对比剪贴板里的临时内容。需要字符级精细对比或三方合并时，还是用专业 diff 工具更合适。</p></details>
+    <details><summary>为什么明明"看起来一样"却显示有差异？</summary><p>大概率是不可见差异：行尾空格、Tab 与空格混用、全角空格或零宽字符。可以把文本粘到本站的 Unicode 字符检查器里查看隐藏字符。</p></details>
+    <details><summary>支持多大的文本？</summary><p>常规文本（几千行内）实时对比；两侧差异区特别大时会自动降级为整段对比并提示，避免浏览器卡死。日常配置、日志片段的规模完全没有问题。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"文本对比","url":"https://zktool.zktww.cn/tools/text-diff/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线文本对比工具：两段文本行级差异比较，新增删除高亮显示，支持大文本，适合对比配置文件、代码片段和接口返回，本地处理。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"和 git diff 有什么区别？","acceptedAnswer":{"@type":"Answer","text":"算法同源（都是行级 diff），但本工具即贴即比，不需要文件进 Git；适合对比剪贴板里的临时内容。需要字符级精细对比或三方合并时，还是用专业 diff 工具更合适。"}},{"@type":"Question","name":"为什么明明\"看起来一样\"却显示有差异？","acceptedAnswer":{"@type":"Answer","text":"大概率是不可见差异：行尾空格、Tab 与空格混用、全角空格或零宽字符。可以把文本粘到本站的 Unicode 字符检查器里查看隐藏字符。"}},{"@type":"Question","name":"支持多大的文本？","acceptedAnswer":{"@type":"Answer","text":"常规文本（几千行内）实时对比；两侧差异区特别大时会自动降级为整段对比并提示，避免浏览器卡死。日常配置、日志片段的规模完全没有问题。"}}]}]}</script>
 </main>
 <script>
 (function () {

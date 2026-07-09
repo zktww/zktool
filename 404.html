@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>页面不存在 · zktool</title>
+    <meta name="description" content="页面不存在，返回 zktool 工具索引。" />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="/assets/tool-page.css" />
+    <script defer src="/assets/registry.js"></script>
+    <script defer src="/assets/palette.js"></script>
+    <style>
+        .err { min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: .6rem; }
+        .err .code { font-family: var(--mono); font-size: clamp(4rem, 14vw, 7rem); font-weight: 800; color: var(--brand); line-height: 1; letter-spacing: -0.04em; }
+        .err p { color: var(--text-2); max-width: 26em; }
+        .err .row { justify-content: center; margin-top: .8rem; }
+    </style>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="err">
+        <div class="code">404</div>
+        <h1 style="margin:0"><span class="title">页面不存在</span></h1>
+        <p>地址可能拼写有误，或该工具已被移动。按 <span class="mono">Ctrl+K</span> 搜索工具，或返回主页浏览全部。</p>
+        <div class="row">
+            <a class="btn primary" href="/">← 返回主页</a>
+            <button class="btn" onclick="window.zkPalette && zkPalette.open()">搜索工具（Ctrl+K）</button>
+        </div>
+    </div>
+</main>
+</body>
+</html>

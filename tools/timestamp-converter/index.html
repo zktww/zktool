@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>时间转换 · zktool</title>
-    <meta name="description" content="Unix 时间戳与日期时间互转：秒/毫秒自动识别、批量转换、多格式输出、常用时区对照、一键复制。" />
+    <title>时间戳转换 - Unix时间戳与日期在线互转（秒/毫秒） | zktool</title>
+    <meta name="description" content="免费在线时间戳转换工具：Unix 时间戳与北京时间日期互转，自动识别秒/毫秒，支持批量转换、UTC 与多时区对照，浏览器本地处理无需上传。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="时间戳转换 - Unix时间戳与日期在线互转（秒/毫秒） | zktool" />
+    <meta property="og:description" content="免费在线时间戳转换工具：Unix 时间戳与北京时间日期互转，自动识别秒/毫秒，支持批量转换、UTC 与多时区对照，浏览器本地处理无需上传。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/timestamp-converter/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tokens.css" />
@@ -717,6 +724,8 @@
         }
     </style>
     <script src="../../assets/analytics.js"></script>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
 </head>
 <body>
 <div class="bg-fx" aria-hidden="true"></div>
@@ -1538,5 +1547,16 @@
         renderTz();
     })();
 </script>
+
+<style>.seo-notes{max-width:72rem;margin:2.2rem auto 0;padding:0 .2rem;font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
+<section class="seo-notes">
+    <h2>关于时间戳转换</h2>
+    <p>时间戳（Unix Timestamp）是从 1970 年 1 月 1 日 00:00:00 UTC 起经过的秒数或毫秒数，广泛用于日志、数据库和接口传输。本工具在浏览器本地完成时间戳与可读日期的互转，自动识别 10 位（秒）和 13 位（毫秒）时间戳，支持批量转换、本地时区与 UTC 对照，适合排查日志时间、调试接口返回和数据库时间字段。</p>
+    <h2>常见问题</h2>
+    <details><summary>时间戳 10 位和 13 位有什么区别？</summary><p>10 位时间戳精确到秒（如 1720000000），13 位精确到毫秒（如 1720000000000）。Java、JavaScript 默认使用毫秒，Unix/Linux 系统和 PHP 默认使用秒。本工具会根据位数自动识别，无需手动选择。</p></details>
+    <details><summary>时间戳转换会有时区问题吗？</summary><p>时间戳本身不带时区，表示的是全球统一的绝对时刻；同一个时间戳在北京显示 20:00，在伦敦显示 12:00。本工具默认按你浏览器的本地时区显示日期，并同时给出 UTC 时间对照。</p></details>
+    <details><summary>2038 年问题是什么？</summary><p>使用 32 位有符号整数存储秒级时间戳的系统，在 2038-01-19 03:14:07 UTC 之后会溢出。现代 64 位系统和主流语言已不受影响，但排查老系统时间异常时值得留意。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"时间戳转换","url":"https://zktool.zktww.cn/tools/timestamp-converter/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线时间戳转换工具：Unix 时间戳与北京时间日期互转，自动识别秒/毫秒，支持批量转换、UTC 与多时区对照，浏览器本地处理无需上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"时间戳 10 位和 13 位有什么区别？","acceptedAnswer":{"@type":"Answer","text":"10 位时间戳精确到秒（如 1720000000），13 位精确到毫秒（如 1720000000000）。Java、JavaScript 默认使用毫秒，Unix/Linux 系统和 PHP 默认使用秒。本工具会根据位数自动识别，无需手动选择。"}},{"@type":"Question","name":"时间戳转换会有时区问题吗？","acceptedAnswer":{"@type":"Answer","text":"时间戳本身不带时区，表示的是全球统一的绝对时刻；同一个时间戳在北京显示 20:00，在伦敦显示 12:00。本工具默认按你浏览器的本地时区显示日期，并同时给出 UTC 时间对照。"}},{"@type":"Question","name":"2038 年问题是什么？","acceptedAnswer":{"@type":"Answer","text":"使用 32 位有符号整数存储秒级时间戳的系统，在 2038-01-19 03:14:07 UTC 之后会溢出。现代 64 位系统和主流语言已不受影响，但排查老系统时间异常时值得留意。"}}]}]}</script>
 </body>
 </html>

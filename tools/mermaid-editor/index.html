@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Mermaid 图表编辑器 · zktool</title>
-    <meta name="description" content="实时编辑 Mermaid 代码，即时预览流程图、时序图、甘特图等图表，支持模板库、缩放平移、URL 分享与导出 PNG/SVG。" />
+    <title>Mermaid在线编辑器 - 流程图、时序图实时预览导出 | zktool</title>
+    <meta name="description" content="免费 Mermaid 在线编辑器：实时编辑预览流程图、时序图、甘特图、类图等，内置中文模板，支持导出 PNG/SVG 高清图片和链接分享。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="Mermaid在线编辑器 - 流程图、时序图实时预览导出 | zktool" />
+    <meta property="og:description" content="免费 Mermaid 在线编辑器：实时编辑预览流程图、时序图、甘特图、类图等，内置中文模板，支持导出 PNG/SVG 高清图片和链接分享。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/mermaid-editor/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tokens.css" />
@@ -625,6 +632,8 @@
         }
     </script>
     <script src="../../assets/analytics.js"></script>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
 </head>
 <body>
 <div class="bg-fx" aria-hidden="true"></div>
@@ -1337,5 +1346,16 @@
         })();
     })();
 </script>
+
+<style>.seo-notes{max-width:72rem;margin:2.2rem auto 0;padding:0 .2rem;font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
+<section class="seo-notes">
+    <h2>关于Mermaid在线编辑器</h2>
+    <p>Mermaid 是用文本语法画图的工具，写几行代码就能生成流程图、时序图、甘特图、状态图、ER 图等，特别适合放进 Markdown 文档和技术方案。本编辑器左侧写代码右侧实时渲染，内置十余种中文示例模板可直接改，支持缩放平移预览、URL 分享（图表内容编码在链接里）以及导出 SVG 和高清 PNG。</p>
+    <h2>常见问题</h2>
+    <details><summary>Mermaid 和 Visio、draw.io 有什么区别？</summary><p>Mermaid 用文本描述图形，改文字就能改图，适合放进 Git 做版本管理、嵌入 Markdown；Visio/draw.io 是拖拽式画图，自由度更高但不易维护。画技术架构和流程建议 Mermaid，画精确排版的图用后者。</p></details>
+    <details><summary>GitHub / GitLab 支持 Mermaid 吗？</summary><p>支持。在 Markdown 里使用 mermaid 代码块（```mermaid）即可直接渲染，本工具调好的代码可以原样粘贴过去。</p></details>
+    <details><summary>导出的 PNG 不够清晰怎么办？</summary><p>本工具导出 PNG 时按 2 倍分辨率渲染，一般场景足够清晰；对清晰度要求极高（如印刷）建议导出 SVG 矢量格式，任意缩放不失真。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"Mermaid在线编辑器","url":"https://zktool.zktww.cn/tools/mermaid-editor/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费 Mermaid 在线编辑器：实时编辑预览流程图、时序图、甘特图、类图等，内置中文模板，支持导出 PNG/SVG 高清图片和链接分享。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Mermaid 和 Visio、draw.io 有什么区别？","acceptedAnswer":{"@type":"Answer","text":"Mermaid 用文本描述图形，改文字就能改图，适合放进 Git 做版本管理、嵌入 Markdown；Visio/draw.io 是拖拽式画图，自由度更高但不易维护。画技术架构和流程建议 Mermaid，画精确排版的图用后者。"}},{"@type":"Question","name":"GitHub / GitLab 支持 Mermaid 吗？","acceptedAnswer":{"@type":"Answer","text":"支持。在 Markdown 里使用 mermaid 代码块（```mermaid）即可直接渲染，本工具调好的代码可以原样粘贴过去。"}},{"@type":"Question","name":"导出的 PNG 不够清晰怎么办？","acceptedAnswer":{"@type":"Answer","text":"本工具导出 PNG 时按 2 倍分辨率渲染，一般场景足够清晰；对清晰度要求极高（如印刷）建议导出 SVG 矢量格式，任意缩放不失真。"}}]}]}</script>
 </body>
 </html>

@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>JWT 解析器 · zktool</title>
-    <meta name="description" content="本地解析 JWT：解码 Header 与 Payload，标注过期时间，可选 HS256 签名校验。" />
+    <title>JWT解析 - 在线JWT解码工具（查看Payload与过期时间） | zktool</title>
+    <meta name="description" content="免费在线 JWT 解析工具：解码 JWT Token 的 Header 和 Payload，自动标注过期时间和签发时间，支持 HS256 本地验签，Token 不离开浏览器。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="JWT解析 - 在线JWT解码工具（查看Payload与过期时间） | zktool" />
+    <meta property="og:description" content="免费在线 JWT 解析工具：解码 JWT Token 的 Header 和 Payload，自动标注过期时间和签发时间，支持 HS256 本地验签，Token 不离开浏览器。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/jwt-decoder/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
@@ -18,6 +25,8 @@
         .claim .mono { word-break: break-all; }
         .claim small { display: block; color: var(--text-3); }
     </style>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
 </head>
 <body>
 <div class="bg-fx" aria-hidden="true"></div>
@@ -39,6 +48,17 @@
             <section class="panel"><h2>签名</h2><div class="output min-h-4" id="sig"></div></section>
         </aside>
     </div>
+
+<style>.seo-notes{max-width:72rem;margin:2.2rem auto 0;padding:0 .2rem;font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
+<section class="seo-notes">
+    <h2>关于JWT解析</h2>
+    <p>JWT（JSON Web Token）由 Header、Payload、Signature 三段组成，用点号连接，是最常见的接口认证凭证。本工具在浏览器本地解码前两段的 JSON 内容，自动把 exp（过期）、iat（签发）、nbf（生效）时间戳转成可读时间并标注是否过期；填入密钥还可以对 HS256 签名做本地校验。整个过程 Token 不会发送到任何服务器，可放心粘贴生产环境凭证排查问题。</p>
+    <h2>常见问题</h2>
+    <details><summary>JWT 能被解码，是不是不安全？</summary><p>JWT 的 Header 和 Payload 只是 Base64 编码，任何人都能读取——所以绝不要在 Payload 里放密码等敏感信息。它的安全性在签名：服务端用密钥验证 Token 未被篡改，而不是靠内容保密。</p></details>
+    <details><summary>Token 过期了（exp 已过）怎么办？</summary><p>过期的 JWT 服务端会拒绝。客户端通常用 Refresh Token 换取新的 Access Token；如果没有刷新机制就需要重新登录。本工具会明确标注 exp 的本地时间和是否已过期，方便排查 401 错误。</p></details>
+    <details><summary>为什么只支持 HS256 验签？</summary><p>HS256 是对称算法，浏览器端用 Web Crypto 即可校验；RS256 等非对称算法需要公钥且格式处理复杂。解码功能对所有算法的 JWT 都有效，仅签名校验限于 HS256。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"JWT解析","url":"https://zktool.zktww.cn/tools/jwt-decoder/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 JWT 解析工具：解码 JWT Token 的 Header 和 Payload，自动标注过期时间和签发时间，支持 HS256 本地验签，Token 不离开浏览器。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"JWT 能被解码，是不是不安全？","acceptedAnswer":{"@type":"Answer","text":"JWT 的 Header 和 Payload 只是 Base64 编码，任何人都能读取——所以绝不要在 Payload 里放密码等敏感信息。它的安全性在签名：服务端用密钥验证 Token 未被篡改，而不是靠内容保密。"}},{"@type":"Question","name":"Token 过期了（exp 已过）怎么办？","acceptedAnswer":{"@type":"Answer","text":"过期的 JWT 服务端会拒绝。客户端通常用 Refresh Token 换取新的 Access Token；如果没有刷新机制就需要重新登录。本工具会明确标注 exp 的本地时间和是否已过期，方便排查 401 错误。"}},{"@type":"Question","name":"为什么只支持 HS256 验签？","acceptedAnswer":{"@type":"Answer","text":"HS256 是对称算法，浏览器端用 Web Crypto 即可校验；RS256 等非对称算法需要公钥且格式处理复杂。解码功能对所有算法的 JWT 都有效，仅签名校验限于 HS256。"}}]}]}</script>
 </main>
 <script>
 (function () {

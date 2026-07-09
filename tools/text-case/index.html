@@ -3,13 +3,22 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>文本命名与行处理 · zktool</title>
-    <meta name="description" content="camelCase、snake_case、kebab-case 等命名风格互转，行去重、排序与统计。" />
+    <title>驼峰命名转换 - camelCase/下划线/中划线在线互转 | zktool</title>
+    <meta name="description" content="免费在线命名转换工具：camelCase 驼峰、snake_case 下划线、kebab-case 中划线、常量命名互转，支持批量多行，附文本去重排序。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="驼峰命名转换 - camelCase/下划线/中划线在线互转 | zktool" />
+    <meta property="og:description" content="免费在线命名转换工具：camelCase 驼峰、snake_case 下划线、kebab-case 中划线、常量命名互转，支持批量多行，附文本去重排序。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/text-case/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
     <script src="../../assets/analytics.js"></script>
     <script src="../../assets/clipboard.js"></script>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
 </head>
 <body>
 <div class="bg-fx" aria-hidden="true"></div>
@@ -55,6 +64,17 @@ HTTPResponseCode</textarea>
             <section class="panel"><h2>统计</h2><div class="chips" id="stats"></div></section>
         </aside>
     </div>
+
+<style>.seo-notes{max-width:72rem;margin:2.2rem auto 0;padding:0 .2rem;font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
+<section class="seo-notes">
+    <h2>关于驼峰命名转换</h2>
+    <p>改字段名和变量名是开发日常：数据库用 snake_case、JavaScript 用 camelCase、CSS 类名用 kebab-case、常量用 CONSTANT_CASE。本工具支持这些命名风格的批量互转（每行一条），能正确处理 HTTPResponse 这类连续大写缩写的边界；另附行级处理：去重、按拼音/字母排序、去空行、倒序，以及字符/词/行统计，转换结果可以一键回填继续叠加操作。</p>
+    <h2>常见问题</h2>
+    <details><summary>什么时候用驼峰、什么时候用下划线？</summary><p>看语言与场景约定：JavaScript/Java 变量用 camelCase，类名用 PascalCase；Python 变量和数据库字段惯用 snake_case；CSS 类名和 URL 用 kebab-case；常量用 CONSTANT_CASE。同一项目保持一致最重要。</p></details>
+    <details><summary>HTTPResponse 这种缩写怎么正确拆分？</summary><p>本工具按"连续大写 + 后跟小写"识别缩写边界：HTTPResponseCode 会拆成 HTTP / Response / Code，转 snake_case 得到 http_response_code，而不是 h_t_t_p 这种错误结果。</p></details>
+    <details><summary>能一次转换多个字段名吗？</summary><p>可以，每行一条批量处理。比如把整张表的列名粘进来一键转驼峰，再用"用结果替换输入"叠加去重或排序。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"驼峰命名转换","url":"https://zktool.zktww.cn/tools/text-case/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线命名转换工具：camelCase 驼峰、snake_case 下划线、kebab-case 中划线、常量命名互转，支持批量多行，附文本去重排序。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"什么时候用驼峰、什么时候用下划线？","acceptedAnswer":{"@type":"Answer","text":"看语言与场景约定：JavaScript/Java 变量用 camelCase，类名用 PascalCase；Python 变量和数据库字段惯用 snake_case；CSS 类名和 URL 用 kebab-case；常量用 CONSTANT_CASE。同一项目保持一致最重要。"}},{"@type":"Question","name":"HTTPResponse 这种缩写怎么正确拆分？","acceptedAnswer":{"@type":"Answer","text":"本工具按\"连续大写 + 后跟小写\"识别缩写边界：HTTPResponseCode 会拆成 HTTP / Response / Code，转 snake_case 得到 http_response_code，而不是 h_t_t_p 这种错误结果。"}},{"@type":"Question","name":"能一次转换多个字段名吗？","acceptedAnswer":{"@type":"Answer","text":"可以，每行一条批量处理。比如把整张表的列名粘进来一键转驼峰，再用\"用结果替换输入\"叠加去重或排序。"}}]}]}</script>
 </main>
 <script>
 (function () {

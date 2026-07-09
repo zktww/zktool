@@ -3,13 +3,22 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>正则表达式测试 · zktool</title>
-    <meta name="description" content="在线测试 JavaScript 正则表达式，展示匹配、捕获组和替换结果。" />
+    <title>正则表达式测试 - 在线正则匹配、捕获组调试工具 | zktool</title>
+    <meta name="description" content="免费在线正则表达式测试工具：实时高亮匹配结果，展示捕获组和命名分组，替换预览，防灾难性回溯卡死，JavaScript 正则调试必备。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="正则表达式测试 - 在线正则匹配、捕获组调试工具 | zktool" />
+    <meta property="og:description" content="免费在线正则表达式测试工具：实时高亮匹配结果，展示捕获组和命名分组，替换预览，防灾难性回溯卡死，JavaScript 正则调试必备。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/regex-tester/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
     <script src="../../assets/analytics.js"></script>
     <style>.match{background:var(--brand-soft);border-radius:4px;padding:0 .15rem}.group-card{margin:.35rem 0;padding:.55rem .7rem;border:1px solid var(--border);border-radius:10px;background:var(--bg-soft)}</style>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
 </head>
 <body>
 <div class="bg-fx" aria-hidden="true"></div>
@@ -33,6 +42,17 @@
             <section class="panel"><h2>替换结果</h2><pre class="output min-h-5" id="replaced"></pre></section>
         </aside>
     </div>
+
+<style>.seo-notes{max-width:72rem;margin:2.2rem auto 0;padding:0 .2rem;font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
+<section class="seo-notes">
+    <h2>关于正则表达式测试</h2>
+    <p>本工具实时运行 JavaScript 正则表达式（RegExp），输入即测：匹配内容在原文中高亮显示，每处匹配的捕获组（含 (?<name>...) 命名分组）逐条列出，还能预览 replace 替换结果。正则在独立的 Web Worker 中执行并带 1 秒超时保护，即使写出灾难性回溯的表达式也不会卡死页面，适合放心调试复杂正则。</p>
+    <h2>常见问题</h2>
+    <details><summary>正则的 g、i、m 这些 flag 是什么意思？</summary><p>g 全局匹配（找出所有而非第一个）、i 忽略大小写、m 多行模式（^ $ 匹配每行首尾）、s 让 . 匹配换行、u Unicode 模式。本工具在 flags 框直接填写组合即可。</p></details>
+    <details><summary>什么是灾难性回溯？</summary><p>形如 (a+)+ 的嵌套量词在匹配失败时会产生指数级回溯尝试，让正则引擎"卡死"。本工具的 1 秒超时会中止这类执行并提示；修复思路是消除嵌套量词或改用更精确的字符类。</p></details>
+    <details><summary>测试通过的正则在 Python/Java 里不生效？</summary><p>各语言正则方言有差异：本工具运行的是 JavaScript 方言，Python 的命名分组是 (?P<name>...)、Java 字符串里 \ 需要双写。语法主体通用，迁移时注意这些细节。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"正则表达式测试","url":"https://zktool.zktww.cn/tools/regex-tester/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线正则表达式测试工具：实时高亮匹配结果，展示捕获组和命名分组，替换预览，防灾难性回溯卡死，JavaScript 正则调试必备。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"正则的 g、i、m 这些 flag 是什么意思？","acceptedAnswer":{"@type":"Answer","text":"g 全局匹配（找出所有而非第一个）、i 忽略大小写、m 多行模式（^ $ 匹配每行首尾）、s 让 . 匹配换行、u Unicode 模式。本工具在 flags 框直接填写组合即可。"}},{"@type":"Question","name":"什么是灾难性回溯？","acceptedAnswer":{"@type":"Answer","text":"形如 (a+)+ 的嵌套量词在匹配失败时会产生指数级回溯尝试，让正则引擎\"卡死\"。本工具的 1 秒超时会中止这类执行并提示；修复思路是消除嵌套量词或改用更精确的字符类。"}},{"@type":"Question","name":"测试通过的正则在 Python/Java 里不生效？","acceptedAnswer":{"@type":"Answer","text":"各语言正则方言有差异：本工具运行的是 JavaScript 方言，Python 的命名分组是 (?P<name>...)、Java 字符串里 \\ 需要双写。语法主体通用，迁移时注意这些细节。"}}]}]}</script>
 </main>
 <script>
 (function () {

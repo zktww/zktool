@@ -3,14 +3,23 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>SQL 格式化 · zktool</title>
-    <meta name="description" content="SQL 语句格式化与压缩，支持 MySQL、PostgreSQL、SQLite 等方言，浏览器本地处理。" />
+    <title>SQL格式化 - 在线SQL美化压缩工具（MySQL/PostgreSQL） | zktool</title>
+    <meta name="description" content="免费在线 SQL 格式化工具：一键美化 SQL 语句，支持 MySQL、PostgreSQL、Oracle、Hive 等 9 种方言，关键字大小写和缩进可调，SQL 压缩单行。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="SQL格式化 - 在线SQL美化压缩工具（MySQL/PostgreSQL） | zktool" />
+    <meta property="og:description" content="免费在线 SQL 格式化工具：一键美化 SQL 语句，支持 MySQL、PostgreSQL、Oracle、Hive 等 9 种方言，关键字大小写和缩进可调，SQL 压缩单行。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/sql-formatter/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
     <script src="../../assets/analytics.js"></script>
     <script src="../../assets/clipboard.js"></script>
     <script src="../../assets/vendor/sql-formatter.min.js"></script>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
 </head>
 <body>
 <div class="bg-fx" aria-hidden="true"></div>
@@ -60,6 +69,17 @@
             </section>
         </aside>
     </div>
+
+<style>.seo-notes{max-width:72rem;margin:2.2rem auto 0;padding:0 .2rem;font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
+<section class="seo-notes">
+    <h2>关于SQL格式化</h2>
+    <p>从日志或代码里拿到的 SQL 往往挤成一行，读起来很吃力。本工具一键把 SQL 格式化为规范缩进的多行形式，支持 MySQL、PostgreSQL、SQLite、SQL Server、Oracle、Hive、Spark、BigQuery 等 9 种方言的语法差异，关键字大小写（UPPER/lower）和缩进风格可调；也能反向把多行 SQL 压缩成单行（保留字符串内容、移除注释），方便塞进配置或命令行。</p>
+    <h2>常见问题</h2>
+    <details><summary>格式化会改变 SQL 的执行结果吗？</summary><p>不会。格式化只调整空白、换行和关键字大小写，语句的语义完全不变；字符串字面量里的内容（包括其中的空格）会原样保留。</p></details>
+    <details><summary>为什么要选择 SQL 方言？</summary><p>各数据库语法有差异：反引号是 MySQL 的标识符引用、TOP 是 SQL Server 的、LATERAL VIEW 是 Hive 的。选对方言才能正确解析这些专有语法，不确定时选"标准 SQL"通常也能工作。</p></details>
+    <details><summary>支持格式化存储过程或很长的 SQL 吗？</summary><p>支持常见的 DML/DDL 和多语句脚本；数千行的 SQL 也能处理。极复杂的存储过程语法（如深度嵌套的流程控制）可能解析失败，此时会保留原文并提示错误。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"SQL格式化","url":"https://zktool.zktww.cn/tools/sql-formatter/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 SQL 格式化工具：一键美化 SQL 语句，支持 MySQL、PostgreSQL、Oracle、Hive 等 9 种方言，关键字大小写和缩进可调，SQL 压缩单行。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"格式化会改变 SQL 的执行结果吗？","acceptedAnswer":{"@type":"Answer","text":"不会。格式化只调整空白、换行和关键字大小写，语句的语义完全不变；字符串字面量里的内容（包括其中的空格）会原样保留。"}},{"@type":"Question","name":"为什么要选择 SQL 方言？","acceptedAnswer":{"@type":"Answer","text":"各数据库语法有差异：反引号是 MySQL 的标识符引用、TOP 是 SQL Server 的、LATERAL VIEW 是 Hive 的。选对方言才能正确解析这些专有语法，不确定时选\"标准 SQL\"通常也能工作。"}},{"@type":"Question","name":"支持格式化存储过程或很长的 SQL 吗？","acceptedAnswer":{"@type":"Answer","text":"支持常见的 DML/DDL 和多语句脚本；数千行的 SQL 也能处理。极复杂的存储过程语法（如深度嵌套的流程控制）可能解析失败，此时会保留原文并提示错误。"}}]}]}</script>
 </main>
 <script>
 (function () {

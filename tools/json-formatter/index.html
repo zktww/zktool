@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>JSON 格式化与校验 · zktool</title>
-    <meta name="description" content="校验、美化、压缩 JSON，语法高亮、树形视图、错误定位、转义与统计信息。" />
+    <title>JSON格式化 - 在线JSON校验、美化、压缩工具 | zktool</title>
+    <meta name="description" content="免费在线 JSON 格式化工具：JSON 校验、美化、压缩一键完成，语法错误定位、树形视图、键排序，数据本地处理不上传服务器，安全可靠。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="JSON格式化 - 在线JSON校验、美化、压缩工具 | zktool" />
+    <meta property="og:description" content="免费在线 JSON 格式化工具：JSON 校验、美化、压缩一键完成，语法错误定位、树形视图、键排序，数据本地处理不上传服务器，安全可靠。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/json-formatter/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tokens.css" />
@@ -574,6 +581,8 @@
         }
     </style>
     <script src="../../assets/analytics.js"></script>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
 </head>
 <body>
 <div class="bg-fx" aria-hidden="true"></div>
@@ -1300,5 +1309,16 @@
         updateStats(input.value, null);
     })();
 </script>
+
+<style>.seo-notes{max-width:72rem;margin:2.2rem auto 0;padding:0 .2rem;font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
+<section class="seo-notes">
+    <h2>关于JSON格式化</h2>
+    <p>JSON 是接口传输和配置文件最常用的数据格式，但压缩后的 JSON 可读性差、手写的 JSON 容易有语法错误。本工具基于浏览器原生 JSON.parse 做严格校验，一键美化（可选 2/4 空格或 Tab 缩进）或压缩为单行，出错时定位到具体位置；所有数据在浏览器本地处理，不会上传服务器，可放心粘贴包含敏感信息的接口返回。</p>
+    <h2>常见问题</h2>
+    <details><summary>JSON 校验失败提示 Unexpected token 怎么办？</summary><p>常见原因：键名或字符串用了单引号（JSON 标准要求双引号）、最后一项多了尾逗号、值里有未转义的换行或引号。根据错误提示的位置逐一排查即可。</p></details>
+    <details><summary>在线 JSON 格式化安全吗？会泄露数据吗？</summary><p>本工具所有处理都在你的浏览器本地完成，数据不会发送到任何服务器，断网也能使用；适合处理包含 token、手机号等敏感信息的数据。</p></details>
+    <details><summary>支持 JSON5 或注释吗？</summary><p>不支持。本工具遵循标准 JSON 规范（RFC 8259），不接受注释、尾逗号、单引号等 JSON5 扩展语法，这也保证了校验结果与后端解析行为一致。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"JSON格式化","url":"https://zktool.zktww.cn/tools/json-formatter/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 JSON 格式化工具：JSON 校验、美化、压缩一键完成，语法错误定位、树形视图、键排序，数据本地处理不上传服务器，安全可靠。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"JSON 校验失败提示 Unexpected token 怎么办？","acceptedAnswer":{"@type":"Answer","text":"常见原因：键名或字符串用了单引号（JSON 标准要求双引号）、最后一项多了尾逗号、值里有未转义的换行或引号。根据错误提示的位置逐一排查即可。"}},{"@type":"Question","name":"在线 JSON 格式化安全吗？会泄露数据吗？","acceptedAnswer":{"@type":"Answer","text":"本工具所有处理都在你的浏览器本地完成，数据不会发送到任何服务器，断网也能使用；适合处理包含 token、手机号等敏感信息的数据。"}},{"@type":"Question","name":"支持 JSON5 或注释吗？","acceptedAnswer":{"@type":"Answer","text":"不支持。本工具遵循标准 JSON 规范（RFC 8259），不接受注释、尾逗号、单引号等 JSON5 扩展语法，这也保证了校验结果与后端解析行为一致。"}}]}]}</script>
 </body>
 </html>

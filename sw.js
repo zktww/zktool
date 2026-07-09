@@ -1,13 +1,16 @@
 /* zktool service worker：stale-while-revalidate。
    同源 GET 一律先回缓存再后台更新；跨域（CDN 库、统计）直接走网络，失败回缓存。 */
-var CACHE = "zktool-v1";
+var CACHE = "zktool-v2";
 var CORE = [
     "./",
     "./index.html",
+    "./404.html",
     "./manifest.webmanifest",
     "./assets/tokens.css",
     "./assets/tool-page.css",
     "./assets/clipboard.js",
+    "./assets/registry.js",
+    "./assets/palette.js",
     "./assets/icon.svg",
 ];
 

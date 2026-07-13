@@ -106,16 +106,38 @@ h1 .title { color: var(--brand); }
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
     gap: 1rem;
-    align-items: start;
+    align-items: stretch;
 }
 
+/* 两栏纵向弹性布局：主输入区与结果区各自撑满整行高度，底边始终对齐 */
+.tool-grid > section.panel,
 .tool-grid > aside {
-    position: sticky;
-    top: 1rem;
-    max-height: calc(100vh - 2rem);
-    max-height: calc(100dvh - 2rem);
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
     min-width: 0;
+}
+
+.tool-grid > aside { gap: 1rem; }
+.tool-grid > aside > .panel + .panel { margin-top: 0; }
+
+/* 每栏第一个面板作为弹性主体，吸收高度差 */
+.tool-grid > aside > .panel:first-child {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.tool-grid > aside > .panel:first-child > .output {
+    flex: 1;
+    min-height: 8rem;
+    max-height: 60vh;
+}
+
+/* 左栏为单面板时，让 textarea 弹性伸展填满 */
+.tool-grid > section.panel > textarea {
+    flex: 1;
+    min-height: 14rem;
 }
 
 .panel {
@@ -281,7 +303,9 @@ tr:last-child td { border-bottom: 0; }
     .meta { width: 100%; }
     h1 { align-items: flex-start; }
     .tool-grid { grid-template-columns: 1fr; }
-    .tool-grid > aside { position: static; max-height: none; overflow: visible; }
+    .tool-grid > aside > .panel:first-child { flex: none; }
+    .tool-grid > aside > .panel:first-child > .output { flex: none; max-height: none; }
+    .tool-grid > section.panel > textarea { flex: none; }
     .panel { padding: 1rem; border-radius: 14px; }
     .btn { flex: 1 1 auto; }
     .row { align-items: stretch; }

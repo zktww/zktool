@@ -29,7 +29,7 @@
     <div class="tool-grid">
         <section class="panel">
             <h2>输入（每行一条）</h2>
-            <textarea id="input" spellcheck="false">user_name
+            <textarea id="input" spellcheck="false" aria-label="输入文本（每行一条）">user_name
 createdAt
 order-item-id
 HTTPResponseCode</textarea>
@@ -59,7 +59,7 @@ HTTPResponseCode</textarea>
                 <h2>结果</h2>
                 <pre class="output" id="output"></pre>
                 <div class="row"><button class="btn primary" id="copy">复制结果</button><button class="btn" id="use">用结果替换输入</button></div>
-                <p class="hint" id="status"></p>
+                <p class="hint" id="status" aria-live="polite"></p>
             </section>
             <section class="panel"><h2>统计</h2><div class="chips" id="stats"></div></section>
         </aside>

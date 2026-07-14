@@ -16,6 +16,7 @@
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
     <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/clipboard.js"></script>
     <style>.diff-line{display:grid;grid-template-columns:3rem 1fr;gap:.6rem;padding:.18rem .35rem;border-radius:6px}.diff-line.add{background:rgba(16,185,129,.1)}.diff-line.del{background:rgba(239,68,68,.08)}.diff-line.same{color:var(--text-2)}.mark{font-family:var(--mono);color:var(--text-3)}</style>
     <script defer src="../../assets/registry.js"></script>
     <script defer src="../../assets/palette.js"></script>
@@ -36,7 +37,7 @@ tools: 4</textarea></label>
 theme: light
 tools: 11</textarea></label>
         </div>
-        <div class="row"><button class="btn primary" id="run">对比</button><button class="btn" id="swap">左右互换</button><button class="btn danger" id="clear">清空</button><span class="hint" id="status"></span></div>
+        <div class="row"><button class="btn primary" id="run">对比</button><button class="btn" id="swap">左右互换</button><button class="btn" id="copy">复制结果</button><button class="btn danger" id="clear">清空</button><span class="hint" id="status" aria-live="polite"></span></div>
     </section>
     <section class="panel">
         <h2>差异</h2>
@@ -58,6 +59,7 @@ tools: 11</textarea></label>
 (function () {
     "use strict";
     var left = document.getElementById("left"), right = document.getElementById("right"), out = document.getElementById("out"), status = document.getElementById("status");
+    var lastText = "";
     function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
     function diff(a, b) {
         // 先剥离公共前后缀，缩小 DP 规模
@@ -91,6 +93,9 @@ tools: 11</textarea></label>
             var mark = r[0]==="add" ? "+" : r[0]==="del" ? "-" : " ";
             return "<div class='diff-line "+r[0]+"'><span class='mark'>"+mark+"</span><span>"+esc(r[1] || " ")+"</span></div>";
         }).join("");
+        lastText = rows.map(function (r) {
+            return (r[0]==="add" ? "+ " : r[0]==="del" ? "- " : "  ") + (r[1] || "");
+        }).join("\n");
         status.textContent = "新增 " + add + " 行，删除 " + del + " 行" + (rows.degraded ? "（差异区过大，已降级为整段对比）" : "");
         status.className = "hint " + (add||del ? "warn" : "ok");
     }
@@ -98,6 +103,10 @@ tools: 11</textarea></label>
     function runDebounced() { clearTimeout(timer); timer = setTimeout(run, 200); }
     document.getElementById("run").onclick = run;
     document.getElementById("swap").onclick = function(){ var t=left.value; left.value=right.value; right.value=t; run(); };
+    document.getElementById("copy").onclick = function () {
+        copyText(lastText || "").then(function () { status.textContent = "结果已复制"; status.className = "hint ok"; },
+            function () { status.textContent = "复制失败，请手动选择复制"; status.className = "hint bad"; });
+    };
     document.getElementById("clear").onclick = function(){ left.value=""; right.value=""; run(); };
     [left,right].forEach(function(el){ el.addEventListener("input", runDebounced); }); run();
 })();

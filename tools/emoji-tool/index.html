@@ -1289,6 +1289,7 @@
 
         function renderCategory() {
             var root = $("contentRoot");
+            if (io) io.disconnect(); // 清空视图前断开旧 sentinel 观察，避免泄漏
             root.innerHTML = "";
             var g = state.groups.find(function (x) { return x.slug === state.activeSlug; });
             var items = state.flat.filter(function (it) { return g && it.groupSlug === g.slug; });
@@ -1302,6 +1303,7 @@
 
         function renderSearchResults(q) {
             var root = $("contentRoot");
+            if (io) io.disconnect(); // 清空视图前断开旧 sentinel 观察，避免泄漏
             root.innerHTML = "";
             var qv = (q || "").trim();
             var byGroup = {};
@@ -1464,7 +1466,21 @@
                 if (ev.target === this) closeDetail();
             });
             document.addEventListener("keydown", function (ev) {
-                if (ev.key === "Escape" && !$("modalMask").hidden) closeDetail();
+                if ($("modalMask").hidden) return;
+                if (ev.key === "Escape") { closeDetail(); return; }
+                if (ev.key === "Tab") {
+                    var box = $("modalBox");
+                    var focusables = box.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                    var list = [];
+                    for (var i = 0; i < focusables.length; i++) {
+                        var el = focusables[i];
+                        if (!el.disabled && el.offsetParent !== null) list.push(el);
+                    }
+                    if (!list.length) return;
+                    var first = list[0], last = list[list.length - 1];
+                    if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+                    else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+                }
             });
             $("mCopyEmoji").addEventListener("click", function () {
                 if (!state.detailItem) return;

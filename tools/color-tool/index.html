@@ -26,16 +26,16 @@
 <main class="wrap">
     <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">Color</p></div>
     <h1><span class="title">颜色转换与对比度</span></h1>
-    <p class="lead">输入 HEX 或 RGB，转换为常用格式，生成浅深色阶，并检查前景色/背景色对比度。</p>
+    <p class="lead">输入 HEX / RGB / HSL，转换为常用格式，生成浅深色阶，并检查前景色/背景色对比度。</p>
     <div class="tool-grid">
         <section class="panel">
             <h2>颜色</h2>
-            <div class="row"><input id="color" type="color" value="#2563eb" /><input id="text" class="mono grow" value="#2563eb" /></div>
+            <div class="row"><input id="color" type="color" value="#2563eb" aria-label="颜色选择器" /><input id="text" class="mono grow" value="#2563eb" aria-label="颜色代码（HEX / RGB / HSL）" /></div>
             <div class="swatch" id="swatch"></div>
             <div class="row"><label class="grow">前景色<input id="fg" class="mono" value="#1e293b" /></label><label class="grow">背景色<input id="bg" class="mono" value="#ffffff" /></label></div>
         </section>
         <aside>
-            <section class="panel"><h2>格式</h2><pre class="output min-h-8" id="formats"></pre><div class="row"><button class="btn primary" id="copy">复制格式</button></div><p class="hint" id="copyStatus"></p></section>
+            <section class="panel"><h2>格式</h2><pre class="output min-h-8" id="formats"></pre><div class="row"><button class="btn primary" id="copy">复制格式</button></div><p class="hint" id="copyStatus" aria-live="polite"></p></section>
             <section class="panel"><h2>色阶</h2><div class="chips" id="palette"></div></section>
             <section class="panel"><h2>对比度</h2><div class="output min-h-4" id="contrast"></div></section>
         </aside>
@@ -56,11 +56,28 @@
 (function () {
     "use strict";
     var color = document.getElementById("color"), text = document.getElementById("text"), swatch = document.getElementById("swatch"), formats = document.getElementById("formats"), palette = document.getElementById("palette"), fg = document.getElementById("fg"), bg = document.getElementById("bg"), contrast = document.getElementById("contrast");
+    function clamp255(n) { return Math.max(0, Math.min(255, Math.round(n))); }
+    function hslToRgb(h, s, l) {
+        h = ((h % 360) + 360) % 360; s /= 100; l /= 100;
+        var c = (1 - Math.abs(2 * l - 1)) * s;
+        var x = c * (1 - Math.abs((h / 60) % 2 - 1));
+        var m = l - c / 2, r = 0, g = 0, b = 0;
+        if (h < 60) { r = c; g = x; }
+        else if (h < 120) { r = x; g = c; }
+        else if (h < 180) { g = c; b = x; }
+        else if (h < 240) { g = x; b = c; }
+        else if (h < 300) { r = x; b = c; }
+        else { r = c; b = x; }
+        return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
+    }
     function parse(s) {
         s = s.trim();
         if (/^#?[0-9a-f]{3}$/i.test(s)) { s = s.replace("#","").split("").map(function (c) { return c+c; }).join(""); }
         if (/^#?[0-9a-f]{6}$/i.test(s)) { s = s.replace("#",""); return [parseInt(s.slice(0,2),16), parseInt(s.slice(2,4),16), parseInt(s.slice(4,6),16)]; }
-        var m = s.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i); if (m) return [+m[1], +m[2], +m[3]];
+        var hm = s.match(/hsla?\(\s*([\d.]+)\s*(?:deg)?\s*[,\s]\s*([\d.]+)%?\s*[,\s]\s*([\d.]+)%?/i);
+        if (hm) return hslToRgb(parseFloat(hm[1]), parseFloat(hm[2]), parseFloat(hm[3]));
+        var m = s.match(/rgba?\(\s*(-?[\d.]+)\s*[,\s]\s*(-?[\d.]+)\s*[,\s]\s*(-?[\d.]+)/i);
+        if (m) return [clamp255(+m[1]), clamp255(+m[2]), clamp255(+m[3])];
         throw new Error("无法识别颜色");
     }
     function hex(rgb) { return "#" + rgb.map(function (n) { return Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2,"0"); }).join(""); }

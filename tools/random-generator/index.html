@@ -30,12 +30,12 @@
         <section class="panel">
             <h2>配置</h2>
             <div class="row"><label class="grow">类型<select id="type"><option value="uuid">UUID v4</option><option value="password">密码</option><option value="token">Token</option><option value="number">数字串</option><option value="custom">自定义字符集</option></select></label><label class="w-8">长度<input id="len" type="number" min="1" max="512" value="32" /></label><label class="w-8">数量<input id="count" type="number" min="1" max="200" value="10" /></label></div>
-            <label>自定义字符集</label>
+            <label for="charset">自定义字符集</label>
             <input id="charset" class="mono" value="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789" />
             <div class="row"><button class="btn primary" id="gen">生成</button><button class="btn" id="copy">复制全部</button><button class="btn danger" id="clear">清空</button></div>
         </section>
         <aside>
-            <section class="panel"><h2>结果</h2><pre class="output" id="output"></pre><p class="hint" id="status"></p></section>
+            <section class="panel"><h2>结果</h2><pre class="output" id="output"></pre><p class="hint" id="status" aria-live="polite"></p></section>
             <section class="panel"><h2>字符集</h2><div class="chips" id="chips"></div></section>
         </aside>
     </div>
@@ -90,7 +90,15 @@
         else updateChips(chars, l);
         status.textContent = "已生成 " + n + " 条"; status.className = "hint ok";
     }
+    function refreshChips() {
+        if (type.value === "uuid") { chips.innerHTML = "<span class='chip'>模式 uuid</span><span class='chip'>熵 122 bit · 极强</span>"; return; }
+        var chars = Array.from(type.value === "custom" ? charset.value : (sets[type.value] || ""));
+        var l = Math.max(1, Math.min(512, parseInt(len.value, 10) || 32));
+        if (!chars.length) { chips.innerHTML = "<span class='chip'>字符集 0</span><span class='chip'>模式 " + type.value + "</span>"; return; }
+        updateChips(chars, l);
+    }
     type.onchange = function () { charset.disabled = type.value !== "custom"; len.disabled = type.value === "uuid"; gen(); };
+    [len, count, charset].forEach(function (el) { el.addEventListener("input", refreshChips); });
     document.getElementById("gen").onclick = gen;
     document.getElementById("copy").onclick = function () {
         copyText(output.textContent || "").then(function () { status.textContent = "已复制"; status.className = "hint ok"; },

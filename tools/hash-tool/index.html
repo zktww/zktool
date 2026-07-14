@@ -44,12 +44,12 @@
                 <span class="mono" id="fileInfo"></span>
             </div>
             <input type="file" id="file" hidden />
-            <div class="row"><button class="btn danger" id="clear">清空</button><span class="hint" id="status"></span></div>
+            <div class="row"><button class="btn danger" id="clear">清空</button><span class="hint" id="status" aria-live="polite"></span></div>
         </section>
         <aside>
             <section class="panel">
                 <h2>摘要结果</h2>
-                <div id="results"></div>
+                <div id="results" aria-live="polite"></div>
                 <p class="hint">MD5 已不适合安全用途，仅用于校验与兼容旧系统。</p>
             </section>
         </aside>
@@ -108,8 +108,33 @@
     }
     function toHex(arr) { return Array.from(new Uint8Array(arr)).map(function (b) { return b.toString(16).padStart(2, "0"); }).join(""); }
 
+    /* 大文件 MD5 移到内联 Web Worker，避免同步循环冻结主线程；md5 算法代码逐字不变，仅换到 worker 执行 */
+    var md5Worker = null, md5Broken = false;
+    function getMd5Worker() {
+        if (md5Worker || md5Broken) return md5Worker;
+        try {
+            var src = md5.toString() + "\nself.onmessage=function(e){self.postMessage(md5(e.data));};";
+            var url = URL.createObjectURL(new Blob([src], { type: "text/javascript" }));
+            md5Worker = new Worker(url);
+            URL.revokeObjectURL(url);
+        } catch (e) { md5Broken = true; md5Worker = null; }
+        return md5Worker;
+    }
+    function md5Async(bytes) {
+        var w = getMd5Worker();
+        if (!w) return Promise.resolve(toHex(md5(bytes)));   // worker 不可用则回退主线程
+        return new Promise(function (resolve, reject) {
+            function done(e) { cleanup(); resolve(toHex(e.data)); }
+            function fail(e) { cleanup(); reject(new Error((e && e.message) || "MD5 计算出错")); }
+            function cleanup() { w.removeEventListener("message", done); w.removeEventListener("error", fail); }
+            w.addEventListener("message", done);
+            w.addEventListener("error", fail);
+            w.postMessage(bytes);   // 结构化克隆，调用方 bytes 不受影响（SHA 仍可复用）
+        });
+    }
+
     function digest(algo, bytes) {
-        if (algo === "MD5") return Promise.resolve(toHex(md5(bytes)));
+        if (algo === "MD5") return md5Async(bytes);
         return crypto.subtle.digest(algo, bytes).then(toHex);
     }
 

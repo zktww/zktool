@@ -51,7 +51,7 @@
             <div class="row quality-row">
                 <label class="grow">质量 <output id="qOut">80</output>%<input id="quality" type="range" min="10" max="100" step="5" value="80" /></label>
             </div>
-            <div class="row"><button class="btn primary" id="convert" disabled>压缩转换</button><button class="btn" id="download" disabled>下载结果</button><span class="hint" id="status"></span></div>
+            <div class="row"><button class="btn primary" id="convert" disabled>压缩转换</button><button class="btn" id="download" disabled>下载结果</button><span class="hint" id="status" aria-live="polite"></span></div>
         </section>
         <aside>
             <section class="panel">
@@ -89,7 +89,9 @@
     function load(f) {
         if (!f || !/^image\//.test(f.type)) { msg("请选择图片文件", "bad"); return; }
         srcFile = f;
-        createImageBitmap(f).then(function (bmp) {
+        if (srcBitmap) { srcBitmap.close(); srcBitmap = null; }
+        function decode(opts) { return opts ? createImageBitmap(f, opts) : createImageBitmap(f); }
+        decode({ imageOrientation: "from-image" }).catch(function () { return decode(null); }).then(function (bmp) {
             srcBitmap = bmp;
             fileInfo.textContent = f.name + " · " + fmtSize(f.size) + " · " + bmp.width + "×" + bmp.height;
             document.getElementById("srcSize").textContent = fmtSize(f.size);
@@ -110,7 +112,9 @@
         }
         var canvas = document.createElement("canvas");
         canvas.width = w; canvas.height = h;
-        canvas.getContext("2d").drawImage(srcBitmap, 0, 0, w, h);
+        var ctx = canvas.getContext("2d");
+        if (format.value === "image/jpeg") { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h); }
+        ctx.drawImage(srcBitmap, 0, 0, w, h);
         msg("转换中...");
         canvas.toBlob(function (blob) {
             if (!blob) { msg("转换失败：浏览器不支持该输出格式", "bad"); return; }

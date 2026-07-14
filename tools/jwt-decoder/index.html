@@ -37,14 +37,14 @@
     <div class="tool-grid">
         <section class="panel">
             <h2>Token</h2>
-            <textarea id="input" spellcheck="false" placeholder="粘贴 JWT（xxx.yyy.zzz）..."></textarea>
-            <label>HS256 密钥（可选，用于本地验签）</label>
+            <textarea id="input" spellcheck="false" aria-label="JWT Token 输入" placeholder="粘贴 JWT（xxx.yyy.zzz）..."></textarea>
+            <label for="secret">HS256 密钥（可选，用于本地验签）</label>
             <input id="secret" class="mono" placeholder="留空则跳过签名校验" />
-            <div class="row"><button class="btn" id="sample">示例</button><button class="btn danger" id="clear">清空</button><span class="hint" id="status"></span></div>
+            <div class="row"><button class="btn" id="sample">示例</button><button class="btn danger" id="clear">清空</button><span class="hint" id="status" aria-live="polite"></span></div>
         </section>
         <aside>
-            <section class="panel"><h2>Header</h2><pre class="output min-h-4" id="header"></pre></section>
-            <section class="panel"><h2>Payload</h2><pre class="output min-h-6" id="payload"></pre><div id="claims"></div></section>
+            <section class="panel"><h2>Header</h2><pre class="output min-h-4" id="header" aria-live="polite"></pre><div class="row"><button class="btn" id="copyHeader">复制 Header</button></div></section>
+            <section class="panel"><h2>Payload</h2><pre class="output min-h-6" id="payload" aria-live="polite"></pre><div id="claims"></div><div class="row"><button class="btn" id="copyPayload">复制 Payload</button></div></section>
             <section class="panel"><h2>签名</h2><div class="output min-h-4" id="sig"></div></section>
         </aside>
     </div>
@@ -125,6 +125,12 @@
         secret.value = "your-256-bit-secret"; run();
     };
     document.getElementById("clear").onclick = function () { input.value = ""; secret.value = ""; run(); status.textContent = "已清空"; };
+    function copySeg(el, label) {
+        copyText(el.textContent || "").then(function () { status.textContent = label + " 已复制"; status.className = "hint ok"; },
+            function () { status.textContent = "复制失败，请手动选择复制"; status.className = "hint bad"; });
+    }
+    document.getElementById("copyHeader").onclick = function () { copySeg(header, "Header"); };
+    document.getElementById("copyPayload").onclick = function () { copySeg(payload, "Payload"); };
     run();
 })();
 </script>

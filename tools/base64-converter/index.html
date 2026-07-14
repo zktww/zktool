@@ -29,7 +29,7 @@
     <div class="tool-grid">
         <section class="panel">
             <h2>输入</h2>
-            <textarea id="input" spellcheck="false" placeholder="输入文本或 Base64..."></textarea>
+            <textarea id="input" spellcheck="false" aria-label="输入文本或 Base64" placeholder="输入文本或 Base64..."></textarea>
             <div class="row">
                 <button class="btn primary" id="enc">Base64 编码</button>
                 <button class="btn" id="dec">Base64 解码</button>
@@ -47,7 +47,7 @@
                 <h2>结果</h2>
                 <pre class="output" id="output"></pre>
                 <div class="row"><button class="btn primary" id="copy">复制结果</button></div>
-                <p class="hint" id="status">UTF-8 安全编码，中文不会乱码。</p>
+                <p class="hint" id="status" aria-live="polite">UTF-8 安全编码，中文不会乱码。</p>
             </section>
             <section class="panel">
                 <h2>统计</h2>
@@ -71,8 +71,11 @@
 (function () {
     "use strict";
     var input = document.getElementById("input"), output = document.getElementById("output"), status = document.getElementById("status"), stats = document.getElementById("stats");
-    var enc = new TextEncoder(), dec = new TextDecoder();
+    var enc = new TextEncoder(), dec = new TextDecoder("utf-8", { fatal: true });
     function bytes(s) { return enc.encode(s); }
+    function decodeBytes(arr) {
+        try { return dec.decode(arr); } catch (e) { throw new Error("字节不是有效 UTF-8"); }
+    }
     function b64(s) {
         var bin = "", arr = bytes(s);
         for (var i = 0; i < arr.length; i++) bin += String.fromCharCode(arr[i]);
@@ -85,14 +88,14 @@
         var bin = atob(s);
         var arr = new Uint8Array(bin.length);
         for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-        return dec.decode(arr);
+        return decodeBytes(arr);
     }
     function fromHex(s) {
         s = s.replace(/(0x|[\s,])/g, "");
         if (!s.length || s.length % 2 || /[^0-9a-f]/i.test(s)) throw new Error("不是有效的 Hex 字符串");
         var arr = new Uint8Array(s.length / 2);
         for (var i = 0; i < arr.length; i++) arr[i] = parseInt(s.substr(i * 2, 2), 16);
-        return dec.decode(arr);
+        return decodeBytes(arr);
     }
     function fromUnicode(s) {
         var out = s.replace(/\\u\{([0-9a-f]+)\}|\\u([0-9a-f]{4})/gi, function (_, br, four) {

@@ -16,6 +16,7 @@
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
     <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/clipboard.js"></script>
     <script defer src="../../assets/registry.js"></script>
     <script defer src="../../assets/palette.js"></script>
 </head>
@@ -24,22 +25,23 @@
 <main class="wrap">
     <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">Cron</p></div>
     <h1><span class="title">Cron 表达式解析</span></h1>
-    <p class="lead">解析常见 5 字段 Cron：分钟、小时、日期、月份、星期，预览未来执行时间。日期与星期同时指定时按交集匹配。</p>
+    <p class="lead">解析常见 5 字段 Cron：分钟、小时、日期、月份、星期，预览未来执行时间。日期与星期同时指定时按并集匹配（标准 Vixie cron）。</p>
     <div class="tool-grid">
         <section class="panel">
             <h2>表达式</h2>
-            <input id="expr" class="mono" value="*/15 9-18 * * 1-5" />
+            <label for="expr">Cron 表达式（5 字段）</label>
+            <input id="expr" class="mono" value="*/15 9-18 * * 1-5" aria-label="Cron 表达式" />
             <div class="row">
                 <button class="btn primary" data-exp="*/5 * * * *">每 5 分钟</button>
                 <button class="btn" data-exp="0 9 * * 1-5">工作日 9 点</button>
                 <button class="btn" data-exp="30 2 1 * *">每月 1 日 2:30</button>
                 <button class="btn" data-exp="0 0 * * 0">每周日</button>
             </div>
-            <div class="row"><button class="btn primary" id="run">解析</button><span class="hint" id="status"></span></div>
+            <div class="row"><button class="btn primary" id="run">解析</button><span class="hint" id="status" aria-live="polite"></span></div>
         </section>
         <aside>
-            <section class="panel"><h2>字段说明</h2><div class="output min-h-6" id="desc"></div></section>
-            <section class="panel"><h2>未来 10 次</h2><div class="output" id="next"></div></section>
+            <section class="panel"><h2>字段说明</h2><div class="output min-h-6" id="desc" aria-live="polite"></div></section>
+            <section class="panel"><h2>未来 10 次</h2><div class="output" id="next" aria-live="polite"></div><div class="row"><button class="btn" id="copyNext">复制</button></div></section>
         </aside>
     </div>
 
@@ -49,25 +51,35 @@
     <p>Cron 表达式用 5 个字段（分钟、小时、日期、月份、星期）描述定时任务的执行计划，广泛用于 Linux crontab、Spring 调度、K8s CronJob 等场景。本工具即输即解：逐字段展开每个位置匹配的具体数值，并按未来 5 年预览接下来 10 次执行时间，还内置"每 5 分钟""工作日 9 点"等常用模板，写定时任务前先在这里验证，避免上线后才发现跑错时间。</p>
     <h2>常见问题</h2>
     <details><summary>*/5 和 5 在 Cron 里有什么区别？</summary><p>在分钟字段，*/5 表示"每隔 5 分钟"（0、5、10…55 都执行），5 表示"第 5 分钟"（每小时只在 :05 执行一次）。步进语法 a/b 也可用于范围，如 10-30/5。</p></details>
-    <details><summary>日期和星期同时指定时怎么算？</summary><p>本工具按交集（AND）处理：如 0 0 1 * 1 表示"既是每月 1 日又是周一"才执行。注意部分 crontab 实现按并集（OR）处理这两个字段，跨系统使用时建议只指定其中一个。</p></details>
+    <details><summary>日期和星期同时指定时怎么算？</summary><p>本工具按标准 Vixie cron 的并集（OR）处理：当日期和星期都被限定（都不是 *）时，任一匹配即执行。如 0 0 1 * 1 表示"每月 1 日或每周一"都会执行。若只指定其中一个（另一个为 *），则按该字段匹配。</p></details>
     <details><summary>为什么我的定时任务执行时间差了 8 小时？</summary><p>典型的时区问题：服务器或容器用 UTC 时区，而你按北京时间（UTC+8）写了表达式。确认运行环境的时区设置，K8s CronJob 可用 timeZone 字段显式指定。</p></details>
 </section>
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"Cron表达式解析","url":"https://zktool.zktww.cn/tools/cron-tool/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 Cron 表达式解析工具：解析 5 字段 Cron 定时任务表达式，逐字段解释含义，预览未来 10 次执行时间，附常用表达式模板。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"*/5 和 5 在 Cron 里有什么区别？","acceptedAnswer":{"@type":"Answer","text":"在分钟字段，*/5 表示\"每隔 5 分钟\"（0、5、10…55 都执行），5 表示\"第 5 分钟\"（每小时只在 :05 执行一次）。步进语法 a/b 也可用于范围，如 10-30/5。"}},{"@type":"Question","name":"日期和星期同时指定时怎么算？","acceptedAnswer":{"@type":"Answer","text":"本工具按交集（AND）处理：如 0 0 1 * 1 表示\"既是每月 1 日又是周一\"才执行。注意部分 crontab 实现按并集（OR）处理这两个字段，跨系统使用时建议只指定其中一个。"}},{"@type":"Question","name":"为什么我的定时任务执行时间差了 8 小时？","acceptedAnswer":{"@type":"Answer","text":"典型的时区问题：服务器或容器用 UTC 时区，而你按北京时间（UTC+8）写了表达式。确认运行环境的时区设置，K8s CronJob 可用 timeZone 字段显式指定。"}}]}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"Cron表达式解析","url":"https://zktool.zktww.cn/tools/cron-tool/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 Cron 表达式解析工具：解析 5 字段 Cron 定时任务表达式，逐字段解释含义，预览未来 10 次执行时间，附常用表达式模板。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"*/5 和 5 在 Cron 里有什么区别？","acceptedAnswer":{"@type":"Answer","text":"在分钟字段，*/5 表示\"每隔 5 分钟\"（0、5、10…55 都执行），5 表示\"第 5 分钟\"（每小时只在 :05 执行一次）。步进语法 a/b 也可用于范围，如 10-30/5。"}},{"@type":"Question","name":"日期和星期同时指定时怎么算？","acceptedAnswer":{"@type":"Answer","text":"本工具按标准 Vixie cron 的并集（OR）处理：当日期和星期都被限定（都不是 *）时，任一匹配即执行。如 0 0 1 * 1 表示\"每月 1 日或每周一\"都会执行。若只指定其中一个（另一个为 *），则按该字段匹配。"}},{"@type":"Question","name":"为什么我的定时任务执行时间差了 8 小时？","acceptedAnswer":{"@type":"Answer","text":"典型的时区问题：服务器或容器用 UTC 时区，而你按北京时间（UTC+8）写了表达式。确认运行环境的时区设置，K8s CronJob 可用 timeZone 字段显式指定。"}}]}]}</script>
 </main>
 <script>
 (function () {
     "use strict";
     var expr = document.getElementById("expr"), desc = document.getElementById("desc"), next = document.getElementById("next"), status = document.getElementById("status");
     var ranges = [[0,59,"分钟"],[0,23,"小时"],[1,31,"日期"],[1,12,"月份"],[0,6,"星期"]];
-    function parseField(part, min, max) {
+    var DOW_NAMES = { SUN:0, MON:1, TUE:2, WED:3, THU:4, FRI:5, SAT:6 };
+    var MON_NAMES = { JAN:1, FEB:2, MAR:3, APR:4, MAY:5, JUN:6, JUL:7, AUG:8, SEP:9, OCT:10, NOV:11, DEC:12 };
+    function resolveTok(tok, names, isDow) {
+        tok = tok.replace(/^\s+|\s+$/g, "");
+        var up = tok.toUpperCase();
+        if (names && Object.prototype.hasOwnProperty.call(names, up)) return names[up];
+        var v = parseInt(tok, 10);
+        if (isDow && v === 7) v = 0; // 周日=7 等价 0
+        return v;
+    }
+    function parseField(part, min, max, names, isDow) {
         var set = new Set();
         part.split(",").forEach(function (piece) {
             var step = 1;
             if (piece.indexOf("/") >= 0) { var ps = piece.split("/"); piece = ps[0]; step = parseInt(ps[1], 10) || 1; }
             var a = min, b = max;
             if (piece !== "*" && piece !== "?") {
-                if (piece.indexOf("-") >= 0) { var rs = piece.split("-"); a = parseInt(rs[0], 10); b = parseInt(rs[1], 10); }
-                else { a = b = parseInt(piece, 10); }
+                if (piece.indexOf("-") >= 0) { var rs = piece.split("-"); a = resolveTok(rs[0], names, isDow); b = resolveTok(rs[1], names, isDow); }
+                else { a = b = resolveTok(piece, names, isDow); }
             }
             if (isNaN(a) || isNaN(b) || a < min || b > max || a > b) throw new Error("字段超出范围：" + part);
             for (var i = a; i <= b; i += step) set.add(i);
@@ -82,7 +94,7 @@
         try {
             var parts = expr.value.trim().split(/\s+/);
             if (parts.length !== 5) throw new Error("请使用 5 字段 Cron，例如 */5 * * * *");
-            var sets = parts.map(function (p, i) { return parseField(p, ranges[i][0], ranges[i][1]); });
+            var sets = parts.map(function (p, i) { return parseField(p, ranges[i][0], ranges[i][1], i === 3 ? MON_NAMES : i === 4 ? DOW_NAMES : null, i === 4); });
             desc.innerHTML = ranges.map(function (r, i) {
                 var vals = Array.from(sets[i]).sort(function (a,b) { return a-b; });
                 return "<b>" + r[2] + "</b> <span class='mono'>" + parts[i] + "</span><br><span class='mono'>" + (vals.length > 18 ? vals.slice(0,18).join(", ") + " ..." : vals.join(", ")) + "</span>";
@@ -91,8 +103,13 @@
             var minutes = Array.from(sets[0]).sort(function (a,b) { return a-b; });
             var hours = Array.from(sets[1]).sort(function (a,b) { return a-b; });
             var limit = new Date(d.getFullYear()+5, d.getMonth(), d.getDate());
+            // 标准 Vixie cron：日期与星期都被限定（都不是 * / ?）时取并集，否则取交集
+            var domRestricted = parts[2] !== "*" && parts[2] !== "?";
+            var dowRestricted = parts[4] !== "*" && parts[4] !== "?";
             while (out.length < 10 && d < limit) {
-                if (sets[2].has(d.getDate()) && sets[3].has(d.getMonth()+1) && sets[4].has(d.getDay())) {
+                var domHit = sets[2].has(d.getDate()), dowHit = sets[4].has(d.getDay());
+                var dayOk = (domRestricted && dowRestricted) ? (domHit || dowHit) : (domHit && dowHit);
+                if (sets[3].has(d.getMonth()+1) && dayOk) {
                     for (var hi = 0; hi < hours.length && out.length < 10; hi++) {
                         if (hours[hi] < d.getHours()) continue;
                         for (var mi = 0; mi < minutes.length && out.length < 10; mi++) {
@@ -111,6 +128,10 @@
         }
     }
     document.getElementById("run").onclick = run;
+    document.getElementById("copyNext").onclick = function () {
+        copyText(next.textContent || "").then(function () { status.textContent = "已复制"; status.className = "hint ok"; },
+            function () { status.textContent = "复制失败，请手动选择复制"; status.className = "hint bad"; });
+    };
     Array.from(document.querySelectorAll("[data-exp]")).forEach(function (b) { b.onclick = function () { expr.value = b.getAttribute("data-exp"); run(); }; });
     expr.addEventListener("input", run); run();
 })();

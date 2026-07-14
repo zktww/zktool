@@ -496,6 +496,18 @@
 
         .ok-msg[hidden] { display: none !important; }
 
+        .warn-msg {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            font-size: 0.83rem;
+            color: var(--warn);
+            margin-top: 0.5rem;
+        }
+
+        .warn-msg svg { flex-shrink: 0; margin-top: 0.15rem; }
+        .warn-msg[hidden] { display: none !important; }
+
         .stats {
             flex-shrink: 0;
             display: flex;
@@ -688,6 +700,10 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
             <span id="okText">完成</span>
         </div>
+        <div id="warnBox" class="warn-msg" hidden aria-live="polite">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <span id="warnText"></span>
+        </div>
     </div>
 
     <div class="stats" id="statsBar" aria-label="统计信息">
@@ -718,6 +734,8 @@
         var errBox = document.getElementById("errBox");
         var okBox = document.getElementById("okBox");
         var okText = document.getElementById("okText");
+        var warnBox = document.getElementById("warnBox");
+        var warnText = document.getElementById("warnText");
         var statLine = document.getElementById("statLine");
         var stChars = document.getElementById("stChars");
         var stLines = document.getElementById("stLines");
@@ -770,7 +788,40 @@
         function clearMsg() {
             errBox.hidden = true;
             okBox.hidden = true;
+            warnBox.hidden = true;
             inPane.classList.remove("pane--error");
+        }
+
+        /* 大整数精度提示：检测原始输入中不在字符串内、长度超过 15 位的整数字面量 */
+        function showWarn(msg) {
+            warnText.textContent = msg;
+            warnBox.hidden = false;
+        }
+
+        function hasBigIntLiteral(text) {
+            var inStr = false, i = 0, n = text.length;
+            while (i < n) {
+                var c = text.charAt(i);
+                if (inStr) {
+                    if (c === "\\") { i += 2; continue; }
+                    if (c === '"') inStr = false;
+                    i++;
+                } else if (c === '"') {
+                    inStr = true; i++;
+                } else if (c >= "0" && c <= "9") {
+                    var start = i;
+                    while (i < n && text.charAt(i) >= "0" && text.charAt(i) <= "9") i++;
+                    var prev = start > 0 ? text.charAt(start - 1) : "";
+                    // 排除小数部分与指数部分，只看整数字面量
+                    if (i - start > 15 && prev !== "." && prev !== "e" && prev !== "E") return true;
+                } else i++;
+            }
+            return false;
+        }
+
+        function checkBigInt() {
+            if (hasBigIntLiteral(input.value))
+                showWarn("检测到超出安全整数范围的大数，数值可能已丢失精度。");
         }
 
         /* ================= 解析与错误定位 ================= */
@@ -1112,6 +1163,7 @@
             updateStats(text, analyze(data));
             clearMsg();
             showOk(minify ? "已压缩" : "已美化");
+            checkBigInt();
         }
 
         function runValidate() {
@@ -1121,6 +1173,7 @@
             var a = analyze(parsed.data);
             updateStats(input.value, a);
             showOk("JSON 合法 ✓ 共 " + a.keys + " 个键，最大深度 " + a.maxDepth);
+            checkBigInt();
         }
 
         function runEscape() {

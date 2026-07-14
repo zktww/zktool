@@ -242,7 +242,7 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1rem;
         }
 
@@ -278,6 +278,8 @@
             align-items: center;
             gap: 0.85rem;
             margin-bottom: 0.75rem;
+            /* 右侧留出收藏星标（绝对定位于卡片右上）的空间，避免标签顶到星标 */
+            padding-right: 1.9rem;
         }
 
         .card-icon {
@@ -321,16 +323,31 @@
 
         .card-cta {
             margin-top: 0.9rem;
+            align-self: flex-end;
             font-size: 0.82rem;
             font-weight: 550;
             color: var(--brand-1);
             display: inline-flex;
             align-items: center;
-            gap: 0.35rem;
-            transition: gap 0.25s var(--ease);
+            gap: 0;
         }
-        .card:hover .card-cta { gap: 0.6rem; }
-        .card-cta svg { width: 13px; height: 13px; }
+        .cta-label {
+            max-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            opacity: 0;
+            transition: max-width 0.32s var(--ease), opacity 0.24s, margin-right 0.32s var(--ease);
+        }
+        .card:hover .cta-label, .card:focus-visible .cta-label {
+            max-width: 8rem;
+            opacity: 1;
+            margin-right: 0.4rem;
+        }
+        .card-cta svg {
+            width: 13px; height: 13px;
+            transition: transform 0.25s var(--ease);
+        }
+        .card:hover .card-cta svg, .card:focus-visible .card-cta svg { transform: translateX(2px); }
 
         /* ── 收藏与最近使用 ── */
         .fav-btn {
@@ -354,7 +371,6 @@
         .fav-btn.on { color: #f59e0b; }
         .fav-btn svg { width: 16px; height: 16px; }
         .fav-btn.on svg { fill: currentColor; }
-        .card .tag { margin-right: 1.6rem; }
         .badge-recent {
             font-size: 0.62rem;
             font-weight: 600;
@@ -443,9 +459,9 @@
             <kbd>/</kbd>
         </div>
         <div class="filters" role="tablist" aria-label="分类筛选">
-            <button class="active" data-filter="all" role="tab" aria-selected="true">全部 <span class="count">24</span></button>
-            <button data-filter="tool" role="tab" aria-selected="false">工具 <span class="count">20</span></button>
-            <button data-filter="demo" role="tab" aria-selected="false">演示 <span class="count">4</span></button>
+            <button class="active" data-filter="all" role="tab" aria-selected="true">全部 <span class="count" data-count="all"></span></button>
+            <button data-filter="tool" role="tab" aria-selected="false">工具 <span class="count" data-count="tool"></span></button>
+            <button data-filter="demo" role="tab" aria-selected="false">演示 <span class="count" data-count="demo"></span></button>
         </div>
     </div>
 
@@ -461,7 +477,7 @@
                     <span class="tag">时间</span>
                 </div>
                 <p class="card-desc">Unix 时间与日期互转，秒/毫秒自动识别、批量转换、多格式输出与时区对照。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/json-formatter/" data-kw="json 格式化 校验 美化 压缩 format validate">
@@ -473,7 +489,7 @@
                     <span class="tag">JSON</span>
                 </div>
                 <p class="card-desc">校验、美化、压缩 JSON，语法高亮、树形视图、错误定位、转义与统计信息。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/emoji-tool/" data-kw="emoji 表情 unicode 复制 搜索">
@@ -485,7 +501,7 @@
                     <span class="tag">Unicode</span>
                 </div>
                 <p class="card-desc">分类浏览与中英文搜索，收藏、最近使用、肤色切换与一键复制。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/mermaid-editor/" data-kw="mermaid 图表 流程图 时序图 甘特图 编辑器 diagram">
@@ -497,7 +513,7 @@
                     <span class="tag">图表</span>
                 </div>
                 <p class="card-desc">实时编辑渲染流程图、时序图等，模板库、缩放平移、分享链接与导出 PNG / SVG。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/url-codec/" data-kw="url 编码 解码 encode decode query params 参数">
@@ -509,7 +525,7 @@
                     <span class="tag">URL</span>
                 </div>
                 <p class="card-desc">URL encode/decode、查询参数解析、参数对象互转，适合排查接口与分享链接。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/base64-converter/" data-kw="base64 hex unicode utf8 编码 解码">
@@ -521,7 +537,7 @@
                     <span class="tag">编码</span>
                 </div>
                 <p class="card-desc">UTF-8 文本 Base64 编码/解码，并支持 Hex、Unicode escape 与字节统计。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/regex-tester/" data-kw="正则 表达式 regexp regex 测试 匹配 替换 捕获组">
@@ -533,7 +549,7 @@
                     <span class="tag">Regex</span>
                 </div>
                 <p class="card-desc">实时测试 JavaScript 正则，展示匹配高亮、捕获组和替换结果。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/random-generator/" data-kw="uuid 随机 字符串 password token nanoid 密码">
@@ -545,7 +561,7 @@
                     <span class="tag">随机</span>
                 </div>
                 <p class="card-desc">生成 UUID v4、随机密码、Token、数字串与批量自定义随机字符串。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/cron-tool/" data-kw="cron crontab 表达式 定时 解析 下次执行">
@@ -557,7 +573,7 @@
                     <span class="tag">Cron</span>
                 </div>
                 <p class="card-desc">解析 5 字段 Cron，展示字段含义，并预览未来 10 次执行时间。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/color-tool/" data-kw="颜色 color hex rgb hsl 对比度 调色板 wcag">
@@ -569,7 +585,7 @@
                     <span class="tag">Color</span>
                 </div>
                 <p class="card-desc">HEX / RGB / HSL 互转，生成色阶，并检查前景与背景的 WCAG 对比度。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/text-diff/" data-kw="文本 diff 差异 对比 compare 配置 日志">
@@ -581,7 +597,7 @@
                     <span class="tag">Diff</span>
                 </div>
                 <p class="card-desc">左右文本行级对比，高亮新增、删除与未变内容，适合配置和日志片段。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/hash-tool/" data-kw="hash md5 sha1 sha256 sha512 摘要 校验 checksum 文件">
@@ -593,7 +609,7 @@
                     <span class="tag">摘要</span>
                 </div>
                 <p class="card-desc">计算文本或文件的 MD5 / SHA-1 / SHA-256 / SHA-512，支持拖拽文件。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/jwt-decoder/" data-kw="jwt token 解析 解码 decode 过期 签名 hs256 bearer">
@@ -605,7 +621,7 @@
                     <span class="tag">Token</span>
                 </div>
                 <p class="card-desc">本地解码 JWT 的 Header 与 Payload，标注过期状态，可选 HS256 验签。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/json-converter/" data-kw="json yaml typescript interface go struct csv 转换 convert 类型">
@@ -617,7 +633,7 @@
                     <span class="tag">转换</span>
                 </div>
                 <p class="card-desc">JSON 转 YAML、TypeScript interface、Go struct 与 CSV，写配置定类型一步到位。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/text-case/" data-kw="大小写 camel snake kebab pascal constant 命名 转换 去重 排序 行">
@@ -629,7 +645,7 @@
                     <span class="tag">文本</span>
                 </div>
                 <p class="card-desc">camelCase / snake_case 等命名互转，行去重、排序、去空行与统计。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/image-compressor/" data-kw="图片 压缩 webp jpeg png 转换 image compress 体积">
@@ -641,7 +657,7 @@
                     <span class="tag">图片</span>
                 </div>
                 <p class="card-desc">本地压缩并转换 WebP / JPEG / PNG，调质量看体积对比，不上传服务器。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/http-reference/" data-kw="http 状态码 status code mime content-type 速查 404 500">
@@ -653,7 +669,7 @@
                     <span class="tag">速查</span>
                 </div>
                 <p class="card-desc">常用状态码含义与 MIME 类型对照，搜索过滤、点击复制。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/unicode-inspector/" data-kw="unicode 字符 码点 零宽 不可见 编码 utf8 utf16 检查">
@@ -665,7 +681,7 @@
                     <span class="tag">Unicode</span>
                 </div>
                 <p class="card-desc">逐字符查看码点与编码，揪出零宽字符、同形字等看不见的坑。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="tools/sql-formatter/" data-kw="sql 格式化 美化 压缩 mysql postgresql format">
@@ -677,7 +693,7 @@
                     <span class="tag">SQL</span>
                 </div>
                 <p class="card-desc">格式化或压缩 SQL，支持 MySQL、PostgreSQL 等常见方言与关键字风格。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="https://qc.zktww.cn/" target="_blank" rel="noopener noreferrer" data-kw="二维码 生成器 qrcode qr code 链接 外部">
@@ -689,7 +705,7 @@
                     <span class="tag">外部</span>
                 </div>
                 <p class="card-desc">快速生成二维码，支持跳转到独立二维码生成服务，适合链接、文本和分享场景。</p>
-                <span class="card-cta">打开工具 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开工具</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></span>
             </a>
         </nav>
     </div>
@@ -706,7 +722,7 @@
                     <span class="tag">CSS</span>
                 </div>
                 <p class="card-desc">暖色深色主题下对照 px、rem、vw 等单位，含基准调节、演示条、两两对比与单位表。</p>
-                <span class="card-cta">打开演示 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开演示</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="demos/drag-and-drop/" data-kw="拖拽 drag drop dnd html5 排序 上传">
@@ -718,7 +734,7 @@
                     <span class="tag">DnD</span>
                 </div>
                 <p class="card-desc">三合一示例：基础拖放、列表排序、文件拖拽上传，附实时事件日志面板辅助理解事件流。</p>
-                <span class="card-cta">打开演示 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开演示</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="demos/presentation/" data-kw="演示文稿 slides 幻灯片 架构师">
@@ -730,7 +746,7 @@
                     <span class="tag">Slides</span>
                 </div>
                 <p class="card-desc">全屏幻灯片式 HTML 演示，深空主题与键盘导航，适合分享或复盘。</p>
-                <span class="card-cta">打开演示 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开演示</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
 
             <a class="card" href="demos/elephant-alpha/" data-kw="elephant alpha 竖屏 抖音 slides ling 蚂蚁">
@@ -742,7 +758,7 @@
                     <span class="tag">竖屏</span>
                 </div>
                 <p class="card-desc">9:16 抖音风竖屏叙事：追踪 OpenRouter 隐身代号 elephant-alpha，揭晓其为蚂蚁 Ling-2.6-flash。</p>
-                <span class="card-cta">打开演示 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+                <span class="card-cta"><span class="cta-label">打开演示</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
             </a>
         </nav>
     </div>
@@ -750,7 +766,7 @@
     <p class="empty" id="empty">没有找到匹配 <strong id="empty-q"></strong> 的内容，换个关键词试试？</p>
 
     <footer>
-        <p>新增内容时：在 <code>tools/</code> 或 <code>demos/</code> 下建模块文件夹并放 <code>index.html</code>，再更新本页与 <code>README.md</code>。</p>
+        <p>新增内容时：在 <code>tools/</code> 或 <code>demos/</code> 下建模块文件夹并放 <code>index.html</code>，在 <code>assets/registry.js</code> 添加一条记录，运行 <code>node scripts/gen-cards.mjs</code> 生成卡片，再更新 <code>README.md</code>。</p>
     </footer>
 </div>
 
@@ -762,6 +778,22 @@
         var empty = document.getElementById('empty');
         var emptyQ = document.getElementById('empty-q');
         var activeFilter = 'all';
+
+        /* ── 分类计数：按实际卡片数填充，避免手改数字失真 ── */
+        (function fillCounts() {
+            var total = 0;
+            var byType = {};
+            groups.forEach(function (g) {
+                var type = g.getAttribute('data-group');
+                var n = g.querySelectorAll('.card').length;
+                byType[type] = (byType[type] || 0) + n;
+                total += n;
+            });
+            document.querySelectorAll('.count[data-count]').forEach(function (el) {
+                var key = el.getAttribute('data-count');
+                el.textContent = key === 'all' ? total : (byType[key] || 0);
+            });
+        })();
 
         /* ── 收藏与最近使用（localStorage，失败时静默降级） ── */
         function readLS(key) {

@@ -818,7 +818,7 @@
                 <button type="button" class="copy" data-copy="tsMsStr"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg><span>复制</span></button>
             </div>
         </div>
-        <p class="hint">自动模式：纯数字按位数识别（10 位当秒、13 位当毫秒），日期字符串反向转时间戳。</p>
+        <p class="hint">自动模式：纯数字按位数识别（≤11 位当秒、≥12 位当毫秒），日期字符串反向转时间戳。</p>
     </section>
 
     <!-- 时区对照 -->
@@ -915,7 +915,7 @@
             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
             批量转换
         </h2>
-        <p class="hint" style="margin-top:0">每行一个时间戳（10 位秒 / 13 位毫秒自动识别）或日期字符串，一键全部转换。</p>
+        <p class="hint" style="margin-top:0">每行一个时间戳（≤11 位秒 / ≥12 位毫秒自动识别）或日期字符串，一键全部转换。</p>
         <textarea id="batchInput" placeholder="1713206400&#10;1713206400000&#10;2025-04-15 12:00:00" spellcheck="false"></textarea>
         <div class="row" style="margin-top:0.85rem">
             <button type="button" class="btn" id="btnBatch">
@@ -1099,6 +1099,13 @@
         function parseUserDate(str) {
             var s = String(str).replace(/^\s+|\s+$/g, "");
             if (!s) return null;
+            /* 纯日期（无时间、无时区）按本地时间解析，避免 Date.parse 将其当作 UTC 午夜 */
+            var dOnly = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+            if (dOnly) {
+                var y = +dOnly[1], mo = +dOnly[2], da = +dOnly[3];
+                var ld = new Date(y, mo - 1, da, 0, 0, 0, 0);
+                if (ld.getFullYear() === y && ld.getMonth() === mo - 1 && ld.getDate() === da) return ld;
+            }
             var t = Date.parse(s);
             if (!isNaN(t)) return new Date(t);
             var normalized = s

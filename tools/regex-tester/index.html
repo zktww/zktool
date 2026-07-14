@@ -16,6 +16,7 @@
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
     <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/clipboard.js"></script>
     <style>.match{background:var(--brand-soft);border-radius:4px;padding:0 .15rem}.group-card{margin:.35rem 0;padding:.55rem .7rem;border:1px solid var(--border);border-radius:10px;background:var(--bg-soft)}</style>
     <script defer src="../../assets/registry.js"></script>
     <script defer src="../../assets/palette.js"></script>
@@ -29,17 +30,17 @@
     <div class="tool-grid">
         <section class="panel">
             <h2>表达式</h2>
-            <div class="row"><span class="label">/</span><input class="grow mono" id="pattern" value="(\w+)@(\w+\.\w+)" /><span class="label">/</span><input class="mono w-8" id="flags" value="gi" /></div>
+            <div class="row"><span class="label">/</span><input class="grow mono" id="pattern" aria-label="正则表达式" value="(\w+)@(\w+\.\w+)" /><span class="label">/</span><input class="mono w-8" id="flags" aria-label="正则 flag" value="gi" /></div>
             <label>测试文本</label>
             <textarea id="text" spellcheck="false">联系 test@example.com 或 hello@zktool.dev</textarea>
             <label>替换模板</label>
-            <input id="replace" class="mono" value="$1 at $2" />
+            <input id="replace" class="mono" aria-label="替换模板" value="$1 at $2" />
             <div class="row"><button class="btn primary" id="run">测试</button><button class="btn" id="sample">示例</button><button class="btn danger" id="clear">清空</button></div>
         </section>
         <aside>
-            <section class="panel"><h2>匹配高亮</h2><div class="output" id="highlight"></div><p class="hint" id="status"></p></section>
+            <section class="panel"><h2>匹配高亮</h2><div class="output" id="highlight"></div><p class="hint" id="status" aria-live="polite"></p></section>
             <section class="panel"><h2>捕获组</h2><div id="groups" class="output min-h-5"></div></section>
-            <section class="panel"><h2>替换结果</h2><pre class="output min-h-5" id="replaced"></pre></section>
+            <section class="panel"><h2>替换结果</h2><pre class="output min-h-5" id="replaced" aria-live="polite"></pre><div class="row"><button class="btn" id="copyReplaced">复制结果</button></div></section>
         </aside>
     </div>
 
@@ -121,6 +122,10 @@
     document.getElementById("run").onclick = run;
     document.getElementById("sample").onclick = function () { pattern.value = "(?<user>\\w+)@(?<domain>\\w+\\.\\w+)"; flags.value = "gi"; text.value = "联系 test@example.com 或 hello@zktool.dev"; replace.value = "$<user> at $<domain>"; run(); };
     document.getElementById("clear").onclick = function () { text.value = ""; run(); };
+    document.getElementById("copyReplaced").onclick = function () {
+        copyText(replaced.textContent || "").then(function () { status.textContent = "结果已复制"; status.className = "hint ok"; },
+            function () { status.textContent = "复制失败，请手动选择复制"; status.className = "hint bad"; });
+    };
     run();
 })();
 </script>

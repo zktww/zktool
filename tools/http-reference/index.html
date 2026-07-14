@@ -36,13 +36,13 @@
     <h1><span class="title">HTTP 状态码与 MIME 速查</span></h1>
     <p class="lead">常用 HTTP 状态码含义与 MIME 类型对照，点击条目即可复制。</p>
     <section class="panel">
-        <div class="row tabs">
-            <button class="btn primary" id="tabStatus">状态码</button>
-            <button class="btn" id="tabMime">MIME 类型</button>
-            <input id="q" class="grow mono" type="search" placeholder="搜索：如 404 / 缓存 / json / 图片..." />
+        <div class="row tabs" role="tablist" aria-label="速查类别">
+            <button class="btn primary" id="tabStatus" role="tab" aria-selected="true">状态码</button>
+            <button class="btn" id="tabMime" role="tab" aria-selected="false">MIME 类型</button>
+            <input id="q" class="grow mono" type="search" aria-label="搜索状态码或 MIME 类型" placeholder="搜索：如 404 / 缓存 / json / 图片..." />
         </div>
         <div id="list"></div>
-        <p class="hint" id="status">共 <span id="count"></span> 条 · 点击条目复制</p>
+        <p class="hint" id="status" aria-live="polite">共 <span id="count"></span> 条 · 点击条目复制</p>
     </section>
 
 <style>.seo-notes{max-width:72rem;margin:2.6rem auto 0;padding:1.8rem .2rem 0;border-top:1px solid var(--border,#e4e9f0);font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
@@ -139,12 +139,12 @@
         if (mode === "status") {
             rows = HTTP.filter(function (r) { return !kw || (r[0] + " " + r[1] + " " + r[2]).toLowerCase().indexOf(kw) >= 0; });
             html = rows.map(function (r) {
-                return "<div class='code-item c" + Math.floor(r[0]/100) + "xx' data-copy='" + r[0] + " " + esc(r[1]) + "'><b>" + r[0] + "</b><span class='name'>" + esc(r[1]) + "</span><p>" + esc(r[2]) + "</p></div>";
+                return "<div class='code-item c" + Math.floor(r[0]/100) + "xx' data-copy='" + r[0] + " " + esc(r[1]) + "' tabindex='0' role='button' aria-label='状态码 " + r[0] + " " + esc(r[1]) + "，回车复制'><b>" + r[0] + "</b><span class='name'>" + esc(r[1]) + "</span><p>" + esc(r[2]) + "</p></div>";
             }).join("");
         } else {
             rows = MIME.filter(function (r) { return !kw || (r[0] + " " + r[1] + " " + r[2]).toLowerCase().indexOf(kw) >= 0; });
             html = rows.map(function (r) {
-                return "<div class='code-item' data-copy='" + esc(r[0]) + "'><b class='mono' style='min-width:auto'>" + esc(r[1]) + "</b><span class='name mono'>" + esc(r[0]) + "</span><p>" + esc(r[2]) + "</p></div>";
+                return "<div class='code-item' data-copy='" + esc(r[0]) + "' tabindex='0' role='button' aria-label='MIME 类型 " + esc(r[0]) + "，回车复制'><b class='mono' style='min-width:auto'>" + esc(r[1]) + "</b><span class='name mono'>" + esc(r[0]) + "</span><p>" + esc(r[2]) + "</p></div>";
             }).join("");
         }
         list.innerHTML = html || "<p class='hint'>没有匹配的条目</p>";
@@ -154,19 +154,31 @@
         mode = m;
         tabStatus.className = "btn" + (m === "status" ? " primary" : "");
         tabMime.className = "btn" + (m === "mime" ? " primary" : "");
+        tabStatus.setAttribute("aria-selected", m === "status" ? "true" : "false");
+        tabMime.setAttribute("aria-selected", m === "mime" ? "true" : "false");
         q.placeholder = m === "status" ? "搜索：如 404 / 缓存 / redirect..." : "搜索：如 json / 图片 / .woff2...";
         render();
     }
     tabStatus.onclick = function () { setMode("status"); };
     tabMime.onclick = function () { setMode("mime"); };
     q.addEventListener("input", render);
-    list.addEventListener("click", function (e) {
-        var item = e.target.closest("[data-copy]");
-        if (!item) return;
+    function copyItem(item) {
         copyText(item.getAttribute("data-copy")).then(function () {
             status.innerHTML = "已复制：<span class='mono'>" + esc(item.getAttribute("data-copy")) + "</span>";
             status.className = "hint ok";
         }, function () { status.textContent = "复制失败，请手动选择复制"; status.className = "hint bad"; });
+    }
+    list.addEventListener("click", function (e) {
+        var item = e.target.closest("[data-copy]");
+        if (!item) return;
+        copyItem(item);
+    });
+    list.addEventListener("keydown", function (e) {
+        if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
+        var item = e.target.closest("[data-copy]");
+        if (!item) return;
+        e.preventDefault();
+        copyItem(item);
     });
     render();
 })();

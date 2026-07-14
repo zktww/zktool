@@ -38,12 +38,12 @@
     <div class="tool-grid">
         <section class="panel">
             <h2>输入</h2>
-            <textarea id="input" spellcheck="false" placeholder="粘贴要检查的文本...">zk​tool（这段里藏了一个零宽空格）</textarea>
+            <textarea id="input" spellcheck="false" aria-label="粘贴要检查的文本" placeholder="粘贴要检查的文本...">zk​tool（这段里藏了一个零宽空格）</textarea>
             <div class="row">
                 <button class="btn primary" id="cleanBtn">清除不可见字符</button>
                 <button class="btn danger" id="clear">清空</button>
             </div>
-            <p class="hint" id="status"></p>
+            <p class="hint" id="status" aria-live="polite"></p>
             <div class="chips" id="stats"></div>
         </section>
         <aside>
@@ -58,7 +58,7 @@
 <style>.seo-notes{max-width:72rem;margin:2.6rem auto 0;padding:1.8rem .2rem 0;border-top:1px solid var(--border,#e4e9f0);font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
 <section class="seo-notes">
     <h2>关于零宽字符检测</h2>
-    <p>两段文本"看起来一模一样"却比对不过？多半是藏了零宽空格、BOM、不间断空格这类不可见字符——从网页、Word、聊天工具复制文本时很容易带入。本工具逐字符展示码点（U+XXXX）、UTF-8/UTF-16 编码和字符类别，自动高亮所有不可见字符并支持一键清除（保留正常的换行和制表符），也能识别西里尔同形字母这类"钓鱼字符"。</p>
+    <p>两段文本"看起来一模一样"却比对不过？多半是藏了零宽空格、BOM、不间断空格、全角空格这类不可见字符——从网页、Word、聊天工具复制文本时很容易带入。本工具逐字符展示码点（U+XXXX）、UTF-8/UTF-16 编码和字符类别，自动高亮所有不可见字符并支持一键清除（保留正常的换行和制表符），也能识别西里尔同形字母这类"钓鱼字符"。</p>
     <h2>常见问题</h2>
     <details><summary>零宽字符是从哪来的？</summary><p>常见来源：网页复制（有些站点故意嵌入零宽字符做防复制水印）、Word/富文本编辑器、Windows 记事本保存的 UTF-8 BOM 文件头，以及聊天软件的格式转换。</p></details>
     <details><summary>零宽字符会造成什么问题？</summary><p>典型症状：字符串比对失败、数据库查不到"明明存在"的记录、JSON/代码解析报错、用户名重复注册检测被绕过。因为肉眼不可见，不借助工具很难定位。</p></details>
@@ -80,7 +80,7 @@
         0x2060:"词连接符 WJ",0x3000:"全角空格",0xFEFF:"BOM / 零宽不间断空格",0xFE0F:"变体选择符 VS16（emoji 化）",0xFE0E:"变体选择符 VS15（文本化）",
     };
     function isInvisible(cp) {
-        if (NAMES[cp] && cp !== 0x0020 && cp !== 0x3000) return cp !== 0x0009 && cp !== 0x000A && cp !== 0x000D ? true : false;
+        if (NAMES[cp] && cp !== 0x0020) return cp !== 0x0009 && cp !== 0x000A && cp !== 0x000D ? true : false;
         if (cp < 0x20 || (cp >= 0x7F && cp <= 0x9F)) return true;
         if (cp >= 0x2000 && cp <= 0x200A) return true;   /* 各种宽度空格 */
         if (cp >= 0xE0000 && cp <= 0xE007F) return true; /* tag 字符 */

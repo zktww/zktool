@@ -49,8 +49,8 @@
             <section class="panel">
                 <h2>结果</h2>
                 <pre class="output" id="output"></pre>
-                <div class="row"><button class="btn primary" id="copy">复制结果</button></div>
-                <p class="hint" id="status">CSV 需要输入是对象数组（如 [{...}, {...}]）。</p>
+                <div class="row"><button class="btn primary" id="copy">复制结果</button><button class="btn" id="download">下载</button></div>
+                <p class="hint" id="status" aria-live="polite">CSV 需要输入是对象数组（如 [{...}, {...}]）。</p>
             </section>
         </aside>
     </div>
@@ -106,43 +106,66 @@
     }
 
     /* ---- TypeScript interface ---- */
-    function tsType(v, name, defs) {
+    // 对同名但结构不同的接口做去重（User2、User3…），结构相同则复用
+    function tsUniqueName(ctx, base, body) {
+        var existing = ctx.ifaces[base] || (ctx.ifaces[base] = []);
+        for (var i = 0; i < existing.length; i++) {
+            if (existing[i].body === body) return existing[i].name;
+        }
+        var name = existing.length ? base + (existing.length + 1) : base;
+        existing.push({ name: name, body: body });
+        ctx.defs.push("interface " + name + " " + body);
+        return name;
+    }
+    function tsType(v, name, ctx) {
         if (v === null) return "null";
         if (Array.isArray(v)) {
             if (!v.length) return "unknown[]";
-            var inner = tsType(v[0], name + "Item", defs);
+            var inner = tsType(v[0], name + "Item", ctx);
             return inner.indexOf(" ") >= 0 ? "(" + inner + ")[]" : inner + "[]";
         }
         if (typeof v === "object") {
-            var iface = name.charAt(0).toUpperCase() + name.slice(1);
+            var base = name.charAt(0).toUpperCase() + name.slice(1);
             var lines = Object.keys(v).map(function (k) {
                 var key = /^[A-Za-z_$][\w$]*$/.test(k) ? k : JSON.stringify(k);
-                return "  " + key + ": " + tsType(v[k], k, defs) + ";";
+                return "  " + key + ": " + tsType(v[k], k, ctx) + ";";
             });
-            defs.push("interface " + iface + " {\n" + lines.join("\n") + "\n}");
-            return iface;
+            var body = "{\n" + lines.join("\n") + "\n}";
+            return tsUniqueName(ctx, base, body);
         }
         return typeof v;
     }
     function toTs(v) {
-        var defs = [];
-        var root = tsType(v, "Root", defs);
-        if (!defs.length) return "type Root = " + root + ";";
-        return defs.reverse().join("\n\n");
+        var ctx = { defs: [], ifaces: {} };
+        var root = tsType(v, "Root", ctx);
+        if (!ctx.defs.length) return "type Root = " + root + ";";
+        return ctx.defs.reverse().join("\n\n");
     }
 
     /* ---- Go struct ---- */
-    function goType(v, name, defs) {
+    // struct 名去重，非 ASCII / 空名回退为 Struct、Struct2…
+    function goStructName(ctx, name) {
+        var base = name.charAt(0).toUpperCase() + name.slice(1).replace(/[^\w]/g, "");
+        if (!/^[A-Za-z]/.test(base)) base = "Struct";
+        var n = base, i = 2;
+        while (ctx.used[n]) n = base + (i++);
+        ctx.used[n] = true;
+        return n;
+    }
+    function goType(v, name, ctx) {
         if (v === null) return "any";
-        if (Array.isArray(v)) return "[]" + (v.length ? goType(v[0], name + "Item", defs) : "any");
+        if (Array.isArray(v)) return "[]" + (v.length ? goType(v[0], name + "Item", ctx) : "any");
         if (typeof v === "object") {
-            var st = name.charAt(0).toUpperCase() + name.slice(1).replace(/[^\w]/g, "");
-            var lines = Object.keys(v).map(function (k) {
+            var seen = {};
+            var lines = Object.keys(v).map(function (k, idx) {
                 var field = k.replace(/(^|[_-])(\w)/g, function (_, __, c) { return c.toUpperCase(); }).replace(/[^\w]/g, "");
-                if (!/^[A-Za-z]/.test(field)) field = "F" + field;
-                return "\t" + field + " " + goType(v[k], k, defs) + " `json:\"" + k + "\"`";
+                if (!/^[A-Za-z]/.test(field)) field = "Field" + (idx + 1);   // 非 ASCII / 空名带序号回退
+                if (seen[field]) { var n = 2; while (seen[field + n]) n++; field = field + n; }
+                seen[field] = true;
+                return "\t" + field + " " + goType(v[k], k, ctx) + " `json:\"" + k + "\"`";
             });
-            defs.push("type " + st + " struct {\n" + lines.join("\n") + "\n}");
+            var st = goStructName(ctx, name);
+            ctx.defs.push("type " + st + " struct {\n" + lines.join("\n") + "\n}");
             return st;
         }
         if (typeof v === "number") return Number.isInteger(v) ? "int64" : "float64";
@@ -150,9 +173,9 @@
         return "string";
     }
     function toGo(v) {
-        var defs = [];
-        var root = goType(v, "Root", defs);
-        return defs.length ? defs.reverse().join("\n\n") : "// 根节点是 " + root + "，无需 struct";
+        var ctx = { defs: [], used: {} };
+        var root = goType(v, "Root", ctx);
+        return ctx.defs.length ? ctx.defs.reverse().join("\n\n") : "// 根节点是 " + root + "，无需 struct";
     }
 
     /* ---- CSV ---- */
@@ -188,6 +211,18 @@
     document.getElementById("copy").onclick = function () {
         copyText(output.textContent || "").then(function () { status.textContent = "结果已复制"; status.className = "hint ok"; },
             function () { status.textContent = "复制失败，请手动选择复制"; status.className = "hint bad"; });
+    };
+    var EXT = { yaml: "yaml", ts: "ts", go: "go", csv: "csv" };
+    document.getElementById("download").onclick = function () {
+        var text = output.textContent || "";
+        if (!text) { status.textContent = "结果为空，无法下载"; status.className = "hint bad"; return; }
+        var name = "converted." + (EXT[lastMode] || "txt");
+        var blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+        var url = URL.createObjectURL(blob), a = document.createElement("a");
+        a.href = url; a.download = name;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        status.textContent = "已下载 " + name; status.className = "hint ok";
     };
     run("yaml");
 })();

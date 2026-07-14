@@ -33,7 +33,7 @@
     <div class="tool-grid">
         <section class="panel">
             <h2>输入</h2>
-            <textarea id="input" spellcheck="false" placeholder="粘贴 URL、查询字符串或普通文本..."></textarea>
+            <textarea id="input" spellcheck="false" aria-label="粘贴 URL、查询字符串或普通文本" placeholder="粘贴 URL、查询字符串或普通文本..."></textarea>
             <div class="row">
                 <button class="btn primary" id="btnEncode">编码</button>
                 <button class="btn" id="btnDecode">解码</button>
@@ -50,7 +50,7 @@
                 <div class="row">
                     <button class="btn primary" id="btnCopy">复制结果</button>
                 </div>
-                <p class="hint" id="status">支持完整 URL、?a=1&b=2 或 a=1&b=2。</p>
+                <p class="hint" id="status" aria-live="polite">支持完整 URL、?a=1&b=2 或 a=1&b=2；参数表按标准 URLSearchParams 解析（+ 一律视为空格）。</p>
             </section>
             <section class="panel">
                 <h2>参数表</h2>

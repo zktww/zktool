@@ -65,7 +65,7 @@
                 <h2>结果</h2>
                 <pre class="output" id="output"></pre>
                 <div class="row"><button class="btn primary" id="copy">复制结果</button></div>
-                <p class="hint" id="status"></p>
+                <p class="hint" id="status" aria-live="polite"></p>
             </section>
         </aside>
     </div>
@@ -100,18 +100,28 @@
         } catch (e) { msg("格式化失败：" + e.message, "bad"); }
     }
     function minify() {
-        var s = input.value
-            .replace(/--[^\n]*/g, " ")
-            .replace(/\/\*[\s\S]*?\*\//g, " ");
-        /* 压缩空白但保留字符串字面量 */
-        var out = "", inStr = null;
+        /* 单次字符串感知扫描：只在字符串外识别注释与压缩空白，字符串内原样保留 */
+        var s = input.value, out = "", inStr = null;
         for (var i = 0; i < s.length; i++) {
             var c = s[i];
             if (inStr) {
                 out += c;
-                if (c === inStr && s[i-1] !== "\\") inStr = null;
+                if (c === "\\" && inStr !== "`") {          // MySQL 反斜杠转义：下一个字符原样保留
+                    if (i + 1 < s.length) out += s[++i];
+                } else if (c === inStr) {
+                    if (s[i + 1] === inStr) out += s[++i];   // 双写转义：'' "" ``
+                    else inStr = null;
+                }
             } else if (c === "'" || c === '"' || c === "`") {
                 inStr = c; out += c;
+            } else if (c === "-" && s[i + 1] === "-") {      // 行注释：跳到行尾
+                while (i < s.length && s[i] !== "\n") i++;
+                if (out && !/\s/.test(out[out.length - 1])) out += " ";
+            } else if (c === "/" && s[i + 1] === "*") {      // 块注释：跳到 */
+                i += 2;
+                while (i < s.length && !(s[i] === "*" && s[i + 1] === "/")) i++;
+                i++;                                         // 跳过 '*'，循环 i++ 跳过 '/'
+                if (out && !/\s/.test(out[out.length - 1])) out += " ";
             } else if (/\s/.test(c)) {
                 if (out && !/\s/.test(out[out.length - 1])) out += " ";
             } else out += c;

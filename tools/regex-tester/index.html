@@ -16,6 +16,7 @@
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
     <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/theme.js"></script>
     <script src="../../assets/clipboard.js"></script>
     <style>.match{background:var(--brand-soft);border-radius:4px;padding:0 .15rem}.group-card{margin:.35rem 0;padding:.55rem .7rem;border:1px solid var(--border);border-radius:10px;background:var(--bg-soft)}</style>
     <script defer src="../../assets/registry.js"></script>
@@ -44,7 +45,6 @@
         </aside>
     </div>
 
-<style>.seo-notes{max-width:72rem;margin:2.6rem auto 0;padding:1.8rem .2rem 0;border-top:1px solid var(--border,#e4e9f0);font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
 <section class="seo-notes">
     <h2>关于正则表达式测试</h2>
     <p>本工具实时运行 JavaScript 正则表达式（RegExp），输入即测：匹配内容在原文中高亮显示，每处匹配的捕获组（含 (?<name>...) 命名分组）逐条列出，还能预览 replace 替换结果。正则在独立的 Web Worker 中执行并带 1 秒超时保护，即使写出灾难性回溯的表达式也不会卡死页面，适合放心调试复杂正则。</p>

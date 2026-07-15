@@ -14,59 +14,13 @@
     <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
-    <link rel="stylesheet" href="../../assets/tokens.css" />
+    <link rel="stylesheet" href="../../assets/tool-shell.css" />
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        [hidden] { display: none !important; }
-
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
-        body {
-            font-family: "Inter", "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            min-height: 100dvh;
-            line-height: 1.6;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* ===== 背景氛围 ===== */
-        .bg-fx {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            pointer-events: none;
-            background:
-                radial-gradient(ellipse 60% 45% at 18% -8%, rgba(91, 108, 249, 0.08), transparent 62%),
-                radial-gradient(ellipse 55% 40% at 85% 4%, rgba(14, 165, 233, 0.06), transparent 60%),
-                radial-gradient(ellipse 50% 45% at 55% 108%, rgba(139, 92, 246, 0.05), transparent 60%),
-                var(--bg);
-        }
-
-        .bg-fx::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background-image:
-                linear-gradient(var(--grid-line) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-            background-size: 44px 44px;
-            -webkit-mask-image: radial-gradient(ellipse 80% 65% at 50% 0%, #000 30%, transparent 100%);
-            mask-image: radial-gradient(ellipse 80% 65% at 50% 0%, #000 30%, transparent 100%);
-        }
+        /* 骨架（reset/body/bg-fx/top/back/h1 基础）由 tool-shell.css 提供，
+           本页只保留时间工具特有的组件样式与少量布局覆盖。 */
 
         .wrap {
-            min-height: 100vh;
-            min-height: 100dvh;
             max-width: min(1520px, 100%);
-            margin: 0 auto;
             padding: clamp(1rem, 4vw, 2.4rem)
                 calc(clamp(1rem, 3vw, 2rem) + env(safe-area-inset-right))
                 3.5rem
@@ -81,37 +35,7 @@
         }
 
         /* ===== 顶部 ===== */
-        .top {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .back {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.45rem;
-            color: var(--text-2);
-            text-decoration: none;
-            font-size: 0.88rem;
-            padding: 0.5rem 0.95rem;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: var(--surface);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            transition: color 0.3s var(--ease), border-color 0.3s var(--ease), transform 0.3s var(--ease);
-        }
-
-        .back:hover, .back:focus-visible {
-            color: var(--text);
-            border-color: var(--border-hover);
-            transform: translateX(-3px);
-            outline: none;
-        }
+        .top { margin-bottom: 2rem; }
 
         .live {
             font-family: var(--mono);
@@ -123,12 +47,8 @@
         .live strong { color: var(--brand-2); font-weight: 600; }
 
         h1 {
-            display: flex;
-            align-items: center;
-            gap: 0.55rem;
             font-size: clamp(1.5rem, 4.5vw, 2.1rem);
             font-weight: 700;
-            letter-spacing: -0.02em;
             margin-bottom: 0.45rem;
         }
 
@@ -724,6 +644,7 @@
         }
     </style>
     <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/theme.js"></script>
     <script defer src="../../assets/registry.js"></script>
     <script defer src="../../assets/palette.js"></script>
 </head>
@@ -1555,7 +1476,6 @@
     })();
 </script>
 
-<style>.seo-notes{max-width:72rem;margin:2.6rem auto 0;padding:1.8rem .2rem 0;border-top:1px solid var(--border,#e4e9f0);font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
 <section class="seo-notes">
     <h2>关于时间戳转换</h2>
     <p>时间戳（Unix Timestamp）是从 1970 年 1 月 1 日 00:00:00 UTC 起经过的秒数或毫秒数，广泛用于日志、数据库和接口传输。本工具在浏览器本地完成时间戳与可读日期的互转，自动识别 10 位（秒）和 13 位（毫秒）时间戳，支持批量转换、本地时区与 UTC 对照，适合排查日志时间、调试接口返回和数据库时间字段。</p>

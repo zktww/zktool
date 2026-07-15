@@ -16,6 +16,7 @@
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
     <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/theme.js"></script>
     <script src="../../assets/clipboard.js"></script>
     <script defer src="../../assets/registry.js"></script>
     <script defer src="../../assets/palette.js"></script>
@@ -65,7 +66,6 @@ HTTPResponseCode</textarea>
         </aside>
     </div>
 
-<style>.seo-notes{max-width:72rem;margin:2.6rem auto 0;padding:1.8rem .2rem 0;border-top:1px solid var(--border,#e4e9f0);font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
 <section class="seo-notes">
     <h2>关于驼峰命名转换</h2>
     <p>改字段名和变量名是开发日常：数据库用 snake_case、JavaScript 用 camelCase、CSS 类名用 kebab-case、常量用 CONSTANT_CASE。本工具支持这些命名风格的批量互转（每行一条），能正确处理 HTTPResponse 这类连续大写缩写的边界；另附行级处理：去重、按拼音/字母排序、去空行、倒序，以及字符/词/行统计，转换结果可以一键回填继续叠加操作。</p>

@@ -104,5 +104,32 @@
             if (overlay && overlay.classList.contains("open")) close(); else open();
         }
     });
+
+    /* 顶部搜索按钮：给触屏等无键盘场景一个呼出面板的入口。
+       与 theme.js 共用 .zk-actions 容器与 .zk-icon-btn 样式（谁先执行谁创建容器）。 */
+    function mountTrigger() {
+        /* 主页自带大搜索框（工具栏含分类筛选），无需再放触发按钮 */
+        if (document.querySelector(".filters [data-filter]")) return;
+        var host = document.querySelector(".top") || document.querySelector(".toolbar");
+        if (!host || host.querySelector(".zk-palette-trigger")) return;
+        var box = host.querySelector(".zk-actions");
+        if (!box) {
+            box = document.createElement("div");
+            box.className = "zk-actions";
+            host.appendChild(box);
+        }
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "zk-icon-btn zk-palette-trigger";
+        btn.setAttribute("aria-label", "搜索工具（Ctrl+K）");
+        btn.title = "搜索工具（Ctrl+K）";
+        btn.innerHTML = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='11' cy='11' r='8'/><path d='m21 21-4.3-4.3'/></svg>";
+        btn.addEventListener("click", open);
+        /* 搜索按钮排在主题按钮前 */
+        box.insertBefore(btn, box.firstChild);
+    }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mountTrigger);
+    else mountTrigger();
+
     window.zkPalette = { open: open, close: close };
 })();

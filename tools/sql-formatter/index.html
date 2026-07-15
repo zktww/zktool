@@ -16,6 +16,7 @@
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
     <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/theme.js"></script>
     <script src="../../assets/clipboard.js"></script>
     <script src="../../assets/vendor/sql-formatter.min.js"></script>
     <script defer src="../../assets/registry.js"></script>
@@ -70,7 +71,6 @@
         </aside>
     </div>
 
-<style>.seo-notes{max-width:72rem;margin:2.6rem auto 0;padding:1.8rem .2rem 0;border-top:1px solid var(--border,#e4e9f0);font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
 <section class="seo-notes">
     <h2>关于SQL格式化</h2>
     <p>从日志或代码里拿到的 SQL 往往挤成一行，读起来很吃力。本工具一键把 SQL 格式化为规范缩进的多行形式，支持 MySQL、PostgreSQL、SQLite、SQL Server、Oracle、Hive、Spark、BigQuery 等 9 种方言的语法差异，关键字大小写（UPPER/lower）和缩进风格可调；也能反向把多行 SQL 压缩成单行（保留字符串内容、移除注释），方便塞进配置或命令行。</p>

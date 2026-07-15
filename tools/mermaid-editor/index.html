@@ -14,56 +14,21 @@
     <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
-    <link rel="stylesheet" href="../../assets/tokens.css" />
+    <link rel="stylesheet" href="../../assets/tool-shell.css" />
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        [hidden] { display: none !important; }
+        /* 骨架（reset/背景/返回条）由 tool-shell.css 提供；
+           本页是全屏工作台布局：body 锁定视口高度、内部各自滚动。 */
 
         html { height: 100%; }
 
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
         body {
-            font-family: var(--font);
-            background: var(--bg);
-            color: var(--text);
             height: 100%;
             height: 100dvh;
+            min-height: 0;
             line-height: 1.55;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* ---------- 背景氛围 ---------- */
-        .bg-fx {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            pointer-events: none;
-            background:
-                radial-gradient(640px 420px at 12% -8%, rgba(91, 108, 249, 0.08), transparent 70%),
-                radial-gradient(720px 520px at 88% 112%, rgba(14, 165, 233, 0.07), transparent 70%),
-                radial-gradient(540px 420px at 72% 14%, rgba(139, 92, 246, 0.05), transparent 70%),
-                var(--bg);
-        }
-
-        .bg-fx::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background-image:
-                linear-gradient(var(--grid-line) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-            background-size: 44px 44px;
-            -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 30%, #000 35%, transparent 78%);
-            mask-image: radial-gradient(ellipse 85% 75% at 50% 30%, #000 35%, transparent 78%);
         }
 
         .wrap {
@@ -71,9 +36,7 @@
             display: flex;
             flex-direction: column;
             min-height: 0;
-            width: 100%;
             max-width: 1480px;
-            margin: 0 auto;
             padding: clamp(0.85rem, 2.5vw, 1.4rem)
                 calc(clamp(1rem, 3vw, 1.5rem) + env(safe-area-inset-right))
                 calc(clamp(0.75rem, 2vw, 1.1rem) + env(safe-area-inset-bottom))
@@ -90,41 +53,16 @@
         /* ---------- 顶部 ---------- */
         .top {
             flex-shrink: 0;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
+            justify-content: flex-start;
             gap: 0.8rem 1rem;
             margin-bottom: 0.9rem;
-        }
-
-        .back {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.45rem;
-            color: var(--text-2);
-            text-decoration: none;
-            font-size: 0.88rem;
-            padding: 0.48rem 0.95rem;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: var(--surface);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            transition: color 0.25s var(--ease), border-color 0.25s var(--ease), transform 0.25s var(--ease), background 0.25s var(--ease);
-        }
-
-        .back:hover, .back:focus-visible {
-            color: var(--text);
-            border-color: var(--border-hover);
-            background: var(--surface-hover);
-            outline: none;
-            transform: translateX(-2px);
         }
 
         h1 {
             display: inline-flex;
             align-items: center;
             gap: 0.55rem;
+            margin-bottom: 0;
             font-size: clamp(1.2rem, 3vw, 1.5rem);
             font-weight: 700;
             letter-spacing: -0.02em;
@@ -632,6 +570,7 @@
         }
     </script>
     <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/theme.js"></script>
     <script defer src="../../assets/registry.js"></script>
     <script defer src="../../assets/palette.js"></script>
 </head>
@@ -809,7 +748,7 @@
                 flowchart: { htmlLabels: false },
                 "class": { htmlLabels: false },
                 securityLevel: "strict",
-                fontFamily: '"Inter", "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif'
+                fontFamily: '"HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif'
             };
             if (theme === "dark") {
                 // 与站点风格协调的深色主题变量
@@ -1363,7 +1302,6 @@
     })();
 </script>
 
-<style>.seo-notes{max-width:72rem;margin:2.6rem auto 0;padding:1.8rem .2rem 0;border-top:1px solid var(--border,#e4e9f0);font-size:.88rem;line-height:1.75}.seo-notes h2{font-size:.95rem;margin:0 0 .5rem;color:var(--text,#1e293b)}.seo-notes p{color:var(--text-2,#5b6b81);margin:0 0 1.2rem}.seo-notes details{border:1px solid var(--border,#e4e9f0);border-radius:10px;background:var(--surface,#fff);margin-bottom:.5rem;padding:.15rem .9rem}.seo-notes summary{cursor:pointer;font-weight:600;color:var(--text,#1e293b);padding:.5rem 0;font-size:.86rem}.seo-notes details p{margin:.2rem 0 .8rem}</style>
 <section class="seo-notes">
     <h2>关于Mermaid在线编辑器</h2>
     <p>Mermaid 是用文本语法画图的工具，写几行代码就能生成流程图、时序图、甘特图、状态图、ER 图等，特别适合放进 Markdown 文档和技术方案。本编辑器左侧写代码右侧实时渲染，内置十余种中文示例模板可直接改，支持缩放平移预览、URL 分享（图表内容编码在链接里）以及导出 SVG 和高清 PNG。</p>

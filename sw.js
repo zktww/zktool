@@ -1,17 +1,40 @@
 /* zktool service worker：stale-while-revalidate。
    同源 GET 一律先回缓存再后台更新；跨域（CDN 库、统计）直接走网络，失败回缓存。 */
-var CACHE = "zktool-v2";
+var CACHE = "zktool-v3";
 var CORE = [
     "./",
     "./index.html",
     "./404.html",
     "./manifest.webmanifest",
     "./assets/tokens.css",
+    "./assets/tool-shell.css",
     "./assets/tool-page.css",
     "./assets/clipboard.js",
+    "./assets/theme.js",
     "./assets/registry.js",
     "./assets/palette.js",
     "./assets/icon.svg",
+    "./assets/vendor/sql-formatter.min.js",
+    /* 工具页全部预缓存：兑现“支持离线使用”（依赖 CDN 的页面本体可离线，功能视缓存而定） */
+    "./tools/timestamp-converter/",
+    "./tools/json-formatter/",
+    "./tools/emoji-tool/",
+    "./tools/mermaid-editor/",
+    "./tools/url-codec/",
+    "./tools/base64-converter/",
+    "./tools/regex-tester/",
+    "./tools/random-generator/",
+    "./tools/cron-tool/",
+    "./tools/color-tool/",
+    "./tools/text-diff/",
+    "./tools/hash-tool/",
+    "./tools/jwt-decoder/",
+    "./tools/json-converter/",
+    "./tools/text-case/",
+    "./tools/image-compressor/",
+    "./tools/http-reference/",
+    "./tools/unicode-inspector/",
+    "./tools/sql-formatter/",
 ];
 
 self.addEventListener("install", function (e) {

@@ -1,7 +1,8 @@
 @charset "UTF-8";
 
 /* zktool 设计 token：全站唯一的变量来源，页面各自的组件样式仍留在本页。
-   暗色值通过 prefers-color-scheme 覆盖，无 JS 开关。 */
+   暗色值默认跟随 prefers-color-scheme；palette.js 的主题开关通过
+   <html data-theme="light|dark"> 强制覆盖（变量与下方媒体查询保持同步）。 */
 
 :root {
     color-scheme: light dark;
@@ -14,7 +15,7 @@
     --border-hover: #c9d4e3;
     --text: #1e293b;
     --text-2: #5b6b81;
-    --text-3: #94a3b8;
+    --text-3: #7a8aa0;
     --brand: #2563eb;
     --brand-soft: rgba(37, 99, 235, 0.1);
     --brand-ring: rgba(37, 99, 235, 0.55);
@@ -29,16 +30,17 @@
     --warn: #d97706;
     --grid-line: rgba(15, 23, 42, 0.028);
     --glass: rgba(255, 255, 255, 0.88);
+    --icon-shadow-mix: 100%;
     --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
     --shadow-md: 0 8px 28px -14px rgba(15, 23, 42, 0.22);
     --radius: 16px;
-    --font: "Inter", "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+    --font: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
     --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
     --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
         --bg: #0e1420;
         --bg-soft: #151c2b;
         --surface: #1a2234;
@@ -48,7 +50,7 @@
         --border-hover: #3b4a68;
         --text: #e2e8f0;
         --text-2: #a3b0c4;
-        --text-3: #6c7a93;
+        --text-3: #7f8ca6;
         --brand: #60a5fa;
         --brand-soft: rgba(96, 165, 250, 0.14);
         --brand-ring: rgba(96, 165, 250, 0.6);
@@ -63,7 +65,44 @@
         --warn: #fbbf24;
         --grid-line: rgba(148, 163, 184, 0.045);
         --glass: rgba(26, 34, 52, 0.88);
+        --icon-shadow-mix: 35%;
         --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
         --shadow-md: 0 8px 28px -14px rgba(0, 0, 0, 0.55);
     }
+    :root:not([data-theme="light"]) { color-scheme: dark; }
 }
+
+/* 手动指定暗色（palette.js 主题开关写入 data-theme） */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0e1420;
+    --bg-soft: #151c2b;
+    --surface: #1a2234;
+    --surface-2: #212b40;
+    --surface-hover: #212b40;
+    --border: #2a354c;
+    --border-hover: #3b4a68;
+    --text: #e2e8f0;
+    --text-2: #a3b0c4;
+    --text-3: #7f8ca6;
+    --brand: #60a5fa;
+    --brand-soft: rgba(96, 165, 250, 0.14);
+    --brand-ring: rgba(96, 165, 250, 0.6);
+    --brand-ring-soft: rgba(96, 165, 250, 0.18);
+    --brand-1: #818cf8;
+    --brand-2: #38bdf8;
+    --brand-3: #a78bfa;
+    --ok: #34d399;
+    --danger: #f87171;
+    --danger-soft: rgba(248, 113, 113, 0.1);
+    --danger-border: rgba(248, 113, 113, 0.3);
+    --warn: #fbbf24;
+    --grid-line: rgba(148, 163, 184, 0.045);
+    --glass: rgba(26, 34, 52, 0.88);
+    --icon-shadow-mix: 35%;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 8px 28px -14px rgba(0, 0, 0, 0.55);
+}
+
+/* 手动指定浅色时锁定 color-scheme，避免系统暗色下表单控件仍按暗色渲染 */
+:root[data-theme="light"] { color-scheme: light; }

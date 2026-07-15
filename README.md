@@ -6,7 +6,7 @@
 
 - **`tools/`** — 主角，日常开发辅助的小工具页；每模块独立文件夹，入口为 **`index.html`**。
 - **`demos/`** — 附属，交互探索、演示稿等偏展示向页面；同样每模块一个子文件夹 + **`index.html`**。
-- **`assets/`** — 公共资源：`tokens.css`（全站设计变量，含暗色模式）、`tool-page.css`（工具页公共样式）、`clipboard.js`（复制封装）、`registry.js`（工具注册表，首页卡片/命令面板/搜索的唯一数据源）、`palette.js`（Ctrl+K 命令面板）、`vendor/`（第三方库本地副本）。
+- **`assets/`** — 公共资源：`tokens.css`（全站设计变量，含暗色模式与 `data-theme` 手动覆盖）、`tool-shell.css`（工具页公共骨架：reset/背景/返回条/标题/SEO 说明区）、`tool-page.css`（工具页公共组件：面板/表单/按钮等，内部引用 shell）、`theme.js`（主题三态切换：跟随系统/浅/深，存 localStorage，并注入顶部操作按钮）、`clipboard.js`（复制封装）、`registry.js`（工具注册表，首页卡片/命令面板/搜索的唯一数据源，含分域 `group` 字段）、`palette.js`（Ctrl+K 命令面板，工具页顶部另有搜索按钮供触屏呼出）、`vendor/`（第三方库本地副本）。
 - **`scripts/`** — 构建脚本：`gen-cards.mjs`（零依赖 Node 脚本，从 `registry.js` 生成根目录 `index.html` 的工具卡片）。
 - 根目录保留 **`index.html`** 总索引、**`favicon.ico`**、**`manifest.webmanifest`** 与 **`sw.js`**（PWA：托管到静态站点后支持离线使用；主页卡片支持收藏与最近使用置顶，数据存 localStorage），以及 **`404.html`**、**`sitemap.xml`**、**`robots.txt`**。
 - 任意页面按 **Ctrl+K / Cmd+K** 呼出命令面板，搜索并跳转到其他工具。
@@ -142,7 +142,7 @@ camelCase、PascalCase、snake_case、kebab-case、CONSTANT_CASE 等命名风格
 新增页面时：
 
 1. 工具类放 **`tools/<模块名>/`**；演示/实验类放 **`demos/<模块名>/`**，入口命名为 **`index.html`**（模块内还可放专属脚本、样式或数据文件）；
-2. 在 **`assets/registry.js`** 注册表中补一条（首页卡片、命令面板与站内搜索的唯一数据源；卡片还需 `icon`/`c1`/`c2` 字段）；
+2. 在 **`assets/registry.js`** 注册表中补一条（首页卡片、命令面板与站内搜索的唯一数据源；卡片还需 `icon`/`c1`/`c2` 字段，工具类另需 `group` 字段对应 `ZKTOOL_GROUPS` 分域）；
 3. 运行 **`node scripts/gen-cards.mjs`** 从注册表重新生成根目录 **`index.html`** 的卡片（勿手改卡片，会被覆盖）；
 4. 在本 README 的表格与说明中各补一行（按需详写）；
 5. 更新 **`sitemap.xml`**，并升级 **`sw.js`** 中的缓存版本号（`zktool-vN`）。

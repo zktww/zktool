@@ -1,106 +1,8 @@
 @charset "UTF-8";
-@import url("tokens.css");
+@import url("tool-shell.css");
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-[hidden] { display: none !important; }
-html { min-height: 100%; scroll-behavior: smooth; }
-
-body {
-    min-height: 100vh;
-    min-height: 100dvh;
-    font-family: var(--font);
-    color: var(--text);
-    background: var(--bg);
-    line-height: 1.6;
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-}
-
-.bg-fx {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background:
-        radial-gradient(ellipse 55% 42% at 15% -8%, var(--brand-soft), transparent 62%),
-        radial-gradient(ellipse 42% 34% at 88% 0%, rgba(14, 165, 233, 0.06), transparent 58%),
-        radial-gradient(ellipse 46% 35% at 52% 110%, rgba(16, 185, 129, 0.045), transparent 62%),
-        var(--bg);
-}
-
-.bg-fx::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image:
-        linear-gradient(var(--grid-line) 1px, transparent 1px),
-        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-    background-size: 44px 44px;
-    -webkit-mask-image: radial-gradient(ellipse 80% 62% at 50% 0%, #000 25%, transparent 88%);
-    mask-image: radial-gradient(ellipse 80% 62% at 50% 0%, #000 25%, transparent 88%);
-}
-
-.wrap {
-    width: 100%;
-    max-width: min(1320px, 100%);
-    min-height: 100vh;
-    min-height: 100dvh;
-    margin: 0 auto;
-    padding: clamp(1rem, 3.5vw, 2rem)
-        calc(clamp(1rem, 3vw, 1.75rem) + env(safe-area-inset-right))
-        max(2.5rem, env(safe-area-inset-bottom))
-        calc(clamp(1rem, 3vw, 1.75rem) + env(safe-area-inset-left));
-}
-
-.top {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1.3rem;
-}
-
-.back {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    color: var(--text-2);
-    text-decoration: none;
-    font-size: 0.88rem;
-    padding: 0.5rem 0.95rem;
-    border-radius: 999px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    box-shadow: var(--shadow-sm);
-    transition: color 0.25s var(--ease), border-color 0.25s var(--ease), transform 0.25s var(--ease);
-}
-
-.back:hover, .back:focus-visible {
-    color: var(--text);
-    border-color: var(--border-hover);
-    outline: none;
-    transform: translateX(-2px);
-}
-
-.meta {
-    color: var(--text-3);
-    font-family: var(--mono);
-    font-size: 0.78rem;
-}
-
-h1 {
-    display: flex;
-    align-items: center;
-    gap: 0.55rem;
-    margin-bottom: 0.4rem;
-    font-size: clamp(1.45rem, 4vw, 2.1rem);
-    line-height: 1.2;
-    letter-spacing: -0.02em;
-}
-
-h1 .title { color: var(--brand); }
-.lead { max-width: 62em; margin-bottom: 1.2rem; color: var(--text-2); font-size: 0.95rem; }
+/* zktool 工具页公共组件：面板、表单、按钮、输出区等内容组件。
+   页面骨架（reset/背景/返回条/标题/seo-notes）在 tool-shell.css。 */
 
 .tool-grid {
     display: grid;
@@ -298,10 +200,6 @@ th { color: var(--text-3); font-size: 0.72rem; letter-spacing: 0.08em; text-tran
 tr:last-child td { border-bottom: 0; }
 
 @media (max-width: 860px) {
-    .wrap { padding-top: max(1rem, env(safe-area-inset-top)); }
-    .top { align-items: flex-start; }
-    .meta { width: 100%; }
-    h1 { align-items: flex-start; }
     .tool-grid { grid-template-columns: 1fr; }
     .tool-grid > aside > .panel:first-child { flex: none; }
     .tool-grid > aside > .panel:first-child > .output { flex: none; max-height: none; }
@@ -310,9 +208,4 @@ tr:last-child td { border-bottom: 0; }
     .btn { flex: 1 1 auto; }
     .row { align-items: stretch; }
     textarea { min-height: 12rem; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
-    *, *::before, *::after { animation: none !important; transition: none !important; }
 }

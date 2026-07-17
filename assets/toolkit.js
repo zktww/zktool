@@ -155,7 +155,7 @@
             host.appendChild(box);
         }
 
-        /* 分享按钮：页面存在可分享控件时出现 */
+        /* 分享按钮：页面存在可分享控件时出现；hover 展示分享二维码 tip，点击复制链接 */
         if (stateFields().length && !box.querySelector(".zk-share-btn")) {
             var sbtn = document.createElement("button");
             sbtn.type = "button";
@@ -171,6 +171,7 @@
                     function () { toast("复制失败"); }
                 );
             });
+            attachQrTip(sbtn);
             box.insertBefore(sbtn, box.firstChild);
         }
 
@@ -190,6 +191,96 @@
 
     function sourceText(src) {
         return "value" in src && src.tagName !== "DIV" ? src.value : src.textContent;
+    }
+
+    /* ── 分享二维码 tip：hover/focus 分享按钮时本地生成当前状态链接的二维码 ──
+       qrcode-generator 库按需加载（首次 hover 才请求本地 vendor），全程无网络生成。 */
+    var qrLibPromise = null;
+    function loadQrLib() {
+        if (window.qrcode) return Promise.resolve();
+        if (!qrLibPromise) {
+            qrLibPromise = new Promise(function (resolve, reject) {
+                var s = document.createElement("script");
+                s.src = (window.zkRoot || "../../") + "assets/vendor/qrcode.min.js";
+                s.onload = resolve;
+                s.onerror = function () { qrLibPromise = null; reject(new Error("load fail")); };
+                document.head.appendChild(s);
+            });
+        }
+        return qrLibPromise;
+    }
+
+    /* 生成二维码 SVG 字符串；容量自适应纠错等级，超出二维码容量返回 null */
+    function qrSvg(text) {
+        var levels = ["M", "L"];
+        for (var i = 0; i < levels.length; i++) {
+            try {
+                var qr = window.qrcode(0, levels[i]); /* typeNumber 0 = 自动选型 */
+                qr.addData(text);
+                qr.make();
+                return qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+            } catch (e) { /* 容量不足则降纠错级重试 */ }
+        }
+        return null;
+    }
+
+    function attachQrTip(btn) {
+        var tip = null, hideTimer = null, seq = 0;
+
+        function hide() {
+            hideTimer = setTimeout(function () {
+                if (tip) { tip.remove(); tip = null; }
+            }, 120);
+        }
+
+        function show() {
+            clearTimeout(hideTimer);
+            if (tip) return;
+            var my = ++seq;
+            tip = document.createElement("div");
+            tip.className = "zk-qr-tip";
+            tip.setAttribute("role", "tooltip");
+            tip.style.cssText = "position:absolute;right:0;top:calc(100% + .5rem);z-index:1100;width:11.5rem;" +
+                "padding:.75rem .75rem .55rem;border:1px solid var(--border,#e4e9f0);border-radius:14px;" +
+                "background:var(--surface,#fff);box-shadow:0 16px 48px -16px rgba(0,0,0,.35);" +
+                "text-align:center;opacity:0;transform:translateY(-4px);transition:opacity .18s,transform .18s";
+            tip.innerHTML = "<div class='zk-qr-body' style='display:grid;place-items:center;min-height:10rem'>" +
+                "<span style='font-size:.78rem;color:var(--text-3,#7a8aa0)'>生成中…</span></div>" +
+                "<p style='margin:.5rem 0 0;font-size:.72rem;line-height:1.5;color:var(--text-2,#5b6b81)'>扫码在手机上打开当前状态</p>";
+            /* tip 挂在按钮容器上，与发送菜单同套定位 */
+            var wrap = btn.parentElement;
+            wrap.style.position = "relative";
+            wrap.appendChild(tip);
+            tip.addEventListener("mouseenter", function () { clearTimeout(hideTimer); });
+            tip.addEventListener("mouseleave", hide);
+            requestAnimationFrame(function () {
+                if (tip) { tip.style.opacity = "1"; tip.style.transform = "translateY(0)"; }
+            });
+
+            loadQrLib().then(function () {
+                if (!tip || my !== seq) return;
+                var url = zkShare.encode();
+                var body = tip.querySelector(".zk-qr-body");
+                var svg = url ? qrSvg(url) : null;
+                if (!svg) {
+                    body.innerHTML = "<span style='font-size:.78rem;color:var(--text-3,#7a8aa0);padding:0 .3rem'>内容过长，无法生成二维码<br>可点击按钮复制链接</span>";
+                    return;
+                }
+                /* 白色衬底保证暗色模式下可扫 */
+                body.innerHTML = "<div style='padding:.5rem;border-radius:10px;background:#fff;line-height:0'>" + svg + "</div>";
+                var el = body.querySelector("svg");
+                el.style.width = "9rem";
+                el.style.height = "9rem";
+            }, function () {
+                if (tip && my === seq) tip.querySelector(".zk-qr-body").innerHTML =
+                    "<span style='font-size:.78rem;color:var(--text-3,#7a8aa0)'>二维码组件加载失败</span>";
+            });
+        }
+
+        btn.addEventListener("mouseenter", show);
+        btn.addEventListener("mouseleave", hide);
+        btn.addEventListener("focus", show);
+        btn.addEventListener("blur", hide);
     }
 
     var pipeMenu = null;

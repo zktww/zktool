@@ -1,6 +1,6 @@
 /* zktool service worker：stale-while-revalidate。
    同源 GET 一律先回缓存再后台更新；跨域（CDN 库、统计）直接走网络，失败回缓存。 */
-var CACHE = "zktool-v4";
+var CACHE = "zktool-v5";
 var CORE = [
     "./",
     "./index.html",
@@ -19,6 +19,7 @@ var CORE = [
     "./assets/vendor/sql-formatter.min.js",
     "./assets/vendor/js-yaml.min.js",
     "./assets/vendor/marked.min.js",
+    "./assets/vendor/qrcode.min.js",
     /* 工具页全部预缓存：兑现“支持离线使用”（依赖 CDN 的页面本体可离线，功能视缓存而定） */
     "./tools/timestamp-converter/",
     "./tools/json-formatter/",

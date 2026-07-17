@@ -9,9 +9,9 @@
     <meta property="og:site_name" content="zktool" />
     <meta property="og:title" content="JWT解析 - 在线JWT解码工具（查看Payload与过期时间） | zktool" />
     <meta property="og:description" content="免费在线 JWT 解析工具：解码 JWT Token 的 Header 和 Payload，自动标注过期时间和签发时间，支持 HS256 本地验签，Token 不离开浏览器。" />
-    <meta property="og:url" content="https://zktool.zktww.cn/tools/jwt-decoder/" />
-    <link rel="canonical" href="https://zktool.zktww.cn/tools/jwt-decoder/" />
-    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/jwt-decoder/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/jwt-decoder/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/icon.svg" />
     <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
@@ -60,7 +60,7 @@
     <details><summary>Token 过期了（exp 已过）怎么办？</summary><p>过期的 JWT 服务端会拒绝。客户端通常用 Refresh Token 换取新的 Access Token；如果没有刷新机制就需要重新登录。本工具会明确标注 exp 的本地时间和是否已过期，方便排查 401 错误。</p></details>
     <details><summary>为什么只支持 HS256 验签？</summary><p>HS256 是对称算法，浏览器端用 Web Crypto 即可校验；RS256 等非对称算法需要公钥且格式处理复杂。解码功能对所有算法的 JWT 都有效，仅签名校验限于 HS256。</p></details>
 </section>
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"JWT解析","url":"https://zktool.zktww.cn/tools/jwt-decoder/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 JWT 解析工具：解码 JWT Token 的 Header 和 Payload，自动标注过期时间和签发时间，支持 HS256 本地验签，Token 不离开浏览器。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"JWT 能被解码，是不是不安全？","acceptedAnswer":{"@type":"Answer","text":"JWT 的 Header 和 Payload 只是 Base64 编码，任何人都能读取——所以绝不要在 Payload 里放密码等敏感信息。它的安全性在签名：服务端用密钥验证 Token 未被篡改，而不是靠内容保密。"}},{"@type":"Question","name":"Token 过期了（exp 已过）怎么办？","acceptedAnswer":{"@type":"Answer","text":"过期的 JWT 服务端会拒绝。客户端通常用 Refresh Token 换取新的 Access Token；如果没有刷新机制就需要重新登录。本工具会明确标注 exp 的本地时间和是否已过期，方便排查 401 错误。"}},{"@type":"Question","name":"为什么只支持 HS256 验签？","acceptedAnswer":{"@type":"Answer","text":"HS256 是对称算法，浏览器端用 Web Crypto 即可校验；RS256 等非对称算法需要公钥且格式处理复杂。解码功能对所有算法的 JWT 都有效，仅签名校验限于 HS256。"}}]}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"JWT解析","url":"https://tools.zktww.cn/tools/jwt-decoder/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 JWT 解析工具：解码 JWT Token 的 Header 和 Payload，自动标注过期时间和签发时间，支持 HS256 本地验签，Token 不离开浏览器。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"JWT 能被解码，是不是不安全？","acceptedAnswer":{"@type":"Answer","text":"JWT 的 Header 和 Payload 只是 Base64 编码，任何人都能读取——所以绝不要在 Payload 里放密码等敏感信息。它的安全性在签名：服务端用密钥验证 Token 未被篡改，而不是靠内容保密。"}},{"@type":"Question","name":"Token 过期了（exp 已过）怎么办？","acceptedAnswer":{"@type":"Answer","text":"过期的 JWT 服务端会拒绝。客户端通常用 Refresh Token 换取新的 Access Token；如果没有刷新机制就需要重新登录。本工具会明确标注 exp 的本地时间和是否已过期，方便排查 401 错误。"}},{"@type":"Question","name":"为什么只支持 HS256 验签？","acceptedAnswer":{"@type":"Answer","text":"HS256 是对称算法，浏览器端用 Web Crypto 即可校验；RS256 等非对称算法需要公钥且格式处理复杂。解码功能对所有算法的 JWT 都有效，仅签名校验限于 HS256。"}}]}]}</script>
 </main>
 <script>
 (function () {

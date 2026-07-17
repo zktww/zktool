@@ -9,9 +9,9 @@
     <meta property="og:site_name" content="zktool" />
     <meta property="og:title" content="SVG在线优化压缩 - 预览转data URI | zktool" />
     <meta property="og:description" content="免费在线 SVG 优化压缩工具：移除注释、metadata、编辑器冗余属性，压缩数字精度，实时预览并转 data URI（encodeURIComponent / base64），本地处理不上传。" />
-    <meta property="og:url" content="https://zktool.zktww.cn/tools/svg-optimizer/" />
-    <link rel="canonical" href="https://zktool.zktww.cn/tools/svg-optimizer/" />
-    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/svg-optimizer/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/svg-optimizer/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/icon.svg" />
     <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
@@ -97,7 +97,7 @@
     <details><summary>data URI 该用 encodeURIComponent 还是 base64？</summary><p>SVG 是文本，encodeURIComponent 版通常比 base64 更小（base64 会膨胀约 33%），且 gzip 后差距更明显，CSS background-image 内嵌推荐前者。base64 版兼容性更保险，适合某些对特殊字符敏感的场景（如部分邮件客户端）。</p></details>
     <details><summary>要不要移除 SVG 里的 title 和 desc？</summary><p>看用途：装饰性图标可以放心移除（建议同时在 HTML 里加 aria-hidden="true"）；如果 SVG 承载实际内容且需要无障碍支持，title/desc 是屏幕阅读器的重要信息，应取消勾选保留它们。</p></details>
 </section>
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"SVG 优化与预览","url":"https://zktool.zktww.cn/tools/svg-optimizer/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 SVG 优化压缩工具：移除注释、metadata、编辑器冗余属性，压缩数字精度，实时预览并转 data URI，本地处理不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"SVG 优化会不会改变图形显示效果？","acceptedAnswer":{"@type":"Answer","text":"本工具只移除注释、metadata、编辑器私有属性和空容器，这些不参与渲染，视觉上无损。数字精度压缩理论上有微小几何偏差，2 位小数对图标级 SVG 肉眼不可辨。"}},{"@type":"Question","name":"data URI 该用 encodeURIComponent 还是 base64？","acceptedAnswer":{"@type":"Answer","text":"SVG 是文本，encodeURIComponent 版通常比 base64 更小（base64 会膨胀约 33%），CSS 内嵌推荐前者；base64 版兼容性更保险，适合对特殊字符敏感的场景。"}},{"@type":"Question","name":"要不要移除 SVG 里的 title 和 desc？","acceptedAnswer":{"@type":"Answer","text":"装饰性图标可以放心移除；如果 SVG 承载实际内容且需要无障碍支持，title/desc 是屏幕阅读器的重要信息，应取消勾选保留它们。"}}]}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"SVG 优化与预览","url":"https://tools.zktww.cn/tools/svg-optimizer/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 SVG 优化压缩工具：移除注释、metadata、编辑器冗余属性，压缩数字精度，实时预览并转 data URI，本地处理不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"SVG 优化会不会改变图形显示效果？","acceptedAnswer":{"@type":"Answer","text":"本工具只移除注释、metadata、编辑器私有属性和空容器，这些不参与渲染，视觉上无损。数字精度压缩理论上有微小几何偏差，2 位小数对图标级 SVG 肉眼不可辨。"}},{"@type":"Question","name":"data URI 该用 encodeURIComponent 还是 base64？","acceptedAnswer":{"@type":"Answer","text":"SVG 是文本，encodeURIComponent 版通常比 base64 更小（base64 会膨胀约 33%），CSS 内嵌推荐前者；base64 版兼容性更保险，适合对特殊字符敏感的场景。"}},{"@type":"Question","name":"要不要移除 SVG 里的 title 和 desc？","acceptedAnswer":{"@type":"Answer","text":"装饰性图标可以放心移除；如果 SVG 承载实际内容且需要无障碍支持，title/desc 是屏幕阅读器的重要信息，应取消勾选保留它们。"}}]}]}</script>
 </main>
 <script>
 (function () {

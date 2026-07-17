@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://zktool.zktww.cn/sitemap.xml
+Sitemap: https://tools.zktww.cn/sitemap.xml

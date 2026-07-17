@@ -9,9 +9,9 @@
     <meta property="og:site_name" content="zktool" />
     <meta property="og:title" content="RSA/ECDSA密钥对在线生成 - 浏览器本地生成PEM | zktool" />
     <meta property="og:description" content="免费在线密钥对生成器：基于 Web Crypto API 在浏览器本地生成 RSA、ECDSA、Ed25519 密钥对，导出 PEM（SPKI/PKCS#8）与 JWK 格式，私钥不上传更安全。" />
-    <meta property="og:url" content="https://zktool.zktww.cn/tools/keypair-generator/" />
-    <link rel="canonical" href="https://zktool.zktww.cn/tools/keypair-generator/" />
-    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/keypair-generator/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/keypair-generator/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/icon.svg" />
     <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
@@ -102,7 +102,7 @@
     <details><summary>RSA、ECDSA、Ed25519 该怎么选？</summary><p>RSA 兼容性最好但密钥长、运算慢，2048 位是目前的安全下限；ECDSA 密钥短、性能好，P-256 已广泛用于 TLS 和 JWT（ES256）；Ed25519 是现代首选，安全性与性能俱佳且实现不易出错，常用于 SSH 和签名场景，但部分旧浏览器的 Web Crypto 尚未支持。</p></details>
     <details><summary>SPKI、PKCS#8、JWK 这些格式有什么区别？</summary><p>SPKI（SubjectPublicKeyInfo）是公钥的标准封装，对应 PEM 的 BEGIN PUBLIC KEY；PKCS#8 是私钥的标准封装，对应 BEGIN PRIVATE KEY，两者都是 DER 二进制经 Base64 编成 PEM 文本。JWK 则是 JSON 表示的密钥格式，常用于 JOSE/JWT 生态。它们承载的是同一把密钥，只是编码方式不同。</p></details>
 </section>
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"密钥对生成器","url":"https://zktool.zktww.cn/tools/keypair-generator/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线密钥对生成器：基于 Web Crypto API 在浏览器本地生成 RSA、ECDSA、Ed25519 密钥对，导出 PEM（SPKI/PKCS#8）与 JWK 格式，私钥不上传更安全。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"在网页里生成密钥安全吗？私钥会上传吗？","acceptedAnswer":{"@type":"Answer","text":"本页面全部计算由浏览器内置的 Web Crypto API 在本地完成，没有任何网络请求携带密钥数据，断网状态下同样可用。但生产环境的重要密钥仍建议在受控的离线环境用专业工具生成，网页工具更适合开发测试场景。"}},{"@type":"Question","name":"RSA、ECDSA、Ed25519 该怎么选？","acceptedAnswer":{"@type":"Answer","text":"RSA 兼容性最好但密钥长、运算慢，2048 位是目前的安全下限；ECDSA 密钥短、性能好，P-256 已广泛用于 TLS 和 JWT（ES256）；Ed25519 是现代首选，安全性与性能俱佳，常用于 SSH 和签名场景，但部分旧浏览器的 Web Crypto 尚未支持。"}},{"@type":"Question","name":"SPKI、PKCS#8、JWK 这些格式有什么区别？","acceptedAnswer":{"@type":"Answer","text":"SPKI 是公钥的标准封装，对应 PEM 的 BEGIN PUBLIC KEY；PKCS#8 是私钥的标准封装，对应 BEGIN PRIVATE KEY，两者都是 DER 二进制经 Base64 编成 PEM 文本。JWK 则是 JSON 表示的密钥格式，常用于 JOSE/JWT 生态。它们承载的是同一把密钥，只是编码方式不同。"}}]}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"密钥对生成器","url":"https://tools.zktww.cn/tools/keypair-generator/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线密钥对生成器：基于 Web Crypto API 在浏览器本地生成 RSA、ECDSA、Ed25519 密钥对，导出 PEM（SPKI/PKCS#8）与 JWK 格式，私钥不上传更安全。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"在网页里生成密钥安全吗？私钥会上传吗？","acceptedAnswer":{"@type":"Answer","text":"本页面全部计算由浏览器内置的 Web Crypto API 在本地完成，没有任何网络请求携带密钥数据，断网状态下同样可用。但生产环境的重要密钥仍建议在受控的离线环境用专业工具生成，网页工具更适合开发测试场景。"}},{"@type":"Question","name":"RSA、ECDSA、Ed25519 该怎么选？","acceptedAnswer":{"@type":"Answer","text":"RSA 兼容性最好但密钥长、运算慢，2048 位是目前的安全下限；ECDSA 密钥短、性能好，P-256 已广泛用于 TLS 和 JWT（ES256）；Ed25519 是现代首选，安全性与性能俱佳，常用于 SSH 和签名场景，但部分旧浏览器的 Web Crypto 尚未支持。"}},{"@type":"Question","name":"SPKI、PKCS#8、JWK 这些格式有什么区别？","acceptedAnswer":{"@type":"Answer","text":"SPKI 是公钥的标准封装，对应 PEM 的 BEGIN PUBLIC KEY；PKCS#8 是私钥的标准封装，对应 BEGIN PRIVATE KEY，两者都是 DER 二进制经 Base64 编成 PEM 文本。JWK 则是 JSON 表示的密钥格式，常用于 JOSE/JWT 生态。它们承载的是同一把密钥，只是编码方式不同。"}}]}]}</script>
 </main>
 <script>
 (function () {

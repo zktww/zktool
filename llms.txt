@@ -1,37 +1,37 @@
 # zktool
 
-> 免费在线开发者工具箱（https://zktool.zktww.cn/）。全部工具为纯静态 HTML，
+> 免费在线开发者工具箱（https://tools.zktww.cn/）。全部工具为纯静态 HTML，
 > 数据在浏览器本地处理、不上传服务器，支持离线使用（PWA）。界面为中文。
 
 ## 工具
 
-- [JSON 格式化与校验](https://zktool.zktww.cn/tools/json-formatter/)：校验、美化、压缩 JSON，语法高亮、树形视图、错误定位
-- [JSON 格式互转](https://zktool.zktww.cn/tools/json-converter/)：JSON 转 YAML、TypeScript interface、Go struct、CSV
-- [YAML/TOML 校验互转](https://zktool.zktww.cn/tools/yaml-converter/)：YAML ↔ JSON 双向转换与语法校验
-- [SQL 格式化](https://zktool.zktww.cn/tools/sql-formatter/)：多方言 SQL 格式化与单行压缩
-- [cURL 命令解析](https://zktool.zktww.cn/tools/curl-parser/)：解析 cURL 命令为结构化请求，生成 fetch / Python requests 代码
-- [时间转换](https://zktool.zktww.cn/tools/timestamp-converter/)：Unix 时间戳与日期互转，秒/毫秒自动识别，时区对照
-- [Cron 表达式解析](https://zktool.zktww.cn/tools/cron-tool/)：5 字段 crontab 解析与未来执行时间预览
-- [时区会议规划](https://zktool.zktww.cn/tools/timezone-planner/)：多城市时间对照，跨时区找共同工作时段
-- [URL 编码与参数解析](https://zktool.zktww.cn/tools/url-codec/)：encode/decode 与查询参数解析
-- [Base64 编码转换](https://zktool.zktww.cn/tools/base64-converter/)：UTF-8 安全的 Base64 / Hex / Unicode escape 转换
-- [HTML 实体编解码](https://zktool.zktww.cn/tools/html-entities/)：命名/十进制/十六进制实体互转
-- [Unicode 字符检查器](https://zktool.zktww.cn/tools/unicode-inspector/)：逐字符码点/编码明细，零宽字符排查
-- [正则表达式测试](https://zktool.zktww.cn/tools/regex-tester/)：JavaScript 正则实时匹配高亮与替换预览
-- [文本差异比较](https://zktool.zktww.cn/tools/text-diff/)：行级 diff 高亮
-- [文本命名与行处理](https://zktool.zktww.cn/tools/text-case/)：camelCase/snake_case 等命名互转，行去重排序
-- [Markdown 预览](https://zktool.zktww.cn/tools/markdown-preview/)：Markdown 实时渲染预览与转 HTML
-- [随机 ID 生成器](https://zktool.zktww.cn/tools/random-generator/)：UUID v4、随机密码、Token 批量生成
-- [Hash 计算器](https://zktool.zktww.cn/tools/hash-tool/)：文本/文件 MD5、SHA-1、SHA-256、SHA-512
-- [JWT 解析器](https://zktool.zktww.cn/tools/jwt-decoder/)：本地解码 JWT，HS256 验签
-- [密钥对生成器](https://zktool.zktww.cn/tools/keypair-generator/)：浏览器本地生成 RSA / ECDSA 密钥对（PEM/JWK）
-- [颜色转换与对比度](https://zktool.zktww.cn/tools/color-tool/)：HEX/RGB/HSL 互转与 WCAG 对比度检查
-- [图片压缩与转换](https://zktool.zktww.cn/tools/image-compressor/)：本地压缩转 WebP/JPEG/PNG
-- [SVG 优化器](https://zktool.zktww.cn/tools/svg-optimizer/)：SVG 预览、压缩与转 data URI
-- [Mermaid 图表编辑器](https://zktool.zktww.cn/tools/mermaid-editor/)：实时渲染流程图/时序图等，导出 PNG/SVG
-- [Emoji 符号库](https://zktool.zktww.cn/tools/emoji-tool/)：分类浏览、中文搜索、一键复制
-- [HTTP 状态码与 MIME 速查](https://zktool.zktww.cn/tools/http-reference/)：状态码含义与 MIME 对照
-- [chmod 计算器](https://zktool.zktww.cn/tools/chmod-calculator/)：权限位、八进制与符号表示互转
+- [JSON 格式化与校验](https://tools.zktww.cn/tools/json-formatter/)：校验、美化、压缩 JSON，语法高亮、树形视图、错误定位
+- [JSON 格式互转](https://tools.zktww.cn/tools/json-converter/)：JSON 转 YAML、TypeScript interface、Go struct、CSV
+- [YAML/TOML 校验互转](https://tools.zktww.cn/tools/yaml-converter/)：YAML ↔ JSON 双向转换与语法校验
+- [SQL 格式化](https://tools.zktww.cn/tools/sql-formatter/)：多方言 SQL 格式化与单行压缩
+- [cURL 命令解析](https://tools.zktww.cn/tools/curl-parser/)：解析 cURL 命令为结构化请求，生成 fetch / Python requests 代码
+- [时间转换](https://tools.zktww.cn/tools/timestamp-converter/)：Unix 时间戳与日期互转，秒/毫秒自动识别，时区对照
+- [Cron 表达式解析](https://tools.zktww.cn/tools/cron-tool/)：5 字段 crontab 解析与未来执行时间预览
+- [时区会议规划](https://tools.zktww.cn/tools/timezone-planner/)：多城市时间对照，跨时区找共同工作时段
+- [URL 编码与参数解析](https://tools.zktww.cn/tools/url-codec/)：encode/decode 与查询参数解析
+- [Base64 编码转换](https://tools.zktww.cn/tools/base64-converter/)：UTF-8 安全的 Base64 / Hex / Unicode escape 转换
+- [HTML 实体编解码](https://tools.zktww.cn/tools/html-entities/)：命名/十进制/十六进制实体互转
+- [Unicode 字符检查器](https://tools.zktww.cn/tools/unicode-inspector/)：逐字符码点/编码明细，零宽字符排查
+- [正则表达式测试](https://tools.zktww.cn/tools/regex-tester/)：JavaScript 正则实时匹配高亮与替换预览
+- [文本差异比较](https://tools.zktww.cn/tools/text-diff/)：行级 diff 高亮
+- [文本命名与行处理](https://tools.zktww.cn/tools/text-case/)：camelCase/snake_case 等命名互转，行去重排序
+- [Markdown 预览](https://tools.zktww.cn/tools/markdown-preview/)：Markdown 实时渲染预览与转 HTML
+- [随机 ID 生成器](https://tools.zktww.cn/tools/random-generator/)：UUID v4、随机密码、Token 批量生成
+- [Hash 计算器](https://tools.zktww.cn/tools/hash-tool/)：文本/文件 MD5、SHA-1、SHA-256、SHA-512
+- [JWT 解析器](https://tools.zktww.cn/tools/jwt-decoder/)：本地解码 JWT，HS256 验签
+- [密钥对生成器](https://tools.zktww.cn/tools/keypair-generator/)：浏览器本地生成 RSA / ECDSA 密钥对（PEM/JWK）
+- [颜色转换与对比度](https://tools.zktww.cn/tools/color-tool/)：HEX/RGB/HSL 互转与 WCAG 对比度检查
+- [图片压缩与转换](https://tools.zktww.cn/tools/image-compressor/)：本地压缩转 WebP/JPEG/PNG
+- [SVG 优化器](https://tools.zktww.cn/tools/svg-optimizer/)：SVG 预览、压缩与转 data URI
+- [Mermaid 图表编辑器](https://tools.zktww.cn/tools/mermaid-editor/)：实时渲染流程图/时序图等，导出 PNG/SVG
+- [Emoji 符号库](https://tools.zktww.cn/tools/emoji-tool/)：分类浏览、中文搜索、一键复制
+- [HTTP 状态码与 MIME 速查](https://tools.zktww.cn/tools/http-reference/)：状态码含义与 MIME 对照
+- [chmod 计算器](https://tools.zktww.cn/tools/chmod-calculator/)：权限位、八进制与符号表示互转
 
 ## 说明
 

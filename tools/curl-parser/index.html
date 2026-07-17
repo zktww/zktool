@@ -9,9 +9,9 @@
     <meta property="og:site_name" content="zktool" />
     <meta property="og:title" content="cURL命令解析 - curl转fetch/Python代码 | zktool" />
     <meta property="og:description" content="免费在线 cURL 命令解析工具：粘贴 curl 命令即可查看方法、URL、Headers、Body 概览，并一键生成 fetch 与 Python requests 代码，本地处理不上传。" />
-    <meta property="og:url" content="https://zktool.zktww.cn/tools/curl-parser/" />
-    <link rel="canonical" href="https://zktool.zktww.cn/tools/curl-parser/" />
-    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/curl-parser/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/curl-parser/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/icon.svg" />
     <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
@@ -67,7 +67,7 @@
     <details><summary>生成的 fetch 代码为什么没有 -k 和 --compressed 的效果？</summary><p>浏览器的 fetch 由浏览器统一管理 TLS 校验和内容压缩，无法在代码里跳过证书校验（-k）或手动声明压缩（--compressed），工具会以注释提示。Python requests 则可以用 verify=False 对应 -k，压缩由 requests 自动处理。</p></details>
     <details><summary>支持多条 curl 命令或管道吗？</summary><p>每次只解析一条 curl 命令，命令末尾的 | jq 之类管道内容会被当作无法识别的参数在提示中列出，不影响主体解析。多条命令请分开粘贴解析。</p></details>
 </section>
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"cURL命令解析","url":"https://zktool.zktww.cn/tools/curl-parser/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 cURL 命令解析工具：粘贴 curl 命令即可查看方法、URL、Headers、Body 概览，并一键生成 fetch 与 Python requests 代码，本地处理不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"如何从浏览器拿到一条 curl 命令？","acceptedAnswer":{"@type":"Answer","text":"打开开发者工具的 Network 面板，找到目标请求后右键选择 Copy → Copy as cURL 即可复制完整命令，粘贴到本工具就能还原出请求结构并生成代码。注意 Windows 下请选 cURL (bash) 而不是 cURL (cmd)，两者引号规则不同。"}},{"@type":"Question","name":"生成的 fetch 代码为什么没有 -k 和 --compressed 的效果？","acceptedAnswer":{"@type":"Answer","text":"浏览器的 fetch 由浏览器统一管理 TLS 校验和内容压缩，无法在代码里跳过证书校验（-k）或手动声明压缩（--compressed），工具会以注释提示。Python requests 则可以用 verify=False 对应 -k，压缩由 requests 自动处理。"}},{"@type":"Question","name":"支持多条 curl 命令或管道吗？","acceptedAnswer":{"@type":"Answer","text":"每次只解析一条 curl 命令，命令末尾的 | jq 之类管道内容会被当作无法识别的参数在提示中列出，不影响主体解析。多条命令请分开粘贴解析。"}}]}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"cURL命令解析","url":"https://tools.zktww.cn/tools/curl-parser/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 cURL 命令解析工具：粘贴 curl 命令即可查看方法、URL、Headers、Body 概览，并一键生成 fetch 与 Python requests 代码，本地处理不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"如何从浏览器拿到一条 curl 命令？","acceptedAnswer":{"@type":"Answer","text":"打开开发者工具的 Network 面板，找到目标请求后右键选择 Copy → Copy as cURL 即可复制完整命令，粘贴到本工具就能还原出请求结构并生成代码。注意 Windows 下请选 cURL (bash) 而不是 cURL (cmd)，两者引号规则不同。"}},{"@type":"Question","name":"生成的 fetch 代码为什么没有 -k 和 --compressed 的效果？","acceptedAnswer":{"@type":"Answer","text":"浏览器的 fetch 由浏览器统一管理 TLS 校验和内容压缩，无法在代码里跳过证书校验（-k）或手动声明压缩（--compressed），工具会以注释提示。Python requests 则可以用 verify=False 对应 -k，压缩由 requests 自动处理。"}},{"@type":"Question","name":"支持多条 curl 命令或管道吗？","acceptedAnswer":{"@type":"Answer","text":"每次只解析一条 curl 命令，命令末尾的 | jq 之类管道内容会被当作无法识别的参数在提示中列出，不影响主体解析。多条命令请分开粘贴解析。"}}]}]}</script>
 </main>
 <script>
 (function () {

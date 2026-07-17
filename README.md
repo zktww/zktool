@@ -187,7 +187,7 @@ Linux 文件权限三向换算：权限勾选矩阵、八进制（含 setuid/set
 4. 在本 README 的表格与说明中各补一行（按需详写）；
 5. 更新 **`sitemap.xml`** 与 **`llms.txt`**，并升级 **`sw.js`** 中的缓存版本号（`zktool-vN`）与预缓存列表。
 
-> 站点部署域名变更时：全局替换页面 `og:url`、`sitemap.xml` 与 `robots.txt` 中的 `https://zktool.zktww.cn`。
+> 站点部署域名变更时：全局替换页面 `og:url`、`sitemap.xml` 与 `robots.txt` 中的 `https://tools.zktww.cn`。
 
 ---
 

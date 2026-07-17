@@ -9,9 +9,9 @@
     <meta property="og:site_name" content="zktool" />
     <meta property="og:title" content="Base64编码解码 - 在线Base64加解密转换（支持中文） | zktool" />
     <meta property="og:description" content="免费在线 Base64 编码解码工具：UTF-8 安全处理中文不乱码，支持 URL-safe 变体、Hex 十六进制、Unicode 转义互转，本地处理不上传。" />
-    <meta property="og:url" content="https://zktool.zktww.cn/tools/base64-converter/" />
-    <link rel="canonical" href="https://zktool.zktww.cn/tools/base64-converter/" />
-    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/base64-converter/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/base64-converter/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/icon.svg" />
     <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
@@ -67,7 +67,7 @@
     <details><summary>为什么 Base64 解码报错 InvalidCharacterError？</summary><p>常见原因：内容混入了换行或空格（本工具已自动清理）、使用了 URL-safe 变体的 - 和 _（本工具已兼容）、字符串被截断导致长度不合法。检查内容是否完整即可。</p></details>
     <details><summary>Base64 编码后体积会变大吗？</summary><p>会，编码后约为原始数据的 4/3（每 3 字节变 4 字符），再加上可能的 padding。所以大文件不适合用 Base64 内嵌传输，接口里大图建议用 URL 而不是 Base64。</p></details>
 </section>
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"Base64编码解码","url":"https://zktool.zktww.cn/tools/base64-converter/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 Base64 编码解码工具：UTF-8 安全处理中文不乱码，支持 URL-safe 变体、Hex 十六进制、Unicode 转义互转，本地处理不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Base64 是加密吗？安全吗？","acceptedAnswer":{"@type":"Answer","text":"不是加密，只是编码——任何人都能解码还原，不要用它保护敏感信息。它解决的是\"二进制数据无法直接放进文本协议\"的传输问题，安全需求请使用真正的加密算法。"}},{"@type":"Question","name":"为什么 Base64 解码报错 InvalidCharacterError？","acceptedAnswer":{"@type":"Answer","text":"常见原因：内容混入了换行或空格（本工具已自动清理）、使用了 URL-safe 变体的 - 和 _（本工具已兼容）、字符串被截断导致长度不合法。检查内容是否完整即可。"}},{"@type":"Question","name":"Base64 编码后体积会变大吗？","acceptedAnswer":{"@type":"Answer","text":"会，编码后约为原始数据的 4/3（每 3 字节变 4 字符），再加上可能的 padding。所以大文件不适合用 Base64 内嵌传输，接口里大图建议用 URL 而不是 Base64。"}}]}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"Base64编码解码","url":"https://tools.zktww.cn/tools/base64-converter/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 Base64 编码解码工具：UTF-8 安全处理中文不乱码，支持 URL-safe 变体、Hex 十六进制、Unicode 转义互转，本地处理不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Base64 是加密吗？安全吗？","acceptedAnswer":{"@type":"Answer","text":"不是加密，只是编码——任何人都能解码还原，不要用它保护敏感信息。它解决的是\"二进制数据无法直接放进文本协议\"的传输问题，安全需求请使用真正的加密算法。"}},{"@type":"Question","name":"为什么 Base64 解码报错 InvalidCharacterError？","acceptedAnswer":{"@type":"Answer","text":"常见原因：内容混入了换行或空格（本工具已自动清理）、使用了 URL-safe 变体的 - 和 _（本工具已兼容）、字符串被截断导致长度不合法。检查内容是否完整即可。"}},{"@type":"Question","name":"Base64 编码后体积会变大吗？","acceptedAnswer":{"@type":"Answer","text":"会，编码后约为原始数据的 4/3（每 3 字节变 4 字符），再加上可能的 padding。所以大文件不适合用 Base64 内嵌传输，接口里大图建议用 URL 而不是 Base64。"}}]}]}</script>
 </main>
 <script>
 (function () {

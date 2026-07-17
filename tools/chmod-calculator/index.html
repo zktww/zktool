@@ -9,9 +9,9 @@
     <meta property="og:site_name" content="zktool" />
     <meta property="og:title" content="chmod计算器 - Linux文件权限755/644在线换算 | zktool" />
     <meta property="og:description" content="免费在线 chmod 权限计算器：勾选、八进制数字与符号表示（-rwxr-xr-x）三向实时换算，支持 setuid/setgid/sticky 特殊位，内置 644/755 等常用权限速查表。" />
-    <meta property="og:url" content="https://zktool.zktww.cn/tools/chmod-calculator/" />
-    <link rel="canonical" href="https://zktool.zktww.cn/tools/chmod-calculator/" />
-    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/chmod-calculator/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/chmod-calculator/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/icon.svg" />
     <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
@@ -99,7 +99,7 @@
     <details><summary>八进制权限数字是怎么算出来的？</summary><p>每组权限用读=4、写=2、执行=1 累加：rwx=4+2+1=7，r-x=4+1=5，r--=4。三组从左到右分别是所有者、所属组、其他人，拼起来就是 755。第 4 位（写在最前）表示特殊位：setuid=4、setgid=2、sticky=1，例如 4755。</p></details>
     <details><summary>为什么不建议用 chmod 777？</summary><p>777 意味着系统上任何用户都能读取、修改和执行该文件，恶意程序或其他用户可以随意篡改内容、植入代码，是常见的安全隐患。遇到权限问题应先用 ls -l 查明所有者和组，再用 chown/chmod 精确授权，而不是一律 777。</p></details>
 </section>
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"chmod 权限计算器","url":"https://zktool.zktww.cn/tools/chmod-calculator/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 chmod 权限计算器：勾选、八进制数字与符号表示三向实时换算，支持 setuid/setgid/sticky 特殊位，内置 644/755 等常用权限速查表。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"chmod 755 和 644 有什么区别？","acceptedAnswer":{"@type":"Answer","text":"755 = rwxr-xr-x，所有者可读写执行，组和其他人可读可执行，适合目录和可执行脚本；644 = rw-r--r--，所有者可读写，其他人只读且不可执行，适合普通文件。经验法则：目录 755、文件 644。"}},{"@type":"Question","name":"八进制权限数字是怎么算出来的？","acceptedAnswer":{"@type":"Answer","text":"每组权限用读=4、写=2、执行=1 累加：rwx=7，r-x=5，r--=4。三组从左到右分别是所有者、所属组、其他人，拼起来就是 755。第 4 位表示特殊位：setuid=4、setgid=2、sticky=1，例如 4755。"}},{"@type":"Question","name":"为什么不建议用 chmod 777？","acceptedAnswer":{"@type":"Answer","text":"777 意味着任何用户都能读取、修改和执行该文件，容易被篡改内容或植入代码，是常见的安全隐患。应先用 ls -l 查明所有者和组，再用 chown/chmod 精确授权。"}}]}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"chmod 权限计算器","url":"https://tools.zktww.cn/tools/chmod-calculator/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 chmod 权限计算器：勾选、八进制数字与符号表示三向实时换算，支持 setuid/setgid/sticky 特殊位，内置 644/755 等常用权限速查表。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"chmod 755 和 644 有什么区别？","acceptedAnswer":{"@type":"Answer","text":"755 = rwxr-xr-x，所有者可读写执行，组和其他人可读可执行，适合目录和可执行脚本；644 = rw-r--r--，所有者可读写，其他人只读且不可执行，适合普通文件。经验法则：目录 755、文件 644。"}},{"@type":"Question","name":"八进制权限数字是怎么算出来的？","acceptedAnswer":{"@type":"Answer","text":"每组权限用读=4、写=2、执行=1 累加：rwx=7，r-x=5，r--=4。三组从左到右分别是所有者、所属组、其他人，拼起来就是 755。第 4 位表示特殊位：setuid=4、setgid=2、sticky=1，例如 4755。"}},{"@type":"Question","name":"为什么不建议用 chmod 777？","acceptedAnswer":{"@type":"Answer","text":"777 意味着任何用户都能读取、修改和执行该文件，容易被篡改内容或植入代码，是常见的安全隐患。应先用 ls -l 查明所有者和组，再用 chown/chmod 精确授权。"}}]}]}</script>
 </main>
 <script>
 (function () {

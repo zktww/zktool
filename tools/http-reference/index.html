@@ -9,9 +9,9 @@
     <meta property="og:site_name" content="zktool" />
     <meta property="og:title" content="HTTP状态码大全 - 404/500/502含义速查与MIME类型 | zktool" />
     <meta property="og:description" content="免费 HTTP 状态码速查表：200、301、404、500、502 等状态码含义与排查提示，附常用 MIME 类型（Content-Type）对照，搜索过滤点击复制。" />
-    <meta property="og:url" content="https://zktool.zktww.cn/tools/http-reference/" />
-    <link rel="canonical" href="https://zktool.zktww.cn/tools/http-reference/" />
-    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/http-reference/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/http-reference/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/icon.svg" />
     <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
@@ -56,7 +56,7 @@
     <details><summary>502 和 504 都是网关错误，怎么区分？</summary><p>502 Bad Gateway：网关收到了上游的响应但无效，通常是后端进程崩溃或返回格式错误；504 Gateway Timeout：网关等上游等到超时，通常是后端处理太慢或卡死。一个是"回了但坏了"，一个是"根本没回"。</p></details>
     <details><summary>接口返回乱码和 Content-Type 有关吗？</summary><p>很可能有关：响应头的 Content-Type 缺少 charset=utf-8 时，浏览器可能按错误编码解析。后端确保返回 application/json; charset=utf-8 这类完整声明即可。</p></details>
 </section>
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"HTTP状态码大全","url":"https://zktool.zktww.cn/tools/http-reference/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费 HTTP 状态码速查表：200、301、404、500、502 等状态码含义与排查提示，附常用 MIME 类型（Content-Type）对照，搜索过滤点击复制。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"401 和 403 有什么区别？","acceptedAnswer":{"@type":"Answer","text":"401 Unauthorized 是\"没登录或凭证无效\"——缺 Token、Token 过期都返回它；403 Forbidden 是\"登录了但没权限\"——身份有效但该资源不允许你访问。前者去检查认证，后者去检查授权。"}},{"@type":"Question","name":"502 和 504 都是网关错误，怎么区分？","acceptedAnswer":{"@type":"Answer","text":"502 Bad Gateway：网关收到了上游的响应但无效，通常是后端进程崩溃或返回格式错误；504 Gateway Timeout：网关等上游等到超时，通常是后端处理太慢或卡死。一个是\"回了但坏了\"，一个是\"根本没回\"。"}},{"@type":"Question","name":"接口返回乱码和 Content-Type 有关吗？","acceptedAnswer":{"@type":"Answer","text":"很可能有关：响应头的 Content-Type 缺少 charset=utf-8 时，浏览器可能按错误编码解析。后端确保返回 application/json; charset=utf-8 这类完整声明即可。"}}]}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"HTTP状态码大全","url":"https://tools.zktww.cn/tools/http-reference/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费 HTTP 状态码速查表：200、301、404、500、502 等状态码含义与排查提示，附常用 MIME 类型（Content-Type）对照，搜索过滤点击复制。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"401 和 403 有什么区别？","acceptedAnswer":{"@type":"Answer","text":"401 Unauthorized 是\"没登录或凭证无效\"——缺 Token、Token 过期都返回它；403 Forbidden 是\"登录了但没权限\"——身份有效但该资源不允许你访问。前者去检查认证，后者去检查授权。"}},{"@type":"Question","name":"502 和 504 都是网关错误，怎么区分？","acceptedAnswer":{"@type":"Answer","text":"502 Bad Gateway：网关收到了上游的响应但无效，通常是后端进程崩溃或返回格式错误；504 Gateway Timeout：网关等上游等到超时，通常是后端处理太慢或卡死。一个是\"回了但坏了\"，一个是\"根本没回\"。"}},{"@type":"Question","name":"接口返回乱码和 Content-Type 有关吗？","acceptedAnswer":{"@type":"Answer","text":"很可能有关：响应头的 Content-Type 缺少 charset=utf-8 时，浏览器可能按错误编码解析。后端确保返回 application/json; charset=utf-8 这类完整声明即可。"}}]}]}</script>
 </main>
 <script>
 (function () {

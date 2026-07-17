@@ -1,20 +1,24 @@
 /* zktool service worker：stale-while-revalidate。
    同源 GET 一律先回缓存再后台更新；跨域（CDN 库、统计）直接走网络，失败回缓存。 */
-var CACHE = "zktool-v3";
+var CACHE = "zktool-v4";
 var CORE = [
     "./",
     "./index.html",
     "./404.html",
     "./manifest.webmanifest",
+    "./llms.txt",
     "./assets/tokens.css",
     "./assets/tool-shell.css",
     "./assets/tool-page.css",
     "./assets/clipboard.js",
     "./assets/theme.js",
+    "./assets/toolkit.js",
     "./assets/registry.js",
     "./assets/palette.js",
     "./assets/icon.svg",
     "./assets/vendor/sql-formatter.min.js",
+    "./assets/vendor/js-yaml.min.js",
+    "./assets/vendor/marked.min.js",
     /* 工具页全部预缓存：兑现“支持离线使用”（依赖 CDN 的页面本体可离线，功能视缓存而定） */
     "./tools/timestamp-converter/",
     "./tools/json-formatter/",
@@ -35,6 +39,14 @@ var CORE = [
     "./tools/http-reference/",
     "./tools/unicode-inspector/",
     "./tools/sql-formatter/",
+    "./tools/yaml-converter/",
+    "./tools/curl-parser/",
+    "./tools/html-entities/",
+    "./tools/keypair-generator/",
+    "./tools/markdown-preview/",
+    "./tools/timezone-planner/",
+    "./tools/chmod-calculator/",
+    "./tools/svg-optimizer/",
 ];
 
 self.addEventListener("install", function (e) {

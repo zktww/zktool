@@ -15,6 +15,37 @@
     var items = window.ZKTOOL_REGISTRY;
     var overlay, box, input, list, active = 0, filtered = items;
 
+    /* 动作型条目：不跳转页面，执行本地操作 */
+    var ACTIONS = [
+        { name: "切换主题", desc: "跟随系统 → 浅色 → 深色 循环", tag: "动作", kw: "theme dark light qhzt 切换 主题 暗色 深色 浅色", run: function () {
+            if (window.zkTheme) {
+                var m = window.zkTheme.cycle();
+                if (window.zkToast) zkToast({ auto: "主题：跟随系统", light: "主题：浅色", dark: "主题：深色" }[m]);
+            }
+        } },
+        { name: "复制本页链接", desc: "把当前页面地址复制到剪贴板", tag: "动作", kw: "copy link url fzlj 复制 链接 地址", run: function () {
+            var url = location.href;
+            var done = function () { if (window.zkToast) zkToast("链接已复制"); };
+            if (window.copyText) copyText(url).then(done, function () {});
+            else if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, function () {});
+        } },
+    ];
+
+    function readRecents() {
+        try { return JSON.parse(localStorage.getItem("zktool.recents")) || []; } catch (e) { return []; }
+    }
+
+    /* 空查询：最近使用的工具排前面（recents 存主页卡片 href，即相对根路径），动作条目垫底 */
+    function defaultList() {
+        var recents = readRecents();
+        var sorted = items.slice().sort(function (a, b) {
+            var ra = recents.indexOf(a.path); if (ra < 0) ra = 999;
+            var rb = recents.indexOf(b.path); if (rb < 0) rb = 999;
+            return ra - rb;
+        });
+        return sorted.concat(ACTIONS);
+    }
+
     var css = [
         ".zk-palette{position:fixed;inset:0;z-index:1000;display:none;background:rgba(15,23,42,.4);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}",
         ".zk-palette.open{display:block}",
@@ -68,8 +99,15 @@
     function filter() {
         var kw = input.value.trim().toLowerCase();
         active = 0;
-        filtered = !kw ? items : items.filter(function (it) {
+        var pool = items.concat(ACTIONS);
+        if (!kw) { filtered = defaultList(); return; }
+        /* 名称命中的排在描述/关键词命中的前面 */
+        filtered = pool.filter(function (it) {
             return (it.name + " " + it.desc + " " + it.kw + " " + it.tag).toLowerCase().indexOf(kw) >= 0;
+        }).sort(function (a, b) {
+            var na = a.name.toLowerCase().indexOf(kw) >= 0 ? 0 : 1;
+            var nb = b.name.toLowerCase().indexOf(kw) >= 0 ? 0 : 1;
+            return na - nb;
         });
     }
 
@@ -85,6 +123,7 @@
 
     function go(it) {
         if (!it) return;
+        if (it.run) { close(); it.run(); return; }
         if (it.type === "external") window.open(it.path, "_blank", "noopener");
         else location.href = /^https?:/.test(it.path) ? it.path : root + it.path;
         close();

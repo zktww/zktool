@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>RSA/ECDSA密钥对在线生成 - 浏览器本地生成PEM | zktool</title>
+    <meta name="description" content="免费在线密钥对生成器：基于 Web Crypto API 在浏览器本地生成 RSA、ECDSA、Ed25519 密钥对，导出 PEM（SPKI/PKCS#8）与 JWK 格式，私钥不上传更安全。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="RSA/ECDSA密钥对在线生成 - 浏览器本地生成PEM | zktool" />
+    <meta property="og:description" content="免费在线密钥对生成器：基于 Web Crypto API 在浏览器本地生成 RSA、ECDSA、Ed25519 密钥对，导出 PEM（SPKI/PKCS#8）与 JWK 格式，私钥不上传更安全。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/keypair-generator/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/theme.js"></script>
+    <script src="../../assets/clipboard.js"></script>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
+    <script defer src="../../assets/toolkit.js"></script>
+</head>
+<body data-zk-manual>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">RSA / ECDSA / Ed25519</p></div>
+    <h1><span class="title">密钥对生成器</span></h1>
+    <p class="lead">基于 Web Crypto API 在浏览器本地生成 RSA / ECDSA / Ed25519 密钥对，导出 PEM 与 JWK 格式。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>算法与参数</h2>
+            <div class="row">
+                <label class="grow">算法
+                    <select id="alg">
+                        <option value="RSASSA-PKCS1-v1_5">RSASSA-PKCS1-v1_5</option>
+                        <option value="RSA-PSS">RSA-PSS</option>
+                        <option value="ECDSA" selected>ECDSA</option>
+                        <option value="Ed25519">Ed25519</option>
+                    </select>
+                </label>
+            </div>
+            <div class="row" id="rsaOpts" hidden>
+                <label class="grow">密钥长度
+                    <select id="rsaBits">
+                        <option value="2048" selected>2048 位</option>
+                        <option value="3072">3072 位</option>
+                        <option value="4096">4096 位</option>
+                    </select>
+                </label>
+            </div>
+            <div class="row" id="ecOpts">
+                <label class="grow">曲线
+                    <select id="ecCurve">
+                        <option value="P-256" selected>P-256</option>
+                        <option value="P-384">P-384</option>
+                        <option value="P-521">P-521</option>
+                    </select>
+                </label>
+            </div>
+            <div class="row">
+                <label class="grow">输出格式
+                    <select id="fmt">
+                        <option value="pem" selected>PEM（SPKI / PKCS#8）</option>
+                        <option value="jwk">JWK（JSON Web Key）</option>
+                    </select>
+                </label>
+            </div>
+            <div class="row">
+                <button class="btn primary" id="gen">生成密钥对</button>
+            </div>
+            <p class="hint ok">密钥全程在浏览器本地生成，不会上传到任何服务器；请妥善保管私钥，切勿泄露。</p>
+            <p class="hint" id="status" aria-live="polite">选择算法后点击「生成密钥对」。</p>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>公钥</h2>
+                <pre class="output" id="pubOut" aria-label="公钥输出"></pre>
+                <div class="row">
+                    <button class="btn primary" id="copyPub">复制公钥</button>
+                    <button class="btn" id="dlPub">下载 .pem</button>
+                </div>
+            </section>
+            <section class="panel">
+                <h2>私钥</h2>
+                <pre class="output" id="privOut" aria-label="私钥输出"></pre>
+                <div class="row">
+                    <button class="btn primary" id="copyPriv">复制私钥</button>
+                    <button class="btn" id="dlPriv">下载 .pem</button>
+                </div>
+            </section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+    <h2>关于密钥对生成器</h2>
+    <p>本工具基于浏览器内置的 Web Crypto API（crypto.subtle.generateKey）在本地生成非对称密钥对，支持 RSASSA-PKCS1-v1_5、RSA-PSS（2048/3072/4096 位，SHA-256）、ECDSA（P-256/P-384/P-521 曲线）与 Ed25519 算法，可导出标准 PEM 格式（SPKI 公钥、PKCS#8 私钥）或 JWK 格式，并支持一键复制与下载 .pem 文件。整个生成过程完全在浏览器内完成，私钥不会经过网络传输，适合开发调试、JWT 签名密钥、API 签名等场景快速取用。</p>
+    <h2>常见问题</h2>
+    <details><summary>在网页里生成密钥安全吗？私钥会上传吗？</summary><p>本页面全部计算由浏览器内置的 Web Crypto API 在本地完成，没有任何网络请求携带密钥数据，断网状态下同样可用。但请注意：生产环境的重要密钥（如 CA、生产签名密钥）仍建议在受控的离线环境用专业工具生成，网页工具更适合开发测试场景。</p></details>
+    <details><summary>RSA、ECDSA、Ed25519 该怎么选？</summary><p>RSA 兼容性最好但密钥长、运算慢，2048 位是目前的安全下限；ECDSA 密钥短、性能好，P-256 已广泛用于 TLS 和 JWT（ES256）；Ed25519 是现代首选，安全性与性能俱佳且实现不易出错，常用于 SSH 和签名场景，但部分旧浏览器的 Web Crypto 尚未支持。</p></details>
+    <details><summary>SPKI、PKCS#8、JWK 这些格式有什么区别？</summary><p>SPKI（SubjectPublicKeyInfo）是公钥的标准封装，对应 PEM 的 BEGIN PUBLIC KEY；PKCS#8 是私钥的标准封装，对应 BEGIN PRIVATE KEY，两者都是 DER 二进制经 Base64 编成 PEM 文本。JWK 则是 JSON 表示的密钥格式，常用于 JOSE/JWT 生态。它们承载的是同一把密钥，只是编码方式不同。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"密钥对生成器","url":"https://zktool.zktww.cn/tools/keypair-generator/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线密钥对生成器：基于 Web Crypto API 在浏览器本地生成 RSA、ECDSA、Ed25519 密钥对，导出 PEM（SPKI/PKCS#8）与 JWK 格式，私钥不上传更安全。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"在网页里生成密钥安全吗？私钥会上传吗？","acceptedAnswer":{"@type":"Answer","text":"本页面全部计算由浏览器内置的 Web Crypto API 在本地完成，没有任何网络请求携带密钥数据，断网状态下同样可用。但生产环境的重要密钥仍建议在受控的离线环境用专业工具生成，网页工具更适合开发测试场景。"}},{"@type":"Question","name":"RSA、ECDSA、Ed25519 该怎么选？","acceptedAnswer":{"@type":"Answer","text":"RSA 兼容性最好但密钥长、运算慢，2048 位是目前的安全下限；ECDSA 密钥短、性能好，P-256 已广泛用于 TLS 和 JWT（ES256）；Ed25519 是现代首选，安全性与性能俱佳，常用于 SSH 和签名场景，但部分旧浏览器的 Web Crypto 尚未支持。"}},{"@type":"Question","name":"SPKI、PKCS#8、JWK 这些格式有什么区别？","acceptedAnswer":{"@type":"Answer","text":"SPKI 是公钥的标准封装，对应 PEM 的 BEGIN PUBLIC KEY；PKCS#8 是私钥的标准封装，对应 BEGIN PRIVATE KEY，两者都是 DER 二进制经 Base64 编成 PEM 文本。JWK 则是 JSON 表示的密钥格式，常用于 JOSE/JWT 生态。它们承载的是同一把密钥，只是编码方式不同。"}}]}]}</script>
+</main>
+<script>
+(function () {
+    "use strict";
+    var alg = document.getElementById("alg"), rsaBits = document.getElementById("rsaBits"), ecCurve = document.getElementById("ecCurve"), fmt = document.getElementById("fmt");
+    var rsaOpts = document.getElementById("rsaOpts"), ecOpts = document.getElementById("ecOpts");
+    var gen = document.getElementById("gen"), status = document.getElementById("status");
+    var pubOut = document.getElementById("pubOut"), privOut = document.getElementById("privOut");
+    function isRSA(name) { return name.indexOf("RSA") === 0; }
+    function syncOpts() {
+        rsaOpts.hidden = !isRSA(alg.value);
+        ecOpts.hidden = alg.value !== "ECDSA";
+    }
+    alg.addEventListener("change", syncOpts); syncOpts();
+    function setStatus(text, cls) { status.textContent = text; status.className = "hint " + (cls || ""); }
+    // ArrayBuffer -> Base64 每 64 字符换行的 PEM 文本
+    function toPem(buf, label) {
+        var bin = "", arr = new Uint8Array(buf);
+        for (var i = 0; i < arr.length; i++) bin += String.fromCharCode(arr[i]);
+        var b64 = btoa(bin), lines = [];
+        for (var j = 0; j < b64.length; j += 64) lines.push(b64.slice(j, j + 64));
+        return "-----BEGIN " + label + "-----\n" + lines.join("\n") + "\n-----END " + label + "-----\n";
+    }
+    function buildParams() {
+        var name = alg.value;
+        if (isRSA(name)) {
+            return {
+                name: name,
+                modulusLength: parseInt(rsaBits.value, 10),
+                publicExponent: new Uint8Array([1, 0, 1]),
+                hash: "SHA-256"
+            };
+        }
+        if (name === "ECDSA") return { name: "ECDSA", namedCurve: ecCurve.value };
+        return { name: "Ed25519" };
+    }
+    function exportPair(pair) {
+        if (fmt.value === "jwk") {
+            return Promise.all([
+                crypto.subtle.exportKey("jwk", pair.publicKey),
+                crypto.subtle.exportKey("jwk", pair.privateKey)
+            ]).then(function (jwks) {
+                return { pub: JSON.stringify(jwks[0], null, 2), priv: JSON.stringify(jwks[1], null, 2) };
+            });
+        }
+        return Promise.all([
+            crypto.subtle.exportKey("spki", pair.publicKey),
+            crypto.subtle.exportKey("pkcs8", pair.privateKey)
+        ]).then(function (bufs) {
+            return { pub: toPem(bufs[0], "PUBLIC KEY"), priv: toPem(bufs[1], "PRIVATE KEY") };
+        });
+    }
+    gen.onclick = function () {
+        if (!(window.crypto && crypto.subtle)) {
+            setStatus("当前环境不支持 Web Crypto API（需要 HTTPS 或 localhost）。", "bad");
+            return;
+        }
+        var params = buildParams();
+        gen.disabled = true;
+        setStatus("正在生成 " + params.name + " 密钥对，请稍候…", "");
+        pubOut.textContent = ""; privOut.textContent = "";
+        var t0 = Date.now();
+        var p;
+        try {
+            // Ed25519 在部分浏览器会同步抛出 NotSupportedError
+            p = crypto.subtle.generateKey(params, true, ["sign", "verify"]);
+        } catch (e) {
+            p = Promise.reject(e);
+        }
+        p.then(exportPair).then(function (out) {
+            pubOut.textContent = out.pub;
+            privOut.textContent = out.priv;
+            setStatus("生成完成（" + params.name + "，耗时 " + (Date.now() - t0) + " ms）。请妥善保管私钥。", "ok");
+        }).catch(function (e) {
+            if (alg.value === "Ed25519") {
+                setStatus("生成失败：当前浏览器可能不支持 Ed25519，请更新浏览器或改用 ECDSA。（" + e.message + "）", "bad");
+            } else {
+                setStatus("生成失败：" + e.message, "bad");
+            }
+        }).then(function () { gen.disabled = false; });
+    };
+    function copyOut(el, label) {
+        if (!el.textContent) { setStatus("请先生成密钥对。", "bad"); return; }
+        copyText(el.textContent).then(function () { setStatus(label + "已复制。", "ok"); },
+            function () { setStatus("复制失败，请手动选择复制。", "bad"); });
+    }
+    // 用 Blob + a[download] 下载 PEM 文件
+    function download(el, filename) {
+        if (!el.textContent) { setStatus("请先生成密钥对。", "bad"); return; }
+        var blob = new Blob([el.textContent], { type: "application/x-pem-file" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        setStatus("已开始下载 " + filename + "。", "ok");
+    }
+    document.getElementById("copyPub").onclick = function () { copyOut(pubOut, "公钥"); };
+    document.getElementById("copyPriv").onclick = function () { copyOut(privOut, "私钥"); };
+    document.getElementById("dlPub").onclick = function () { download(pubOut, fmt.value === "jwk" ? "public.jwk.json" : "public.pem"); };
+    document.getElementById("dlPriv").onclick = function () { download(privOut, fmt.value === "jwk" ? "private.jwk.json" : "private.pem"); };
+})();
+</script>
+</body>
+</html>

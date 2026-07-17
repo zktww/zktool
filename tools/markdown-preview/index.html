@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Markdown在线预览 - md转HTML实时渲染 | zktool</title>
+    <meta name="description" content="免费在线 Markdown 预览工具：输入 md 文本实时渲染为 HTML，支持表格、代码块、引用等 GFM 语法，可复制净化后的 HTML 或下载 .html 文件，纯本地处理不上传。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="Markdown在线预览 - md转HTML实时渲染 | zktool" />
+    <meta property="og:description" content="免费在线 Markdown 预览工具：输入 md 文本实时渲染为 HTML，支持表格、代码块、引用等 GFM 语法，可复制净化后的 HTML 或下载 .html 文件，纯本地处理不上传。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/markdown-preview/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/theme.js"></script>
+    <script src="../../assets/clipboard.js"></script>
+    <script src="../../assets/vendor/marked.min.js"></script>
+    <style>
+        /* Markdown 预览排版：全部基于设计 token，暗色自动适配 */
+        .md-body {
+            flex: 1;
+            min-height: 10rem;
+            max-height: 60vh;
+            padding: 0.9rem 1.05rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg-soft);
+            color: var(--text);
+            font-size: 0.92rem;
+            line-height: 1.75;
+            word-break: break-word;
+            overflow: auto;
+        }
+        .md-body > :first-child { margin-top: 0; }
+        .md-body > :last-child { margin-bottom: 0; }
+        .md-body h1, .md-body h2, .md-body h3, .md-body h4 { margin: 1.15em 0 0.5em; color: var(--text); font-weight: 700; line-height: 1.4; }
+        .md-body h1 { padding-bottom: 0.3em; border-bottom: 1px solid var(--border); font-size: 1.4rem; }
+        .md-body h2 { padding-bottom: 0.25em; border-bottom: 1px solid var(--border); font-size: 1.18rem; }
+        .md-body h3 { font-size: 1.02rem; }
+        .md-body h4 { font-size: 0.94rem; }
+        .md-body p { margin: 0.6em 0; }
+        .md-body a { color: var(--brand); text-decoration: underline; text-underline-offset: 2px; }
+        .md-body ul, .md-body ol { margin: 0.6em 0; padding-left: 1.6em; }
+        .md-body li { margin: 0.25em 0; }
+        .md-body blockquote {
+            margin: 0.8em 0;
+            padding: 0.45em 0.9em;
+            border-left: 3px solid var(--brand);
+            border-radius: 0 8px 8px 0;
+            background: var(--surface-2);
+            color: var(--text-2);
+        }
+        .md-body code { padding: 0.15em 0.4em; border-radius: 6px; background: var(--surface-2); font-family: var(--mono); font-size: 0.85em; }
+        .md-body pre {
+            margin: 0.8em 0;
+            padding: 0.8em 0.95em;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--surface-2);
+            overflow: auto;
+        }
+        .md-body pre code { padding: 0; background: none; font-size: 0.84rem; line-height: 1.65; }
+        .md-body table { width: 100%; margin: 0.8em 0; border-collapse: collapse; font-size: 0.88rem; }
+        .md-body th, .md-body td { padding: 0.45em 0.7em; border: 1px solid var(--border); text-align: left; }
+        .md-body th { background: var(--surface-2); font-weight: 600; }
+        .md-body hr { margin: 1.2em 0; border: none; border-top: 1px solid var(--border); }
+        .md-body img { max-width: 100%; border-radius: 8px; }
+    </style>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
+    <script defer src="../../assets/toolkit.js"></script>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">Markdown</p></div>
+    <h1><span class="title">Markdown 预览</span></h1>
+    <p class="lead">输入 Markdown 实时渲染为 HTML，支持表格、代码块、引用等语法，输出经基础消毒，可复制或下载。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>Markdown 输入</h2>
+            <textarea id="input" spellcheck="false" aria-label="Markdown 文本"># zktool 使用示例
+
+一段普通段落：**加粗**、*斜体*、`行内代码` 与 [链接](https://zktool.zktww.cn/)。
+
+## 待办列表
+
+- 整理会议纪要
+- 编写周报
+  1. 收集数据
+  2. 输出结论
+
+## 功能对比
+
+| 功能 | 说明 | 状态 |
+| --- | --- | --- |
+| 实时预览 | 输入即渲染 | 已完成 |
+| 复制 HTML | 输出净化后的 HTML | 已完成 |
+
+## 代码块
+
+```js
+function hello(name) {
+    console.log("你好，" + name);
+}
+```
+
+> 引用：所有内容均在浏览器本地渲染，不会上传服务器。</textarea>
+            <div class="row">
+                <button class="btn primary" id="copyHtml">复制 HTML</button>
+                <button class="btn" id="download">下载 .html</button>
+                <button class="btn danger" id="clear">清空</button>
+            </div>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>预览</h2>
+                <div class="md-body" id="preview" aria-live="polite"></div>
+                <p class="hint" id="status" aria-live="polite">输入 250ms 后自动渲染，输出已移除脚本等危险内容。</p>
+            </section>
+            <section class="panel">
+                <h2>统计</h2>
+                <div class="chips" id="stats"></div>
+            </section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+    <h2>关于Markdown在线预览</h2>
+    <p>Markdown 是一种轻量级标记语言，用简单的符号（# 标题、- 列表、| 表格）就能写出结构化文档，广泛用于 README、博客、技术文档和笔记。本工具基于 marked 在浏览器本地把 md 文本实时渲染为 HTML：支持标题、列表、表格、代码块、引用、链接等常用语法，渲染结果会先经过消毒——移除 script/iframe 标签、on* 事件属性和 javascript: 链接——再展示，可一键复制净化后的 HTML 或下载为独立 .html 文件，全程不上传任何内容。</p>
+    <h2>常见问题</h2>
+    <details><summary>支持哪些 Markdown 语法？</summary><p>支持 CommonMark 标准语法（标题、段落、列表、引用、代码块、链接、图片、水平线等），以及 GFM 扩展的表格和删除线。数学公式、脚注等更小众的扩展语法暂不支持。</p></details>
+    <details><summary>复制的 HTML 可以直接用吗？安全吗？</summary><p>可以。输出的 HTML 已做基础消毒：移除了 script/iframe 标签、onclick 等事件属性和 javascript: 协议链接，可直接粘贴到邮件、CMS 或网页中。如果目标环境有更严格的安全要求，建议再过一遍服务端白名单过滤。</p></details>
+    <details><summary>我的文档内容会上传到服务器吗？</summary><p>不会。渲染完全在浏览器本地完成，内容不经过任何网络请求；输入草稿仅保存在你自己浏览器的 localStorage 里，方便下次打开继续编辑，可随时点"清空"删除。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"Markdown在线预览","url":"https://zktool.zktww.cn/tools/markdown-preview/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 Markdown 预览工具：输入 md 文本实时渲染为 HTML，支持表格、代码块、引用等 GFM 语法，可复制净化后的 HTML 或下载 .html 文件，纯本地处理不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"支持哪些 Markdown 语法？","acceptedAnswer":{"@type":"Answer","text":"支持 CommonMark 标准语法（标题、段落、列表、引用、代码块、链接、图片、水平线等），以及 GFM 扩展的表格和删除线。数学公式、脚注等更小众的扩展语法暂不支持。"}},{"@type":"Question","name":"复制的 HTML 可以直接用吗？安全吗？","acceptedAnswer":{"@type":"Answer","text":"可以。输出的 HTML 已做基础消毒：移除了 script/iframe 标签、onclick 等事件属性和 javascript: 协议链接，可直接粘贴到邮件、CMS 或网页中。如果目标环境有更严格的安全要求，建议再过一遍服务端白名单过滤。"}},{"@type":"Question","name":"我的文档内容会上传到服务器吗？","acceptedAnswer":{"@type":"Answer","text":"不会。渲染完全在浏览器本地完成，内容不经过任何网络请求；输入草稿仅保存在你自己浏览器的 localStorage 里，方便下次打开继续编辑，可随时点'清空'删除。"}}]}]}</script>
+</main>
+<script>
+(function () {
+    "use strict";
+    var input = document.getElementById("input"), preview = document.getElementById("preview"), status = document.getElementById("status"), stats = document.getElementById("stats");
+    var timer = null, lastHtml = "";
+    var URL_ATTRS = ["href", "src", "action", "formaction", "xlink:href"];
+    // 基础消毒：DOMParser 解析后移除 script/iframe、on* 事件属性、javascript: 协议链接
+    function sanitize(html) {
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        var risky = doc.querySelectorAll("script, iframe, object, embed");
+        for (var i = 0; i < risky.length; i++) risky[i].parentNode.removeChild(risky[i]);
+        var all = doc.body.querySelectorAll("*");
+        for (var j = 0; j < all.length; j++) {
+            var el = all[j], attrs = Array.prototype.slice.call(el.attributes);
+            for (var k = 0; k < attrs.length; k++) {
+                var name = attrs[k].name.toLowerCase(), val = attrs[k].value;
+                if (name.indexOf("on") === 0) { el.removeAttribute(attrs[k].name); continue; }
+                if (URL_ATTRS.indexOf(name) >= 0 && /^\s*(javascript|vbscript|data:text\/html)/i.test(val)) el.removeAttribute(attrs[k].name);
+            }
+        }
+        return doc.body.innerHTML;
+    }
+    function render() {
+        try {
+            if (typeof marked === "undefined") throw new Error("marked 未加载，请刷新页面重试");
+            lastHtml = sanitize(marked.parse(input.value));
+            preview.innerHTML = lastHtml;
+            status.textContent = "渲染完成"; status.className = "hint ok";
+        } catch (e) {
+            status.textContent = "渲染失败：" + e.message; status.className = "hint bad";
+        }
+        updateStats();
+    }
+    function updateStats() {
+        var v = input.value;
+        var lines = v ? v.split("\n").length : 0;
+        var words = (v.match(/[一-鿿]|[A-Za-z0-9_]+/g) || []).length;
+        stats.innerHTML = "<span class='chip'>字符 " + v.length + "</span><span class='chip'>行 " + lines + "</span><span class='chip'>词数 " + words + "</span>";
+    }
+    input.addEventListener("input", function () {
+        // 250ms 防抖，避免长文档输入时频繁重排
+        clearTimeout(timer);
+        timer = setTimeout(render, 250);
+    });
+    document.getElementById("copyHtml").onclick = function () {
+        copyText(lastHtml || "").then(function () { status.textContent = "HTML 已复制"; status.className = "hint ok"; },
+            function () { status.textContent = "复制失败，请手动选择复制"; status.className = "hint bad"; });
+    };
+    document.getElementById("download").onclick = function () {
+        // 包一个最小 HTML 骨架，保证下载文件可独立打开
+        var page = "<!DOCTYPE html>\n<html lang=\"zh-CN\">\n<head>\n<meta charset=\"UTF-8\" />\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n<title>Markdown 导出</title>\n</head>\n<body>\n" + lastHtml + "\n</body>\n</html>\n";
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([page], { type: "text/html;charset=utf-8" }));
+        a.download = "markdown.html";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        status.textContent = "已下载 markdown.html"; status.className = "hint ok";
+    };
+    document.getElementById("clear").onclick = function () {
+        input.value = ""; lastHtml = ""; preview.innerHTML = "";
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        status.textContent = "已清空"; status.className = "hint";
+        updateStats();
+    };
+    render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>YAML转JSON - 在线YAML校验与JSON互转 | zktool</title>
+    <meta name="description" content="免费在线 YAML 工具：YAML 转 JSON、JSON 转 YAML 双向互转，实时校验 YAML 语法并定位行列错误，本地处理不上传。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="YAML转JSON - 在线YAML校验与JSON互转 | zktool" />
+    <meta property="og:description" content="免费在线 YAML 工具：YAML 转 JSON、JSON 转 YAML 双向互转，实时校验 YAML 语法并定位行列错误，本地处理不上传。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/yaml-converter/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/theme.js"></script>
+    <script src="../../assets/clipboard.js"></script>
+    <script src="../../assets/vendor/js-yaml.min.js"></script>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
+    <script defer src="../../assets/toolkit.js"></script>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">YAML / JSON</p></div>
+    <h1><span class="title">YAML 转换与校验</span></h1>
+    <p class="lead">YAML 与 JSON 双向互转，实时校验 YAML 语法并定位行列错误，全部本地完成。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>输入</h2>
+            <textarea id="input" spellcheck="false" aria-label="输入 YAML 或 JSON" placeholder="粘贴 YAML 或 JSON..."></textarea>
+            <div class="row">
+                <button class="btn primary" id="toJson">YAML → JSON</button>
+                <label class="hint" for="indent">缩进</label>
+                <select id="indent" aria-label="JSON 缩进空格数">
+                    <option value="2" selected>2 空格</option>
+                    <option value="4">4 空格</option>
+                </select>
+            </div>
+            <div class="row">
+                <button class="btn" id="toYaml">JSON → YAML</button>
+                <button class="btn" id="validate">校验 YAML</button>
+                <button class="btn danger" id="clear">清空</button>
+            </div>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>结果</h2>
+                <pre class="output" id="output"></pre>
+                <div class="row"><button class="btn primary" id="copy">复制结果</button></div>
+                <p class="hint" id="status" aria-live="polite">输入内容后自动校验 YAML 语法。</p>
+            </section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+    <h2>关于YAML转换与校验</h2>
+    <p>YAML 是 Kubernetes、Docker Compose、GitHub Actions 等场景最常用的配置格式，靠缩进表达层级，写错一个空格就可能解析失败。本工具基于 js-yaml 在浏览器本地完成 YAML 与 JSON 的双向互转：YAML 转 JSON 支持 2/4 空格缩进，JSON 转 YAML 自动整理为规范缩进；输入时实时校验语法，出错会精确提示行号和列号，配置文件不会上传到任何服务器。</p>
+    <h2>常见问题</h2>
+    <details><summary>YAML 校验报错但看不出哪里错了怎么办？</summary><p>关注提示中的行号和列号，最常见的原因是缩进混用了 Tab 和空格（YAML 只允许空格）、冒号后面缺少空格、字符串里包含 : 或 # 等特殊字符没有加引号。定位到对应行逐一排查即可。</p></details>
+    <details><summary>YAML 和 JSON 有什么区别？可以无损互转吗？</summary><p>JSON 是 YAML 的子集，任何合法 JSON 都是合法 YAML，所以 JSON 转 YAML 总是可行。反向转换时，YAML 特有的注释、锚点引用（&amp;/*）和多文档分隔（---）会在转成 JSON 后丢失，数据本身不会丢。</p></details>
+    <details><summary>为什么 YAML 里的 no、on、1.0 转成 JSON 后变了类型？</summary><p>YAML 会把未加引号的 no/off 解析为布尔值 false，on/yes 解析为 true，1.0 解析为数字，这是 YAML 规范的隐式类型转换。如果希望保留为字符串，请在 YAML 中给值加上引号，例如 country: "NO"。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"YAML转换与校验","url":"https://zktool.zktww.cn/tools/yaml-converter/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 YAML 工具：YAML 转 JSON、JSON 转 YAML 双向互转，实时校验 YAML 语法并定位行列错误，本地处理不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"YAML 校验报错但看不出哪里错了怎么办？","acceptedAnswer":{"@type":"Answer","text":"关注提示中的行号和列号，最常见的原因是缩进混用了 Tab 和空格（YAML 只允许空格）、冒号后面缺少空格、字符串里包含 : 或 # 等特殊字符没有加引号。定位到对应行逐一排查即可。"}},{"@type":"Question","name":"YAML 和 JSON 有什么区别？可以无损互转吗？","acceptedAnswer":{"@type":"Answer","text":"JSON 是 YAML 的子集，任何合法 JSON 都是合法 YAML，所以 JSON 转 YAML 总是可行。反向转换时，YAML 特有的注释、锚点引用（&/*）和多文档分隔（---）会在转成 JSON 后丢失，数据本身不会丢。"}},{"@type":"Question","name":"为什么 YAML 里的 no、on、1.0 转成 JSON 后变了类型？","acceptedAnswer":{"@type":"Answer","text":"YAML 会把未加引号的 no/off 解析为布尔值 false，on/yes 解析为 true，1.0 解析为数字，这是 YAML 规范的隐式类型转换。如果希望保留为字符串，请在 YAML 中给值加上引号，例如 country: \"NO\"。"}}]}]}</script>
+</main>
+<script>
+(function () {
+    "use strict";
+    var input = document.getElementById("input"), output = document.getElementById("output"), status = document.getElementById("status"), indent = document.getElementById("indent");
+    var liveTimer = null;
+    function ok(msg) { status.textContent = msg; status.className = "hint ok"; }
+    function bad(msg) { status.textContent = msg; status.className = "hint bad"; }
+    function plain(msg) { status.textContent = msg; status.className = "hint"; }
+    function yamlErrMsg(e) {
+        // js-yaml 的 YAMLException 带 mark，可定位行列（从 0 开始，展示时 +1）
+        if (e && e.mark && typeof e.mark.line === "number") {
+            return "第 " + (e.mark.line + 1) + " 行第 " + (e.mark.column + 1) + " 列：" + (e.reason || e.message);
+        }
+        return e && e.message ? e.message : String(e);
+    }
+    function typeName(v) {
+        if (v === null) return "null";
+        if (Array.isArray(v)) return "数组（" + v.length + " 项）";
+        if (typeof v === "object") return "对象（" + Object.keys(v).length + " 个键）";
+        return typeof v;
+    }
+    document.getElementById("toJson").onclick = function () {
+        try {
+            var obj = jsyaml.load(input.value);
+            output.textContent = JSON.stringify(obj, null, parseInt(indent.value, 10));
+            ok("YAML 转 JSON 完成");
+        } catch (e) { bad("YAML 解析失败：" + yamlErrMsg(e)); }
+    };
+    document.getElementById("toYaml").onclick = function () {
+        try {
+            var obj = JSON.parse(input.value);
+            output.textContent = jsyaml.dump(obj, { indent: 2, lineWidth: -1 });
+            ok("JSON 转 YAML 完成");
+        } catch (e) { bad("JSON 解析失败：" + e.message); }
+    };
+    document.getElementById("validate").onclick = function () {
+        if (!input.value.trim()) { plain("请输入 YAML 内容"); return; }
+        try {
+            var obj = jsyaml.load(input.value);
+            output.textContent = "✓ YAML 语法正确\n顶层类型：" + typeName(obj);
+            ok("校验通过，顶层为 " + typeName(obj));
+        } catch (e) { output.textContent = ""; bad("校验失败：" + yamlErrMsg(e)); }
+    };
+    document.getElementById("clear").onclick = function () { input.value = ""; output.textContent = ""; plain("已清空"); };
+    document.getElementById("copy").onclick = function () {
+        copyText(output.textContent || "").then(function () { ok("结果已复制"); },
+            function () { bad("复制失败，请手动选择复制"); });
+    };
+    // 输入变化时防抖 300ms 做轻量校验，只更新 hint 不覆盖结果区
+    input.addEventListener("input", function () {
+        clearTimeout(liveTimer);
+        liveTimer = setTimeout(function () {
+            if (!input.value.trim()) { plain("输入内容后自动校验 YAML 语法。"); return; }
+            try {
+                var obj = jsyaml.load(input.value);
+                ok("YAML 语法正确，顶层为 " + typeName(obj));
+            } catch (e) { bad("YAML 语法错误：" + yamlErrMsg(e)); }
+        }, 300);
+    });
+})();
+</script>
+</body>
+</html>

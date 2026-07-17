@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>cURL命令解析 - curl转fetch/Python代码 | zktool</title>
+    <meta name="description" content="免费在线 cURL 命令解析工具：粘贴 curl 命令即可查看方法、URL、Headers、Body 概览，并一键生成 fetch 与 Python requests 代码，本地处理不上传。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="cURL命令解析 - curl转fetch/Python代码 | zktool" />
+    <meta property="og:description" content="免费在线 cURL 命令解析工具：粘贴 curl 命令即可查看方法、URL、Headers、Body 概览，并一键生成 fetch 与 Python requests 代码，本地处理不上传。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/curl-parser/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/theme.js"></script>
+    <script src="../../assets/clipboard.js"></script>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
+    <script defer src="../../assets/toolkit.js"></script>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">cURL / HTTP</p></div>
+    <h1><span class="title">cURL 命令解析</span></h1>
+    <p class="lead">粘贴 curl 命令，自动解析出方法、URL、Headers 与 Body，并生成 fetch 和 Python requests 代码。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>输入</h2>
+            <textarea id="input" spellcheck="false" aria-label="粘贴 curl 命令" placeholder="curl -X POST 'https://api.example.com/...' -H 'Content-Type: application/json' -d '{...}'"></textarea>
+            <div class="row">
+                <button class="btn primary" id="parse">解析</button>
+                <button class="btn" id="example">示例</button>
+                <button class="btn danger" id="clear">清空</button>
+            </div>
+            <p class="hint" id="status" aria-live="polite">粘贴 curl 命令后自动解析，全部本地完成。</p>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>请求概览</h2>
+                <div id="overview" class="output"></div>
+                <div class="row"><button class="btn" id="copyOverview">复制概览</button></div>
+            </section>
+            <section class="panel">
+                <h2>fetch 代码</h2>
+                <pre class="output" id="output"></pre>
+                <div class="row"><button class="btn primary" id="copyFetch">复制 fetch</button></div>
+            </section>
+            <section class="panel">
+                <h2>Python requests 代码</h2>
+                <pre class="output" id="outputPy"></pre>
+                <div class="row"><button class="btn primary" id="copyPy">复制 Python</button></div>
+            </section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+    <h2>关于cURL命令解析</h2>
+    <p>curl 是最常用的命令行 HTTP 客户端，浏览器开发者工具和各类 API 文档都习惯以 curl 命令的形式给出请求示例。本工具在浏览器本地解析 curl 命令行：自带 shell 风格分词器，支持单引号、双引号、反斜杠转义与换行续行，识别 -X、-H、-d、-F、-u、-b、--json、-G、-k、-L、--compressed 等常用参数，解析后以表格展示方法、URL、Query 参数、Headers 和 Body，并一键生成等价的 JavaScript fetch 代码和 Python requests 代码，命令内容不会上传到任何服务器。</p>
+    <h2>常见问题</h2>
+    <details><summary>如何从浏览器拿到一条 curl 命令？</summary><p>打开开发者工具的 Network 面板，找到目标请求后右键选择 Copy → Copy as cURL 即可复制完整命令，粘贴到本工具就能还原出请求结构并生成代码。注意 Windows 下请选 cURL (bash) 而不是 cURL (cmd)，两者引号规则不同。</p></details>
+    <details><summary>生成的 fetch 代码为什么没有 -k 和 --compressed 的效果？</summary><p>浏览器的 fetch 由浏览器统一管理 TLS 校验和内容压缩，无法在代码里跳过证书校验（-k）或手动声明压缩（--compressed），工具会以注释提示。Python requests 则可以用 verify=False 对应 -k，压缩由 requests 自动处理。</p></details>
+    <details><summary>支持多条 curl 命令或管道吗？</summary><p>每次只解析一条 curl 命令，命令末尾的 | jq 之类管道内容会被当作无法识别的参数在提示中列出，不影响主体解析。多条命令请分开粘贴解析。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"cURL命令解析","url":"https://zktool.zktww.cn/tools/curl-parser/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 cURL 命令解析工具：粘贴 curl 命令即可查看方法、URL、Headers、Body 概览，并一键生成 fetch 与 Python requests 代码，本地处理不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"如何从浏览器拿到一条 curl 命令？","acceptedAnswer":{"@type":"Answer","text":"打开开发者工具的 Network 面板，找到目标请求后右键选择 Copy → Copy as cURL 即可复制完整命令，粘贴到本工具就能还原出请求结构并生成代码。注意 Windows 下请选 cURL (bash) 而不是 cURL (cmd)，两者引号规则不同。"}},{"@type":"Question","name":"生成的 fetch 代码为什么没有 -k 和 --compressed 的效果？","acceptedAnswer":{"@type":"Answer","text":"浏览器的 fetch 由浏览器统一管理 TLS 校验和内容压缩，无法在代码里跳过证书校验（-k）或手动声明压缩（--compressed），工具会以注释提示。Python requests 则可以用 verify=False 对应 -k，压缩由 requests 自动处理。"}},{"@type":"Question","name":"支持多条 curl 命令或管道吗？","acceptedAnswer":{"@type":"Answer","text":"每次只解析一条 curl 命令，命令末尾的 | jq 之类管道内容会被当作无法识别的参数在提示中列出，不影响主体解析。多条命令请分开粘贴解析。"}}]}]}</script>
+</main>
+<script>
+(function () {
+    "use strict";
+    var input = document.getElementById("input"), overview = document.getElementById("overview"), fetchOut = document.getElementById("output"), pyOut = document.getElementById("outputPy"), status = document.getElementById("status");
+    var liveTimer = null, overviewText = "";
+    function ok(msg) { status.textContent = msg; status.className = "hint ok"; }
+    function bad(msg) { status.textContent = msg; status.className = "hint bad"; }
+    function plain(msg) { status.textContent = msg; status.className = "hint"; }
+    function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+    function jsStr(s) { return '"' + String(s).replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\r/g, "\\r").replace(/\n/g, "\\n").replace(/\t/g, "\\t") + '"'; }
+    function pyStr(s) { return '"' + String(s).replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\r/g, "\\r").replace(/\n/g, "\\n").replace(/\t/g, "\\t") + '"'; }
+
+    // shell 风格分词器：支持单引号、双引号、反斜杠转义与换行续行
+    function tokenize(cmd) {
+        var tokens = [], i = 0, n = cmd.length, cur = "", has = false;
+        while (i < n) {
+            var ch = cmd.charAt(i);
+            if (ch === "\\") {
+                var next = cmd.charAt(i + 1);
+                if (next === "\n") { i += 2; continue; }                        // 续行：\ + 换行直接吞掉
+                if (next === "\r" && cmd.charAt(i + 2) === "\n") { i += 3; continue; }
+                if (next === "") { i += 1; continue; }
+                cur += next; has = true; i += 2; continue;                       // 转义下一个字符
+            }
+            if (ch === "'") {
+                var j = cmd.indexOf("'", i + 1);                                 // 单引号内原样保留
+                if (j < 0) { cur += cmd.slice(i + 1); i = n; } else { cur += cmd.slice(i + 1, j); i = j + 1; }
+                has = true; continue;
+            }
+            if (ch === '"') {
+                i += 1;
+                while (i < n && cmd.charAt(i) !== '"') {                          // 双引号内支持 \" \\ 转义
+                    if (cmd.charAt(i) === "\\" && '"\\$`'.indexOf(cmd.charAt(i + 1)) >= 0) { cur += cmd.charAt(i + 1); i += 2; }
+                    else { cur += cmd.charAt(i); i += 1; }
+                }
+                i += 1; has = true; continue;
+            }
+            if (/\s/.test(ch)) {
+                if (has) { tokens.push(cur); cur = ""; has = false; }
+                i += 1; continue;
+            }
+            cur += ch; has = true; i += 1;
+        }
+        if (has) tokens.push(cur);
+        return tokens;
+    }
+
+    // 解析 token 列表为请求描述对象
+    function parseCurl(cmd) {
+        var tokens = tokenize(cmd);
+        var req = { method: "", url: "", headers: [], data: [], form: [], user: "", cookie: "", json: "", get: false, insecure: false, location: false, compressed: false, unknown: [] };
+        var i = 0;
+        if (tokens[0] === "$") i += 1;                                            // 兼容粘贴带 $ 提示符
+        if (tokens[i] === "curl") i += 1;
+        function next() { i += 1; return i < tokens.length ? tokens[i] : ""; }
+        for (; i < tokens.length; i++) {
+            var t = tokens[i];
+            if (t === "-X" || t === "--request") { req.method = next().toUpperCase(); }
+            else if (t.indexOf("-X") === 0 && t.length > 2) { req.method = t.slice(2).toUpperCase(); }
+            else if (t === "-H" || t === "--header") {
+                var h = next(), colon = h.indexOf(":");
+                if (colon > 0) req.headers.push([h.slice(0, colon).trim(), h.slice(colon + 1).trim()]);
+            }
+            else if (t === "-d" || t === "--data" || t === "--data-raw" || t === "--data-binary" || t === "--data-urlencode" || t === "--data-urlencoded") { req.data.push(next()); }
+            else if (t === "-F" || t === "--form") { req.form.push(next()); }
+            else if (t === "-u" || t === "--user") { req.user = next(); }
+            else if (t === "-b" || t === "--cookie") { req.cookie = next(); }
+            else if (t === "--json") { req.json = next(); }
+            else if (t === "-G" || t === "--get") { req.get = true; }
+            else if (t === "-k" || t === "--insecure") { req.insecure = true; }
+            else if (t === "-L" || t === "--location") { req.location = true; }
+            else if (t === "--compressed") { req.compressed = true; }
+            else if (t === "--url") { req.url = next(); }
+            else if (t.charAt(0) === "-" && t.length > 1) { req.unknown.push(t); }
+            else if (!req.url) { req.url = t; }
+            else { req.unknown.push(t); }
+        }
+        // --json 等价于 -d + JSON 头
+        if (req.json) {
+            req.data.push(req.json);
+            if (!findHeader(req.headers, "Content-Type")) req.headers.push(["Content-Type", "application/json"]);
+            if (!findHeader(req.headers, "Accept")) req.headers.push(["Accept", "application/json"]);
+        }
+        if (req.cookie && !findHeader(req.headers, "Cookie")) req.headers.push(["Cookie", req.cookie]);
+        req.body = req.data.join("&");
+        // -G 把 data 拼到 query；方法优先级：显式 -X > -G > 有 body/form 则 POST > GET
+        if (req.get && req.body) {
+            req.url += (req.url.indexOf("?") >= 0 ? "&" : "?") + req.body;
+            req.body = "";
+        }
+        if (!req.method) req.method = req.get ? "GET" : (req.body || req.form.length ? "POST" : "GET");
+        return req;
+    }
+    function findHeader(headers, name) {
+        for (var i = 0; i < headers.length; i++) if (headers[i][0].toLowerCase() === name.toLowerCase()) return headers[i][1];
+        return "";
+    }
+    function queryParams(url) {
+        var q = url.indexOf("?");
+        if (q < 0) return [];
+        var out = [], parts = url.slice(q + 1).split("#")[0].split("&");
+        for (var i = 0; i < parts.length; i++) {
+            if (!parts[i]) continue;
+            var eq = parts[i].indexOf("="), k = eq < 0 ? parts[i] : parts[i].slice(0, eq), v = eq < 0 ? "" : parts[i].slice(eq + 1);
+            try { k = decodeURIComponent(k); v = decodeURIComponent(v); } catch (e) { /* 保留原样 */ }
+            out.push([k, v]);
+        }
+        return out;
+    }
+
+    // 渲染请求概览（table 展示 query 与 headers）
+    function renderOverview(req) {
+        var params = queryParams(req.url);
+        var html = "<div class='chips'><span class='chip'>" + esc(req.method) + "</span>" +
+            (req.insecure ? "<span class='chip'>-k 跳过证书</span>" : "") +
+            (req.location ? "<span class='chip'>-L 跟随跳转</span>" : "") +
+            (req.compressed ? "<span class='chip'>--compressed</span>" : "") + "</div>";
+        html += "<p><strong>URL</strong><br>" + esc(req.url || "（未识别）") + "</p>";
+        var lines = ["方法: " + req.method, "URL: " + req.url];
+        if (params.length) {
+            html += "<p><strong>Query 参数</strong></p><table><tr><th>名称</th><th>值</th></tr>";
+            for (var i = 0; i < params.length; i++) { html += "<tr><td>" + esc(params[i][0]) + "</td><td>" + esc(params[i][1]) + "</td></tr>"; lines.push("query " + params[i][0] + " = " + params[i][1]); }
+            html += "</table>";
+        }
+        if (req.headers.length) {
+            html += "<p><strong>Headers</strong></p><table><tr><th>名称</th><th>值</th></tr>";
+            for (var j = 0; j < req.headers.length; j++) { html += "<tr><td>" + esc(req.headers[j][0]) + "</td><td>" + esc(req.headers[j][1]) + "</td></tr>"; lines.push("header " + req.headers[j][0] + ": " + req.headers[j][1]); }
+            html += "</table>";
+        }
+        if (req.user) { html += "<p><strong>Basic 认证</strong><br>" + esc(req.user) + "</p>"; lines.push("user: " + req.user); }
+        if (req.form.length) {
+            html += "<p><strong>表单字段（-F）</strong></p><table><tr><th>字段</th></tr>";
+            for (var k = 0; k < req.form.length; k++) { html += "<tr><td>" + esc(req.form[k]) + "</td></tr>"; lines.push("form " + req.form[k]); }
+            html += "</table>";
+        }
+        if (req.body) { html += "<p><strong>Body</strong></p><pre>" + esc(req.body) + "</pre>"; lines.push("body: " + req.body); }
+        overview.innerHTML = html;
+        overviewText = lines.join("\n");
+    }
+
+    // 生成 fetch 代码
+    function genFetch(req) {
+        var lines = [], opts = [];
+        opts.push('    method: ' + jsStr(req.method));
+        var headers = req.headers.slice();
+        if (req.user && !findHeader(headers, "Authorization")) headers.push(["Authorization", "__BASIC__"]);
+        if (headers.length) {
+            var hs = [];
+            for (var i = 0; i < headers.length; i++) {
+                hs.push("        " + jsStr(headers[i][0]) + ": " + (headers[i][1] === "__BASIC__" ? '"Basic " + btoa(' + jsStr(req.user) + ")" : jsStr(headers[i][1])));
+            }
+            opts.push("    headers: {\n" + hs.join(",\n") + "\n    }");
+        }
+        if (req.form.length) {
+            lines.push("const formData = new FormData();");
+            for (var j = 0; j < req.form.length; j++) {
+                var eq = req.form[j].indexOf("="), fk = eq < 0 ? req.form[j] : req.form[j].slice(0, eq), fv = eq < 0 ? "" : req.form[j].slice(eq + 1);
+                if (fv.charAt(0) === "@") lines.push("// " + fk + " 是文件字段（" + fv.slice(1) + "），请改为 File/Blob 对象");
+                lines.push("formData.append(" + jsStr(fk) + ", " + jsStr(fv) + ");");
+            }
+            lines.push("");
+            opts.push("    body: formData");
+        } else if (req.body) {
+            opts.push("    body: " + jsStr(req.body));
+        }
+        if (req.location) opts.push('    redirect: "follow"');
+        if (req.insecure) lines.push("// 注意：浏览器 fetch 无法跳过 TLS 证书校验（-k）");
+        if (req.compressed) lines.push("// 注意：浏览器会自动处理压缩，无需 --compressed");
+        lines.push("const response = await fetch(" + jsStr(req.url) + ", {");
+        lines.push(opts.join(",\n"));
+        lines.push("});");
+        lines.push("const data = await response.text();");
+        lines.push("console.log(response.status, data);");
+        return lines.join("\n");
+    }
+
+    // 生成 Python requests 代码
+    function genPython(req) {
+        var lines = ["import requests", "", "url = " + pyStr(req.url)];
+        var call = ["url"];
+        if (req.headers.length) {
+            var hs = [];
+            for (var i = 0; i < req.headers.length; i++) hs.push("    " + pyStr(req.headers[i][0]) + ": " + pyStr(req.headers[i][1]));
+            lines.push("headers = {\n" + hs.join(",\n") + "\n}");
+            call.push("headers=headers");
+        }
+        if (req.form.length) {
+            var fs = [];
+            for (var j = 0; j < req.form.length; j++) {
+                var eq = req.form[j].indexOf("="), fk = eq < 0 ? req.form[j] : req.form[j].slice(0, eq), fv = eq < 0 ? "" : req.form[j].slice(eq + 1);
+                if (fv.charAt(0) === "@") fs.push("    " + pyStr(fk) + ": open(" + pyStr(fv.slice(1)) + ", \"rb\")");
+                else fs.push("    " + pyStr(fk) + ": " + pyStr(fv));
+            }
+            lines.push("files = {\n" + fs.join(",\n") + "\n}");
+            call.push("files=files");
+        } else if (req.body) {
+            lines.push("data = " + pyStr(req.body));
+            call.push("data=data");
+        }
+        if (req.user) {
+            var colon = req.user.indexOf(":");
+            call.push("auth=(" + pyStr(colon < 0 ? req.user : req.user.slice(0, colon)) + ", " + pyStr(colon < 0 ? "" : req.user.slice(colon + 1)) + ")");
+        }
+        if (req.insecure) call.push("verify=False");
+        if (!req.location) call.push("allow_redirects=False");
+        lines.push("");
+        lines.push("response = requests." + req.method.toLowerCase() + "(" + call.join(", ") + ")");
+        lines.push("print(response.status_code)");
+        lines.push("print(response.text)");
+        return lines.join("\n");
+    }
+
+    function run() {
+        var cmd = input.value.trim();
+        if (!cmd) { overview.innerHTML = ""; fetchOut.textContent = ""; pyOut.textContent = ""; overviewText = ""; plain("粘贴 curl 命令后自动解析，全部本地完成。"); return; }
+        try {
+            var req = parseCurl(cmd);
+            if (!req.url) { bad("未识别到 URL，请检查命令是否完整"); return; }
+            renderOverview(req);
+            fetchOut.textContent = genFetch(req);
+            pyOut.textContent = genPython(req);
+            if (req.unknown.length) plain("解析完成，未识别的参数：" + req.unknown.join(" "));
+            else ok("解析完成：" + req.method + " " + req.url);
+        } catch (e) { bad("解析失败：" + e.message); }
+    }
+    function copyWith(text, label) {
+        copyText(text || "").then(function () { ok(label + "已复制"); }, function () { bad("复制失败，请手动选择复制"); });
+    }
+    document.getElementById("parse").onclick = run;
+    document.getElementById("clear").onclick = function () { input.value = ""; run(); plain("已清空"); };
+    document.getElementById("example").onclick = function () {
+        input.value = "curl -X POST 'https://api.example.com/v1/users?source=web' \\\n  -H 'Content-Type: application/json' \\\n  -H 'Authorization: Bearer sk-test-123456' \\\n  -d '{\"name\":\"张三\",\"email\":\"zhangsan@example.com\"}' \\\n  --compressed";
+        run();
+    };
+    document.getElementById("copyOverview").onclick = function () { copyWith(overviewText, "概览"); };
+    document.getElementById("copyFetch").onclick = function () { copyWith(fetchOut.textContent, "fetch 代码"); };
+    document.getElementById("copyPy").onclick = function () { copyWith(pyOut.textContent, "Python 代码"); };
+    // 输入变化防抖 300ms 自动解析
+    input.addEventListener("input", function () { clearTimeout(liveTimer); liveTimer = setTimeout(run, 300); });
+})();
+</script>
+</body>
+</html>

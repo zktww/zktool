@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>时区转换对照 - 跨时区会议时间规划 | zktool</title>
+    <meta name="description" content="免费在线时区会议规划工具：选定基准时间后对照北京、伦敦、纽约等 17 个城市的当地时间与时差，标注各地是否处于工作时间，附 24 小时条形对照视图，本地计算不上传。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="时区转换对照 - 跨时区会议时间规划 | zktool" />
+    <meta property="og:description" content="免费在线时区会议规划工具：选定基准时间后对照北京、伦敦、纽约等 17 个城市的当地时间与时差，标注各地是否处于工作时间，附 24 小时条形对照视图，本地计算不上传。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/timezone-planner/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/theme.js"></script>
+    <script src="../../assets/clipboard.js"></script>
+    <style>
+        /* 城市对照表：一行一个城市，圆点标注工作时间状态 */
+        .tz-table { display: flex; flex-direction: column; gap: 0.5rem; }
+        .tz-row {
+            display: grid;
+            grid-template-columns: 6.5rem minmax(0, 1fr) 4.5rem 7rem 2rem;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.55rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg-soft);
+            font-size: 0.88rem;
+        }
+        .tz-row.base-row { border-color: var(--brand-ring-soft); background: var(--brand-soft); }
+        .tz-city { color: var(--text); font-weight: 600; }
+        .tz-city small { display: block; color: var(--text-3); font-family: var(--mono); font-size: 0.68rem; font-weight: 400; }
+        .tz-time { color: var(--text); font-family: var(--mono); font-size: 0.86rem; }
+        .tz-diff { color: var(--text-2); font-family: var(--mono); font-size: 0.82rem; }
+        .tz-state { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; }
+        .dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; flex: none; }
+        .tz-state.ok .dot { background: var(--ok); }
+        .tz-state.warn .dot { background: var(--warn); }
+        .tz-state.bad .dot { background: var(--danger); }
+        .tz-del {
+            min-height: 1.6rem; padding: 0 0.4rem;
+            border: none; border-radius: 8px;
+            background: none; color: var(--text-3);
+            font-size: 1rem; line-height: 1; cursor: pointer;
+        }
+        .tz-del:hover { color: var(--danger); background: var(--danger-soft); }
+        /* 24 小时条形对照：CSS grid，一行 = 城市名 + 24 格 */
+        .tz-bars-wrap { overflow-x: auto; }
+        .tz-bars { display: grid; grid-template-columns: 6.5rem repeat(24, minmax(1.5rem, 1fr)); gap: 3px; min-width: 46rem; }
+        .tz-bars .bar-label { align-self: center; padding-right: 0.4rem; color: var(--text-2); font-size: 0.78rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tz-bars .bar-head { align-self: center; color: var(--text-3); font-family: var(--mono); font-size: 0.62rem; text-align: center; }
+        .bar-cell {
+            display: flex; align-items: center; justify-content: center;
+            height: 1.7rem;
+            border: 1px solid transparent; border-radius: 6px;
+            background: var(--surface-2);
+            color: var(--text-3);
+            font-family: var(--mono); font-size: 0.68rem;
+            cursor: default;
+        }
+        .bar-cell.work { background: color-mix(in srgb, var(--ok) 22%, var(--surface)); color: var(--text); font-weight: 600; }
+        .bar-cell.edge { background: color-mix(in srgb, var(--warn) 16%, var(--surface)); color: var(--text-2); }
+        .bar-cell.now { border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand); }
+        .bar-cell:hover { border-color: var(--border-hover); }
+        .bar-legend { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.7rem; color: var(--text-3); font-size: 0.76rem; }
+        .bar-legend i { display: inline-block; width: 0.8rem; height: 0.8rem; margin-right: 0.3rem; border-radius: 4px; vertical-align: -0.1em; }
+        @media (max-width: 640px) {
+            .tz-row { grid-template-columns: minmax(0, 1fr) auto; }
+            .tz-row .tz-diff, .tz-row .tz-state { grid-column: 1 / -1; }
+        }
+    </style>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
+    <script defer src="../../assets/toolkit.js"></script>
+</head>
+<body data-zk-manual>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">Timezone</p></div>
+    <h1><span class="title">时区会议规划</span></h1>
+    <p class="lead">选定基准时间与城市，对照全球主要城市的当地时间、时差与工作时间状态，快速敲定跨时区会议。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>城市对照</h2>
+            <div class="row">
+                <label>基准时间<br /><input type="datetime-local" id="baseTime" aria-label="基准日期时间" /></label>
+                <label>基准城市<br /><select id="baseCity" aria-label="基准城市"></select></label>
+            </div>
+            <div class="tz-table" id="table"></div>
+            <p class="hint" id="status" aria-live="polite">时区数据来自浏览器 Intl API，自动处理夏令时。</p>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>添加城市</h2>
+                <div class="row">
+                    <select id="addSelect" class="grow" aria-label="选择要添加的城市"></select>
+                    <button class="btn primary" id="addBtn">添加城市</button>
+                </div>
+                <p class="hint" id="addHint">已添加的城市保存在本机浏览器，下次打开自动恢复。</p>
+            </section>
+            <section class="panel">
+                <h2>状态说明</h2>
+                <div class="chips">
+                    <span class="chip"><span class="tz-state ok"><span class="dot"></span>工作时间 9:00-18:00</span></span>
+                    <span class="chip"><span class="tz-state warn"><span class="dot"></span>边缘 7:00-9:00 / 18:00-22:00</span></span>
+                    <span class="chip"><span class="tz-state bad"><span class="dot"></span>休息时间</span></span>
+                </div>
+            </section>
+        </aside>
+    </div>
+    <section class="panel" style="margin-top: 1rem;">
+        <h2>24 小时对照</h2>
+        <div class="tz-bars-wrap"><div class="tz-bars" id="bars"></div></div>
+        <div class="bar-legend">
+            <span><i style="background: color-mix(in srgb, var(--ok) 22%, var(--surface));"></i>工作时段 9:00-18:00</span>
+            <span><i style="background: color-mix(in srgb, var(--warn) 16%, var(--surface));"></i>边缘时段</span>
+            <span><i style="background: var(--surface-2);"></i>休息时段</span>
+            <span>格内数字为该城市当地小时，列按基准城市 0-23 时排列，蓝框为当前选中小时</span>
+        </div>
+    </section>
+
+<section class="seo-notes">
+    <h2>关于时区会议规划</h2>
+    <p>跨时区协作最头疼的就是约时间：北京下午三点是伦敦早上几点？纽约同事这会儿是不是已经下班？本工具基于浏览器内置的 Intl API 做时区换算——自动处理各地夏令时切换，无需查表。选定一个基准日期时间和基准城市后，对照表会列出你添加的每个城市对应的当地时间、与基准的时差，并用绿/黄/红圆点标注当地是否处于 9:00-18:00 工作时间；下方的 24 小时条形视图把一整天的重叠情况铺开，绿色格子越多的列越适合开会。全部计算在浏览器本地完成，城市选择仅存在本机。</p>
+    <h2>常见问题</h2>
+    <details><summary>夏令时会自动处理吗？</summary><p>会。本工具使用 IANA 时区标识（如 Europe/London、America/New_York）配合浏览器 Intl API 计算，夏令时的开始与结束由浏览器内置的时区数据库自动处理，伦敦冬令时 UTC+0、夏令时 UTC+1 这类切换无需手动调整。</p></details>
+    <details><summary>时差为什么会出现半小时？</summary><p>并非所有时区都是整小时偏移：印度标准时间是 UTC+5:30，与北京相差 2.5 小时；还有尼泊尔 UTC+5:45 这类 45 分钟偏移的时区。工具按分钟精度计算时差，会如实显示 +5.5h 这样的半小时差。</p></details>
+    <details><summary>怎样快速找到大家都方便的会议时间？</summary><p>看 24 小时条形视图：每列对应基准城市的一个小时，找绿色（工作时段）格子最多的列即可。中国与欧洲的重叠通常在北京时间 16:00-18:00，与美国西海岸则集中在北京时间上午 8:00-10:00 前后。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"时区会议规划","url":"https://zktool.zktww.cn/tools/timezone-planner/","applicationCategory":"BusinessApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线时区会议规划工具：选定基准时间后对照北京、伦敦、纽约等 17 个城市的当地时间与时差，标注各地是否处于工作时间，附 24 小时条形对照视图，本地计算不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"夏令时会自动处理吗？","acceptedAnswer":{"@type":"Answer","text":"会。本工具使用 IANA 时区标识（如 Europe/London、America/New_York）配合浏览器 Intl API 计算，夏令时的开始与结束由浏览器内置的时区数据库自动处理，伦敦冬令时 UTC+0、夏令时 UTC+1 这类切换无需手动调整。"}},{"@type":"Question","name":"时差为什么会出现半小时？","acceptedAnswer":{"@type":"Answer","text":"并非所有时区都是整小时偏移：印度标准时间是 UTC+5:30，与北京相差 2.5 小时；还有尼泊尔 UTC+5:45 这类 45 分钟偏移的时区。工具按分钟精度计算时差，会如实显示 +5.5h 这样的半小时差。"}},{"@type":"Question","name":"怎样快速找到大家都方便的会议时间？","acceptedAnswer":{"@type":"Answer","text":"看 24 小时条形视图：每列对应基准城市的一个小时，找绿色（工作时段）格子最多的列即可。中国与欧洲的重叠通常在北京时间 16:00-18:00，与美国西海岸则集中在北京时间上午 8:00-10:00 前后。"}}]}]}</script>
+</main>
+<script>
+(function () {
+    "use strict";
+    var CITIES = [
+        { tz: "Asia/Shanghai", name: "北京" },
+        { tz: "Asia/Tokyo", name: "东京" },
+        { tz: "Asia/Seoul", name: "首尔" },
+        { tz: "Asia/Singapore", name: "新加坡" },
+        { tz: "Asia/Kolkata", name: "新德里（印度）" },
+        { tz: "Asia/Dubai", name: "迪拜" },
+        { tz: "Australia/Sydney", name: "悉尼" },
+        { tz: "Pacific/Auckland", name: "奥克兰" },
+        { tz: "Europe/Moscow", name: "莫斯科" },
+        { tz: "Europe/Berlin", name: "柏林" },
+        { tz: "Europe/Paris", name: "巴黎" },
+        { tz: "Europe/London", name: "伦敦" },
+        { tz: "America/Sao_Paulo", name: "圣保罗" },
+        { tz: "America/New_York", name: "纽约" },
+        { tz: "America/Chicago", name: "芝加哥" },
+        { tz: "America/Toronto", name: "多伦多" },
+        { tz: "America/Los_Angeles", name: "旧金山" }
+    ];
+    var LS_KEY = "zktool.tzplanner.cities";
+    var DEFAULT_CITIES = ["Asia/Shanghai", "Europe/London", "America/New_York"];
+    var baseTime = document.getElementById("baseTime"), baseCity = document.getElementById("baseCity");
+    var table = document.getElementById("table"), bars = document.getElementById("bars");
+    var addSelect = document.getElementById("addSelect"), addBtn = document.getElementById("addBtn");
+    var status = document.getElementById("status"), addHint = document.getElementById("addHint");
+    var fmtCache = {};
+    function cityOf(tz) { for (var i = 0; i < CITIES.length; i++) if (CITIES[i].tz === tz) return CITIES[i]; return null; }
+    // 取某一时刻在指定时区的墙上时间各字段（h23 避免出现 24 点）
+    function partsIn(ms, tz) {
+        var fmt = fmtCache[tz] || (fmtCache[tz] = new Intl.DateTimeFormat("en-US", {
+            timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit",
+            hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23"
+        }));
+        var out = {};
+        fmt.formatToParts(new Date(ms)).forEach(function (p) { out[p.type] = p.value; });
+        return { y: +out.year, m: +out.month, d: +out.day, h: +out.hour, min: +out.minute, s: +out.second };
+    }
+    // 某时刻该时区相对 UTC 的偏移（分钟）
+    function offsetAt(ms, tz) {
+        var p = partsIn(ms, tz);
+        return (Date.UTC(p.y, p.m - 1, p.d, p.h, p.min, p.s) - ms) / 60000;
+    }
+    // 把"某时区的墙上时间"换算为 UTC 时刻（两次迭代处理夏令时边界）
+    function zonedToInstant(y, m, d, h, min, tz) {
+        var guess = Date.UTC(y, m - 1, d, h, min);
+        var ms = guess - offsetAt(guess, tz) * 60000;
+        return guess - offsetAt(ms, tz) * 60000;
+    }
+    function pad(n) { return (n < 10 ? "0" : "") + n; }
+    var WEEK = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+    function fmtLocal(ms, tz) {
+        var p = partsIn(ms, tz);
+        var w = WEEK[new Date(Date.UTC(p.y, p.m - 1, p.d)).getUTCDay()];
+        return p.m + "/" + pad(p.d) + " " + w + " " + pad(p.h) + ":" + pad(p.min);
+    }
+    function fmtDiff(mins) {
+        if (!mins) return "±0h";
+        var h = Math.abs(mins) / 60;
+        return (mins > 0 ? "+" : "-") + (h % 1 ? h.toFixed(1) : h) + "h";
+    }
+    // 工作时间状态：9-18 绿 ok，7-9 / 18-22 黄 warn，其余红 bad
+    function workState(hourDec) {
+        if (hourDec >= 9 && hourDec < 18) return { cls: "ok", text: "工作时间" };
+        if ((hourDec >= 7 && hourDec < 9) || (hourDec >= 18 && hourDec < 22)) return { cls: "warn", text: "边缘时间" };
+        return { cls: "bad", text: "休息时间" };
+    }
+    function loadCities() {
+        try {
+            var arr = JSON.parse(localStorage.getItem(LS_KEY) || "null");
+            if (Array.isArray(arr)) {
+                arr = arr.filter(function (tz) { return cityOf(tz); });
+                if (arr.length) return arr;
+            }
+        } catch (e) { /* 忽略损坏数据，回退默认 */ }
+        return DEFAULT_CITIES.slice();
+    }
+    var cities = loadCities();
+    function saveCities() {
+        try { localStorage.setItem(LS_KEY, JSON.stringify(cities)); } catch (e) { /* 隐私模式下静默失败 */ }
+    }
+    // 解析 datetime-local 的值；非法时返回 null
+    function parseBase() {
+        var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(baseTime.value || "");
+        if (!m) return null;
+        return { y: +m[1], mo: +m[2], d: +m[3], h: +m[4], min: +m[5] };
+    }
+    function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;"); }
+    function render() {
+        var b = parseBase();
+        if (!b) {
+            status.textContent = "基准时间无效，请重新选择日期时间。";
+            status.className = "hint bad";
+            table.innerHTML = ""; bars.innerHTML = "";
+            return;
+        }
+        var baseTz = baseCity.value;
+        var instant = zonedToInstant(b.y, b.mo, b.d, b.h, b.min, baseTz);
+        var baseOff = offsetAt(instant, baseTz);
+        // ── 对照表 ──
+        var rows = "";
+        cities.forEach(function (tz) {
+            var c = cityOf(tz);
+            var p = partsIn(instant, tz);
+            var st = workState(p.h + p.min / 60);
+            rows += "<div class='tz-row" + (tz === baseTz ? " base-row" : "") + "'>" +
+                "<span class='tz-city'>" + esc(c.name) + "<small>" + esc(tz) + "</small></span>" +
+                "<span class='tz-time'>" + fmtLocal(instant, tz) + "</span>" +
+                "<span class='tz-diff'>" + fmtDiff(offsetAt(instant, tz) - baseOff) + "</span>" +
+                "<span class='tz-state " + st.cls + "'><span class='dot'></span>" + st.text + "</span>" +
+                "<button class='tz-del' data-tz='" + esc(tz) + "' aria-label='删除" + esc(c.name) + "' title='删除'>×</button>" +
+                "</div>";
+        });
+        table.innerHTML = rows;
+        status.textContent = "已对照 " + cities.length + " 个城市，基准：" + cityOf(baseTz).name + " " + fmtLocal(instant, baseTz) + "。";
+        status.className = "hint ok";
+        // ── 24 小时条形视图：列按基准城市 0-23 时排列 ──
+        var html = "<span class='bar-label'>基准 " + esc(cityOf(baseTz).name) + " ↓</span>";
+        for (var h = 0; h < 24; h++) html += "<span class='bar-head'>" + h + "</span>";
+        cities.forEach(function (tz) {
+            var c = cityOf(tz);
+            html += "<span class='bar-label' title='" + esc(tz) + "'>" + esc(c.name) + "</span>";
+            for (var i = 0; i < 24; i++) {
+                var ms = zonedToInstant(b.y, b.mo, b.d, i, 0, baseTz);
+                var lp = partsIn(ms, tz);
+                var cls = "bar-cell";
+                if (lp.h >= 9 && lp.h < 18) cls += " work";
+                else if ((lp.h >= 7 && lp.h < 9) || (lp.h >= 18 && lp.h < 22)) cls += " edge";
+                if (i === b.h) cls += " now";
+                var tip = cityOf(baseTz).name + " " + pad(i) + ":00 → " + c.name + " " + fmtLocal(ms, tz);
+                html += "<span class='" + cls + "' title='" + esc(tip) + "'>" + lp.h + "</span>";
+            }
+        });
+        bars.innerHTML = html;
+        refreshAddOptions();
+    }
+    // 「添加城市」下拉只列出未添加的城市
+    function refreshAddOptions() {
+        var opts = "";
+        CITIES.forEach(function (c) {
+            if (cities.indexOf(c.tz) < 0) opts += "<option value='" + esc(c.tz) + "'>" + esc(c.name) + "（" + esc(c.tz) + "）</option>";
+        });
+        addSelect.innerHTML = opts;
+        addBtn.disabled = !opts;
+        addHint.textContent = opts ? "已添加的城市保存在本机浏览器，下次打开自动恢复。" : "全部城市都已添加。";
+        addHint.className = "hint";
+    }
+    addBtn.onclick = function () {
+        var tz = addSelect.value;
+        if (!tz || cities.indexOf(tz) >= 0) return;
+        cities.push(tz);
+        saveCities();
+        render();
+        addHint.textContent = "已添加 " + cityOf(tz).name + "。";
+        addHint.className = "hint ok";
+    };
+    table.addEventListener("click", function (e) {
+        var btn = e.target.closest ? e.target.closest(".tz-del") : null;
+        if (!btn) return;
+        cities = cities.filter(function (tz) { return tz !== btn.getAttribute("data-tz"); });
+        saveCities();
+        render();
+    });
+    baseTime.addEventListener("input", render);
+    baseCity.addEventListener("change", render);
+    // ── 初始化：基准城市列出全部城市，默认北京；基准时间取该城市当前墙上时间 ──
+    baseCity.innerHTML = CITIES.map(function (c) {
+        return "<option value='" + esc(c.tz) + "'>" + esc(c.name) + "</option>";
+    }).join("");
+    baseCity.value = "Asia/Shanghai";
+    var now = partsIn(Date.now(), baseCity.value);
+    baseTime.value = now.y + "-" + pad(now.m) + "-" + pad(now.d) + "T" + pad(now.h) + ":" + pad(now.min);
+    render();
+})();
+</script>
+</body>
+</html>

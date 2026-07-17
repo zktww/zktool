@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>chmod计算器 - Linux文件权限755/644在线换算 | zktool</title>
+    <meta name="description" content="免费在线 chmod 权限计算器：勾选、八进制数字与符号表示（-rwxr-xr-x）三向实时换算，支持 setuid/setgid/sticky 特殊位，内置 644/755 等常用权限速查表。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="chmod计算器 - Linux文件权限755/644在线换算 | zktool" />
+    <meta property="og:description" content="免费在线 chmod 权限计算器：勾选、八进制数字与符号表示（-rwxr-xr-x）三向实时换算，支持 setuid/setgid/sticky 特殊位，内置 644/755 等常用权限速查表。" />
+    <meta property="og:url" content="https://zktool.zktww.cn/tools/chmod-calculator/" />
+    <meta property="og:image" content="https://zktool.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/theme.js"></script>
+    <script src="../../assets/clipboard.js"></script>
+    <style>
+        .perm-table td:first-child { color: var(--text-2); font-weight: 650; white-space: nowrap; }
+        .perm-table td, .perm-table th { text-align: center; }
+        .perm-table td:first-child, .perm-table th:first-child { text-align: left; }
+        .preset-table tr[data-octal] { cursor: pointer; transition: background 0.2s; }
+        .preset-table tr[data-octal]:hover td { background: var(--brand-soft); }
+        .preset-table .mono { white-space: nowrap; }
+        .cmd-chip { cursor: pointer; font-size: 0.95rem; padding: 0.45rem 0.9rem; user-select: all; }
+        .cmd-chip:hover { border-color: var(--brand-ring); color: var(--text); }
+    </style>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
+    <script defer src="../../assets/toolkit.js"></script>
+</head>
+<body data-zk-manual>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">Linux / chmod</p></div>
+    <h1><span class="title">chmod 权限计算器</span></h1>
+    <p class="lead">勾选权限矩阵、输入八进制数字或符号表示（-rwxr-xr-x），三处任改一处其余实时同步，并生成可复制的 chmod 命令。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>权限矩阵</h2>
+            <table class="perm-table">
+                <thead><tr><th>对象</th><th>读 r (4)</th><th>写 w (2)</th><th>执行 x (1)</th></tr></thead>
+                <tbody>
+                    <tr><td>所有者 (u)</td><td><input type="checkbox" id="p0" aria-label="所有者读" /></td><td><input type="checkbox" id="p1" aria-label="所有者写" /></td><td><input type="checkbox" id="p2" aria-label="所有者执行" /></td></tr>
+                    <tr><td>所属组 (g)</td><td><input type="checkbox" id="p3" aria-label="组读" /></td><td><input type="checkbox" id="p4" aria-label="组写" /></td><td><input type="checkbox" id="p5" aria-label="组执行" /></td></tr>
+                    <tr><td>其他人 (o)</td><td><input type="checkbox" id="p6" aria-label="其他人读" /></td><td><input type="checkbox" id="p7" aria-label="其他人写" /></td><td><input type="checkbox" id="p8" aria-label="其他人执行" /></td></tr>
+                </tbody>
+            </table>
+            <div class="row" style="margin-top:0.8rem;">
+                <span class="label">特殊位：</span>
+                <label><input type="checkbox" id="suid" />setuid (4)</label>
+                <label><input type="checkbox" id="sgid" />setgid (2)</label>
+                <label><input type="checkbox" id="sticky" />sticky (1)</label>
+            </div>
+            <div class="row">
+                <label class="grow">八进制
+                    <input id="octal" class="mono" maxlength="4" inputmode="numeric" spellcheck="false" placeholder="755" aria-label="八进制权限" />
+                </label>
+                <label class="grow">符号表示
+                    <input id="symbolic" class="mono" maxlength="10" spellcheck="false" placeholder="-rwxr-xr-x" aria-label="符号表示" />
+                </label>
+            </div>
+            <p class="hint" id="status" aria-live="polite">纯本地计算，八进制支持 3 位（755）或 4 位带特殊位（4755）。</p>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>命令</h2>
+                <div class="chips"><span class="chip cmd-chip" id="cmd" role="button" tabindex="0" title="点击复制">chmod 000 file</span></div>
+                <p class="hint" id="hint">点击上方命令即可复制到剪贴板。</p>
+            </section>
+            <section class="panel">
+                <h2>常用权限速查</h2>
+                <table class="preset-table" id="presets">
+                    <thead><tr><th>数字</th><th>符号</th><th>说明</th></tr></thead>
+                    <tbody>
+                        <tr data-octal="644"><td class="mono">644</td><td class="mono">rw-r--r--</td><td>普通文件默认：所有者可读写，其他人只读</td></tr>
+                        <tr data-octal="755"><td class="mono">755</td><td class="mono">rwxr-xr-x</td><td>目录与脚本常用：所有者全权，其他人可读可执行</td></tr>
+                        <tr data-octal="600"><td class="mono">600</td><td class="mono">rw-------</td><td>私密文件：仅所有者可读写（SSH 私钥必须）</td></tr>
+                        <tr data-octal="700"><td class="mono">700</td><td class="mono">rwx------</td><td>私密目录：仅所有者可进入访问</td></tr>
+                        <tr data-octal="775"><td class="mono">775</td><td class="mono">rwxrwxr-x</td><td>协作目录：同组成员可写入</td></tr>
+                        <tr data-octal="664"><td class="mono">664</td><td class="mono">rw-rw-r--</td><td>协作文件：同组成员可编辑</td></tr>
+                        <tr data-octal="777"><td class="mono bad">777</td><td class="mono bad">rwxrwxrwx</td><td class="bad">任何人可读写执行——高风险，生产环境禁用</td></tr>
+                    </tbody>
+                </table>
+                <p class="hint">点击任意一行即可套用该权限。</p>
+            </section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+    <h2>关于chmod权限计算器</h2>
+    <p>chmod 是 Linux / macOS 修改文件权限的命令，权限由所有者、所属组、其他人三组，各自的读（4）、写（2）、执行（1）组合而成，累加即得 755、644 这类八进制数字。本工具在勾选矩阵、八进制数字、符号表示（-rwxr-xr-x）之间三向实时换算，支持 setuid、setgid、sticky 特殊位（4 位写法如 4755），并内置常用权限速查表与一键复制的 chmod 命令，全部在浏览器本地完成。</p>
+    <h2>常见问题</h2>
+    <details><summary>chmod 755 和 644 有什么区别？</summary><p>755 = rwxr-xr-x，所有者可读写执行，组和其他人可读可执行，适合目录和可执行脚本；644 = rw-r--r--，所有者可读写，其他人只读且不可执行，适合普通文件（网页、配置、图片）。经验法则：目录 755、文件 644。</p></details>
+    <details><summary>八进制权限数字是怎么算出来的？</summary><p>每组权限用读=4、写=2、执行=1 累加：rwx=4+2+1=7，r-x=4+1=5，r--=4。三组从左到右分别是所有者、所属组、其他人，拼起来就是 755。第 4 位（写在最前）表示特殊位：setuid=4、setgid=2、sticky=1，例如 4755。</p></details>
+    <details><summary>为什么不建议用 chmod 777？</summary><p>777 意味着系统上任何用户都能读取、修改和执行该文件，恶意程序或其他用户可以随意篡改内容、植入代码，是常见的安全隐患。遇到权限问题应先用 ls -l 查明所有者和组，再用 chown/chmod 精确授权，而不是一律 777。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"chmod 权限计算器","url":"https://zktool.zktww.cn/tools/chmod-calculator/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 chmod 权限计算器：勾选、八进制数字与符号表示三向实时换算，支持 setuid/setgid/sticky 特殊位，内置 644/755 等常用权限速查表。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"chmod 755 和 644 有什么区别？","acceptedAnswer":{"@type":"Answer","text":"755 = rwxr-xr-x，所有者可读写执行，组和其他人可读可执行，适合目录和可执行脚本；644 = rw-r--r--，所有者可读写，其他人只读且不可执行，适合普通文件。经验法则：目录 755、文件 644。"}},{"@type":"Question","name":"八进制权限数字是怎么算出来的？","acceptedAnswer":{"@type":"Answer","text":"每组权限用读=4、写=2、执行=1 累加：rwx=7，r-x=5，r--=4。三组从左到右分别是所有者、所属组、其他人，拼起来就是 755。第 4 位表示特殊位：setuid=4、setgid=2、sticky=1，例如 4755。"}},{"@type":"Question","name":"为什么不建议用 chmod 777？","acceptedAnswer":{"@type":"Answer","text":"777 意味着任何用户都能读取、修改和执行该文件，容易被篡改内容或植入代码，是常见的安全隐患。应先用 ls -l 查明所有者和组，再用 chown/chmod 精确授权。"}}]}]}</script>
+</main>
+<script>
+(function () {
+    "use strict";
+    var boxes = [], i;
+    for (i = 0; i < 9; i++) boxes.push(document.getElementById("p" + i));
+    var suid = document.getElementById("suid"), sgid = document.getElementById("sgid"), sticky = document.getElementById("sticky");
+    var octal = document.getElementById("octal"), symbolic = document.getElementById("symbolic");
+    var cmd = document.getElementById("cmd"), status = document.getElementById("status"), hint = document.getElementById("hint");
+
+    function ok(msg) { status.textContent = msg; status.className = "hint ok"; }
+    function fail(msg) { status.textContent = msg; status.className = "hint bad"; }
+
+    /* 读取当前勾选状态，得到 [特殊位, 所有者, 组, 其他] 四个 0-7 数字 */
+    function readState() {
+        var d = [0, 0, 0, 0];
+        if (suid.checked) d[0] += 4;
+        if (sgid.checked) d[0] += 2;
+        if (sticky.checked) d[0] += 1;
+        for (var k = 0; k < 9; k++) {
+            if (boxes[k].checked) d[1 + Math.floor(k / 3)] += [4, 2, 1][k % 3];
+        }
+        return d;
+    }
+
+    /* 由四个数字写回勾选矩阵与特殊位 */
+    function applyState(d) {
+        suid.checked = !!(d[0] & 4);
+        sgid.checked = !!(d[0] & 2);
+        sticky.checked = !!(d[0] & 1);
+        for (var k = 0; k < 9; k++) {
+            boxes[k].checked = !!(d[1 + Math.floor(k / 3)] & [4, 2, 1][k % 3]);
+        }
+    }
+
+    /* 生成符号表示：特殊位占用各组执行位（s/S、t/T） */
+    function toSymbolic(d) {
+        var out = "-", specials = [4, 2, 1], marks = ["s", "s", "t"];
+        for (var g = 0; g < 3; g++) {
+            var v = d[1 + g], sp = !!(d[0] & specials[g]);
+            out += (v & 4) ? "r" : "-";
+            out += (v & 2) ? "w" : "-";
+            if (sp) out += (v & 1) ? marks[g] : marks[g].toUpperCase();
+            else out += (v & 1) ? "x" : "-";
+        }
+        return out;
+    }
+
+    /* 解析符号表示，兼容 9 位或带类型前缀的 10 位 */
+    function parseSymbolic(s) {
+        s = s.trim();
+        if (s.length === 10) s = s.slice(1);
+        if (!/^([r-][w-][xsS-]){2}[r-][w-][xtT-]$/.test(s)) throw new Error("符号表示应为 9 位 rwx 组合，如 rwxr-xr-x 或 -rwxr-xr-x");
+        var d = [0, 0, 0, 0], specials = [4, 2, 1];
+        for (var g = 0; g < 3; g++) {
+            var v = 0, x = s.charAt(g * 3 + 2);
+            if (s.charAt(g * 3) === "r") v += 4;
+            if (s.charAt(g * 3 + 1) === "w") v += 2;
+            if (x === "x" || x === "s" || x === "t") v += 1;
+            if (x === "s" || x === "S" || x === "t" || x === "T") d[0] += specials[g];
+            d[1 + g] = v;
+        }
+        return d;
+    }
+
+    /* 以 source 标记来源，避免同步时覆盖正在输入的控件 */
+    function render(source, msg) {
+        var d = readState();
+        var oct = (d[0] ? String(d[0]) : "") + String(d[1]) + String(d[2]) + String(d[3]);
+        if (source !== "octal") octal.value = oct;
+        if (source !== "symbolic") symbolic.value = toSymbolic(d);
+        cmd.textContent = "chmod " + oct + " file";
+        ok(msg || "已同步：" + oct + " = " + toSymbolic(d));
+    }
+
+    /* ① 勾选矩阵 → 其余同步 */
+    boxes.concat([suid, sgid, sticky]).forEach(function (box) {
+        box.addEventListener("change", function () { render("matrix"); });
+    });
+
+    /* ② 八进制输入 → 其余同步 */
+    octal.addEventListener("input", function () {
+        var v = octal.value.trim();
+        if (!/^[0-7]{3,4}$/.test(v)) { fail("八进制应为 3-4 位 0-7 数字，如 755 或 4755"); return; }
+        var d = v.length === 4 ? [+v[0], +v[1], +v[2], +v[3]] : [0, +v[0], +v[1], +v[2]];
+        applyState(d);
+        render("octal");
+    });
+
+    /* ③ 符号表示输入 → 其余同步 */
+    symbolic.addEventListener("input", function () {
+        try {
+            applyState(parseSymbolic(symbolic.value));
+            render("symbolic");
+        } catch (e) { fail(e.message); }
+    });
+
+    /* 命令 chip 点击复制 */
+    function copyCmd() {
+        copyText(cmd.textContent).then(function () { hint.textContent = "命令已复制：" + cmd.textContent; hint.className = "hint ok"; },
+            function () { hint.textContent = "复制失败，请手动选择复制"; hint.className = "hint bad"; });
+    }
+    cmd.addEventListener("click", copyCmd);
+    cmd.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); copyCmd(); } });
+
+    /* 速查表点击套用 */
+    document.getElementById("presets").addEventListener("click", function (e) {
+        var tr = e.target && e.target.closest("tr[data-octal]");
+        if (!tr) return;
+        octal.value = tr.getAttribute("data-octal");
+        octal.dispatchEvent(new Event("input"));
+    });
+
+    /* 初始值：755 */
+    octal.value = "755";
+    octal.dispatchEvent(new Event("input"));
+    status.className = "hint";
+    status.textContent = "纯本地计算，八进制支持 3 位（755）或 4 位带特殊位（4755）。";
+})();
+</script>
+</body>
+</html>

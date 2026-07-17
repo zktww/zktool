@@ -54,7 +54,7 @@
         }
         var btn = document.createElement("button");
         btn.type = "button";
-        btn.className = "zk-icon-btn";
+        btn.className = "zk-icon-btn zk-theme-btn";
         btn.innerHTML = ICONS[mode()];
         btn.setAttribute("aria-label", LABELS[mode()] + "，点击切换");
         btn.title = LABELS[mode()] + "，点击切换";
@@ -67,4 +67,14 @@
 
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
     else init();
+
+    /* 供命令面板等调用：循环切换主题（会同步更新按钮图标） */
+    window.zkTheme = {
+        mode: mode,
+        cycle: function () {
+            var order = ["auto", "light", "dark"];
+            apply(order[(order.indexOf(mode()) + 1) % order.length], document.querySelector(".zk-theme-btn"));
+            return mode();
+        }
+    };
 })();

@@ -6,7 +6,7 @@
 
 - **`tools/`** — 主角，日常开发辅助的小工具页；每模块独立文件夹，入口为 **`index.html`**。
 - **`demos/`** — 附属，交互探索、演示稿等偏展示向页面；同样每模块一个子文件夹 + **`index.html`**。
-- **`assets/`** — 公共资源：`tokens.css`（全站设计变量，含暗色模式与 `data-theme` 手动覆盖）、`tool-shell.css`（工具页公共骨架：reset/背景/返回条/标题/SEO 说明区）、`tool-page.css`（工具页公共组件：面板/表单/按钮等，内部引用 shell）、`theme.js`（主题三态切换：跟随系统/浅/深，存 localStorage，并注入顶部操作按钮）、`clipboard.js`（复制封装）、`registry.js`（工具注册表，首页卡片/命令面板/搜索的唯一数据源，含分域 `group` 字段）、`palette.js`（Ctrl+K 命令面板，工具页顶部另有搜索按钮供触屏呼出）、`vendor/`（第三方库本地副本）。
+- **`assets/`** — 公共资源：`tokens.css`（全站设计变量，含暗色模式与 `data-theme` 手动覆盖）、`tool-shell.css`（工具页公共骨架：reset/背景/返回条/标题/SEO 说明区）、`tool-page.css`（工具页公共组件：面板/表单/按钮等，内部引用 shell）、`theme.js`（主题三态切换：跟随系统/浅/深，存 localStorage，并注入顶部操作按钮）、`toolkit.js`（工具页通用能力：textarea 草稿自动保存、`#zk=` URL 状态分享、工具间「发送到…」管道、PWA share_target 接收；自带保存逻辑的页面加 `<body data-zk-manual>` 退出）、`clipboard.js`（复制封装）、`registry.js`（工具注册表，首页卡片/命令面板/搜索的唯一数据源，含分域 `group` 字段与拼音首字母 kw）、`palette.js`（Ctrl+K 命令面板：最近使用置顶、动作条目、拼音搜索；工具页顶部另有搜索按钮供触屏呼出）、`vendor/`（第三方库本地副本：sql-formatter、js-yaml、marked）。
 - **`scripts/`** — 构建脚本：`gen-cards.mjs`（零依赖 Node 脚本，从 `registry.js` 生成根目录 `index.html` 的工具卡片）。
 - 根目录保留 **`index.html`** 总索引、**`favicon.ico`**、**`manifest.webmanifest`** 与 **`sw.js`**（PWA：托管到静态站点后支持离线使用；主页卡片支持收藏与最近使用置顶，数据存 localStorage），以及 **`404.html`**、**`sitemap.xml`**、**`robots.txt`**。
 - 任意页面按 **Ctrl+K / Cmd+K** 呼出命令面板，搜索并跳转到其他工具。
@@ -39,6 +39,14 @@
 | [tools/http-reference/](tools/http-reference/) | HTTP 状态码与 MIME 速查：搜索过滤、点击复制 |
 | [tools/unicode-inspector/](tools/unicode-inspector/) | Unicode 字符检查器：码点/编码明细、零宽字符排查 |
 | [tools/sql-formatter/](tools/sql-formatter/) | SQL 格式化：多方言格式化与单行压缩 |
+| [tools/yaml-converter/](tools/yaml-converter/) | YAML 转换与校验：YAML ↔ JSON 互转、语法校验与错误定位 |
+| [tools/curl-parser/](tools/curl-parser/) | cURL 命令解析：结构化展示，生成 fetch / Python requests 代码 |
+| [tools/html-entities/](tools/html-entities/) | HTML 实体编解码：命名/十进制/十六进制实体互转与速查表 |
+| [tools/keypair-generator/](tools/keypair-generator/) | 密钥对生成器：本地生成 RSA / ECDSA / Ed25519，导出 PEM 与 JWK |
+| [tools/markdown-preview/](tools/markdown-preview/) | Markdown 预览：实时渲染、复制净化 HTML、下载页面 |
+| [tools/timezone-planner/](tools/timezone-planner/) | 时区会议规划：多城市时间对照与工作时段标注 |
+| [tools/chmod-calculator/](tools/chmod-calculator/) | chmod 权限计算器：勾选、八进制与符号表示三向同步 |
+| [tools/svg-optimizer/](tools/svg-optimizer/) | SVG 优化与预览：本地压缩、预览与转 data URI |
 | [二维码生成器](https://qc.zktww.cn/) | 外部工具：二维码生成服务 |
 
 ## 工具说明
@@ -119,6 +127,38 @@ camelCase、PascalCase、snake_case、kebab-case、CONSTANT_CASE 等命名风格
 
 基于本地 vendor 的 [sql-formatter](https://github.com/sql-formatter-org/sql-formatter) 格式化 SQL，支持 MySQL、PostgreSQL、SQLite、T-SQL 等方言与关键字大小写、缩进风格；另提供保留字符串字面量的单行压缩。
 
+### YAML 转换与校验（`tools/yaml-converter/`）
+
+基于本地 vendor 的 js-yaml：YAML ↔ JSON 双向转换（可选缩进）、语法校验与行列级错误定位，输入实时校验，适合排查配置文件缩进与类型问题。
+
+### cURL 命令解析（`tools/curl-parser/`）
+
+粘贴 cURL 命令（支持引号、转义与换行续行），解析为方法 / URL / 查询参数 / Headers / Body 的结构化概览，并生成等价的 fetch 与 Python requests 代码，接口调试转代码一步到位。
+
+### HTML 实体编解码（`tools/html-entities/`）
+
+HTML 特殊字符与实体互转：支持仅必需转义、命名实体优先、十进制与十六进制全量转义四种模式，解码兼容全部实体形式；附常用实体速查表，点击复制。
+
+### 密钥对生成器（`tools/keypair-generator/`）
+
+基于 Web Crypto API 在浏览器本地生成 RSA（2048/3072/4096）、ECDSA（P-256/384/521）与 Ed25519 密钥对，导出 PEM（SPKI/PKCS#8）与 JWK 格式，支持复制与下载 .pem 文件；私钥不离开浏览器。
+
+### Markdown 预览（`tools/markdown-preview/`）
+
+基于本地 vendor 的 marked 实时渲染 Markdown，输出经消毒（移除脚本/事件属性等）；可复制净化后的 HTML 或下载完整页面，附字符/行/词统计。
+
+### 时区会议规划（`tools/timezone-planner/`）
+
+纯 Intl API 实现的多城市时间对照：选基准时间与城市，逐城市显示当地时间、时差与是否处于工作时段（红黄绿标注），另有 24 小时条形对照视图辅助找共同空档；城市列表存 localStorage。
+
+### chmod 权限计算器（`tools/chmod-calculator/`）
+
+Linux 文件权限三向换算：权限勾选矩阵、八进制（含 setuid/setgid/sticky 特殊位）与符号表示（-rwxr-xr-x）实时同步，生成可复制的 chmod 命令；附常用权限速查与风险提示。
+
+### SVG 优化与预览（`tools/svg-optimizer/`）
+
+纯浏览器 SVG 优化：移除注释/元数据/编辑器属性、数字精度压缩与空白折叠，展示优化前后体积对比；支持棋盘格/黑/白背景预览与转 data URI（URL 编码或 base64）。
+
 ### 二维码生成器（外部工具）
 
 跳转到 [https://qc.zktww.cn/](https://qc.zktww.cn/)，用于快速生成二维码。
@@ -145,7 +185,7 @@ camelCase、PascalCase、snake_case、kebab-case、CONSTANT_CASE 等命名风格
 2. 在 **`assets/registry.js`** 注册表中补一条（首页卡片、命令面板与站内搜索的唯一数据源；卡片还需 `icon`/`c1`/`c2` 字段，工具类另需 `group` 字段对应 `ZKTOOL_GROUPS` 分域）；
 3. 运行 **`node scripts/gen-cards.mjs`** 从注册表重新生成根目录 **`index.html`** 的卡片（勿手改卡片，会被覆盖）；
 4. 在本 README 的表格与说明中各补一行（按需详写）；
-5. 更新 **`sitemap.xml`**，并升级 **`sw.js`** 中的缓存版本号（`zktool-vN`）。
+5. 更新 **`sitemap.xml`** 与 **`llms.txt`**，并升级 **`sw.js`** 中的缓存版本号（`zktool-vN`）与预缓存列表。
 
 > 站点部署域名变更时：全局替换页面 `og:url`、`sitemap.xml` 与 `robots.txt` 中的 `https://zktool.zktww.cn`。
 

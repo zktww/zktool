@@ -11,5 +11,16 @@
     "icons": [
         { "src": "favicon.ico", "sizes": "48x48", "type": "image/x-icon" },
         { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
-    ]
+    ],
+    "shortcuts": [
+        { "name": "JSON 格式化", "url": "./tools/json-formatter/", "description": "校验、美化、压缩 JSON" },
+        { "name": "时间转换", "url": "./tools/timestamp-converter/", "description": "时间戳与日期互转" },
+        { "name": "Base64 转换", "url": "./tools/base64-converter/", "description": "Base64 / Hex 编解码" },
+        { "name": "正则测试", "url": "./tools/regex-tester/", "description": "正则匹配与替换调试" }
+    ],
+    "share_target": {
+        "action": "./tools/unicode-inspector/",
+        "method": "GET",
+        "params": { "text": "text", "url": "text" }
+    }
 }

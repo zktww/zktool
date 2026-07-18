@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>手机传感器测试 - 陀螺仪加速度计指南针在线查看 | zktool</title>
+    <meta name="description" content="免费在线手机传感器测试工具：实时查看陀螺仪方向 alpha/beta/gamma、加速度计 x/y/z、旋转速率与指南针朝向，3D 手机姿态与条形图可视化，本地读取不上传。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="手机传感器测试 - 陀螺仪加速度计指南针在线查看 | zktool" />
+    <meta property="og:description" content="免费在线手机传感器测试工具：实时查看陀螺仪方向 alpha/beta/gamma、加速度计 x/y/z、旋转速率与指南针朝向，3D 手机姿态与条形图可视化，本地读取不上传。" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/sensor-viewer/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/sensor-viewer/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/theme.js"></script>
+    <script src="../../assets/clipboard.js"></script>
+    <style>
+        /* 数值行：等宽字体实时刷新 */
+        .sv-nums { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.9rem; }
+        .sv-num {
+            display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
+            padding: 0.4rem 0.7rem;
+            border: 1px solid var(--border); border-radius: 10px;
+            background: var(--bg-soft);
+            font-size: 0.82rem; color: var(--text-2);
+        }
+        .sv-num b { font-family: var(--mono); font-size: 0.9rem; font-weight: 600; color: var(--text); white-space: nowrap; }
+        /* 3D 手机姿态示意：perspective 容器 + 圆角矩形手机模型 */
+        .sv-viz { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-around; gap: 1rem; margin-bottom: 0.9rem; }
+        .sv-scene { perspective: 600px; width: 9rem; height: 11rem; display: flex; align-items: center; justify-content: center; }
+        .sv-phone {
+            position: relative;
+            width: 4.6rem; height: 9rem;
+            border: 1px solid var(--border-hover); border-radius: 0.9rem;
+            background: linear-gradient(160deg, var(--surface-2), var(--surface));
+            box-shadow: var(--shadow-sm);
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+        .sv-phone .scr {
+            position: absolute; inset: 0.45rem;
+            border-radius: 0.55rem;
+            background: linear-gradient(160deg, var(--brand-soft), var(--bg-soft));
+            border: 1px solid var(--border);
+        }
+        .sv-phone .cam {
+            position: absolute; top: 0.16rem; left: 50%;
+            width: 1.4rem; height: 0.22rem; margin-left: -0.7rem;
+            border-radius: 999px; background: var(--text-3); opacity: 0.55;
+        }
+        /* 指南针：圆盘随朝向反向旋转，指针固定指向设备顶部方向 */
+        .sv-compass-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+        .sv-compass {
+            position: relative; width: 9rem; height: 9rem;
+            border: 1px solid var(--border-hover); border-radius: 50%;
+            background: radial-gradient(circle at 50% 40%, var(--surface-2), var(--surface));
+            box-shadow: var(--shadow-sm);
+        }
+        .sv-dial { position: absolute; inset: 0; will-change: transform; }
+        .sv-dial span {
+            position: absolute; left: 50%; top: 50%;
+            width: 1.4rem; height: 1.4rem; margin: -0.7rem 0 0 -0.7rem;
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--mono); font-size: 0.78rem; font-weight: 700; color: var(--text-2);
+        }
+        .sv-dial .dn { transform: translateY(-3.4rem); color: var(--danger); }
+        .sv-dial .de { transform: translateX(3.4rem); }
+        .sv-dial .ds { transform: translateY(3.4rem); }
+        .sv-dial .dw { transform: translateX(-3.4rem); }
+        .sv-needle {
+            position: absolute; left: 50%; top: 50%;
+            width: 0; height: 0; margin-left: -0.4rem;
+            border-left: 0.4rem solid transparent;
+            border-right: 0.4rem solid transparent;
+            border-bottom: 2.4rem solid var(--brand);
+            transform: translateY(-100%);
+        }
+        .sv-compass::after {
+            content: ""; position: absolute; left: 50%; top: 50%;
+            width: 0.6rem; height: 0.6rem; margin: -0.3rem 0 0 -0.3rem;
+            border-radius: 50%; background: var(--text-2);
+        }
+        .sv-heading { font-family: var(--mono); font-size: 0.86rem; color: var(--text); }
+        /* 条形图：-max ~ +max 映射，正负从中间向两边延伸，x/y/z 三色 */
+        .sv-bars { display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 0.6rem; }
+        .sv-barrow { display: grid; grid-template-columns: 1.2rem minmax(0, 1fr) 4.6rem; align-items: center; gap: 0.55rem; }
+        .sv-barrow .lbl { font-family: var(--mono); font-size: 0.78rem; font-weight: 700; text-align: center; }
+        .sv-barrow .val { font-family: var(--mono); font-size: 0.78rem; color: var(--text-2); text-align: right; white-space: nowrap; }
+        .sv-bar { position: relative; height: 0.85rem; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border); overflow: hidden; }
+        .sv-bar::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--border-hover); }
+        .sv-bar i { position: absolute; top: 0; bottom: 0; left: 50%; width: 0; border-radius: 999px; opacity: 0.85; }
+        .sv-x .lbl { color: var(--brand); }
+        .sv-x i { background: var(--brand); }
+        .sv-y .lbl { color: var(--ok); }
+        .sv-y i { background: var(--ok); }
+        .sv-z .lbl { color: var(--warn); }
+        .sv-z i { background: var(--warn); }
+        /* 启动大按钮 */
+        .sv-start { width: 100%; min-height: 3.2rem; font-size: 1.02rem; justify-content: center; }
+        /* 无传感器降级卡片：提示 + 本页二维码 */
+        .sv-fallback { text-align: center; }
+        .sv-fallback .qr {
+            width: 8rem; height: 8rem; margin: 1rem auto 0.6rem;
+            padding: 0.5rem; box-sizing: content-box;
+            background: #fff; border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        .sv-fallback .qr svg { display: block; width: 100%; height: 100%; }
+        .sv-fallback .url { font-family: var(--mono); font-size: 0.78rem; color: var(--text-3); word-break: break-all; }
+    </style>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
+    <script defer src="../../assets/toolkit.js"></script>
+</head>
+<body data-zk-manual>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">设备 / 传感器</p></div>
+    <h1><span class="title">传感器查看器</span></h1>
+    <p class="lead">实时读取手机陀螺仪、加速度计与指南针数据，3D 姿态与条形图可视化，全部本地处理不上传。</p>
+    <section class="panel" id="ctrlPanel">
+        <div class="row">
+            <button class="btn primary sv-start" id="start">开始读取传感器</button>
+            <button class="btn" id="pause" hidden>暂停</button>
+            <button class="btn" id="copy" hidden>复制当前读数</button>
+            <span class="chip" id="hz" hidden>-- Hz</span>
+        </div>
+        <p class="hint" id="status" aria-live="polite">点击按钮开始读取（iOS 需要在弹窗中允许访问动作与方向）。</p>
+    </section>
+    <div class="tool-grid" id="grid">
+        <section class="panel">
+            <h2>方向 DeviceOrientation</h2>
+            <div class="sv-nums">
+                <div class="sv-num"><span>alpha · 绕 Z 轴（0~360°）</span><b id="oa">--</b></div>
+                <div class="sv-num"><span>beta · 绕 X 轴（-180~180°）</span><b id="ob">--</b></div>
+                <div class="sv-num"><span>gamma · 绕 Y 轴（-90~90°）</span><b id="og">--</b></div>
+            </div>
+            <div class="sv-viz">
+                <div class="sv-scene" aria-hidden="true">
+                    <div class="sv-phone" id="phone"><i class="scr"></i><i class="cam"></i></div>
+                </div>
+                <div class="sv-compass-wrap">
+                    <div class="sv-compass" aria-hidden="true">
+                        <div class="sv-dial" id="dial"><span class="dn">N</span><span class="de">E</span><span class="ds">S</span><span class="dw">W</span></div>
+                        <div class="sv-needle"></div>
+                    </div>
+                    <div class="sv-heading" id="headingText">-- °</div>
+                </div>
+            </div>
+            <p class="hint">手机模型随设备实时转动；指南针优先使用 iOS 罗盘数据（webkitCompassHeading），否则以 360-alpha 近似。</p>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>加速度 DeviceMotion</h2>
+                <div class="sv-nums">
+                    <div class="sv-num"><span>含重力 x / y / z（m/s²）</span><b id="ag">-- / -- / --</b></div>
+                    <div class="sv-num"><span>不含重力 x / y / z（m/s²）</span><b id="an">-- / -- / --</b></div>
+                    <div class="sv-num"><span>合加速度模长 |a|</span><b id="amag">--</b></div>
+                </div>
+                <div class="sv-bars" aria-hidden="true">
+                    <div class="sv-barrow sv-x"><span class="lbl">x</span><div class="sv-bar"><i id="bax"></i></div><span class="val" id="vax">--</span></div>
+                    <div class="sv-barrow sv-y"><span class="lbl">y</span><div class="sv-bar"><i id="bay"></i></div><span class="val" id="vay">--</span></div>
+                    <div class="sv-barrow sv-z"><span class="lbl">z</span><div class="sv-bar"><i id="baz"></i></div><span class="val" id="vaz">--</span></div>
+                </div>
+                <p class="hint">条形图为含重力加速度，量程 -20~20 m/s²。设备静止平放时模长约等于重力加速度 9.8 m/s²。</p>
+            </section>
+            <section class="panel">
+                <h2>旋转速率 rotationRate</h2>
+                <div class="sv-nums">
+                    <div class="sv-num"><span>alpha / beta / gamma（°/s）</span><b id="rr">-- / -- / --</b></div>
+                </div>
+                <div class="sv-bars" aria-hidden="true">
+                    <div class="sv-barrow sv-x"><span class="lbl">α</span><div class="sv-bar"><i id="bra"></i></div><span class="val" id="vra">--</span></div>
+                    <div class="sv-barrow sv-y"><span class="lbl">β</span><div class="sv-bar"><i id="brb"></i></div><span class="val" id="vrb">--</span></div>
+                    <div class="sv-barrow sv-z"><span class="lbl">γ</span><div class="sv-bar"><i id="brg"></i></div><span class="val" id="vrg">--</span></div>
+                </div>
+                <p class="hint">陀螺仪角速度，量程 -360~360 °/s，快速转动手机可以看到条形图摆动。</p>
+            </section>
+        </aside>
+    </div>
+    <section class="panel sv-fallback" id="fallback" hidden>
+        <h2>未检测到运动传感器</h2>
+        <p class="hint" id="fallbackMsg">当前设备没有可用的运动传感器，建议用手机打开本页。</p>
+        <div class="qr" id="qrBox" aria-label="本页二维码"></div>
+        <p class="url" id="pageUrl"></p>
+    </section>
+
+<section class="seo-notes">
+    <h2>关于传感器查看器</h2>
+    <p>传感器查看器是一个在浏览器里直接测试手机运动传感器的在线工具：通过 DeviceOrientation 事件实时展示陀螺仪方向角 alpha/beta/gamma，并用 CSS 3D 手机模型直观还原设备姿态；通过 DeviceMotion 事件读取加速度计的含重力/不含重力 x/y/z 分量与旋转速率，配合条形图和合加速度模长展示；指南针面板在 iOS 上优先使用系统罗盘朝向。所有数据仅在本地读取与渲染，不会上传到任何服务器，适合排查设备传感器故障、学习 Web 传感器 API 或做体感交互调试。</p>
+    <h2>常见问题</h2>
+    <details><summary>为什么点击按钮后没有任何数据？</summary><p>台式机和大部分笔记本没有陀螺仪与加速度计，桌面浏览器虽然有 API 但不会产生事件，请扫码用手机打开本页。另外传感器 API 要求 HTTPS 安全上下文，通过 file:// 或 http 打开页面时无法读取。</p></details>
+    <details><summary>iOS 上提示权限被拒绝怎么办？</summary><p>iOS 13 及以上要求用户手势内授权，若之前点了"不允许"，Safari 会记住该选择。请到 设置 → Safari → 动作与方向访问 打开开关后刷新本页，再点击开始按钮重新授权。</p></details>
+    <details><summary>alpha、beta、gamma 分别代表什么？</summary><p>alpha 是设备绕垂直 Z 轴的偏航角（0~360°），beta 是绕横向 X 轴的俯仰角（-180~180°，前后倾斜），gamma 是绕纵向 Y 轴的横滚角（-90~90°，左右翻转）。指南针朝向在 iOS 上取 webkitCompassHeading，其他平台以 360-alpha 近似，可能存在偏差。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"传感器查看器","url":"https://tools.zktww.cn/tools/sensor-viewer/","applicationCategory":"UtilitiesApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线手机传感器测试工具：实时查看陀螺仪方向 alpha/beta/gamma、加速度计 x/y/z、旋转速率与指南针朝向，3D 手机姿态与条形图可视化，本地读取不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"为什么点击按钮后没有任何数据？","acceptedAnswer":{"@type":"Answer","text":"台式机和大部分笔记本没有陀螺仪与加速度计，桌面浏览器虽然有 API 但不会产生事件，请扫码用手机打开本页。另外传感器 API 要求 HTTPS 安全上下文，通过 file:// 或 http 打开页面时无法读取。"}},{"@type":"Question","name":"iOS 上提示权限被拒绝怎么办？","acceptedAnswer":{"@type":"Answer","text":"iOS 13 及以上要求用户手势内授权，若之前点了\"不允许\"，Safari 会记住该选择。请到 设置 → Safari → 动作与方向访问 打开开关后刷新本页，再点击开始按钮重新授权。"}},{"@type":"Question","name":"alpha、beta、gamma 分别代表什么？","acceptedAnswer":{"@type":"Answer","text":"alpha 是设备绕垂直 Z 轴的偏航角（0~360°），beta 是绕横向 X 轴的俯仰角（-180~180°，前后倾斜），gamma 是绕纵向 Y 轴的横滚角（-90~90°，左右翻转）。指南针朝向在 iOS 上取 webkitCompassHeading，其他平台以 360-alpha 近似，可能存在偏差。"}}]}]}</script>
+</main>
+<script>
+(function () {
+    "use strict";
+    var startBtn = document.getElementById("start"), pauseBtn = document.getElementById("pause"), copyBtn = document.getElementById("copy");
+    var hzChip = document.getElementById("hz"), status = document.getElementById("status");
+    var grid = document.getElementById("grid"), fallback = document.getElementById("fallback");
+    var phone = document.getElementById("phone"), dial = document.getElementById("dial"), headingText = document.getElementById("headingText");
+    var el = {};
+    ["oa", "ob", "og", "ag", "an", "amag", "rr", "bax", "bay", "baz", "vax", "vay", "vaz", "bra", "brb", "brg", "vra", "vrb", "vrg"].forEach(function (id) { el[id] = document.getElementById(id); });
+    var DIRS = ["北 N", "东北 NE", "东 E", "东南 SE", "南 S", "西南 SW", "西 W", "西北 NW"];
+    var running = false, started = false, gotAny = false, rafId = 0;
+    var ticks = { orient: [], motion: [] };
+    /* 最近一次读数快照，渲染循环与复制按钮共用 */
+    var s = {
+        alpha: null, beta: null, gamma: null, heading: null, headingSrc: "",
+        gx: null, gy: null, gz: null, ax: null, ay: null, az: null,
+        ra: null, rb: null, rg: null
+    };
+
+    function fmt(v) { return v == null ? "--" : v.toFixed(1); }
+    function r1(v) { return v == null ? null : Math.round(v * 10) / 10; }
+    function setStatus(text, cls) { status.textContent = text; status.className = "hint" + (cls ? " " + cls : ""); }
+    function tick(arr) {
+        var now = performance.now();
+        arr.push(now);
+        while (arr.length && now - arr[0] > 1000) arr.shift();
+    }
+
+    /* 方向事件：alpha/beta/gamma + 指南针朝向（iOS 优先 webkitCompassHeading） */
+    function onOrient(e) {
+        gotAny = true;
+        if (!running) return;
+        tick(ticks.orient);
+        s.alpha = e.alpha; s.beta = e.beta; s.gamma = e.gamma;
+        if (typeof e.webkitCompassHeading === "number" && !isNaN(e.webkitCompassHeading)) {
+            s.heading = e.webkitCompassHeading; s.headingSrc = "罗盘";
+        } else if (e.alpha != null) {
+            s.heading = (360 - e.alpha) % 360; s.headingSrc = "近似";
+        }
+    }
+
+    /* 运动事件：含重力/不含重力加速度 + 旋转速率 */
+    function onMotion(e) {
+        gotAny = true;
+        if (!running) return;
+        tick(ticks.motion);
+        var g = e.accelerationIncludingGravity, a = e.acceleration, r = e.rotationRate;
+        if (g) { s.gx = g.x; s.gy = g.y; s.gz = g.z; }
+        if (a) { s.ax = a.x; s.ay = a.y; s.az = a.z; }
+        if (r) { s.ra = r.alpha; s.rb = r.beta; s.rg = r.gamma; }
+    }
+
+    /* 条形图：value 映射到 -max~max，正负从中间往两边延伸 */
+    function setBar(bar, val, valEl, max) {
+        var p = val == null ? 0 : Math.max(-1, Math.min(1, val / max));
+        bar.style.width = Math.abs(p) * 50 + "%";
+        bar.style.left = p >= 0 ? "50%" : (50 - Math.abs(p) * 50) + "%";
+        valEl.textContent = fmt(val);
+    }
+
+    /* 渲染循环：DOM 只在 rAF 里刷新，避免高频事件卡顿 */
+    function render() {
+        el.oa.textContent = fmt(s.alpha);
+        el.ob.textContent = fmt(s.beta);
+        el.og.textContent = fmt(s.gamma);
+        phone.style.transform = "rotateZ(" + (s.alpha || 0) + "deg) rotateX(" + (s.beta || 0) + "deg) rotateY(" + (s.gamma || 0) + "deg)";
+        if (s.heading != null) {
+            dial.style.transform = "rotate(" + (-s.heading) + "deg)";
+            headingText.textContent = s.heading.toFixed(1) + "° " + DIRS[Math.round(s.heading / 45) % 8] + "（" + s.headingSrc + "）";
+        }
+        el.ag.textContent = fmt(s.gx) + " / " + fmt(s.gy) + " / " + fmt(s.gz);
+        el.an.textContent = fmt(s.ax) + " / " + fmt(s.ay) + " / " + fmt(s.az);
+        el.amag.textContent = s.gx == null ? "--" : Math.sqrt(s.gx * s.gx + s.gy * s.gy + s.gz * s.gz).toFixed(1) + " m/s²";
+        el.rr.textContent = fmt(s.ra) + " / " + fmt(s.rb) + " / " + fmt(s.rg);
+        setBar(el.bax, s.gx, el.vax, 20); setBar(el.bay, s.gy, el.vay, 20); setBar(el.baz, s.gz, el.vaz, 20);
+        setBar(el.bra, s.ra, el.vra, 360); setBar(el.brb, s.rb, el.vrb, 360); setBar(el.brg, s.rg, el.vrg, 360);
+        /* 事件频率：取最近 1 秒内 orientation / motion 事件数的较大者 */
+        var now = performance.now();
+        while (ticks.orient.length && now - ticks.orient[0] > 1000) ticks.orient.shift();
+        while (ticks.motion.length && now - ticks.motion[0] > 1000) ticks.motion.shift();
+        hzChip.textContent = Math.max(ticks.orient.length, ticks.motion.length) + " Hz";
+        rafId = requestAnimationFrame(render);
+    }
+
+    /* iOS 13+ 需要在用户手势里逐个 requestPermission，两个构造器都要 try */
+    function askPermission(Ctor) {
+        return new Promise(function (resolve) {
+            if (Ctor && typeof Ctor.requestPermission === "function") {
+                try {
+                    Ctor.requestPermission().then(resolve, function () { resolve("denied"); });
+                } catch (e) { resolve("denied"); }
+            } else {
+                resolve(Ctor ? "granted" : "unsupported");
+            }
+        });
+    }
+
+    /* PC/无传感器降级：提示卡片 + 本页二维码（动态加载本地 vendor，无网络请求） */
+    function showFallback() {
+        started = false; running = false;
+        cancelAnimationFrame(rafId);
+        grid.hidden = true;
+        document.getElementById("ctrlPanel").hidden = true;
+        fallback.hidden = false;
+        var url = location.href.split("#")[0];
+        document.getElementById("pageUrl").textContent = url;
+        var done = function () {
+            try {
+                var qr = window.qrcode(0, "M");
+                qr.addData(url);
+                qr.make();
+                document.getElementById("qrBox").innerHTML = qr.createSvgTag({ cellSize: 3, margin: 0, scalable: true });
+            } catch (e) { /* 二维码生成失败时保留纯文本 URL */ }
+        };
+        if (window.qrcode) { done(); return; }
+        var sc = document.createElement("script");
+        sc.src = "../../assets/vendor/qrcode.min.js";
+        sc.onload = done;
+        document.head.appendChild(sc);
+    }
+
+    function begin() {
+        started = true; running = true;
+        startBtn.hidden = true;
+        pauseBtn.hidden = false; copyBtn.hidden = false; hzChip.hidden = false;
+        setStatus("读取中……转动手机即可看到数值变化。", "ok");
+        rafId = requestAnimationFrame(render);
+        /* 桌面 Chrome 有 API 但没有数据：2 秒内既无 orientation 也无 motion 事件则降级 */
+        setTimeout(function () { if (!gotAny) showFallback(); }, 2000);
+    }
+
+    startBtn.onclick = function () {
+        /* 压根没有传感器 API（老浏览器或被禁用）直接降级 */
+        if (!window.DeviceOrientationEvent && !window.DeviceMotionEvent) { showFallback(); return; }
+        startBtn.disabled = true;
+        Promise.all([
+            askPermission(window.DeviceOrientationEvent),
+            askPermission(window.DeviceMotionEvent)
+        ]).then(function (res) {
+            var any = false;
+            /* granted 后才 addEventListener */
+            if (res[0] === "granted") { window.addEventListener("deviceorientation", onOrient); any = true; }
+            if (res[1] === "granted") { window.addEventListener("devicemotion", onMotion); any = true; }
+            if (!any) {
+                startBtn.disabled = false;
+                setStatus("权限被拒绝，请在 设置→Safari→动作与方向访问 打开后刷新本页重试。", "bad");
+                return;
+            }
+            begin();
+        });
+    };
+
+    pauseBtn.onclick = function () {
+        running = !running;
+        pauseBtn.textContent = running ? "暂停" : "继续";
+        if (running) {
+            ticks.orient.length = 0; ticks.motion.length = 0;
+            setStatus("读取中……转动手机即可看到数值变化。", "ok");
+        } else {
+            setStatus("已暂停，数值停留在最后一次读数。");
+        }
+    };
+
+    copyBtn.onclick = function () {
+        var data = {
+            orientation: { alpha: r1(s.alpha), beta: r1(s.beta), gamma: r1(s.gamma), heading: r1(s.heading) },
+            accelerationIncludingGravity: { x: r1(s.gx), y: r1(s.gy), z: r1(s.gz) },
+            acceleration: { x: r1(s.ax), y: r1(s.ay), z: r1(s.az) },
+            rotationRate: { alpha: r1(s.ra), beta: r1(s.rb), gamma: r1(s.rg) },
+            hz: Math.max(ticks.orient.length, ticks.motion.length),
+            time: new Date().toISOString()
+        };
+        copyText(JSON.stringify(data, null, 2)).then(function () { setStatus("当前读数已复制为 JSON。", "ok"); },
+            function () { setStatus("复制失败，请手动选择复制。", "bad"); });
+    };
+
+    /* 传感器 API 只在安全上下文可用：file:// 或 http 直接给出提示 */
+    if (!window.isSecureContext) {
+        setStatus("提示：传感器 API 需要 HTTPS 安全上下文，file:// 或 http 页面读不到数据，请通过 https 访问本页。", "bad");
+    }
+})();
+</script>
+</body>
+</html>

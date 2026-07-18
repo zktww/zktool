@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>设备信息查询 - 屏幕分辨率DPR视口在线检测 | zktool</title>
+    <meta name="description" content="免费在线设备信息面板：一键查看屏幕分辨率、devicePixelRatio、视口尺寸、safe-area 安全区、User-Agent、硬件并发与浏览器能力支持情况，点击任意一行即复制，方便贴进 Bug 报告。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="设备信息查询 - 屏幕分辨率DPR视口在线检测 | zktool" />
+    <meta property="og:description" content="免费在线设备信息面板：一键查看屏幕分辨率、devicePixelRatio、视口尺寸、safe-area 安全区、User-Agent、硬件并发与浏览器能力支持情况，点击任意一行即复制，方便贴进 Bug 报告。" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/device-info/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/device-info/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/theme.js"></script>
+    <script src="../../assets/clipboard.js"></script>
+    <style>
+        /* 信息行：标签 + 等宽字体值，整行可点击复制 */
+        .kv { display: flex; justify-content: space-between; align-items: baseline; gap: 0.8rem; padding: 0.45rem 0.35rem; border-bottom: 1px dashed var(--border); cursor: pointer; border-radius: 8px; transition: background 0.2s; }
+        .kv:last-child { border-bottom: 0; }
+        .kv:hover { background: var(--bg-soft); }
+        .kv .k { flex: 0 0 auto; color: var(--text-2); font-size: 0.84rem; }
+        .kv .v { font-family: var(--mono); font-size: 0.85rem; text-align: right; word-break: break-all; border-radius: 6px; padding: 0.05rem 0.3rem; }
+        .kv .v.flash { animation: kv-flash 0.9s var(--ease); }
+        @keyframes kv-flash { from { background: var(--brand-soft); color: var(--brand); } }
+        /* 点击复制后的行内提示 */
+        .kv.copied::after { content: "已复制"; flex: 0 0 auto; color: var(--ok); font-size: 0.72rem; }
+        /* 能力速查小表 */
+        .cap-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.45rem; }
+        .cap { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; padding: 0.35rem 0.6rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-soft); font-size: 0.8rem; color: var(--text-2); }
+        .cap b { font-family: var(--mono); font-weight: 700; }
+    </style>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
+    <script defer src="../../assets/toolkit.js"></script>
+</head>
+<body data-zk-manual>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">Device / Screen</p></div>
+    <h1><span class="title">设备信息面板</span></h1>
+    <p class="lead">实时检测屏幕分辨率、DPR、视口尺寸、safe-area 安全区与浏览器能力，点击任意一行复制该值，旋转屏幕或缩放窗口时视口数据自动刷新并高亮变化。</p>
+    <div class="row" style="margin-bottom: 1rem;">
+        <button class="btn primary" id="copyAll">复制全部信息</button>
+        <p class="hint" id="copyAllStatus" aria-live="polite">全部数据均在本地读取，不发送任何网络请求。</p>
+    </div>
+    <div class="tool-grid">
+        <aside>
+            <section class="panel" data-group="屏幕">
+                <h2>屏幕</h2>
+                <div class="kv"><span class="k">screen 尺寸</span><span class="v" id="scrSize">—</span></div>
+                <div class="kv"><span class="k">可用区域 avail</span><span class="v" id="scrAvail">—</span></div>
+                <div class="kv"><span class="k">devicePixelRatio</span><span class="v" id="scrDpr">—</span></div>
+                <div class="kv"><span class="k">物理分辨率（估算）</span><span class="v" id="scrPhysical">—</span></div>
+                <div class="kv"><span class="k">colorDepth</span><span class="v" id="scrDepth">—</span></div>
+                <div class="kv"><span class="k">屏幕方向</span><span class="v" id="scrOrient">—</span></div>
+            </section>
+            <section class="panel" data-group="视口">
+                <h2>视口</h2>
+                <div class="kv"><span class="k">innerWidth×innerHeight</span><span class="v" id="vpInner">—</span></div>
+                <div class="kv"><span class="k">visualViewport</span><span class="v" id="vpVisual">—</span></div>
+                <div class="kv"><span class="k">clientWidth×clientHeight</span><span class="v" id="vpClient">—</span></div>
+                <div class="kv"><span class="k">滚动条宽度</span><span class="v" id="vpScrollbar">—</span></div>
+            </section>
+            <section class="panel" data-group="safe-area">
+                <h2>safe-area 安全区</h2>
+                <div class="kv"><span class="k">inset-top</span><span class="v" id="saTop">—</span></div>
+                <div class="kv"><span class="k">inset-right</span><span class="v" id="saRight">—</span></div>
+                <div class="kv"><span class="k">inset-bottom</span><span class="v" id="saBottom">—</span></div>
+                <div class="kv"><span class="k">inset-left</span><span class="v" id="saLeft">—</span></div>
+                <p class="hint">通过 CSS env(safe-area-inset-*) 探测，非全面屏设备通常为 0px。</p>
+            </section>
+        </aside>
+        <aside>
+            <section class="panel" data-group="环境">
+                <h2>环境</h2>
+                <div class="kv"><span class="k">userAgent</span><span class="v" id="envUa">—</span></div>
+                <div class="kv"><span class="k">语言 language(s)</span><span class="v" id="envLang">—</span></div>
+                <div class="kv"><span class="k">platform</span><span class="v" id="envPlatform">—</span></div>
+                <div class="kv"><span class="k">硬件并发 hardwareConcurrency</span><span class="v" id="envCores">—</span></div>
+                <div class="kv"><span class="k">deviceMemory</span><span class="v" id="envMemory">—</span></div>
+                <div class="kv"><span class="k">触点数 maxTouchPoints</span><span class="v" id="envTouchPoints">—</span></div>
+                <div class="kv"><span class="k">是否触屏</span><span class="v" id="envTouch">—</span></div>
+                <div class="kv"><span class="k">指针精度</span><span class="v" id="envPointer">—</span></div>
+            </section>
+            <section class="panel" data-group="偏好与状态">
+                <h2>偏好与状态</h2>
+                <div class="kv"><span class="k">深色模式偏好</span><span class="v" id="prefDark">—</span></div>
+                <div class="kv"><span class="k">减弱动画偏好</span><span class="v" id="prefMotion">—</span></div>
+                <div class="kv"><span class="k">网络 connection</span><span class="v" id="prefNet">—</span></div>
+                <div class="kv"><span class="k">在线状态</span><span class="v" id="prefOnline">—</span></div>
+                <div class="kv"><span class="k">电池</span><span class="v" id="prefBattery">—</span></div>
+                <div class="kv"><span class="k">cookieEnabled</span><span class="v" id="prefCookie">—</span></div>
+            </section>
+            <section class="panel" data-group="能力速查">
+                <h2>能力速查</h2>
+                <div class="cap-grid" id="caps"></div>
+                <p class="hint">√ 表示当前浏览器暴露了该 API，实际可用性可能还受权限与安全上下文限制。</p>
+            </section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+    <h2>关于设备信息面板</h2>
+    <p>这是一个纯本地运行的设备信息查询工具：打开即自动读取屏幕分辨率、devicePixelRatio、可用区域、视口尺寸（innerWidth / visualViewport / clientWidth）、滚动条宽度、safe-area 安全区四边内边距、User-Agent、语言、硬件并发数、触屏与指针精度、深色模式与减弱动画偏好、网络类型与电池状态，并附浏览器能力速查表。所有数据一行一项，点击任意一行即可复制该值；顶部「复制全部信息」按钮可一键拼成多行文本，直接粘贴到 Bug 报告或工单里。旋转屏幕、缩放窗口时视口数据实时刷新并高亮变化的值，方便调试响应式布局。</p>
+    <h2>常见问题</h2>
+    <details><summary>物理分辨率和 screen.width 为什么不一样？</summary><p>screen.width 是 CSS 像素下的逻辑分辨率，物理分辨率 = 逻辑分辨率 × devicePixelRatio。例如 iPhone 显示 screen.width 为 390，DPR 为 3，物理分辨率就是 1170。做高清图适配、@2x/@3x 切图时以 DPR 为准。</p></details>
+    <details><summary>innerWidth 和 clientWidth 为什么差几个像素？</summary><p>window.innerWidth 包含垂直滚动条的宽度，而 document.documentElement.clientWidth 不包含，两者之差就是滚动条宽度（macOS 悬浮滚动条和多数手机浏览器为 0）。写媒体查询时浏览器用的是含滚动条的宽度，与 innerWidth 一致。</p></details>
+    <details><summary>页面能读取这些信息，会泄露隐私吗？</summary><p>本页读取的都是浏览器公开暴露给任何网页的常规属性（屏幕、视口、UA、语言等），不涉及权限授权，也正因如此它们常被用于浏览器指纹。本工具完全在本地运行，不发送任何网络请求，数据不会离开你的设备。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"设备信息面板","url":"https://tools.zktww.cn/tools/device-info/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线设备信息面板：一键查看屏幕分辨率、devicePixelRatio、视口尺寸、safe-area 安全区、User-Agent、硬件并发与浏览器能力支持情况，点击任意一行即复制，方便贴进 Bug 报告。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"物理分辨率和 screen.width 为什么不一样？","acceptedAnswer":{"@type":"Answer","text":"screen.width 是 CSS 像素下的逻辑分辨率，物理分辨率 = 逻辑分辨率 × devicePixelRatio。例如 iPhone 显示 screen.width 为 390，DPR 为 3，物理分辨率就是 1170。做高清图适配、@2x/@3x 切图时以 DPR 为准。"}},{"@type":"Question","name":"innerWidth 和 clientWidth 为什么差几个像素？","acceptedAnswer":{"@type":"Answer","text":"window.innerWidth 包含垂直滚动条的宽度，而 document.documentElement.clientWidth 不包含，两者之差就是滚动条宽度（macOS 悬浮滚动条和多数手机浏览器为 0）。写媒体查询时浏览器用的是含滚动条的宽度，与 innerWidth 一致。"}},{"@type":"Question","name":"页面能读取这些信息，会泄露隐私吗？","acceptedAnswer":{"@type":"Answer","text":"本页读取的都是浏览器公开暴露给任何网页的常规属性（屏幕、视口、UA、语言等），不涉及权限授权，也正因如此它们常被用于浏览器指纹。本工具完全在本地运行，不发送任何网络请求，数据不会离开你的设备。"}}]}]}</script>
+</main>
+<script>
+(function () {
+    "use strict";
+    var booted = false; // 首次渲染不做高亮
+
+    // 设置某一行的值，值变化时给一个短暂高亮
+    function set(id, val) {
+        var el = document.getElementById(id);
+        var text = String(val);
+        if (el.textContent === text) return;
+        el.textContent = text;
+        if (booted) {
+            el.classList.remove("flash");
+            void el.offsetWidth; // 强制重排以重启动画
+            el.classList.add("flash");
+        }
+    }
+    function size(w, h) { return Math.round(w) + "×" + Math.round(h); }
+
+    // ① 屏幕
+    function renderScreen() {
+        var dpr = window.devicePixelRatio || 1;
+        set("scrSize", size(screen.width, screen.height));
+        set("scrAvail", size(screen.availWidth, screen.availHeight));
+        set("scrDpr", dpr);
+        set("scrPhysical", size(screen.width * dpr, screen.height * dpr));
+        set("scrDepth", screen.colorDepth + " bit");
+        set("scrOrient", (screen.orientation && screen.orientation.type) || "不支持");
+    }
+
+    // ② 视口
+    function renderViewport() {
+        var doc = document.documentElement;
+        set("vpInner", size(window.innerWidth, window.innerHeight));
+        if (window.visualViewport) {
+            set("vpVisual", Math.round(visualViewport.width * 100) / 100 + "×" + Math.round(visualViewport.height * 100) / 100);
+        } else { set("vpVisual", "不支持"); }
+        set("vpClient", size(doc.clientWidth, doc.clientHeight));
+        set("vpScrollbar", (window.innerWidth - doc.clientWidth) + " px");
+    }
+
+    // ③ safe-area：隐藏 div 设置 env() 内边距后读取计算值
+    var probe = document.createElement("div");
+    probe.style.cssText = "position:fixed;left:-9999px;top:0;visibility:hidden;pointer-events:none;" +
+        "padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);";
+    document.body.appendChild(probe);
+    function renderSafeArea() {
+        var cs = getComputedStyle(probe);
+        set("saTop", cs.paddingTop || "0px");
+        set("saRight", cs.paddingRight || "0px");
+        set("saBottom", cs.paddingBottom || "0px");
+        set("saLeft", cs.paddingLeft || "0px");
+    }
+
+    // ④ 环境
+    function renderEnv() {
+        var n = navigator;
+        set("envUa", n.userAgent);
+        set("envLang", n.language + (n.languages && n.languages.length ? "（" + n.languages.join(", ") + "）" : ""));
+        set("envPlatform", n.platform || "未知");
+        set("envCores", n.hardwareConcurrency ? n.hardwareConcurrency + " 核" : "不支持");
+        set("envMemory", "deviceMemory" in n ? n.deviceMemory + " GB（近似）" : "不支持");
+        set("envTouchPoints", n.maxTouchPoints);
+        set("envTouch", (n.maxTouchPoints > 0 || "ontouchstart" in window) ? "是" : "否");
+        var pointer = matchMedia("(pointer: fine)").matches ? "精确（鼠标/触控板）"
+            : matchMedia("(pointer: coarse)").matches ? "粗糙（触屏）" : "无指针设备";
+        set("envPointer", pointer);
+    }
+
+    // ⑤ 偏好与状态
+    function renderPrefs() {
+        set("prefDark", matchMedia("(prefers-color-scheme: dark)").matches ? "深色" : "浅色");
+        set("prefMotion", matchMedia("(prefers-reduced-motion: reduce)").matches ? "是" : "否");
+        var c = navigator.connection;
+        if (c) {
+            set("prefNet", (c.effectiveType || "?") + " / " + (c.downlink != null ? c.downlink + " Mbps" : "?") +
+                " / " + (c.rtt != null ? c.rtt + " ms" : "?") + (c.saveData ? " / 省流量" : ""));
+        } else { set("prefNet", "不支持"); }
+        set("prefOnline", navigator.onLine ? "在线" : "离线");
+        set("prefCookie", navigator.cookieEnabled ? "已启用" : "已禁用");
+    }
+    // 电池信息异步填充，并监听变化
+    if (navigator.getBattery) {
+        navigator.getBattery().then(function (b) {
+            function renderBattery() {
+                set("prefBattery", Math.round(b.level * 100) + "%" + (b.charging ? " / 充电中" : " / 未充电"));
+            }
+            b.addEventListener("levelchange", renderBattery);
+            b.addEventListener("chargingchange", renderBattery);
+            renderBattery();
+        }, function () { set("prefBattery", "读取失败"); });
+    } else { set("prefBattery", "不支持"); }
+
+    // ⑥ 能力速查
+    function webgl2() { try { return !!document.createElement("canvas").getContext("webgl2"); } catch (e) { return false; } }
+    var CAPS = [
+        ["BarcodeDetector", "BarcodeDetector" in window],
+        ["WebGL2", webgl2()],
+        ["WebGPU", "gpu" in navigator],
+        ["Service Worker", "serviceWorker" in navigator],
+        ["WebAssembly", typeof WebAssembly === "object"],
+        ["Web Share API", "share" in navigator],
+        ["Clipboard API", !!(navigator.clipboard && navigator.clipboard.writeText)],
+        ["Vibrate", "vibrate" in navigator],
+        ["Geolocation", "geolocation" in navigator],
+        ["Notification", "Notification" in window],
+        ["IndexedDB", "indexedDB" in window],
+        ["WebRTC", "RTCPeerConnection" in window]
+    ];
+    var capsHtml = "";
+    for (var i = 0; i < CAPS.length; i++) {
+        capsHtml += "<span class='cap'><span>" + CAPS[i][0] + "</span><b class='" + (CAPS[i][1] ? "ok" : "bad") + "'>" + (CAPS[i][1] ? "√" : "×") + "</b></span>";
+    }
+    document.getElementById("caps").innerHTML = capsHtml;
+
+    function renderAll() { renderScreen(); renderViewport(); renderSafeArea(); renderEnv(); renderPrefs(); }
+    renderAll();
+    requestAnimationFrame(function () { booted = true; });
+
+    // 视口相关数据实时刷新（旋转屏幕时 screen 与 safe-area 也会变）
+    function refreshLive() { renderScreen(); renderViewport(); renderSafeArea(); }
+    window.addEventListener("resize", refreshLive);
+    window.addEventListener("orientationchange", refreshLive);
+    if (window.visualViewport) visualViewport.addEventListener("resize", renderViewport);
+    if (screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener("change", refreshLive);
+    if (navigator.connection && navigator.connection.addEventListener) navigator.connection.addEventListener("change", renderPrefs);
+    window.addEventListener("online", renderPrefs);
+    window.addEventListener("offline", renderPrefs);
+
+    // 点击行复制该值，行内短暂显示"已复制"
+    document.addEventListener("click", function (e) {
+        var row = e.target.closest ? e.target.closest(".kv") : null;
+        if (!row) return;
+        var val = row.querySelector(".v").textContent;
+        copyText(val).then(function () {
+            row.classList.add("copied");
+            setTimeout(function () { row.classList.remove("copied"); }, 1000);
+        }, function () {});
+    });
+
+    // 复制全部信息：拼成多行文本，方便贴 Bug 报告
+    document.getElementById("copyAll").onclick = function () {
+        var lines = ["zktool 设备信息（" + new Date().toLocaleString() + "）"];
+        var panels = document.querySelectorAll(".panel[data-group]");
+        for (var p = 0; p < panels.length; p++) {
+            lines.push("", "【" + panels[p].getAttribute("data-group") + "】");
+            var rows = panels[p].querySelectorAll(".kv");
+            for (var r = 0; r < rows.length; r++) {
+                lines.push(rows[r].querySelector(".k").textContent + ": " + rows[r].querySelector(".v").textContent);
+            }
+            var caps = panels[p].querySelectorAll(".cap");
+            for (var c = 0; c < caps.length; c++) {
+                lines.push(caps[c].firstChild.textContent + ": " + caps[c].querySelector("b").textContent);
+            }
+        }
+        var status = document.getElementById("copyAllStatus");
+        copyText(lines.join("\n")).then(function () { status.textContent = "全部信息已复制到剪贴板"; status.className = "hint ok"; },
+            function () { status.textContent = "复制失败，请手动选择复制"; status.className = "hint bad"; });
+    };
+})();
+</script>
+</body>
+</html>

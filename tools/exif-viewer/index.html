@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>EXIF查看器 - 照片元数据GPS查看与清除 | zktool</title>
+    <meta name="description" content="免费在线 EXIF 查看清除工具：本地解析照片拍摄时间、设备型号、镜头、曝光参数与 GPS 位置信息，一键清除全部元数据后下载，照片不上传保护隐私。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="EXIF查看器 - 照片元数据GPS查看与清除 | zktool" />
+    <meta property="og:description" content="免费在线 EXIF 查看清除工具：本地解析照片拍摄时间、设备型号、镜头、曝光参数与 GPS 位置信息，一键清除全部元数据后下载，照片不上传保护隐私。" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/exif-viewer/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/exif-viewer/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/theme.js"></script>
+    <script src="../../assets/clipboard.js"></script>
+    <script src="../../assets/vendor/exifr.min.js"></script>
+    <style>
+        .drop { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.4rem; min-height:8rem; border:2px dashed var(--border); border-radius:12px; color:var(--text-3); font-size:.86rem; cursor:pointer; transition:border-color .2s, background .2s; }
+        .drop.over, .drop:hover { border-color: var(--brand-ring); background: var(--brand-soft); color: var(--text-2); }
+        .preview { display:block; max-width:100%; max-height:18rem; margin:0 auto .8rem; border-radius:10px; border:1px solid var(--border); }
+        .exif-group td:first-child { color:var(--text-3); white-space:nowrap; }
+        .gps-row td { color:var(--danger); font-weight:600; }
+        .gps-row a { color:var(--danger); text-decoration:underline; }
+        .mobile-hint { display:flex; align-items:center; gap:.9rem; margin-bottom:.9rem; padding:.8rem .9rem; border:1px solid var(--warn); border-radius:10px; font-size:.85rem; color:var(--text-2); }
+        .mobile-hint-qr { flex:none; width:8rem; height:8rem; padding:.5rem; border-radius:10px; background:#fff; }
+        .mobile-hint-qr svg { display:block; width:100%; height:100%; }
+    </style>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
+    <script defer src="../../assets/toolkit.js"></script>
+</head>
+<body data-zk-manual>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">EXIF / Privacy</p></div>
+    <h1><span class="title">图片 EXIF 查看清除</span></h1>
+    <p class="lead">本地解析照片的拍摄时间、设备、曝光参数与 GPS 位置信息，并可一键清除全部元数据后下载；照片不会上传。</p>
+    <div class="tool-grid">
+        <section class="panel" id="mainPanel">
+            <h2>图片</h2>
+            <div class="drop" id="drop" tabindex="0" role="button" aria-label="选择或拖入照片">
+                <span>拖入照片，或点击选择</span>
+                <span class="mono">支持 JPG / PNG / WebP / HEIC，也可 Ctrl+V 粘贴</span>
+            </div>
+            <input type="file" id="file" accept="image/*,.heic,.heif" hidden />
+            <img class="preview" id="preview" hidden alt="图片预览" />
+            <div class="chips" id="info"></div>
+            <div class="row">
+                <button class="btn primary" id="clean" disabled>清除元数据并下载</button>
+            </div>
+            <p class="hint" id="status" aria-live="polite">全程本地处理，照片不会上传。</p>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>EXIF 信息</h2>
+                <p class="hint" id="exifEmpty">选择照片后，这里会分组展示拍摄时间、设备、曝光参数与 GPS 等元数据。</p>
+                <table id="exifTable" hidden><tbody id="exifBody"></tbody></table>
+            </section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+    <h2>关于图片EXIF元数据</h2>
+    <p>手机和相机拍摄的照片里通常嵌有 EXIF 元数据：拍摄时间、设备型号、镜头、曝光参数，甚至精确到几米的 GPS 经纬度——直接把原图发到网上，可能不知不觉暴露家庭住址和行程。本工具在浏览器本地解析并分组展示这些字段，检测到 GPS 时会醒目警示并提供地图链接核对位置；「清除元数据并下载」通过 Canvas 重绘导出图片，天然剥离全部 EXIF（含 GPS），并显示处理前后的体积对比。照片全程不离开你的设备。</p>
+    <h2>常见问题</h2>
+    <details><summary>为什么有的照片没有 EXIF 信息？</summary><p>三种常见情况：截图和网图本来就没有拍摄元数据；微信、微博等社交平台在你上传时已把 EXIF 抹掉；PNG/WebP 格式对 EXIF 支持有限，多数编辑软件导出时不会写入。显示「未解析到 EXIF」不代表工具故障。</p></details>
+    <details><summary>清除元数据会影响画质吗？</summary><p>JPEG 会以 95% 质量重新编码，肉眼几乎无差别，体积通常还会略有变化；PNG 走无损重绘，画质不变。注意重绘同时会丢弃色彩配置文件（ICC），对专业修图场景请谨慎；日常分享完全够用。</p></details>
+    <details><summary>照片会被上传到服务器吗？</summary><p>不会。解析用的 exifr 库和清除用的 Canvas 都运行在你的浏览器里，整个过程没有任何网络请求携带图片数据，断网也能正常使用，含位置信息的敏感照片可以放心处理。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"图片EXIF查看清除","url":"https://tools.zktww.cn/tools/exif-viewer/","applicationCategory":"UtilitiesApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 EXIF 查看清除工具：本地解析照片拍摄时间、设备型号、镜头、曝光参数与 GPS 位置信息，一键清除全部元数据后下载，照片不上传保护隐私。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"为什么有的照片没有 EXIF 信息？","acceptedAnswer":{"@type":"Answer","text":"三种常见情况：截图和网图本来就没有拍摄元数据；微信、微博等社交平台在你上传时已把 EXIF 抹掉；PNG/WebP 格式对 EXIF 支持有限，多数编辑软件导出时不会写入。显示未解析到 EXIF 不代表工具故障。"}},{"@type":"Question","name":"清除元数据会影响画质吗？","acceptedAnswer":{"@type":"Answer","text":"JPEG 会以 95% 质量重新编码，肉眼几乎无差别；PNG 走无损重绘，画质不变。注意重绘同时会丢弃色彩配置文件（ICC），对专业修图场景请谨慎；日常分享完全够用。"}},{"@type":"Question","name":"照片会被上传到服务器吗？","acceptedAnswer":{"@type":"Answer","text":"不会。解析用的 exifr 库和清除用的 Canvas 都运行在你的浏览器里，整个过程没有任何网络请求携带图片数据，断网也能正常使用，含位置信息的敏感照片可以放心处理。"}}]}]}</script>
+</main>
+<script>
+(function () {
+    "use strict";
+    var drop = document.getElementById("drop"), file = document.getElementById("file"), preview = document.getElementById("preview"), info = document.getElementById("info"), cleanBtn = document.getElementById("clean"), status = document.getElementById("status"), exifEmpty = document.getElementById("exifEmpty"), exifTable = document.getElementById("exifTable"), exifBody = document.getElementById("exifBody");
+    var srcFile = null, previewUrl = null, hintShown = false;
+
+    function msg(t, cls) { status.textContent = t; status.className = "hint " + (cls || ""); }
+    function fmtSize(n) { return n >= 1048576 ? (n / 1048576).toFixed(2) + " MB" : (n / 1024).toFixed(1) + " KB"; }
+
+    // PC 降级提示：在主功能面板顶部插入提示卡片 + 本页二维码，仅在能力真缺失时调用（本页 PC 完全可用，正常不会触发）
+    function showMobileHint(reason) {
+        if (hintShown) return;
+        hintShown = true;
+        var card = document.createElement("div");
+        card.className = "mobile-hint";
+        var text = document.createElement("p");
+        text.style.margin = "0";
+        text.textContent = reason + "。建议用手机打开本页";
+        var qrBox = document.createElement("div");
+        qrBox.className = "mobile-hint-qr";
+        card.appendChild(text);
+        card.appendChild(qrBox);
+        var panel = document.getElementById("mainPanel");
+        panel.insertBefore(card, panel.firstChild);
+        var s = document.createElement("script");
+        s.src = "../../assets/vendor/qrcode.min.js";
+        s.onload = function () {
+            try {
+                var qr = window.qrcode(0, "M");
+                qr.addData(location.href.split("#")[0]);
+                qr.make();
+                qrBox.innerHTML = qr.createSvgTag({ cellSize: 3, margin: 0, scalable: true });
+            } catch (e) { qrBox.remove(); }
+        };
+        s.onerror = function () { qrBox.remove(); };
+        document.head.appendChild(s);
+    }
+
+    // 常见 EXIF 字段分组定义：有啥显示啥
+    var GROUPS = [
+        { name: "拍摄", fields: [["DateTimeOriginal", "拍摄时间"], ["CreateDate", "创建时间"]] },
+        { name: "设备", fields: [["Make", "厂商"], ["Model", "机型"], ["LensModel", "镜头"], ["Software", "软件"]] },
+        { name: "参数", fields: [["ExposureTime", "曝光时间"], ["FNumber", "光圈"], ["ISO", "ISO"], ["FocalLength", "焦距"], ["FocalLengthIn35mmFormat", "等效焦距"], ["Orientation", "方向"], ["Flash", "闪光灯"], ["WhiteBalance", "白平衡"]] }
+    ];
+
+    function fmtValue(key, v) {
+        if (v instanceof Date) return v.toLocaleString("zh-CN");
+        if (key === "ExposureTime" && typeof v === "number") return v >= 1 ? v + " s" : "1/" + Math.round(1 / v) + " s";
+        if (key === "FNumber" && typeof v === "number") return "f/" + v;
+        if ((key === "FocalLength" || key === "FocalLengthIn35mmFormat") && typeof v === "number") return v + " mm";
+        return String(v);
+    }
+
+    function addRow(label, value, cls) {
+        var tr = document.createElement("tr");
+        if (cls) tr.className = cls;
+        var td1 = document.createElement("td"), td2 = document.createElement("td");
+        td1.textContent = label;
+        if (typeof value === "string") td2.textContent = value; else td2.appendChild(value);
+        tr.appendChild(td1);
+        tr.appendChild(td2);
+        exifBody.appendChild(tr);
+        return tr;
+    }
+
+    function renderExif(data, gps) {
+        exifBody.innerHTML = "";
+        var count = 0;
+        GROUPS.forEach(function (g) {
+            g.fields.forEach(function (pair) {
+                var v = data && data[pair[0]];
+                if (v === undefined || v === null || v === "") return;
+                addRow(pair[1], fmtValue(pair[0], v), "exif-group");
+                count++;
+            });
+        });
+        // GPS 存在时醒目红色警示并提供地图链接
+        if (gps && typeof gps.latitude === "number" && typeof gps.longitude === "number") {
+            var lat = gps.latitude.toFixed(6), lng = gps.longitude.toFixed(6);
+            var frag = document.createDocumentFragment();
+            frag.appendChild(document.createTextNode(lat + ", " + lng + " "));
+            var a = document.createElement("a");
+            a.href = "https://uri.amap.com/marker?position=" + lng + "," + lat;
+            a.target = "_blank";
+            a.rel = "noopener";
+            a.textContent = "在地图查看";
+            frag.appendChild(a);
+            frag.appendChild(document.createTextNode(" · 此照片包含位置信息"));
+            addRow("GPS 位置", frag, "gps-row");
+            count++;
+        }
+        exifTable.hidden = count === 0;
+        exifEmpty.hidden = count > 0;
+        if (count === 0) exifEmpty.textContent = "该格式无 EXIF 或不支持";
+        return count;
+    }
+
+    function load(f) {
+        if (!f || !(/^image\//.test(f.type) || /\.(heic|heif)$/i.test(f.name))) { msg("请选择图片文件", "bad"); return; }
+        srcFile = f;
+        cleanBtn.disabled = false;
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        previewUrl = URL.createObjectURL(f);
+        preview.src = previewUrl;
+        preview.hidden = false;
+        preview.onerror = function () { preview.hidden = true; }; // HEIC 等浏览器可能无法预览
+        info.innerHTML = "<span class='chip'>" + f.name.replace(/</g, "&lt;") + "</span><span class='chip'>" + (f.type || "未知类型") + "</span><span class='chip'>" + fmtSize(f.size) + "</span>";
+        preview.onload = function () {
+            info.innerHTML += "<span class='chip'>" + preview.naturalWidth + "×" + preview.naturalHeight + "</span>";
+        };
+        msg("解析 EXIF 中...");
+        // exifr.parse 读全量字段，exifr.gps 单独取经纬度
+        Promise.all([
+            exifr.parse(f, { gps: true }).catch(function () { return null; }),
+            exifr.gps(f).catch(function () { return null; })
+        ]).then(function (res) {
+            var count = renderExif(res[0], res[1]);
+            if (count === 0) msg("该格式无 EXIF 或不支持", "warn");
+            else if (res[1] && typeof res[1].latitude === "number") msg("解析完成：此照片包含 GPS 位置信息，分享前建议清除", "bad");
+            else msg("解析完成，共 " + count + " 项元数据", "ok");
+        });
+    }
+
+    // 清除元数据：Canvas 重绘导出，天然去掉全部 EXIF
+    cleanBtn.onclick = function () {
+        if (!srcFile) return;
+        msg("处理中...");
+        function decode(opts) { return opts ? createImageBitmap(srcFile, opts) : createImageBitmap(srcFile); }
+        decode({ imageOrientation: "from-image" }).catch(function () { return decode(null); }).then(function (bmp) {
+            var canvas = document.createElement("canvas");
+            canvas.width = bmp.width;
+            canvas.height = bmp.height;
+            var isPng = srcFile.type === "image/png";
+            var ctx = canvas.getContext("2d");
+            if (!isPng) { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, bmp.width, bmp.height); }
+            ctx.drawImage(bmp, 0, 0);
+            bmp.close();
+            // PNG 原样无损导出，其余统一 JPEG 0.95 质量
+            var type = isPng ? "image/png" : "image/jpeg";
+            canvas.toBlob(function (blob) {
+                if (!blob) { msg("导出失败，浏览器不支持该格式", "bad"); return; }
+                var a = document.createElement("a");
+                var url = URL.createObjectURL(blob);
+                a.href = url;
+                a.download = (srcFile.name.replace(/\.[^.]+$/, "") || "image") + "-clean" + (isPng ? ".png" : ".jpg");
+                a.click();
+                setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
+                var pct = (100 - blob.size / srcFile.size * 100);
+                msg("已清除元数据并下载：" + fmtSize(srcFile.size) + " → " + fmtSize(blob.size) + (pct >= 0 ? "（减少 " + pct.toFixed(1) + "%）" : "（增加 " + (-pct).toFixed(1) + "%）"), "ok");
+            }, type, 0.95);
+        }, function () { msg("图片解码失败，该格式可能不受浏览器支持（如部分 HEIC）", "bad"); });
+    };
+
+    drop.onclick = function () { file.click(); };
+    drop.onkeydown = function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); file.click(); } };
+    file.onchange = function () { load(file.files[0]); file.value = ""; };
+    ["dragover", "dragenter"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("over"); }); });
+    ["dragleave", "drop"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("over"); }); });
+    drop.addEventListener("drop", function (e) { load(e.dataTransfer.files[0]); });
+    document.addEventListener("paste", function (e) {
+        var items = e.clipboardData && e.clipboardData.files;
+        if (items && items.length) load(items[0]);
+    });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>二维码扫描 - 在线扫码识别（本地解码） | zktool</title>
+    <meta name="description" content="免费在线二维码扫描工具：摄像头实时扫码与图片识别二维码，优先原生 BarcodeDetector 并自动降级 jsQR，全程本地解码不上传，支持复制结果与打开链接。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="二维码扫描 - 在线扫码识别（本地解码） | zktool" />
+    <meta property="og:description" content="免费在线二维码扫描工具：摄像头实时扫码与图片识别二维码，优先原生 BarcodeDetector 并自动降级 jsQR，全程本地解码不上传，支持复制结果与打开链接。" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/qr-scanner/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/qr-scanner/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/icon.svg" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/theme.js"></script>
+    <script src="../../assets/clipboard.js"></script>
+    <style>
+        .drop { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.4rem; min-height:8rem; border:2px dashed var(--border); border-radius:12px; color:var(--text-3); font-size:.86rem; cursor:pointer; transition:border-color .2s, background .2s; }
+        .drop.over, .drop:hover { border-color: var(--brand-ring); background: var(--brand-soft); color: var(--text-2); }
+        .cam { display:block; width:100%; max-height:20rem; margin-bottom:.8rem; border-radius:10px; border:1px solid var(--border); background:#000; object-fit:contain; }
+        .hist { list-style:none; margin:.6rem 0 0; padding:0; display:flex; flex-direction:column; gap:.4rem; }
+        .hist-item { width:100%; text-align:left; padding:.5rem .65rem; border:1px solid var(--border); border-radius:8px; background:var(--bg-soft); color:var(--text-2); font-family:var(--mono); font-size:.78rem; cursor:pointer; word-break:break-all; }
+        .hist-item:hover { border-color:var(--brand-ring); background:var(--brand-soft); }
+        .mobile-hint { display:flex; align-items:center; gap:.9rem; margin-bottom:.9rem; padding:.8rem .9rem; border:1px solid var(--warn); border-radius:10px; font-size:.85rem; color:var(--text-2); }
+        .mobile-hint-qr { flex:none; width:8rem; height:8rem; padding:.5rem; border-radius:10px; background:#fff; }
+        .mobile-hint-qr svg { display:block; width:100%; height:100%; }
+    </style>
+    <script defer src="../../assets/registry.js"></script>
+    <script defer src="../../assets/palette.js"></script>
+    <script defer src="../../assets/toolkit.js"></script>
+</head>
+<body data-zk-manual>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">QR / Scanner</p></div>
+    <h1><span class="title">二维码扫描器</span></h1>
+    <p class="lead">摄像头实时扫码或选择图片识别二维码，优先使用原生 BarcodeDetector，自动降级 jsQR，全程本地解码不上传。</p>
+    <div class="tool-grid">
+        <section class="panel" id="mainPanel">
+            <h2>扫码输入</h2>
+            <video class="cam" id="video" playsinline muted hidden></video>
+            <div class="row">
+                <button class="btn primary" id="start">开启摄像头</button>
+                <button class="btn danger" id="stop" hidden>停止扫描</button>
+            </div>
+            <div class="drop" id="drop" tabindex="0" role="button" aria-label="选择或拖入二维码图片">
+                <span>拖入二维码图片，或点击选择</span>
+                <span class="mono">也可以直接 Ctrl+V 粘贴截图</span>
+            </div>
+            <input type="file" id="file" accept="image/*" hidden />
+            <p class="hint" id="status" aria-live="polite">支持摄像头实时扫码与图片识别，图像不会上传。</p>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>识别结果</h2>
+                <pre class="output" id="output"></pre>
+                <div class="row">
+                    <button class="btn primary" id="copy" disabled>复制结果</button>
+                    <a class="btn" id="open" target="_blank" rel="noopener" hidden>打开链接</a>
+                </div>
+            </section>
+            <section class="panel">
+                <h2>扫描历史</h2>
+                <p class="hint" id="histEmpty">本次会话内的识别记录会显示在这里（最多 10 条，点击可复制）。</p>
+                <ul class="hist" id="hist"></ul>
+            </section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+    <h2>关于二维码扫描</h2>
+    <p>不是所有场景都方便掏出手机扫码：网页里的二维码、别人发来的截图、会议投屏上的入群码，都可以直接用本工具识别。它提供摄像头实时扫码和图片识别两种方式：解码优先调用浏览器原生 BarcodeDetector，不支持时自动降级到 jsQR 引擎，兼容主流浏览器；识别结果可一键复制，链接类内容可直接打开，并保留本次会话的扫描历史。所有解码都在你的浏览器本地完成，画面和图片不会上传到任何服务器。</p>
+    <h2>常见问题</h2>
+    <details><summary>为什么摄像头无法开启？</summary><p>常见原因：浏览器要求 HTTPS 页面才允许调用摄像头、你在权限弹窗里点了拒绝（可在地址栏站点设置中重新允许）、或设备本身没有摄像头（如部分台式机）。摄像头不可用时，图片识别仍然可以正常使用，也可以用手机扫页面上的二维码打开本页。</p></details>
+    <details><summary>支持识别哪些码？内容是什么格式？</summary><p>本工具专注识别 QR 二维码（不含 Code128 等一维条码）。二维码的内容本质是一段文本：可以是网址、Wi-Fi 配置（WIFI:T:WPA;S:名称;P:密码;;）、联系人 vCard、纯文字等，识别后原样展示，网址会额外提供「打开链接」按钮。</p></details>
+    <details><summary>扫描的画面或图片会上传吗？</summary><p>不会。无论是摄像头画面还是选择的图片，解码全部在浏览器本地完成（原生 BarcodeDetector 或 jsQR），没有任何网络请求携带图像数据，付款码、门禁码等敏感内容也可以放心识别。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"二维码扫描器","url":"https://tools.zktww.cn/tools/qr-scanner/","applicationCategory":"UtilitiesApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线二维码扫描工具：摄像头实时扫码与图片识别二维码，优先原生 BarcodeDetector 并自动降级 jsQR，全程本地解码不上传，支持复制结果与打开链接。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"为什么摄像头无法开启？","acceptedAnswer":{"@type":"Answer","text":"常见原因：浏览器要求 HTTPS 页面才允许调用摄像头、你在权限弹窗里点了拒绝（可在地址栏站点设置中重新允许）、或设备本身没有摄像头。摄像头不可用时，图片识别仍然可以正常使用，也可以用手机扫页面上的二维码打开本页。"}},{"@type":"Question","name":"支持识别哪些码？内容是什么格式？","acceptedAnswer":{"@type":"Answer","text":"本工具专注识别 QR 二维码（不含一维条码）。二维码的内容本质是一段文本：可以是网址、Wi-Fi 配置、联系人 vCard、纯文字等，识别后原样展示，网址会额外提供打开链接按钮。"}},{"@type":"Question","name":"扫描的画面或图片会上传吗？","acceptedAnswer":{"@type":"Answer","text":"不会。无论是摄像头画面还是选择的图片，解码全部在浏览器本地完成（原生 BarcodeDetector 或 jsQR），没有任何网络请求携带图像数据，敏感内容也可以放心识别。"}}]}]}</script>
+</main>
+<script>
+(function () {
+    "use strict";
+    var video = document.getElementById("video"), startBtn = document.getElementById("start"), stopBtn = document.getElementById("stop"), drop = document.getElementById("drop"), file = document.getElementById("file"), status = document.getElementById("status"), output = document.getElementById("output"), copyBtn = document.getElementById("copy"), openBtn = document.getElementById("open"), histList = document.getElementById("hist"), histEmpty = document.getElementById("histEmpty");
+    var stream = null, scanning = false, paused = false, busy = false, rafId = 0, detector = null;
+    var canvas = document.createElement("canvas"), ctx = canvas.getContext("2d", { willReadFrequently: true });
+    var history = [], hintShown = false;
+
+    function msg(t, cls) { status.textContent = t; status.className = "hint " + (cls || ""); }
+
+    // 动态加载脚本，加载完成（或失败）后回调
+    function loadScript(src, cb) {
+        var s = document.createElement("script");
+        s.src = src;
+        s.onload = function () { cb(true); };
+        s.onerror = function () { cb(false); };
+        document.head.appendChild(s);
+    }
+
+    // PC 降级提示：在主功能面板顶部插入提示卡片 + 本页二维码，仅在能力真缺失时调用
+    function showMobileHint(reason) {
+        if (hintShown) return;
+        hintShown = true;
+        var card = document.createElement("div");
+        card.className = "mobile-hint";
+        var text = document.createElement("p");
+        text.style.margin = "0";
+        text.textContent = reason + "。建议用手机打开本页";
+        var qrBox = document.createElement("div");
+        qrBox.className = "mobile-hint-qr";
+        card.appendChild(text);
+        card.appendChild(qrBox);
+        var panel = document.getElementById("mainPanel");
+        panel.insertBefore(card, panel.firstChild);
+        loadScript("../../assets/vendor/qrcode.min.js", function (ok) {
+            if (!ok || !window.qrcode) { qrBox.remove(); return; }
+            try {
+                var qr = window.qrcode(0, "M");
+                qr.addData(location.href.split("#")[0]);
+                qr.make();
+                qrBox.innerHTML = qr.createSvgTag({ cellSize: 3, margin: 0, scalable: true });
+            } catch (e) { qrBox.remove(); }
+        });
+    }
+
+    // 初始化解码引擎：优先原生 BarcodeDetector，不支持则加载 jsQR
+    function initEngine(cb) {
+        if (detector || window.jsQR) { cb(true); return; }
+        if ("BarcodeDetector" in window && window.BarcodeDetector.getSupportedFormats) {
+            window.BarcodeDetector.getSupportedFormats().then(function (fmts) {
+                if (fmts.indexOf("qr_code") >= 0) {
+                    detector = new window.BarcodeDetector({ formats: ["qr_code"] });
+                    cb(true);
+                } else loadJsQR(cb);
+            }, function () { loadJsQR(cb); });
+        } else loadJsQR(cb);
+    }
+    function loadJsQR(cb) {
+        loadScript("../../assets/vendor/jsQR.min.js", function () { cb(!!window.jsQR); });
+    }
+
+    // 解码隐藏 canvas 上的当前画面，回调识别文本（未识别为 null）
+    function decodeCanvas(cb) {
+        if (detector) {
+            detector.detect(canvas).then(function (codes) {
+                cb(codes && codes.length ? codes[0].rawValue : null);
+            }, function () { cb(null); });
+        } else if (window.jsQR) {
+            var img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            var res = window.jsQR(img.data, img.width, img.height);
+            cb(res && res.data ? res.data : null);
+        } else cb(null);
+    }
+
+    function showResult(text, from) {
+        output.textContent = text;
+        copyBtn.disabled = false;
+        var isUrl = /^https?:\/\//i.test(text);
+        openBtn.hidden = !isUrl;
+        if (isUrl) openBtn.href = text;
+        addHistory(text);
+        msg("识别成功（来源：" + from + "）", "ok");
+    }
+
+    function addHistory(text) {
+        if (history[0] === text) return; // 相邻去重
+        history.unshift(text);
+        if (history.length > 10) history.pop();
+        histEmpty.hidden = history.length > 0;
+        histList.innerHTML = "";
+        history.forEach(function (t) {
+            var li = document.createElement("li"), btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "hist-item";
+            btn.textContent = t;
+            btn.title = "点击复制";
+            btn.onclick = function () {
+                copyText(t).then(function () { msg("历史记录已复制", "ok"); },
+                    function () { msg("复制失败，请手动选择复制", "bad"); });
+            };
+            li.appendChild(btn);
+            histList.appendChild(li);
+        });
+    }
+
+    // 摄像头逐帧解码循环
+    function tick() {
+        if (!scanning) return;
+        rafId = requestAnimationFrame(tick);
+        if (paused || busy || video.readyState < 2 || !video.videoWidth) return;
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0);
+        busy = true;
+        decodeCanvas(function (text) {
+            busy = false;
+            if (text && scanning) { stopCamera(); showResult(text, "摄像头"); }
+        });
+    }
+
+    function startCamera() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showMobileHint("当前环境无法使用摄像头");
+            msg("当前浏览器不支持摄像头，可改用图片识别", "bad");
+            return;
+        }
+        msg("正在请求摄像头权限...");
+        initEngine(function (ok) {
+            if (!ok) { msg("解码引擎加载失败，请刷新重试", "bad"); return; }
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function (s) {
+                stream = s;
+                video.srcObject = s;
+                video.hidden = false;
+                video.play();
+                scanning = true;
+                busy = false;
+                startBtn.hidden = true;
+                stopBtn.hidden = false;
+                msg("对准二维码即可自动识别", "ok");
+                rafId = requestAnimationFrame(tick);
+            }, function () {
+                showMobileHint("当前环境无法使用摄像头");
+                msg("摄像头开启失败（权限被拒绝或设备不可用），可改用图片识别", "bad");
+            });
+        });
+    }
+
+    // 停止扫描并释放摄像头
+    function stopCamera() {
+        scanning = false;
+        cancelAnimationFrame(rafId);
+        if (stream) {
+            stream.getTracks().forEach(function (t) { t.stop(); });
+            stream = null;
+        }
+        video.srcObject = null;
+        video.hidden = true;
+        startBtn.hidden = false;
+        stopBtn.hidden = true;
+    }
+
+    // 图片识别：画到隐藏 canvas 后走同一套双引擎解码
+    function loadImage(f) {
+        if (!f || !/^image\//.test(f.type)) { msg("请选择图片文件", "bad"); return; }
+        msg("识别中...");
+        initEngine(function (ok) {
+            if (!ok) { msg("解码引擎加载失败，请刷新重试", "bad"); return; }
+            createImageBitmap(f).then(function (bmp) {
+                canvas.width = bmp.width;
+                canvas.height = bmp.height;
+                ctx.drawImage(bmp, 0, 0);
+                bmp.close();
+                decodeCanvas(function (text) {
+                    if (text) showResult(text, "图片");
+                    else msg("未能在图片中识别到二维码，试试更清晰或裁剪后的图片", "bad");
+                });
+            }, function () { msg("图片解码失败，格式可能不受支持", "bad"); });
+        });
+    }
+
+    startBtn.onclick = startCamera;
+    stopBtn.onclick = function () { stopCamera(); msg("已停止扫描并释放摄像头"); };
+    copyBtn.onclick = function () {
+        copyText(output.textContent || "").then(function () { msg("结果已复制", "ok"); },
+            function () { msg("复制失败，请手动选择复制", "bad"); });
+    };
+    drop.onclick = function () { file.click(); };
+    drop.onkeydown = function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); file.click(); } };
+    file.onchange = function () { loadImage(file.files[0]); file.value = ""; };
+    ["dragover", "dragenter"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("over"); }); });
+    ["dragleave", "drop"].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("over"); }); });
+    drop.addEventListener("drop", function (e) { loadImage(e.dataTransfer.files[0]); });
+    document.addEventListener("paste", function (e) {
+        var items = e.clipboardData && e.clipboardData.files;
+        if (items && items.length) loadImage(items[0]);
+    });
+    // 页面隐藏时暂停解码帧循环，回到前台自动恢复
+    document.addEventListener("visibilitychange", function () { paused = document.hidden; });
+    // 离开页面时确保释放摄像头
+    window.addEventListener("pagehide", stopCamera);
+})();
+</script>
+</body>
+</html>

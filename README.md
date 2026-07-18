@@ -6,7 +6,7 @@
 
 - **`tools/`** — 主角，日常开发辅助的小工具页；每模块独立文件夹，入口为 **`index.html`**。
 - **`demos/`** — 附属，交互探索、演示稿等偏展示向页面；同样每模块一个子文件夹 + **`index.html`**。
-- **`assets/`** — 公共资源：`tokens.css`（全站设计变量，含暗色模式与 `data-theme` 手动覆盖）、`tool-shell.css`（工具页公共骨架：reset/背景/返回条/标题/SEO 说明区）、`tool-page.css`（工具页公共组件：面板/表单/按钮等，内部引用 shell）、`theme.js`（主题三态切换：跟随系统/浅/深，存 localStorage，并注入顶部操作按钮）、`toolkit.js`（工具页通用能力：textarea 草稿自动保存、`#zk=` URL 状态分享、工具间「发送到…」管道、PWA share_target 接收；自带保存逻辑的页面加 `<body data-zk-manual>` 退出）、`clipboard.js`（复制封装）、`registry.js`（工具注册表，首页卡片/命令面板/搜索的唯一数据源，含分域 `group` 字段与拼音首字母 kw）、`palette.js`（Ctrl+K 命令面板：最近使用置顶、动作条目、拼音搜索；工具页顶部另有搜索按钮供触屏呼出）、`vendor/`（第三方库本地副本：sql-formatter、js-yaml、marked）。
+- **`assets/`** — 公共资源：`tokens.css`（全站设计变量，含暗色模式与 `data-theme` 手动覆盖）、`tool-shell.css`（工具页公共骨架：reset/背景/返回条/标题/SEO 说明区）、`tool-page.css`（工具页公共组件：面板/表单/按钮等，内部引用 shell）、`theme.js`（主题三态切换：跟随系统/浅/深，存 localStorage，并注入顶部操作按钮）、`toolkit.js`（工具页通用能力：textarea 草稿自动保存、`#zk=` URL 状态分享、工具间「发送到…」管道、PWA share_target 接收；自带保存逻辑的页面加 `<body data-zk-manual>` 退出）、`clipboard.js`（复制封装）、`registry.js`（工具注册表，首页卡片/命令面板/搜索的唯一数据源，含分域 `group` 字段与拼音首字母 kw）、`palette.js`（Ctrl+K 命令面板：最近使用置顶、动作条目、拼音搜索；工具页顶部另有搜索按钮供触屏呼出）、`vendor/`（第三方库本地副本：sql-formatter、js-yaml、marked、qrcode-generator、jsQR、exifr）。
 - **`scripts/`** — 构建脚本：`gen-cards.mjs`（零依赖 Node 脚本，从 `registry.js` 生成根目录 `index.html` 的工具卡片）。
 - 根目录保留 **`index.html`** 总索引、**`favicon.ico`**、**`manifest.webmanifest`** 与 **`sw.js`**（PWA：托管到静态站点后支持离线使用；主页卡片支持收藏与最近使用置顶，数据存 localStorage），以及 **`404.html`**、**`sitemap.xml`**、**`robots.txt`**。
 - 任意页面按 **Ctrl+K / Cmd+K** 呼出命令面板，搜索并跳转到其他工具。
@@ -47,6 +47,11 @@
 | [tools/timezone-planner/](tools/timezone-planner/) | 时区会议规划：多城市时间对照与工作时段标注 |
 | [tools/chmod-calculator/](tools/chmod-calculator/) | chmod 权限计算器：勾选、八进制与符号表示三向同步 |
 | [tools/svg-optimizer/](tools/svg-optimizer/) | SVG 优化与预览：本地压缩、预览与转 data URI |
+| [tools/qr-scanner/](tools/qr-scanner/) | 二维码扫描器：摄像头/图片扫码识别，本地解码 |
+| [tools/exif-viewer/](tools/exif-viewer/) | 图片 EXIF 查看清除：照片元数据与 GPS 查看、一键抹除 |
+| [tools/device-info/](tools/device-info/) | 设备信息面板：屏幕/视口/DPR/safe-area/UA/网络速查 |
+| [tools/touch-tester/](tools/touch-tester/) | 触摸事件测试板：多点触控可视化与事件日志 |
+| [tools/sensor-viewer/](tools/sensor-viewer/) | 传感器查看器：陀螺仪/加速度计/指南针实时查看 |
 | [二维码生成器](https://qc.zktww.cn/) | 外部工具：二维码生成服务 |
 
 ## 工具说明
@@ -158,6 +163,26 @@ Linux 文件权限三向换算：权限勾选矩阵、八进制（含 setuid/set
 ### SVG 优化与预览（`tools/svg-optimizer/`）
 
 纯浏览器 SVG 优化：移除注释/元数据/编辑器属性、数字精度压缩与空白折叠，展示优化前后体积对比；支持棋盘格/黑/白背景预览与转 data URI（URL 编码或 base64）。
+
+### 二维码扫描器（`tools/qr-scanner/`）
+
+摄像头实时扫码（优先原生 BarcodeDetector，不支持时回退本地 vendor 的 jsQR）或选择/拖拽/粘贴图片识别，全程本地解码不上传；结果可复制、URL 可直接打开，附会话内扫码历史。PC 无摄像头时展示本页二维码引导手机打开，图片识别仍可用。
+
+### 图片 EXIF 查看清除（`tools/exif-viewer/`）
+
+基于本地 vendor 的 exifr 解析照片元数据：拍摄时间、设备、镜头、曝光参数等分组展示，含 GPS 时红色警示并可跳转地图确认；「清除元数据并下载」经 canvas 重绘导出无 EXIF 副本。全程本地，照片不上传。
+
+### 设备信息面板（`tools/device-info/`）
+
+屏幕分辨率/DPR/物理分辨率、视口与滚动条宽度、safe-area 四边、UA/语言/硬件并发/触点数、深色模式与网络状态、常用 Web API 能力速查；逐行点击复制，支持一键复制全部（贴 bug 报告），旋转与缩放实时刷新。
+
+### 触摸事件测试板（`tools/touch-tester/`）
+
+基于 Pointer Events 的触屏调试板：多指触点彩色圆环（坐标/压力/接触面积）、滑动轨迹绘制、事件日志与指针属性表（含触控笔 tilt/twist），支持全屏测试。桌面无触屏时提示用手机打开（附二维码），鼠标可模拟单指。
+
+### 传感器查看器（`tools/sensor-viewer/`）
+
+陀螺仪（方向 alpha/beta/gamma + 3D 手机模型示意 + 指南针）、加速度计（含重力/线性加速度条形图）与旋转速率实时可视化，显示事件频率；兼容 iOS 13+ 的手势授权流程，无传感器的桌面设备自动提示扫码用手机打开。
 
 ### 二维码生成器（外部工具）
 

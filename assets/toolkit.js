@@ -232,6 +232,10 @@
                 if (tip) { tip.remove(); tip = null; }
             }, 120);
         }
+        function hideNow() {
+            clearTimeout(hideTimer);
+            if (tip) { tip.remove(); tip = null; }
+        }
 
         function show() {
             clearTimeout(hideTimer);
@@ -281,11 +285,19 @@
         btn.addEventListener("mouseleave", hide);
         btn.addEventListener("focus", show);
         btn.addEventListener("blur", hide);
+        /* 触屏没有 hover：点击（复制之余）也展示二维码，点击他处或 Esc 关闭 */
+        btn.addEventListener("click", function () { show(); });
+        document.addEventListener("click", function (e) {
+            if (tip && !tip.contains(e.target) && e.target !== btn && !btn.contains(e.target)) hideNow();
+        });
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape" && tip) hideNow();
+        });
     }
 
     var pipeMenu = null;
     function openPipeMenu(anchor, src) {
-        if (pipeMenu) { pipeMenu.remove(); pipeMenu = null; return; }
+        if (pipeMenu) { closePipeMenu(); return; }
         var text = sourceText(src).trim();
         if (!text) { toast("当前没有可发送的内容"); return; }
         var items = window.ZKTOOL_REGISTRY.filter(function (it) {
@@ -306,20 +318,51 @@
                 "border:none;border-radius:8px;background:transparent;color:var(--text,#1e293b);cursor:pointer";
             mi.addEventListener("mouseenter", function () { mi.style.background = "var(--surface-2,#f1f5f9)"; });
             mi.addEventListener("mouseleave", function () { mi.style.background = "transparent"; });
+            mi.addEventListener("focus", function () { mi.style.background = "var(--surface-2,#f1f5f9)"; });
+            mi.addEventListener("blur", function () { mi.style.background = "transparent"; });
             mi.addEventListener("click", function () { zkPipe.send(it.path, sourceText(src).trim()); });
             pipeMenu.appendChild(mi);
         });
         var wrap = anchor.parentElement;
         wrap.style.position = "relative";
         wrap.appendChild(pipeMenu);
-        setTimeout(function () {
-            document.addEventListener("click", function onDoc(e) {
-                if (pipeMenu && !pipeMenu.contains(e.target) && e.target !== anchor) {
-                    pipeMenu.remove(); pipeMenu = null;
-                    document.removeEventListener("click", onDoc);
-                }
-            });
-        });
+
+        function closePipeMenu() {
+            if (!pipeMenu) return;
+            pipeMenu.remove(); pipeMenu = null;
+            document.removeEventListener("click", onDoc);
+            document.removeEventListener("keydown", onKey);
+        }
+        function onDoc(e) {
+            if (pipeMenu && !pipeMenu.contains(e.target) && e.target !== anchor) closePipeMenu();
+        }
+        /* 键盘：↑/↓ 循环移动焦点，Home/End 跳两端，Esc 关闭并回焦到按钮 */
+        function onKey(e) {
+            if (!pipeMenu) return;
+            if (e.key === "Escape") { closePipeMenu(); anchor.focus(); return; }
+            var mis = Array.prototype.slice.call(pipeMenu.querySelectorAll("[role=menuitem]"));
+            if (!mis.length) return;
+            var idx = mis.indexOf(document.activeElement);
+            var to = null;
+            if (e.key === "ArrowDown") to = mis[(idx + 1) % mis.length];
+            else if (e.key === "ArrowUp") to = mis[(idx - 1 + mis.length) % mis.length];
+            else if (e.key === "Home") to = mis[0];
+            else if (e.key === "End") to = mis[mis.length - 1];
+            if (to) { e.preventDefault(); to.focus(); to.scrollIntoView({ block: "nearest" }); }
+        }
+        var first = pipeMenu.querySelector("[role=menuitem]");
+        if (first) first.focus();
+        document.addEventListener("keydown", onKey);
+        setTimeout(function () { document.addEventListener("click", onDoc); });
+    }
+
+    /* ── PWA：工具页也注册站点根的 service worker ──
+       多数访客经搜索直达工具页、不经过首页，在这里注册才能兑现离线承诺。
+       首页自带注册（含新版本刷新提示），重复 register 同一 URL 是幂等的。 */
+    function registerSW() {
+        if (!("serviceWorker" in navigator) || location.protocol === "file:") return;
+        var root = window.zkRoot || "../../";
+        navigator.serviceWorker.register(root + "sw.js").catch(function () { /* 注册失败不影响使用 */ });
     }
 
     function init() {
@@ -342,6 +385,7 @@
         }
         if (!manual()) initDraft(fromShare);
         mountButtons();
+        registerSW();
     }
 
     window.zkShare = zkShare;

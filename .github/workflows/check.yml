@@ -1,0 +1,53 @@
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  consistency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # registry ↔ tools/ 目录 ↔ 各生成物（首页卡片、sitemap、llms.txt、sw.js 预缓存、README 索引表）一致性
+      - name: gen-site --check
+        run: node scripts/gen-site.mjs --check
+
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # 站内引用完整性：页面里引用的本地资源文件必须存在
+      - name: check local asset references
+        run: |
+          node - <<'EOF'
+          const { readFileSync, readdirSync, existsSync, statSync } = require("node:fs");
+          const { dirname, join, normalize } = require("node:path");
+          const pages = [];
+          (function walk(d) {
+            for (const e of readdirSync(d, { withFileTypes: true })) {
+              if (e.name.startsWith(".") || e.name === "node_modules") continue;
+              const p = join(d, e.name);
+              if (e.isDirectory()) walk(p);
+              else if (e.name.endsWith(".html")) pages.push(p);
+            }
+          })(".");
+          let bad = 0;
+          for (const page of pages) {
+            const html = readFileSync(page, "utf8");
+            const refs = [...html.matchAll(/(?:src|href)="([^"#?]+)"/g)].map((m) => m[1])
+              .filter((u) => !/^(https?:|mailto:|data:|javascript:|\/\/)/.test(u) && u !== "/");
+            for (const u of refs) {
+              const base = u.startsWith("/") ? "." + u : join(dirname(page), u);
+              const p = normalize(base);
+              const ok = existsSync(p) && (!statSync(p).isDirectory() || existsSync(join(p, "index.html")));
+              if (!ok) { console.error(`✗ ${page}: 引用不存在 ${u}`); bad++; }
+            }
+          }
+          if (bad) process.exit(1);
+          console.log(`✓ ${pages.length} 个页面的本地引用完整`);
+          EOF

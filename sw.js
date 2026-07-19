@@ -1,28 +1,30 @@
 /* zktool service worker：stale-while-revalidate。
    同源 GET 一律先回缓存再后台更新；跨域（CDN 库、统计）直接走网络，失败回缓存。 */
-var CACHE = "zktool-v6";
+var CACHE = "zktool-c8719b1e";
 var CORE = [
+    /* gen:core */
     "./",
     "./index.html",
     "./404.html",
     "./manifest.webmanifest",
     "./llms.txt",
-    "./assets/tokens.css",
-    "./assets/tool-shell.css",
-    "./assets/tool-page.css",
+    "./assets/analytics.js",
     "./assets/clipboard.js",
-    "./assets/theme.js",
-    "./assets/toolkit.js",
-    "./assets/registry.js",
-    "./assets/palette.js",
     "./assets/icon.svg",
-    "./assets/vendor/sql-formatter.min.js",
-    "./assets/vendor/js-yaml.min.js",
-    "./assets/vendor/marked.min.js",
-    "./assets/vendor/qrcode.min.js",
-    "./assets/vendor/jsQR.min.js",
+    "./assets/palette.js",
+    "./assets/registry.js",
+    "./assets/theme.js",
+    "./assets/tokens.css",
+    "./assets/tool-page.css",
+    "./assets/tool-shell.css",
+    "./assets/toolkit.js",
     "./assets/vendor/exifr.min.js",
-    /* 工具页全部预缓存：兑现“支持离线使用”（依赖 CDN 的页面本体可离线，功能视缓存而定） */
+    "./assets/vendor/js-yaml.min.js",
+    "./assets/vendor/jsQR.min.js",
+    "./assets/vendor/marked.min.js",
+    "./assets/vendor/purify.min.js",
+    "./assets/vendor/qrcode.min.js",
+    "./assets/vendor/sql-formatter.min.js",
     "./tools/timestamp-converter/",
     "./tools/json-formatter/",
     "./tools/emoji-tool/",
@@ -55,6 +57,7 @@ var CORE = [
     "./tools/device-info/",
     "./tools/touch-tester/",
     "./tools/sensor-viewer/",
+    /* /gen:core */
 ];
 
 self.addEventListener("install", function (e) {
@@ -79,7 +82,12 @@ self.addEventListener("fetch", function (e) {
                 var fetched = fetch(e.request).then(function (res) {
                     if (res && res.ok) cache.put(e.request, res.clone());
                     return res;
-                }).catch(function () { return cached; });
+                }).catch(function () {
+                    if (cached) return cached;
+                    /* 离线且无缓存：导航请求兜底回首页（含命令面板可跳转他处） */
+                    if (e.request.mode === "navigate") return cache.match("./index.html");
+                    return Response.error();
+                });
                 return cached || fetched;
             });
         })

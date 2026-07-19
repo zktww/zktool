@@ -11,8 +11,9 @@
     <meta property="og:description" content="免费 Emoji 表情大全：按分类浏览全部 Unicode Emoji，支持中文搜索、一键复制、肤色切换和收藏，附 Unicode 码点，适合文案、代码注释和聊天。" />
     <meta property="og:url" content="https://tools.zktww.cn/tools/emoji-tool/" />
     <link rel="canonical" href="https://tools.zktww.cn/tools/emoji-tool/" />
-    <meta property="og:image" content="https://tools.zktww.cn/assets/icon.svg" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-shell.css" />
@@ -802,13 +803,15 @@
             _default: '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>'
         };
 
-        /* 数据源 URL —— 保持不变 */
+        /* 数据源 URL —— 本地副本优先，CDN 兜底 */
         var DATA_URLS = [
+            "data/data-by-group.json",
             "https://cdn.jsdelivr.net/npm/unicode-emoji-json@0.6.0/data-by-group.json",
             "https://unpkg.com/unicode-emoji-json@0.6.0/data-by-group.json"
         ];
 
         var ZH_URLS = [
+            "data/annotations-zh.json",
             "https://cdn.jsdelivr.net/npm/cldr-annotations-modern@45.0.0/annotations/zh/annotations.json",
             "https://unpkg.com/cldr-annotations-modern@45.0.0/annotations/zh/annotations.json"
         ];

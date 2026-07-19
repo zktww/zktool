@@ -4,15 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>JWT解析 - 在线JWT解码工具（查看Payload与过期时间） | zktool</title>
-    <meta name="description" content="免费在线 JWT 解析工具：解码 JWT Token 的 Header 和 Payload，自动标注过期时间和签发时间，支持 HS256 本地验签，Token 不离开浏览器。" />
+    <meta name="description" content="免费在线 JWT 解析工具：解码 JWT Token 的 Header 和 Payload，自动标注过期时间和签发时间，支持 HS256/RS256/ES256 等本地验签，Token 不离开浏览器。" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="zktool" />
     <meta property="og:title" content="JWT解析 - 在线JWT解码工具（查看Payload与过期时间） | zktool" />
-    <meta property="og:description" content="免费在线 JWT 解析工具：解码 JWT Token 的 Header 和 Payload，自动标注过期时间和签发时间，支持 HS256 本地验签，Token 不离开浏览器。" />
+    <meta property="og:description" content="免费在线 JWT 解析工具：解码 JWT Token 的 Header 和 Payload，自动标注过期时间和签发时间，支持 HS256/RS256/ES256 等本地验签，Token 不离开浏览器。" />
     <meta property="og:url" content="https://tools.zktww.cn/tools/jwt-decoder/" />
     <link rel="canonical" href="https://tools.zktww.cn/tools/jwt-decoder/" />
-    <meta property="og:image" content="https://tools.zktww.cn/assets/icon.svg" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png" />
     <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-page.css" />
@@ -36,13 +37,13 @@
 <main class="wrap">
     <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">JWT</p></div>
     <h1><span class="title">JWT 解析器</span></h1>
-    <p class="lead">解码 JWT 的 Header 与 Payload，标注时间字段与过期状态，可选 HS256 本地验签。Token 不会离开浏览器。</p>
+    <p class="lead">解码 JWT 的 Header 与 Payload，标注时间字段与过期状态，支持 HS / RS / ES 系列本地验签。Token 不会离开浏览器。</p>
     <div class="tool-grid">
         <section class="panel">
             <h2>Token</h2>
             <textarea id="input" spellcheck="false" aria-label="JWT Token 输入" placeholder="粘贴 JWT（xxx.yyy.zzz）..."></textarea>
-            <label for="secret">HS256 密钥（可选，用于本地验签）</label>
-            <input id="secret" class="mono" placeholder="留空则跳过签名校验" />
+            <label for="secret">验签密钥（可选）：HS 系列填共享密钥；RS / ES 系列贴公钥（PEM 或 JWK）</label>
+            <textarea id="secret" data-zk-off class="mono" rows="4" spellcheck="false" placeholder="留空则跳过签名校验；出于安全考虑，密钥不参与草稿保存与分享链接"></textarea>
             <div class="row"><button class="btn" id="sample">示例</button><button class="btn danger" id="clear">清空</button><span class="hint" id="status" aria-live="polite"></span></div>
         </section>
         <aside>
@@ -54,13 +55,13 @@
 
 <section class="seo-notes">
     <h2>关于JWT解析</h2>
-    <p>JWT（JSON Web Token）由 Header、Payload、Signature 三段组成，用点号连接，是最常见的接口认证凭证。本工具在浏览器本地解码前两段的 JSON 内容，自动把 exp（过期）、iat（签发）、nbf（生效）时间戳转成可读时间并标注是否过期；填入密钥还可以对 HS256 签名做本地校验。整个过程 Token 不会发送到任何服务器，可放心粘贴生产环境凭证排查问题。</p>
+    <p>JWT（JSON Web Token）由 Header、Payload、Signature 三段组成，用点号连接，是最常见的接口认证凭证。本工具在浏览器本地解码前两段的 JSON 内容，自动把 exp（过期）、iat（签发）、nbf（生效）时间戳转成可读时间并标注是否过期；填入共享密钥（HS256/384/512）或公钥（RS、ES 系列，PEM 或 JWK 格式）还可以在本地校验签名。整个过程 Token 不会发送到任何服务器，可放心粘贴生产环境凭证排查问题。</p>
     <h2>常见问题</h2>
     <details><summary>JWT 能被解码，是不是不安全？</summary><p>JWT 的 Header 和 Payload 只是 Base64 编码，任何人都能读取——所以绝不要在 Payload 里放密码等敏感信息。它的安全性在签名：服务端用密钥验证 Token 未被篡改，而不是靠内容保密。</p></details>
     <details><summary>Token 过期了（exp 已过）怎么办？</summary><p>过期的 JWT 服务端会拒绝。客户端通常用 Refresh Token 换取新的 Access Token；如果没有刷新机制就需要重新登录。本工具会明确标注 exp 的本地时间和是否已过期，方便排查 401 错误。</p></details>
-    <details><summary>为什么只支持 HS256 验签？</summary><p>HS256 是对称算法，浏览器端用 Web Crypto 即可校验；RS256 等非对称算法需要公钥且格式处理复杂。解码功能对所有算法的 JWT 都有效，仅签名校验限于 HS256。</p></details>
+    <details><summary>支持哪些算法的验签？</summary><p>HS256/384/512（填共享密钥）与 RS256/384/512、ES256/384/512（贴 PEM 或 JWK 格式的公钥），全部基于浏览器 Web Crypto 本地校验，密钥与 Token 都不会上传。PS 系列与 EdDSA 暂不支持，解码功能对所有算法的 JWT 均有效。</p></details>
 </section>
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"JWT解析","url":"https://tools.zktww.cn/tools/jwt-decoder/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 JWT 解析工具：解码 JWT Token 的 Header 和 Payload，自动标注过期时间和签发时间，支持 HS256 本地验签，Token 不离开浏览器。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"JWT 能被解码，是不是不安全？","acceptedAnswer":{"@type":"Answer","text":"JWT 的 Header 和 Payload 只是 Base64 编码，任何人都能读取——所以绝不要在 Payload 里放密码等敏感信息。它的安全性在签名：服务端用密钥验证 Token 未被篡改，而不是靠内容保密。"}},{"@type":"Question","name":"Token 过期了（exp 已过）怎么办？","acceptedAnswer":{"@type":"Answer","text":"过期的 JWT 服务端会拒绝。客户端通常用 Refresh Token 换取新的 Access Token；如果没有刷新机制就需要重新登录。本工具会明确标注 exp 的本地时间和是否已过期，方便排查 401 错误。"}},{"@type":"Question","name":"为什么只支持 HS256 验签？","acceptedAnswer":{"@type":"Answer","text":"HS256 是对称算法，浏览器端用 Web Crypto 即可校验；RS256 等非对称算法需要公钥且格式处理复杂。解码功能对所有算法的 JWT 都有效，仅签名校验限于 HS256。"}}]}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"JWT解析","url":"https://tools.zktww.cn/tools/jwt-decoder/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 JWT 解析工具：解码 JWT Token 的 Header 和 Payload，自动标注过期时间和签发时间，支持 HS256/RS256/ES256 等本地验签，Token 不离开浏览器。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"JWT 能被解码，是不是不安全？","acceptedAnswer":{"@type":"Answer","text":"JWT 的 Header 和 Payload 只是 Base64 编码，任何人都能读取——所以绝不要在 Payload 里放密码等敏感信息。它的安全性在签名：服务端用密钥验证 Token 未被篡改，而不是靠内容保密。"}},{"@type":"Question","name":"Token 过期了（exp 已过）怎么办？","acceptedAnswer":{"@type":"Answer","text":"过期的 JWT 服务端会拒绝。客户端通常用 Refresh Token 换取新的 Access Token；如果没有刷新机制就需要重新登录。本工具会明确标注 exp 的本地时间和是否已过期，方便排查 401 错误。"}},{"@type":"Question","name":"支持哪些算法的验签？","acceptedAnswer":{"@type":"Answer","text":"HS256/384/512（填共享密钥）与 RS256/384/512、ES256/384/512（贴 PEM 或 JWK 格式的公钥），全部基于浏览器 Web Crypto 本地校验，密钥与 Token 都不会上传。PS 系列与 EdDSA 暂不支持，解码功能对所有算法的 JWT 均有效。"}}]}]}</script>
 </main>
 <script>
 (function () {
@@ -86,10 +87,41 @@
         var n = Math.max(1, Math.round(abs / unit[0]));
         return diff >= 0 ? n + " " + unit[1] + "后" : n + " " + unit[1] + "前";
     }
-    function verify(parts, key) {
+    /* ── 验签：HS 系列用共享密钥，RS/PS 与 ES 系列用公钥（PEM SPKI 或 JWK） ── */
+    var ALGS = {
+        HS256: { kind: "hmac", hash: "SHA-256" }, HS384: { kind: "hmac", hash: "SHA-384" }, HS512: { kind: "hmac", hash: "SHA-512" },
+        RS256: { kind: "rsa", hash: "SHA-256" }, RS384: { kind: "rsa", hash: "SHA-384" }, RS512: { kind: "rsa", hash: "SHA-512" },
+        ES256: { kind: "ec", hash: "SHA-256", curve: "P-256" }, ES384: { kind: "ec", hash: "SHA-384", curve: "P-384" }, ES512: { kind: "ec", hash: "SHA-512", curve: "P-521" }
+    };
+    function pemToSpki(pem) {
+        var b64 = pem.replace(/-----(BEGIN|END)[^-]+-----/g, "").replace(/\s+/g, "");
+        return b64uToBytes(b64.replace(/\+/g, "-").replace(/\//g, "_")).buffer;
+    }
+    function importPublicKey(alg, keyText) {
+        var spec = ALGS[alg];
+        var algo = spec.kind === "rsa"
+            ? { name: "RSASSA-PKCS1-v1_5", hash: spec.hash }
+            : { name: "ECDSA", namedCurve: spec.curve };
+        if (/^\s*\{/.test(keyText)) {
+            var jwk = JSON.parse(keyText);
+            return crypto.subtle.importKey("jwk", jwk, algo, false, ["verify"]);
+        }
+        if (/-----BEGIN (RSA )?PRIVATE KEY-----/.test(keyText)) return Promise.reject(new Error("请粘贴公钥而非私钥"));
+        return crypto.subtle.importKey("spki", pemToSpki(keyText), algo, false, ["verify"]);
+    }
+    function verify(parts, alg, keyText) {
+        var spec = ALGS[alg];
         var enc = new TextEncoder();
-        return crypto.subtle.importKey("raw", enc.encode(key), { name: "HMAC", hash: "SHA-256" }, false, ["verify"]).then(function (k) {
-            return crypto.subtle.verify("HMAC", k, b64uToBytes(parts[2]), enc.encode(parts[0] + "." + parts[1]));
+        var data = enc.encode(parts[0] + "." + parts[1]);
+        var sigBytes = b64uToBytes(parts[2]);
+        if (spec.kind === "hmac") {
+            return crypto.subtle.importKey("raw", enc.encode(keyText), { name: "HMAC", hash: spec.hash }, false, ["verify"]).then(function (k) {
+                return crypto.subtle.verify("HMAC", k, sigBytes, data);
+            });
+        }
+        return importPublicKey(alg, keyText).then(function (k) {
+            if (spec.kind === "rsa") return crypto.subtle.verify("RSASSA-PKCS1-v1_5", k, sigBytes, data);
+            return crypto.subtle.verify({ name: "ECDSA", hash: spec.hash }, k, sigBytes, data);
         });
     }
     function run() {
@@ -114,11 +146,11 @@
         claims.innerHTML = html;
         status.textContent = "解析成功"; status.className = "hint ok";
         var alg = h && h.alg;
-        if (!secret.value) { sig.innerHTML = "<span class='mono'>" + esc(parts[2].slice(0, 40)) + (parts[2].length > 40 ? "..." : "") + "</span><br><span class='hint'>填入密钥可本地校验 HS256 签名</span>"; return; }
-        if (alg !== "HS256") { sig.innerHTML = "<span class='warn'>仅支持 HS256 本地验签，当前 alg=" + esc(String(alg)) + "</span>"; return; }
-        verify(parts, secret.value).then(function (ok) {
-            sig.innerHTML = ok ? "<b class='ok'>签名有效</b>" : "<b class='bad'>签名无效（密钥不匹配或 Token 被篡改）</b>";
-        }, function (e) { sig.innerHTML = "<span class='bad'>验签失败：" + esc(e.message) + "</span>"; });
+        if (!secret.value.trim()) { sig.innerHTML = "<span class='mono'>" + esc(parts[2].slice(0, 40)) + (parts[2].length > 40 ? "..." : "") + "</span><br><span class='hint'>填入密钥（HS）或公钥（RS/ES）可本地校验签名</span>"; return; }
+        if (!ALGS[alg]) { sig.innerHTML = "<span class='warn'>暂不支持 alg=" + esc(String(alg)) + " 的本地验签（支持 HS / RS / ES 系列）</span>"; return; }
+        verify(parts, alg, secret.value.trim()).then(function (ok) {
+            sig.innerHTML = ok ? "<b class='ok'>签名有效（" + esc(alg) + "）</b>" : "<b class='bad'>签名无效（密钥不匹配或 Token 被篡改）</b>";
+        }, function (e) { sig.innerHTML = "<span class='bad'>验签失败：" + esc(e.message || "密钥格式无法解析") + "</span>"; });
     }
     var t; function runDebounced() { clearTimeout(t); t = setTimeout(run, 200); }
     [input, secret].forEach(function (el) { el.addEventListener("input", runDebounced); });

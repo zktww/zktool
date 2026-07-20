@@ -7,7 +7,7 @@
 - **`tools/`** — 主角，日常开发辅助的小工具页；每模块独立文件夹，入口为 **`index.html`**。
 - **`demos/`** — 附属，交互探索、演示稿等偏展示向页面；同样每模块一个子文件夹 + **`index.html`**。
 - **`assets/`** — 公共资源：`tokens.css`（全站设计变量，含暗色模式与 `data-theme` 手动覆盖）、`tool-shell.css`（工具页公共骨架：reset/背景/返回条/标题/SEO 说明区）、`tool-page.css`（工具页公共组件：面板/表单/按钮等，内部引用 shell）、`theme.js`（主题三态切换：跟随系统/浅/深，存 localStorage，并注入顶部操作按钮）、`toolkit.js`（工具页通用能力：textarea 草稿自动保存、`#zk=` URL 状态分享、工具间「发送到…」管道、PWA share_target 接收；自带保存逻辑的页面加 `<body data-zk-manual>` 退出）、`clipboard.js`（复制封装）、`registry.js`（工具注册表，首页卡片/命令面板/搜索的唯一数据源，含分域 `group` 字段与拼音首字母 kw）、`palette.js`（Ctrl+K 命令面板：最近使用置顶、动作条目、拼音搜索；工具页顶部另有搜索按钮供触屏呼出）、`vendor/`（第三方库本地副本：sql-formatter、js-yaml、marked、DOMPurify、qrcode-generator、jsQR、exifr、mermaid）。
-- **`scripts/`** — 构建脚本：`gen-site.mjs`（零依赖 Node 脚本，从 `registry.js` 生成首页卡片与 JSON-LD、`sitemap.xml`、`llms.txt`、`sw.js` 预缓存列表与缓存版本、README 索引表；`--check` 校验漂移，CI 强制）。
+- **`scripts/`** — 构建脚本：`gen-site.mjs`（零依赖 Node 脚本，从 `registry.js` 生成首页卡片与 JSON-LD、`sitemap.xml`、`llms.txt`、`sw.js` 预缓存列表与缓存版本，并给全站页面的本地资源引用盖 `?v=<内容哈希>` 版本戳——发布后浏览器/CDN 的 HTTP 缓存自动失效；`--check` 校验漂移，CI 强制）。
 - 根目录保留 **`index.html`** 总索引、**`favicon.ico`**、**`manifest.webmanifest`** 与 **`sw.js`**（PWA：托管到静态站点后支持离线使用；主页卡片支持收藏与最近使用置顶，数据存 localStorage），以及 **`404.html`**、**`sitemap.xml`**、**`robots.txt`**。
 - 任意页面按 **Ctrl+K / Cmd+K** 呼出命令面板，搜索并跳转到其他工具。
 
@@ -212,7 +212,7 @@ Linux 文件权限三向换算：权限勾选矩阵、八进制（含 setuid/set
 
 1. 工具类放 **`tools/<模块名>/`**；演示/实验类放 **`demos/<模块名>/`**，入口命名为 **`index.html`**（模块内还可放专属脚本、样式或数据文件）；
 2. 在 **`assets/registry.js`** 注册表中补一条（首页卡片、命令面板与站内搜索的唯一数据源；卡片还需 `icon`/`c1`/`c2` 字段，工具类另需 `group` 字段对应 `ZKTOOL_GROUPS` 分域）；
-3. 运行 **`node scripts/gen-site.mjs`**：自动重生成首页卡片与 JSON-LD、`sitemap.xml`、`llms.txt`、`sw.js` 预缓存与缓存版本、本 README 的两张索引表（勿手改生成区块，会被覆盖）；
+3. 运行 **`node scripts/gen-site.mjs`**：自动重生成首页卡片与 JSON-LD、`sitemap.xml`、`llms.txt`、`sw.js` 预缓存与缓存版本、全站资源版本戳、本 README 的两张索引表（勿手改生成区块，会被覆盖）。**每次改动任何 assets 下的 CSS/JS 后发布前都要跑一次**，否则版本戳不更新、线上会命中旧缓存；
 4. 在本 README 的「工具说明」中补一段详细说明（按需详写）。
 
 > 站点部署域名变更时：全局替换页面 `og:url`、`sitemap.xml` 与 `robots.txt` 中的 `https://tools.zktww.cn`。

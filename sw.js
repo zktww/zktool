@@ -1,6 +1,8 @@
-/* zktool service worker：stale-while-revalidate。
-   同源 GET 一律先回缓存再后台更新；跨域（CDN 库、统计）直接走网络，失败回缓存。 */
-var CACHE = "zktool-c8719b1e";
+/* zktool service worker 缓存策略：
+   - HTML 导航请求：网络优先（短超时回退缓存）——发布后用户第一次打开就是新页面，离线才用缓存；
+   - 带 ?v= 内容哈希的静态资源：缓存优先——URL 即版本，命中即最新；
+   - 其余同源 GET：stale-while-revalidate；跨域（CDN、统计）不代理。 */
+var CACHE = "zktool-5ac81eca";
 var CORE = [
     /* gen:core */
     "./",
@@ -76,17 +78,43 @@ self.addEventListener("fetch", function (e) {
     if (e.request.method !== "GET") return;
     var url = new URL(e.request.url);
     if (url.origin !== location.origin) return; /* CDN 等跨域资源不代理，避免缓存第三方脚本 */
+
+    /* HTML 导航：网络优先（3s 超时回退缓存），保证发布后首次打开即最新 */
+    if (e.request.mode === "navigate") {
+        e.respondWith(
+            caches.open(CACHE).then(function (cache) {
+                var ctrl = new AbortController();
+                var timer = setTimeout(function () { ctrl.abort(); }, 3000);
+                return fetch(e.request, { signal: ctrl.signal }).then(function (res) {
+                    clearTimeout(timer);
+                    if (res && res.ok) cache.put(e.request, res.clone());
+                    return res;
+                }).catch(function () {
+                    clearTimeout(timer);
+                    return cache.match(e.request, { ignoreSearch: true }).then(function (cached) {
+                        return cached || cache.match("./index.html");
+                    });
+                });
+            })
+        );
+        return;
+    }
+
+    /* 带 ?v= 内容哈希的资源：URL 即版本，缓存优先 */
+    var versioned = url.searchParams.has("v");
     e.respondWith(
         caches.open(CACHE).then(function (cache) {
             return cache.match(e.request).then(function (cached) {
+                if (versioned && cached) return cached;
                 var fetched = fetch(e.request).then(function (res) {
                     if (res && res.ok) cache.put(e.request, res.clone());
                     return res;
                 }).catch(function () {
                     if (cached) return cached;
-                    /* 离线且无缓存：导航请求兜底回首页（含命令面板可跳转他处） */
-                    if (e.request.mode === "navigate") return cache.match("./index.html");
-                    return Response.error();
+                    /* 预缓存的资源不带 ?v=，忽略查询参数再匹配一次兜底 */
+                    return cache.match(e.request, { ignoreSearch: true }).then(function (loose) {
+                        return loose || Response.error();
+                    });
                 });
                 return cached || fetched;
             });

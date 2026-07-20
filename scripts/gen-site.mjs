@@ -152,11 +152,35 @@ function replaceBlock(content, key, inner, indent) {
 }
 
 /* ── 汇总生成 ── */
+const sha8 = (buf) => createHash("sha256").update(buf).digest("hex").slice(0, 8);
+
 async function build() {
     await verifyRegistry();
     const out = {};
 
-    /* index.html */
+    /* 资源内容哈希：assets 下 css/js/svg + vendor js/json，用于 URL 版本戳与 SW 缓存名 */
+    const assetPaths = [
+        ...(await readdir(ROOT + "/assets", { withFileTypes: true }))
+            .filter((d) => d.isFile() && /\.(css|js|svg)$/.test(d.name)).map((d) => "assets/" + d.name),
+        ...(await readdir(ROOT + "/assets/vendor"))
+            .filter((n) => /\.(js|json)$/.test(n)).map((n) => "assets/vendor/" + n),
+    ].sort();
+    const assetHash = {};
+    for (const p of assetPaths) assetHash[p] = sha8(await readFile(ROOT + "/" + p));
+
+    /* 给页面里的本地资源引用盖 ?v=<内容哈希>：发布后 URL 变化，浏览器/CDN 的 HTTP 缓存自然失效。
+       幂等：已有 ?v= 会被剥掉重盖。 */
+    function stamp(html) {
+        return html.replace(
+            /((?:src|href)=")([^"]*?)(assets\/[^"?#]+?\.(?:css|js|svg))(?:\?v=[0-9a-f]+)?(")/g,
+            (m, pre, prefix, asset, post) => {
+                const h = assetHash[asset];
+                return h ? pre + prefix + asset + "?v=" + h + post : m;
+            }
+        );
+    }
+
+    /* index.html：卡片 + JSON-LD + 工具数量 + 资源版本戳 */
     let html = await readFile(ROOT + "/index.html", "utf8");
     html = replaceBlock(html, "tools", toolSections(), "        ");
     html = replaceBlock(html, "demos", demoGrid(), "        ");
@@ -165,7 +189,17 @@ async function build() {
         /<script type="application\/ld\+json">[\s\S]*?<\/script>/,
         `<script type="application/ld+json">${jsonLd()}</script>`
     );
-    out["index.html"] = html;
+    out["index.html"] = stamp(html);
+
+    /* 全部工具/演示页 + 404：只盖资源版本戳 */
+    const pagePaths = [
+        ...tools.map((it) => it.path + "index.html"),
+        ...demos.map((it) => it.path + "index.html"),
+        "404.html",
+    ];
+    for (const p of pagePaths) {
+        out[p] = stamp(await readFile(ROOT + "/" + p, "utf8"));
+    }
 
     /* sitemap.xml */
     out["sitemap.xml"] = sitemap();
@@ -175,12 +209,13 @@ async function build() {
     llms = replaceBlock(llms, "llms-tools", llmsTools());
     out["llms.txt"] = llms;
 
-    /* sw.js：CORE 列表 + 缓存名（列表内容哈希，变更自动换新缓存并清旧） */
+    /* sw.js：CORE 列表 + 缓存名（资源与页面的内容哈希，任何发布变更自动换新缓存并清旧） */
     let sw = await readFile(ROOT + "/sw.js", "utf8");
     const core = await swCore();
     const coreJs = core.map((p) => `    ${JSON.stringify(p)},`).join("\n");
     sw = sw.replace(/(\/\* gen:core \*\/)[\s\S]*?(\/\* \/gen:core \*\/)/, `$1\n${coreJs}\n    $2`);
-    const hash = createHash("sha256").update(core.join("\n")).digest("hex").slice(0, 8);
+    const pageHashes = pagePaths.map((p) => sha8(out[p]));
+    const hash = sha8(core.join("\n") + Object.values(assetHash).join("") + pageHashes.join("") + sha8(out["index.html"]));
     sw = sw.replace(/var CACHE = "zktool-[^"]*";/, `var CACHE = "zktool-${hash}";`);
     out["sw.js"] = sw;
 

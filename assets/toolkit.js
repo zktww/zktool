@@ -374,11 +374,21 @@
 
     /* ── PWA：工具页也注册站点根的 service worker ──
        多数访客经搜索直达工具页、不经过首页，在这里注册才能兑现离线承诺。
+       updateViaCache:none 让浏览器每次都绕过 HTTP 缓存检查 sw.js，发布即生效。
        首页自带注册（含新版本刷新提示），重复 register 同一 URL 是幂等的。 */
     function registerSW() {
         if (!("serviceWorker" in navigator) || location.protocol === "file:") return;
         var root = window.zkRoot || "../../";
-        navigator.serviceWorker.register(root + "sw.js").catch(function () { /* 注册失败不影响使用 */ });
+        navigator.serviceWorker.register(root + "sw.js", { updateViaCache: "none" }).then(function (reg) {
+            reg.addEventListener("updatefound", function () {
+                var nw = reg.installing;
+                if (!nw) return;
+                nw.addEventListener("statechange", function () {
+                    /* 新 SW 装好且当前页面已有旧 SW 控制 → 站点有新版本 */
+                    if (nw.state === "installed" && navigator.serviceWorker.controller) toast("站点有新版本，刷新页面即可更新");
+                });
+            });
+        }).catch(function () { /* 注册失败不影响使用 */ });
     }
 
     function init() {

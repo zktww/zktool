@@ -45,7 +45,7 @@
 | [tools/curl-parser/](tools/curl-parser/) | cURL 命令解析：解析 cURL 命令为结构化请求，生成 fetch 与 Python requests 代码 |
 | [tools/html-entities/](tools/html-entities/) | HTML 实体编解码：HTML 特殊字符与命名/十进制/十六进制实体互转，附常用实体速查表 |
 | [tools/keypair-generator/](tools/keypair-generator/) | 密钥对生成器：浏览器本地生成 RSA / ECDSA / Ed25519 密钥对，导出 PEM 与 JWK |
-| [tools/markdown-preview/](tools/markdown-preview/) | Markdown 预览：Markdown 实时渲染预览，复制净化后 HTML 或下载完整页面 |
+| [tools/markdown-preview/](tools/markdown-preview/) | Markdown 排版预览：Markdown 实时渲染，多套公众号排版主题，一键复制到微信公众号 |
 | [tools/timezone-planner/](tools/timezone-planner/) | 时区会议规划：多城市时间对照与工作时段标注，跨时区约会议不再算错时间 |
 | [tools/chmod-calculator/](tools/chmod-calculator/) | chmod 权限计算器：Linux 文件权限三向换算：勾选、八进制与符号表示实时同步 |
 | [tools/svg-optimizer/](tools/svg-optimizer/) | SVG 优化与预览：SVG 本地优化压缩、预览与转 data URI，看体积对比 |
@@ -150,9 +150,9 @@ HTML 特殊字符与实体互转：支持仅必需转义、命名实体优先、
 
 基于 Web Crypto API 在浏览器本地生成 RSA（2048/3072/4096）、ECDSA（P-256/384/521）与 Ed25519 密钥对，导出 PEM（SPKI/PKCS#8）与 JWK 格式，支持复制与下载 .pem 文件；私钥不离开浏览器。
 
-### Markdown 预览（`tools/markdown-preview/`）
+### Markdown 排版预览（`tools/markdown-preview/`）
 
-基于本地 vendor 的 marked 实时渲染 Markdown，输出经本地 vendor 的 DOMPurify 白名单消毒；可复制净化后的 HTML 或下载完整页面，附字符/行/词统计。
+基于本地 vendor 的 marked 实时渲染 Markdown，输出经本地 vendor 的 DOMPurify 白名单消毒；内置经典蓝/清新绿/暖阳橙/紫罗兰/极简黑五套内联样式排版主题（可调字号、Mac 风格代码块、首行缩进），「复制到公众号」以富文本写入剪贴板、粘贴到微信公众号等编辑器即得预览效果；也可复制 HTML 源码或下载完整页面，附字符/行/词统计。
 
 ### 时区会议规划（`tools/timezone-planner/`）
 

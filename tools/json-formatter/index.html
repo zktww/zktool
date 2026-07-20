@@ -30,6 +30,8 @@
             flex-direction: column;
         }
 
+        /* 供 tool-shell 的 body > .seo-notes 对齐本页 .wrap（宽度与水平内边距镜像） */
+        body { --wrap-w: min(1480px, 100%); --wrap-px: clamp(1rem, 3vw, 1.5rem); }
         .wrap {
             flex: 1;
             display: flex;

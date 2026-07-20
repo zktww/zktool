@@ -117,6 +117,19 @@ h1 .title { color: var(--brand); }
     line-height: 1.75;
 }
 
+/* 全屏应用型页面把 .seo-notes 挂在 body 下（不入 .wrap，避免挤压编辑区）；
+   此时用变量镜像该页 .wrap 的宽度与水平内边距，保证与上方内容对齐。
+   页面在自己的 <style> 里按需覆盖 --wrap-w / --wrap-px。 */
+body > .seo-notes {
+    width: 100%;
+    max-width: var(--wrap-w, min(1320px, 100%));
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: calc(var(--wrap-px, clamp(1rem, 3vw, 1.75rem)) + env(safe-area-inset-left) + 0.2rem);
+    padding-right: calc(var(--wrap-px, clamp(1rem, 3vw, 1.75rem)) + env(safe-area-inset-right) + 0.2rem);
+    padding-bottom: max(2.5rem, env(safe-area-inset-bottom));
+}
+
 .seo-notes h2 { margin: 0 0 0.5rem; color: var(--text); font-size: 0.95rem; }
 .seo-notes p { max-width: 68em; margin: 0 0 1.2rem; color: var(--text-2); }
 

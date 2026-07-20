@@ -44,25 +44,43 @@
     }
 
     /* ── 1. 草稿自动保存 ── */
+    function isCheck(el) { return el.type === "checkbox" || el.type === "radio"; }
+    function fieldVal(el) { return isCheck(el) ? (el.checked ? "1" : "0") : el.value; }
+    function fieldDefault(el) {
+        if (isCheck(el)) return el.defaultChecked ? "1" : "0";
+        if (el.tagName === "SELECT") { /* select 没有 defaultValue，取标记 selected 的 option（无则第一项） */
+            for (var i = 0; i < el.options.length; i++) if (el.options[i].defaultSelected) return el.options[i].value;
+            return el.options.length ? el.options[0].value : "";
+        }
+        return el.defaultValue;
+    }
+    function setFieldVal(el, v) {
+        if (isCheck(el)) el.checked = v === "1";
+        else el.value = v;
+    }
     function initDraft(skipRestore) {
         stateFields().forEach(function (el) {
-            if (!skipRestore && el.value === el.defaultValue) {
+            if (!skipRestore && fieldVal(el) === fieldDefault(el)) {
                 var saved = tryLS(function () { return localStorage.getItem(LS_PREFIX + el.id); }, null);
-                if (saved !== null && saved !== el.value) {
-                    el.value = saved;
+                if (saved !== null && saved !== fieldVal(el)) {
+                    setFieldVal(el, saved);
                     el.dispatchEvent(new Event("input", { bubbles: true }));
+                    el.dispatchEvent(new Event("change", { bubbles: true }));
                 }
             }
             var timer = null;
-            el.addEventListener("input", function () {
+            function persist() {
                 clearTimeout(timer);
                 timer = setTimeout(function () {
                     tryLS(function () {
-                        if (el.value === "" || el.value === el.defaultValue) localStorage.removeItem(LS_PREFIX + el.id);
-                        else localStorage.setItem(LS_PREFIX + el.id, el.value);
+                        var v = fieldVal(el);
+                        if (v === "" || v === fieldDefault(el)) localStorage.removeItem(LS_PREFIX + el.id);
+                        else localStorage.setItem(LS_PREFIX + el.id, v);
                     });
                 }, 400);
-            });
+            }
+            el.addEventListener("input", persist);
+            el.addEventListener("change", persist);
         });
     }
 
@@ -72,10 +90,8 @@
         encode: function () {
             var state = {};
             stateFields().forEach(function (el) {
-                if (el.value && el.value !== el.defaultValue) {
-                    if (el.type === "checkbox" || el.type === "radio") state[el.id] = el.checked ? "1" : "0";
-                    else state[el.id] = el.value;
-                }
+                var v = fieldVal(el);
+                if (v && v !== fieldDefault(el)) state[el.id] = v;
             });
             if (!Object.keys(state).length) return location.href.split("#")[0];
             var enc = b64encode(JSON.stringify(state));

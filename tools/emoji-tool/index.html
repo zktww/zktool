@@ -21,6 +21,8 @@
         /* 骨架（reset/body/bg-fx/top/back/h1/lead/seo-notes）由 tool-shell.css 提供，
            本页只保留 Emoji 工具特有的组件样式与少量布局覆盖。 */
 
+        /* 供 tool-shell 的 body > .seo-notes 对齐本页 .wrap（宽度与水平内边距镜像） */
+        body { --wrap-w: min(1280px, 100%); --wrap-px: clamp(1rem, 3vw, 1.5rem); }
         .wrap {
             min-height: 100vh;
             min-height: 100dvh;
@@ -412,7 +414,21 @@
         .cell:focus-visible .cell-tools,
         .cell:focus-within .cell-tools { opacity: 1; }
 
-        @media (hover: none) { .cell-tools { opacity: 1; } }
+        /* 触屏：角标按钮遮挡表情且易误触，改为长按打开详情（内含收藏）；
+           已收藏状态用右上角小星标提示（不可交互） */
+        @media (hover: none) {
+            .cell-tools { display: none; }
+            .cell.is-fav::after {
+                content: "★";
+                position: absolute;
+                top: 0.15rem;
+                right: 0.3rem;
+                font-size: 0.62rem;
+                line-height: 1;
+                color: #fbbf24;
+                pointer-events: none;
+            }
+        }
 
         .cell-tools button {
             width: 1.5rem;
@@ -681,7 +697,7 @@
         <span class="grad">Emoji 符号库</span>
     </h1>
     <p class="lead">
-        按主题分类浏览，点击即可复制到剪贴板；hover 星标可收藏，右键 / 长按查看 Unicode 详情。Emoji 列表来自
+        按主题分类浏览，点击即可复制到剪贴板；hover 星标可收藏，右键 / 长按查看 Unicode 详情（触屏在详情里收藏）。Emoji 列表来自
         <code>unicode-emoji-json</code>，中文名称与关键词来自 Unicode CLDR <code>annotations/zh</code>。
     </p>
 

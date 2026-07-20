@@ -21,6 +21,8 @@
         /* 骨架（reset/body/bg-fx/top/back/h1 基础）由 tool-shell.css 提供，
            本页只保留时间工具特有的组件样式与少量布局覆盖。 */
 
+        /* 供 tool-shell 的 body > .seo-notes 对齐本页 .wrap（宽度与水平内边距镜像） */
+        body { --wrap-w: min(1520px, 100%); --wrap-px: clamp(1rem, 3vw, 2rem); }
         .wrap {
             max-width: min(1520px, 100%);
             padding: clamp(1rem, 4vw, 2.4rem)

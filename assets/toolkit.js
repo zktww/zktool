@@ -161,6 +161,155 @@
         setTimeout(function () { el.style.opacity = "0"; setTimeout(function () { el.remove(); }, 300); }, 1800);
     }
 
+    /* ══════════ 全站导航：面包屑 + 工具菜单 + GitHub + 相关工具 ══════════
+       数据源 registry.js；manual 页面同样注入（manual 只退出草稿/分享逻辑）。 */
+    var GITHUB_URL = "https://github.com/zktww/zktool";
+
+    function currentTool() {
+        if (!window.ZKTOOL_REGISTRY) return null;
+        for (var i = 0; i < ZKTOOL_REGISTRY.length; i++) {
+            var it = ZKTOOL_REGISTRY[i];
+            if (it.type === "tool" && PAGE.indexOf(it.path.replace(/\/$/, "")) !== -1) return it;
+        }
+        return null;
+    }
+    function groupOf(key) {
+        if (!window.ZKTOOL_GROUPS) return null;
+        for (var i = 0; i < ZKTOOL_GROUPS.length; i++) if (ZKTOOL_GROUPS[i].key === key) return ZKTOOL_GROUPS[i];
+        return null;
+    }
+
+    /* ── 面包屑：把「← 返回主页」升级为 首页 › 分组 › 工具名 ── */
+    function mountBreadcrumb() {
+        var back = document.querySelector(".top .back");
+        var tool = currentTool();
+        if (!back || !tool) return;
+        var grp = groupOf(tool.group);
+        var root = window.zkRoot || "../../";
+        var nav = document.createElement("nav");
+        nav.className = "zk-crumb";
+        nav.setAttribute("aria-label", "面包屑");
+        var html = "<a href='" + root + "'>首页</a>";
+        if (grp) html += "<span class='zk-crumb-sep' aria-hidden='true'>›</span>" +
+            "<a href='" + root + "#domain-" + grp.key + "'>" + grp.title + "</a>";
+        html += "<span class='zk-crumb-sep' aria-hidden='true'>›</span>" +
+            "<span class='zk-crumb-cur' aria-current='page'>" + tool.name + "</span>";
+        nav.innerHTML = html;
+        back.replaceWith(nav);
+    }
+
+    /* ── 全部工具下拉菜单（按分域分组）+ GitHub 按钮，挂在 .zk-actions ── */
+    function mountNavButtons() {
+        var host = document.querySelector(".top");
+        if (!host) return;
+        var box = host.querySelector(".zk-actions");
+        if (!box) {
+            box = document.createElement("div");
+            box.className = "zk-actions";
+            host.appendChild(box);
+        }
+
+        if (!box.querySelector(".zk-gh-btn")) {
+            var gh = document.createElement("a");
+            gh.className = "zk-icon-btn zk-gh-btn";
+            gh.href = GITHUB_URL;
+            gh.target = "_blank";
+            gh.rel = "noopener noreferrer";
+            gh.title = "GitHub 仓库 · 反馈问题";
+            gh.setAttribute("aria-label", "GitHub 仓库，反馈问题");
+            gh.innerHTML = "<svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55 0-.27-.01-1.17-.02-2.12-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.72-1.53-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18.92-.26 1.9-.38 2.88-.39.98 0 1.96.13 2.88.39 2.2-1.49 3.16-1.18 3.16-1.18.63 1.59.24 2.76.12 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.35.77 1.05.77 2.12 0 1.53-.01 2.76-.01 3.14 0 .3.2.67.8.55A10.52 10.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z'/></svg>";
+            box.appendChild(gh);
+        }
+
+        if (window.ZKTOOL_REGISTRY && window.ZKTOOL_GROUPS && !box.querySelector(".zk-nav-btn")) {
+            var nbtn = document.createElement("button");
+            nbtn.type = "button";
+            nbtn.className = "zk-icon-btn zk-nav-btn";
+            nbtn.title = "全部工具";
+            nbtn.setAttribute("aria-label", "全部工具");
+            nbtn.setAttribute("aria-haspopup", "true");
+            nbtn.innerHTML = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><rect x='3' y='3' width='7' height='7' rx='1'/><rect x='14' y='3' width='7' height='7' rx='1'/><rect x='3' y='14' width='7' height='7' rx='1'/><rect x='14' y='14' width='7' height='7' rx='1'/></svg>";
+            nbtn.addEventListener("click", function () { toggleNavMenu(nbtn); });
+            box.insertBefore(nbtn, box.firstChild);
+        }
+    }
+
+    var navMenu = null;
+    function toggleNavMenu(anchor) {
+        if (navMenu) { closeNavMenu(); return; }
+        var root = window.zkRoot || "../../";
+        navMenu = document.createElement("div");
+        navMenu.className = "zk-nav-menu";
+        navMenu.setAttribute("role", "menu");
+        var html = "";
+        ZKTOOL_GROUPS.forEach(function (g) {
+            var list = ZKTOOL_REGISTRY.filter(function (it) { return it.group === g.key && it.type === "tool"; });
+            if (!list.length) return;
+            html += "<div class='zk-nav-g'>" + g.title + "</div>";
+            list.forEach(function (it) {
+                var cur = PAGE.indexOf(it.path.replace(/\/$/, "")) !== -1;
+                html += "<a role='menuitem' href='" + root + it.path + "'" + (cur ? " aria-current='page'" : "") + ">" + it.name + "</a>";
+            });
+        });
+        navMenu.innerHTML = html;
+        var wrap = anchor.parentElement;
+        wrap.style.position = "relative";
+        wrap.appendChild(navMenu);
+
+        function closeNavMenu() {
+            if (!navMenu) return;
+            navMenu.remove(); navMenu = null;
+            document.removeEventListener("click", onDoc);
+            document.removeEventListener("keydown", onKey);
+        }
+        function onDoc(e) {
+            if (navMenu && !navMenu.contains(e.target) && e.target !== anchor && !anchor.contains(e.target)) closeNavMenu();
+        }
+        function onKey(e) {
+            if (!navMenu) return;
+            if (e.key === "Escape") { closeNavMenu(); anchor.focus(); return; }
+            var mis = Array.prototype.slice.call(navMenu.querySelectorAll("[role=menuitem]"));
+            var idx = mis.indexOf(document.activeElement), to = null;
+            if (e.key === "ArrowDown") to = mis[(idx + 1) % mis.length];
+            else if (e.key === "ArrowUp") to = mis[(idx - 1 + mis.length) % mis.length];
+            if (to) { e.preventDefault(); to.focus(); to.scrollIntoView({ block: "nearest" }); }
+        }
+        var first = navMenu.querySelector("[role=menuitem]");
+        if (first) first.focus();
+        document.addEventListener("keydown", onKey);
+        setTimeout(function () { document.addEventListener("click", onDoc); });
+        /* 复用 closeNavMenu 供 toggle 分支调用 */
+        toggleNavMenu._close = closeNavMenu;
+    }
+    function closeNavMenu() { if (toggleNavMenu._close) toggleNavMenu._close(); }
+
+    /* ── 相关工具：seo-notes 前注入同分组的其他工具卡片（内链 + 发现性） ── */
+    function mountRelated() {
+        var seo = document.querySelector(".seo-notes");
+        var tool = currentTool();
+        if (!seo || !tool || !window.ZKTOOL_REGISTRY || document.querySelector(".zk-related")) return;
+        var sibs = ZKTOOL_REGISTRY.filter(function (it) {
+            return it.type === "tool" && it.group === tool.group && it.path !== tool.path;
+        }).slice(0, 6);
+        if (!sibs.length) return;
+        var root = window.zkRoot || "../../";
+        var grp = groupOf(tool.group);
+        var sec = document.createElement("section");
+        sec.className = "zk-related";
+        sec.innerHTML = "<h2>" + (grp ? grp.title + " · " : "") + "相关工具</h2>" +
+            "<nav class='zk-related-grid'>" + sibs.map(function (it) {
+                return "<a href='" + root + it.path + "'><span class='zk-related-icon' style='--c1:" + it.c1 + ";--c2:" + it.c2 + "' aria-hidden='true'>" + it.icon + "</span>" +
+                    "<span><b>" + it.name + "</b><small>" + it.desc + "</small></span></a>";
+            }).join("") + "</nav>";
+        seo.parentNode.insertBefore(sec, seo);
+    }
+
+    function mountNav() {
+        mountBreadcrumb();
+        mountNavButtons();
+        mountRelated();
+    }
+
     function mountButtons() {
         var host = document.querySelector(".top");
         if (!host || manual()) return;
@@ -426,6 +575,7 @@
         }
         if (!manual()) initDraft(fromShare);
         mountButtons();
+        mountNav();
         registerSW();
     }
 

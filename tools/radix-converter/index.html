@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>进制转换 - 在线二进制八进制十进制十六进制互转 | zktool</title>
+    <meta name="description" content="免费在线进制转换器：二进制、八进制、十进制、十六进制实时互转，支持 2-36 任意自定义进制、BigInt 超大整数与负数，兼容 0x/0b/0o 前缀，本地处理不上传。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="进制转换 - 在线二进制八进制十进制十六进制互转 | zktool" />
+    <meta property="og:description" content="免费在线进制转换器：二进制、八进制、十进制、十六进制实时互转，支持 2-36 任意自定义进制、BigInt 超大整数与负数，兼容 0x/0b/0o 前缀，本地处理不上传。" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/radix-converter/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/radix-converter/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css?v=8efaf4a4" />
+    <script src="../../assets/analytics.js?v=3b95695b"></script>
+    <script src="../../assets/theme.js?v=72137155"></script>
+    <script src="../../assets/clipboard.js?v=51b0c84d"></script>
+    <script defer src="../../assets/registry.js?v=d5a1d2f4"></script>
+    <script defer src="../../assets/palette.js?v=21a6ffcc"></script>
+    <script defer src="../../assets/toolkit.js?v=e6e78f0f"></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://tools.zktww.cn/"},{"@type":"ListItem","position":2,"name":"编码与字符","item":"https://tools.zktww.cn/#domain-codec"},{"@type":"ListItem","position":3,"name":"进制转换器","item":"https://tools.zktww.cn/tools/radix-converter/"}]}</script>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">Bin / Oct / Dec / Hex</p></div>
+    <h1><span class="title">进制转换器</span></h1>
+    <p class="lead">二进制、八进制、十进制、十六进制实时联动互转，支持 2-36 任意自定义进制与超大整数。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>进制互转</h2>
+            <div class="row">
+                <label class="grow">二进制 (Base 2)<input id="bin" class="mono" spellcheck="false" autocomplete="off" placeholder="如 0b101010 或 101010" /></label>
+                <button class="btn" type="button" data-copy="bin">复制</button>
+            </div>
+            <div class="row">
+                <label class="grow">八进制 (Base 8)<input id="oct" class="mono" spellcheck="false" autocomplete="off" placeholder="如 0o52 或 52" /></label>
+                <button class="btn" type="button" data-copy="oct">复制</button>
+            </div>
+            <div class="row">
+                <label class="grow">十进制 (Base 10)<input id="dec" class="mono" spellcheck="false" autocomplete="off" placeholder="如 42 或 -42" /></label>
+                <button class="btn" type="button" data-copy="dec">复制</button>
+            </div>
+            <div class="row">
+                <label class="grow">十六进制 (Base 16)<input id="hex" class="mono" spellcheck="false" autocomplete="off" placeholder="如 0x2a 或 2a" /></label>
+                <button class="btn" type="button" data-copy="hex">复制</button>
+            </div>
+            <div class="row">
+                <label>自定义进制 (2-36)<input id="customBase" class="mono w-8" type="number" min="2" max="36" step="1" value="36" /></label>
+                <label class="grow">自定义进制结果<input id="custom" class="mono" spellcheck="false" autocomplete="off" placeholder="在此按自定义进制输入或查看结果..." /></label>
+                <button class="btn" type="button" data-copy="custom">复制</button>
+            </div>
+            <p class="hint" id="status" aria-live="polite">在任意一栏输入，其余进制实时联动换算；负数请在最前面加 -。</p>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>位运算速览</h2>
+                <div class="chips" id="bits" aria-live="polite"></div>
+                <p class="hint">按当前值的绝对值计算 bit 长度、字节占用与 2 的幂判断。</p>
+            </section>
+            <section class="panel">
+                <h2>常用对照表</h2>
+                <table>
+                    <thead><tr><th>写法</th><th>十进制值</th></tr></thead>
+                    <tbody id="cheats" style="cursor:pointer">
+                        <tr data-value="256" tabindex="0" role="button" aria-label="2^8 = 256，回车复制"><td class="mono">2^8</td><td class="mono">256</td></tr>
+                        <tr data-value="1024" tabindex="0" role="button" aria-label="2^10 = 1024，回车复制"><td class="mono">2^10</td><td class="mono">1024</td></tr>
+                        <tr data-value="65536" tabindex="0" role="button" aria-label="2^16 = 65536，回车复制"><td class="mono">2^16</td><td class="mono">65536</td></tr>
+                        <tr data-value="4294967296" tabindex="0" role="button" aria-label="2^32 = 4294967296，回车复制"><td class="mono">2^32</td><td class="mono">4294967296</td></tr>
+                        <tr data-value="18446744073709551616" tabindex="0" role="button" aria-label="2^64 = 18446744073709551616，回车复制"><td class="mono">2^64</td><td class="mono">18446744073709551616</td></tr>
+                        <tr data-value="255" tabindex="0" role="button" aria-label="0xff = 255，回车复制"><td class="mono">0xff</td><td class="mono">255</td></tr>
+                        <tr data-value="65535" tabindex="0" role="button" aria-label="0xffff = 65535，回车复制"><td class="mono">0xffff</td><td class="mono">65535</td></tr>
+                        <tr data-value="2147483647" tabindex="0" role="button" aria-label="0x7fffffff = 2147483647，回车复制"><td class="mono">0x7fffffff</td><td class="mono">2147483647</td></tr>
+                        <tr data-value="511" tabindex="0" role="button" aria-label="0o777 = 511，回车复制"><td class="mono">0o777</td><td class="mono">511</td></tr>
+                    </tbody>
+                </table>
+                <p class="hint" id="copyStatus" aria-live="polite">点击任意一行复制其十进制值。</p>
+            </section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+    <h2>关于进制转换</h2>
+    <p>进制转换是编程和数字电路中的高频操作：调试位掩码要看二进制，读文件权限要看八进制，内存地址和颜色值离不开十六进制。本工具提供二进制、八进制、十进制、十六进制四栏实时联动互转，任意一栏输入其余自动更新；基于 BigInt 任意精度整数实现，超大整数和负数都能精确换算，输入兼容 0x、0b、0o 前缀；还支持 2-36 之间的自定义进制（如 Base32、Base36），并附带 bit 长度、字节数、2 的幂判断与常用数值对照表。所有计算均在浏览器本地完成，数据不会上传。</p>
+    <h2>常见问题</h2>
+    <details><summary>支持多大的数字？会不会精度丢失？</summary><p>本工具基于 BigInt 任意精度整数实现，几百上千位的大整数也能精确换算，不会像 JavaScript Number 那样在超过 2^53 后丢失精度。负数在最前面加 - 即可，暂不支持小数部分的进制转换。</p></details>
+    <details><summary>0x、0b、0o 这些前缀是什么意思？</summary><p>它们是编程语言里常见的进制字面量前缀：0x 表示十六进制（如 0xff）、0b 表示二进制（如 0b1010）、0o 表示八进制（如 0o777）。在对应输入框中粘贴带前缀的数值会被自动识别，无需手动删除前缀。</p></details>
+    <details><summary>自定义进制为什么最大只到 36？</summary><p>因为常规写法可用的字符是 0-9 十个数字加 a-z 二十六个字母，总共 36 个，所以逐位记数法最大到 36 进制。Base36 常用于生成短链接、邀请码等紧凑编号；本工具输入时字母大小写不敏感，输出统一为小写。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"进制转换器","url":"https://tools.zktww.cn/tools/radix-converter/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线进制转换器：二进制、八进制、十进制、十六进制实时互转，支持 2-36 任意自定义进制、BigInt 超大整数与负数，兼容 0x/0b/0o 前缀，本地处理不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"支持多大的数字？会不会精度丢失？","acceptedAnswer":{"@type":"Answer","text":"本工具基于 BigInt 任意精度整数实现，几百上千位的大整数也能精确换算，不会像 JavaScript Number 那样在超过 2^53 后丢失精度。负数在最前面加 - 即可，暂不支持小数部分的进制转换。"}},{"@type":"Question","name":"0x、0b、0o 这些前缀是什么意思？","acceptedAnswer":{"@type":"Answer","text":"它们是编程语言里常见的进制字面量前缀：0x 表示十六进制（如 0xff）、0b 表示二进制（如 0b1010）、0o 表示八进制（如 0o777）。在对应输入框中粘贴带前缀的数值会被自动识别，无需手动删除前缀。"}},{"@type":"Question","name":"自定义进制为什么最大只到 36？","acceptedAnswer":{"@type":"Answer","text":"因为常规写法可用的字符是 0-9 十个数字加 a-z 二十六个字母，总共 36 个，所以逐位记数法最大到 36 进制。Base36 常用于生成短链接、邀请码等紧凑编号；本工具输入时字母大小写不敏感，输出统一为小写。"}}]}]}</script>
+</main>
+<script>
+(function () {
+    "use strict";
+    var DIGITS = "0123456789abcdefghijklmnopqrstuvwxyz";
+    var DEFAULT_HINT = "在任意一栏输入，其余进制实时联动换算；负数请在最前面加 -。";
+    var fields = [
+        { id: "bin", base: 2 },
+        { id: "oct", base: 8 },
+        { id: "dec", base: 10 },
+        { id: "hex", base: 16 }
+    ];
+    var els = {};
+    fields.forEach(function (f) { els[f.id] = document.getElementById(f.id); });
+    var custom = document.getElementById("custom"), customBase = document.getElementById("customBase");
+    var status = document.getElementById("status"), bits = document.getElementById("bits"), copyStatus = document.getElementById("copyStatus");
+    var current = null; // 当前值（BigInt），null 表示无有效输入
+
+    function parseBig(raw, base) {
+        var s = String(raw).replace(/[\s_,]/g, "").toLowerCase();
+        var neg = false;
+        if (s.charAt(0) === "-") { neg = true; s = s.slice(1); }
+        else if (s.charAt(0) === "+") { s = s.slice(1); }
+        // 兼容编程语言常见的进制字面量前缀
+        if (base === 16 && s.slice(0, 2) === "0x") s = s.slice(2);
+        else if (base === 2 && s.slice(0, 2) === "0b") s = s.slice(2);
+        else if (base === 8 && s.slice(0, 2) === "0o") s = s.slice(2);
+        if (!s) throw new Error("没有有效数字");
+        var b = BigInt(base), v = 0n;
+        for (var i = 0; i < s.length; i++) {
+            var d = DIGITS.indexOf(s.charAt(i));
+            if (d < 0 || d >= base) throw new Error("包含 " + base + " 进制的非法字符 “" + s.charAt(i) + "”");
+            v = v * b + BigInt(d);
+        }
+        return neg ? -v : v;
+    }
+    // BigInt.toString(radix) 也只支持到 36，这里统一手写逐位取余，输出小写
+    function toBase(v, base) {
+        if (v === 0n) return "0";
+        var neg = v < 0n;
+        if (neg) v = -v;
+        var b = BigInt(base), out = "";
+        while (v > 0n) { out = DIGITS.charAt(Number(v % b)) + out; v = v / b; }
+        return neg ? "-" + out : out;
+    }
+    function getCustomBase() {
+        var n = parseInt(customBase.value, 10);
+        if (!isFinite(n) || n < 2 || n > 36) { customBase.classList.add("bad"); return null; }
+        customBase.classList.remove("bad");
+        return n;
+    }
+    function clearBad() {
+        fields.forEach(function (f) { els[f.id].classList.remove("bad"); });
+        custom.classList.remove("bad");
+    }
+    function setStatus(text, cls) { status.textContent = text; status.className = "hint" + (cls ? " " + cls : ""); }
+    function updateBits() {
+        if (current === null) { bits.innerHTML = "<span class='chip'>等待输入…</span>"; return; }
+        var abs = current < 0n ? -current : current;
+        var len = abs === 0n ? 0 : abs.toString(2).length;
+        var byteCount = len ? Math.ceil(len / 8) : 0;
+        var pow2 = abs > 0n && (abs & (abs - 1n)) === 0n;
+        var html = "<span class='chip'>bit 长度 " + len + "</span><span class='chip'>字节 " + byteCount + "</span>";
+        html += pow2 ? "<span class='chip'>2 的幂：是 (2^" + (len - 1) + ")</span>" : "<span class='chip'>2 的幂：否</span>";
+        if (current < 0n) html += "<span class='chip'>负数</span>";
+        bits.innerHTML = html;
+    }
+    // 渲染除正在编辑的框以外的所有框
+    function render(except) {
+        fields.forEach(function (f) {
+            if (f.id === except) return;
+            els[f.id].value = current === null ? "" : toBase(current, f.base);
+        });
+        if (except !== "custom") {
+            var cb = getCustomBase();
+            custom.value = (current === null || cb === null) ? "" : toBase(current, cb);
+        }
+        updateBits();
+    }
+    function onEdit(id, base) {
+        var el = id === "custom" ? custom : els[id];
+        clearBad();
+        if (!el.value.trim()) { current = null; render(id); setStatus(DEFAULT_HINT, ""); return; }
+        try {
+            current = parseBig(el.value, base);
+            render(id);
+            setStatus("已按 " + base + " 进制解析，其余各栏已更新。", "ok");
+        } catch (e) {
+            current = null;
+            el.classList.add("bad");
+            render(id);
+            setStatus("解析失败：" + e.message, "bad");
+        }
+    }
+    fields.forEach(function (f) {
+        els[f.id].addEventListener("input", function () { onEdit(f.id, f.base); });
+    });
+    custom.addEventListener("input", function () {
+        var cb = getCustomBase();
+        if (cb === null) { setStatus("自定义进制需在 2-36 之间。", "bad"); return; }
+        onEdit("custom", cb);
+    });
+    customBase.addEventListener("input", function () {
+        var cb = getCustomBase();
+        if (cb === null) { custom.value = ""; setStatus("自定义进制需在 2-36 之间。", "bad"); return; }
+        custom.classList.remove("bad");
+        custom.value = current === null ? "" : toBase(current, cb);
+        setStatus("自定义进制已切换为 Base " + cb + "。", "ok");
+    });
+    // 输入框旁的复制按钮（data-copy=输入框 id）与对照表行（data-value=字面值）
+    document.addEventListener("click", function (e) {
+        var t = e.target.closest ? e.target.closest("[data-copy],[data-value]") : null;
+        if (!t) return;
+        var isRow = t.hasAttribute("data-value");
+        var hint = isRow ? copyStatus : status;
+        var text = isRow ? t.getAttribute("data-value") : (document.getElementById(t.getAttribute("data-copy")) || { value: "" }).value;
+        if (!text) { hint.textContent = "没有可复制的内容"; hint.className = "hint bad"; return; }
+        copyText(text).then(function () { hint.textContent = "已复制：" + (text.length > 40 ? text.slice(0, 40) + "…" : text); hint.className = "hint ok"; },
+            function () { hint.textContent = "复制失败，请手动选择复制"; hint.className = "hint bad"; });
+    });
+    document.getElementById("cheats").addEventListener("keydown", function (e) {
+        if (e.key !== "Enter" && e.key !== " ") return;
+        var row = e.target.closest ? e.target.closest("[data-value]") : null;
+        if (row) { e.preventDefault(); row.click(); }
+    });
+    updateBits();
+})();
+</script>
+</body>
+</html>

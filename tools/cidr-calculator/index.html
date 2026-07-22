@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>子网计算器 - 在线CIDR/IP子网划分计算（掩码换算） | zktool</title>
+    <meta name="description" content="免费在线 CIDR 子网计算器：输入 192.168.1.0/24 即得网络地址、广播地址、子网掩码与可用主机范围，支持 IP 归属判断与子网划分，/31 /32 特殊处理，纯本地计算不上传。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="子网计算器 - 在线CIDR/IP子网划分计算（掩码换算） | zktool" />
+    <meta property="og:description" content="免费在线 CIDR 子网计算器：输入 192.168.1.0/24 即得网络地址、广播地址、子网掩码与可用主机范围，支持 IP 归属判断与子网划分，/31 /32 特殊处理，纯本地计算不上传。" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/cidr-calculator/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/cidr-calculator/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css?v=8efaf4a4" />
+    <script src="../../assets/analytics.js?v=3b95695b"></script>
+    <script src="../../assets/theme.js?v=72137155"></script>
+    <script src="../../assets/clipboard.js?v=51b0c84d"></script>
+    <style>
+        .res-table { display: flex; flex-direction: column; gap: 0.4rem; }
+        .res-row {
+            display: flex; justify-content: space-between; align-items: baseline; gap: 0.8rem;
+            padding: 0.5rem 0.7rem; border: 1px solid var(--border); border-radius: 10px;
+            background: var(--bg-soft); cursor: pointer; transition: border-color 0.2s, background 0.2s;
+        }
+        .res-row:hover, .res-row:focus-visible { border-color: var(--brand-ring); outline: none; }
+        .res-row.flash { border-color: var(--ok); }
+        .res-row .k { color: var(--text-2); font-size: 0.84rem; white-space: nowrap; }
+        .res-row .v { font-family: var(--mono); font-size: 0.88rem; text-align: right; word-break: break-all; }
+        .sub-list { display: flex; flex-direction: column; gap: 0.35rem; max-height: 19rem; overflow: auto; }
+        .sub-list .v { text-align: left; }
+        .sub-list .k { font-family: var(--mono); font-size: 0.78rem; white-space: normal; word-break: break-all; text-align: right; }
+    </style>
+    <script defer src="../../assets/registry.js?v=d5a1d2f4"></script>
+    <script defer src="../../assets/palette.js?v=21a6ffcc"></script>
+    <script defer src="../../assets/toolkit.js?v=e6e78f0f"></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://tools.zktww.cn/"},{"@type":"ListItem","position":2,"name":"速查参考","item":"https://tools.zktww.cn/#domain-ref"},{"@type":"ListItem","position":3,"name":"CIDR 子网计算器","item":"https://tools.zktww.cn/tools/cidr-calculator/"}]}</script>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">网络 / IPv4</p></div>
+    <h1><span class="title">CIDR 子网计算器</span></h1>
+    <p class="lead">输入 192.168.1.0/24 这样的 CIDR，实时得到网络地址、广播地址、掩码与可用主机范围，并支持 IP 归属判断和子网划分。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>CIDR 输入</h2>
+            <input class="mono" id="cidr" spellcheck="false" autocomplete="off" placeholder="192.168.1.0/24" aria-label="CIDR 网段" data-zk-save data-zk-share />
+            <div class="row">
+                <button class="btn primary" id="example">示例</button>
+                <button class="btn danger" id="clear">清空</button>
+            </div>
+            <p class="hint" id="status" aria-live="polite">输入 IP/前缀（如 10.0.0.0/8），全部在浏览器本地实时计算。</p>
+            <h2>IP 归属判断</h2>
+            <input class="mono" id="testip" spellcheck="false" autocomplete="off" placeholder="如 192.168.1.100" aria-label="待判断的 IP 地址" data-zk-save data-zk-share />
+            <p class="hint" id="testout" aria-live="polite">输入一个 IP，实时判断它是否属于上方网段。</p>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>计算结果</h2>
+                <div class="res-table" id="result"><p class="hint">输入有效的 CIDR 后在这里显示结果。</p></div>
+                <p class="hint" id="resHint">点击任意一行即可复制对应的值。</p>
+            </section>
+            <section class="panel">
+                <h2>子网划分</h2>
+                <div class="row">
+                    <label class="grow">目标前缀长度
+                        <select id="splitLen" aria-label="目标前缀长度" disabled></select>
+                    </label>
+                </div>
+                <div class="res-table sub-list" id="subnets"></div>
+                <p class="hint" id="splitHint">把当前网段划分为更小的子网（前缀 +1 ~ +8）。</p>
+            </section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+    <h2>关于CIDR子网计算器</h2>
+    <p>CIDR（无类别域间路由）用「IP/前缀长度」表示一个网段，例如 192.168.1.0/24。本工具输入 CIDR 后实时计算网络地址、广播地址、子网掩码、反掩码（wildcard）、可用主机范围与可用主机数，自动识别 IP 类别以及是否属于 RFC 1918 私有地址、回环或链路本地地址；/31 点对点与 /32 单主机按 RFC 3021 特殊处理。还可以判断任意 IP 是否落在该网段内，并把网段按更长前缀划分为子网列表，全部计算在浏览器本地完成，不上传任何数据。</p>
+    <h2>常见问题</h2>
+    <details><summary>/24 是什么意思？</summary><p>斜杠后的数字是前缀长度，即子网掩码中二进制 1 的个数。/24 表示前 24 位是网络位，对应掩码 255.255.255.0，剩余 8 位主机位共 256 个地址，去掉网络地址和广播地址后有 254 个可用主机。前缀越大网段越小：/16 有 65534 个可用主机，/30 只有 2 个。</p></details>
+    <details><summary>为什么可用主机数要减 2？</summary><p>每个网段的第一个地址（主机位全 0）是网络地址，最后一个地址（主机位全 1）是广播地址，两者都不能分配给主机，所以可用主机数 = 总地址数 − 2。例外：/31 用于点对点链路，两个地址都可用（RFC 3021）；/32 表示单个主机，可用主机数为 1。</p></details>
+    <details><summary>支持 IPv6 吗？</summary><p>暂时只支持 IPv4。IPv6 的前缀概念完全相同（如 /64、/48），但地址长 128 位且用十六进制冒号表示，计算方式不同，后续版本会考虑支持。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"CIDR 子网计算器","url":"https://tools.zktww.cn/tools/cidr-calculator/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 CIDR 子网计算器：输入 192.168.1.0/24 即得网络地址、广播地址、子网掩码与可用主机范围，支持 IP 归属判断与子网划分，纯本地计算不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"/24 是什么意思？","acceptedAnswer":{"@type":"Answer","text":"斜杠后的数字是前缀长度，即子网掩码中二进制 1 的个数。/24 表示前 24 位是网络位，对应掩码 255.255.255.0，剩余 8 位主机位共 256 个地址，去掉网络地址和广播地址后有 254 个可用主机。"}},{"@type":"Question","name":"为什么可用主机数要减 2？","acceptedAnswer":{"@type":"Answer","text":"每个网段的第一个地址（主机位全 0）是网络地址，最后一个地址（主机位全 1）是广播地址，两者都不能分配给主机，所以可用主机数 = 总地址数 − 2。例外：/31 点对点链路两个地址都可用（RFC 3021），/32 表示单个主机。"}},{"@type":"Question","name":"支持 IPv6 吗？","acceptedAnswer":{"@type":"Answer","text":"暂时只支持 IPv4。IPv6 的前缀概念完全相同（如 /64、/48），但地址长 128 位且用十六进制冒号表示，计算方式不同，后续版本会考虑支持。"}}]}]}</script>
+</main>
+<script>
+(function () {
+    "use strict";
+    var cidrEl = document.getElementById("cidr"), testEl = document.getElementById("testip");
+    var statusEl = document.getElementById("status"), testOut = document.getElementById("testout");
+    var resultEl = document.getElementById("result"), resHint = document.getElementById("resHint");
+    var splitSel = document.getElementById("splitLen"), subnetsEl = document.getElementById("subnets"), splitHint = document.getElementById("splitHint");
+    var cur = null; /* 当前网段信息，输入非法时为 null */
+
+    /* ── 核心：IP 与 uint32 互转（全程 >>>0 保证无符号） ── */
+    function parseIp(s) {
+        var m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(s);
+        if (!m) return null;
+        var n = 0;
+        for (var i = 1; i <= 4; i++) {
+            var o = parseInt(m[i], 10);
+            if (o > 255) return null;
+            n = ((n << 8) | o) >>> 0;
+        }
+        return n;
+    }
+    function ipToStr(n) {
+        n = n >>> 0;
+        return [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join(".");
+    }
+    function maskOf(prefix) { return prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0; }
+    function parseCidr(s) {
+        var parts = s.split("/");
+        if (parts.length !== 2 || !parts[0] || !parts[1]) throw new Error("格式应为 IP/前缀，例如 192.168.1.0/24");
+        var ip = parseIp(parts[0].trim());
+        if (ip === null) throw new Error("IP 地址不合法：应为点分十进制，每段 0-255");
+        if (!/^\d{1,2}$/.test(parts[1].trim())) throw new Error("前缀长度应为 0-32 的整数");
+        var prefix = parseInt(parts[1].trim(), 10);
+        if (prefix > 32) throw new Error("前缀长度超出范围（0-32）");
+        return { ip: ip, prefix: prefix };
+    }
+    function calcNet(ip, prefix) {
+        var mask = maskOf(prefix);
+        var network = (ip & mask) >>> 0;
+        var wildcard = (~mask) >>> 0;
+        var broadcast = (network | wildcard) >>> 0;
+        var total = Math.pow(2, 32 - prefix);
+        var first, last, usable;
+        if (prefix >= 31) { first = network; last = broadcast; usable = prefix === 31 ? 2 : 1; }
+        else { first = (network + 1) >>> 0; last = (broadcast - 1) >>> 0; usable = total - 2; }
+        return { ip: ip, prefix: prefix, mask: mask, wildcard: wildcard, network: network, broadcast: broadcast, total: total, first: first, last: last, usable: usable };
+    }
+    function classify(ip) {
+        var a = ip >>> 24, b = (ip >>> 16) & 255;
+        var cls;
+        if (a < 128) cls = "A 类";
+        else if (a < 192) cls = "B 类";
+        else if (a < 224) cls = "C 类";
+        else if (a < 240) cls = "D 类（组播）";
+        else cls = "E 类（保留）";
+        var kind = "";
+        if (a === 10 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168)) kind = "RFC 1918 私有地址";
+        else if (a === 127) kind = "回环地址（127.0.0.0/8）";
+        else if (a === 169 && b === 254) kind = "链路本地地址（169.254.0.0/16）";
+        else if (a < 224) kind = "公网地址";
+        return kind ? cls + " · " + kind : cls;
+    }
+    function splitSubnets(network, prefix, newPrefix, limit) {
+        var count = Math.pow(2, newPrefix - prefix);
+        var step = Math.pow(2, 32 - newPrefix);
+        var list = [];
+        var n = Math.min(count, limit);
+        for (var i = 0; i < n; i++) list.push((network + i * step) >>> 0);
+        return { total: count, step: step, list: list };
+    }
+
+    /* ── 渲染 ── */
+    function row(k, display, copyVal) {
+        return "<div class='res-row' role='button' tabindex='0' title='点击复制' data-v=\"" + copyVal.replace(/"/g, "&quot;") + "\">" +
+            "<span class='k'>" + k + "</span><span class='v'>" + display + "</span></div>";
+    }
+    function renderResult() {
+        var c = cur;
+        var rows = [];
+        rows.push(row("网络地址", ipToStr(c.network), ipToStr(c.network)));
+        var bcNote = c.prefix === 31 ? "（/31 无广播，RFC 3021）" : (c.prefix === 32 ? "（/32 单地址）" : "");
+        rows.push(row("广播地址" + bcNote, ipToStr(c.broadcast), ipToStr(c.broadcast)));
+        rows.push(row("子网掩码", ipToStr(c.mask), ipToStr(c.mask)));
+        rows.push(row("反掩码 wildcard", ipToStr(c.wildcard), ipToStr(c.wildcard)));
+        rows.push(row("CIDR 前缀", ipToStr(c.network) + "/" + c.prefix, ipToStr(c.network) + "/" + c.prefix));
+        var range = c.prefix === 32 ? ipToStr(c.network) : ipToStr(c.first) + " - " + ipToStr(c.last);
+        rows.push(row("可用主机范围", range, range));
+        var un = String(c.usable);
+        var uDisp = c.prefix === 31 ? "2（点对点，两个地址都可用）" : (c.prefix === 32 ? "1（单主机路由）" : c.usable.toLocaleString("zh-CN"));
+        rows.push(row("可用主机数", uDisp, un));
+        var cls = classify(c.ip);
+        rows.push(row("IP 类别", cls, cls));
+        resultEl.innerHTML = rows.join("");
+    }
+    function buildSplitOptions(keep) {
+        splitSel.innerHTML = "";
+        if (!cur || cur.prefix >= 32) {
+            splitSel.disabled = true;
+            subnetsEl.innerHTML = "";
+            splitHint.textContent = cur ? "/32 已是单个地址，无法再划分。" : "输入有效的 CIDR 后可选择划分方案。";
+            splitHint.className = "hint";
+            return;
+        }
+        var max = Math.min(cur.prefix + 8, 32);
+        for (var p = cur.prefix + 1; p <= max; p++) {
+            var opt = document.createElement("option");
+            opt.value = String(p);
+            opt.textContent = "/" + p + " · " + Math.pow(2, p - cur.prefix) + " 个子网 × 每个 " + Math.pow(2, 32 - p).toLocaleString("zh-CN") + " 地址";
+            splitSel.appendChild(opt);
+        }
+        splitSel.disabled = false;
+        if (keep && splitSel.querySelector("option[value='" + keep + "']")) splitSel.value = String(keep);
+        renderSplit();
+    }
+    function renderSplit() {
+        if (!cur || splitSel.disabled) return;
+        var p = parseInt(splitSel.value, 10);
+        if (isNaN(p) || p <= cur.prefix || p > 32) return;
+        var LIMIT = 64;
+        var r = splitSubnets(cur.network, cur.prefix, p, LIMIT);
+        var html = "";
+        for (var i = 0; i < r.list.length; i++) {
+            var net = r.list[i];
+            var cidr = ipToStr(net) + "/" + p;
+            var top = (net + r.step - 1) >>> 0;
+            html += "<div class='res-row' role='button' tabindex='0' title='点击复制' data-v=\"" + cidr + "\">" +
+                "<span class='v'>" + cidr + "</span><span class='k'>" + ipToStr(net) + " - " + ipToStr(top) + "</span></div>";
+        }
+        subnetsEl.innerHTML = html;
+        if (r.total > LIMIT) {
+            splitHint.textContent = "共 " + r.total.toLocaleString("zh-CN") + " 个子网，仅显示前 " + LIMIT + " 个。";
+            splitHint.className = "hint warn";
+        } else {
+            splitHint.textContent = "共 " + r.total + " 个子网，点击任意子网可复制其 CIDR。";
+            splitHint.className = "hint";
+        }
+    }
+    function renderTest() {
+        var t = testEl.value.trim();
+        if (!t) { testOut.textContent = "输入一个 IP，实时判断它是否属于上方网段。"; testOut.className = "hint"; return; }
+        var ip = parseIp(t);
+        if (ip === null) { testOut.textContent = "IP 格式不正确：应为点分十进制，如 192.168.1.100。"; testOut.className = "hint bad"; return; }
+        if (!cur) { testOut.textContent = "先在上方输入有效的 CIDR 网段。"; testOut.className = "hint"; return; }
+        var net = ipToStr(cur.network) + "/" + cur.prefix;
+        if (((ip & cur.mask) >>> 0) === cur.network) {
+            testOut.textContent = t + " 在 " + net + " 网段内。";
+            testOut.className = "hint ok";
+        } else {
+            testOut.textContent = t + " 不在 " + net + " 网段内（同掩码下它属于 " + ipToStr((ip & cur.mask) >>> 0) + "/" + cur.prefix + "）。";
+            testOut.className = "hint bad";
+        }
+    }
+    function recalc() {
+        var s = cidrEl.value.trim();
+        var keep = splitSel.disabled ? null : splitSel.value;
+        if (!s) {
+            cur = null;
+            resultEl.innerHTML = "<p class='hint'>输入有效的 CIDR 后在这里显示结果。</p>";
+            statusEl.textContent = "输入 IP/前缀（如 10.0.0.0/8），全部在浏览器本地实时计算。";
+            statusEl.className = "hint";
+            buildSplitOptions(null);
+            renderTest();
+            return;
+        }
+        try {
+            var p = parseCidr(s);
+            cur = calcNet(p.ip, p.prefix);
+            renderResult();
+            statusEl.textContent = "已计算 " + ipToStr(cur.network) + "/" + cur.prefix + "（共 " + cur.total.toLocaleString("zh-CN") + " 个地址）。";
+            statusEl.className = "hint ok";
+            buildSplitOptions(keep);
+        } catch (e) {
+            cur = null;
+            resultEl.innerHTML = "<p class='hint bad'>" + e.message + "</p>";
+            statusEl.textContent = e.message;
+            statusEl.className = "hint bad";
+            buildSplitOptions(null);
+        }
+        renderTest();
+    }
+
+    /* ── 点击/回车复制（事件委托） ── */
+    function bindCopy(container, hintEl) {
+        function doCopy(rowEl) {
+            var v = rowEl.getAttribute("data-v") || "";
+            copyText(v).then(function () {
+                rowEl.classList.add("flash");
+                setTimeout(function () { rowEl.classList.remove("flash"); }, 800);
+                hintEl.textContent = "已复制：" + v;
+                hintEl.className = "hint ok";
+            }, function () {
+                hintEl.textContent = "复制失败，请手动选择复制。";
+                hintEl.className = "hint bad";
+            });
+        }
+        container.addEventListener("click", function (e) {
+            var r = e.target.closest && e.target.closest(".res-row");
+            if (r && container.contains(r)) doCopy(r);
+        });
+        container.addEventListener("keydown", function (e) {
+            if (e.key !== "Enter" && e.key !== " ") return;
+            var r = e.target.closest && e.target.closest(".res-row");
+            if (r && container.contains(r)) { e.preventDefault(); doCopy(r); }
+        });
+    }
+    bindCopy(resultEl, resHint);
+    bindCopy(subnetsEl, splitHint);
+
+    /* ── 交互 ── */
+    var EXAMPLES = ["192.168.1.0/24", "10.0.0.0/8", "172.16.5.4/30", "192.168.0.0/31", "8.8.8.8/32"];
+    var exIdx = 0;
+    document.getElementById("example").onclick = function () {
+        cidrEl.value = EXAMPLES[exIdx % EXAMPLES.length];
+        exIdx++;
+        recalc();
+    };
+    document.getElementById("clear").onclick = function () {
+        cidrEl.value = "";
+        testEl.value = "";
+        recalc();
+        statusEl.textContent = "已清空。";
+        statusEl.className = "hint";
+    };
+    cidrEl.addEventListener("input", recalc);
+    testEl.addEventListener("input", renderTest);
+    splitSel.addEventListener("change", renderSplit);
+    recalc();
+})();
+</script>
+</body>
+</html>

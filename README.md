@@ -54,6 +54,11 @@
 | [tools/device-info/](tools/device-info/) | 设备信息面板：屏幕分辨率、DPR、视口、safe-area、UA 与网络状态一屏速查 |
 | [tools/touch-tester/](tools/touch-tester/) | 触摸事件测试板：多指触点可视化、滑动轨迹与事件日志，调试触屏交互 |
 | [tools/sensor-viewer/](tools/sensor-viewer/) | 传感器查看器：陀螺仪、加速度计与指南针实时数值可视化，需手机访问 |
+| [tools/radix-converter/](tools/radix-converter/) | 进制转换器：二/八/十/十六与自定义进制互转，BigInt 大数支持，实时联动 |
+| [tools/aes-tool/](tools/aes-tool/) | AES 加解密：AES-256-GCM 文本加解密，PBKDF2 密码派生，全程本地不上传 |
+| [tools/cert-decoder/](tools/cert-decoder/) | X.509 证书解析：解析 SSL/TLS 证书 PEM：有效期、SAN、公钥与指纹，本地不上传 |
+| [tools/json-diff/](tools/json-diff/) | JSON Diff 对比：两段 JSON 结构化对比：新增/删除/修改逐路径列出，不受键序影响 |
+| [tools/cidr-calculator/](tools/cidr-calculator/) | CIDR 子网计算器：IPv4 CIDR 计算：网络/广播/掩码/可用范围，IP 归属判断与子网划分 |
 <!-- /gen:readme-tools -->
 
 ## 工具说明
@@ -186,6 +191,26 @@ Linux 文件权限三向换算：权限勾选矩阵、八进制（含 setuid/set
 
 陀螺仪（方向 alpha/beta/gamma + 3D 手机模型示意 + 指南针）、加速度计（含重力/线性加速度条形图）与旋转速率实时可视化，显示事件频率；兼容 iOS 13+ 的手势授权流程，无传感器的桌面设备自动提示扫码用手机打开。
 
+### 进制转换器（`tools/radix-converter/`）
+
+二进制、八进制、十进制、十六进制与 2-36 自定义进制实时联动互转，基于 BigInt 支持任意大整数与负数，兼容 0x/0b/0o 前缀；附位数/字节数/2 的幂速览与常用常数对照表。
+
+### AES 加解密（`tools/aes-tool/`）
+
+基于 Web Crypto 的 AES-256-GCM 文本加解密：PBKDF2-SHA256（20 万轮）从密码派生密钥，随机 salt+IV，输出自描述的 `zkaes1:` base64 格式；认证加密可检测密码错误与数据篡改，全程本地不上传。
+
+### X.509 证书解析（`tools/cert-decoder/`）
+
+粘贴 PEM 证书（支持证书链）本地解析：主体/签发者 DN、有效期与过期标注、SAN 域名、公钥算法与位数、签名算法、序列号及 SHA-1/SHA-256 指纹；内置最小 ASN.1/DER 解析器，证书不上传。
+
+### JSON Diff 对比（`tools/json-diff/`）
+
+两段 JSON 递归结构化对比，逐路径列出新增/删除/修改/类型变化并统计，不受键顺序与缩进影响；可选数组忽略顺序模式，适合接口回归与配置审查。
+
+### CIDR 子网计算器（`tools/cidr-calculator/`）
+
+IPv4 CIDR 实时计算网络/广播地址、掩码与反掩码、可用主机范围（/31、/32 特殊处理）、IP 类别与私有段判断；支持 IP 归属检测与向更长前缀的子网划分列表。
+
 ### 二维码生成器（外部工具）
 
 跳转到 [https://qc.zktww.cn/](https://qc.zktww.cn/)，用于快速生成二维码。
@@ -216,6 +241,13 @@ Linux 文件权限三向换算：权限勾选矩阵、八进制（含 setuid/set
 4. 在本 README 的「工具说明」中补一段详细说明（按需详写）。
 
 > 站点部署域名变更时：全局替换页面 `og:url`、`sitemap.xml` 与 `robots.txt` 中的 `https://tools.zktww.cn`。
+
+---
+
+## 反馈与源码
+
+- 源码托管在 GitHub：[zktww/zktool](https://github.com/zktww/zktool)。
+- 使用中遇到问题或想要新工具，欢迎提 [Issue](https://github.com/zktww/zktool/issues)；每个工具页右上角也有 GitHub 入口。
 
 ---
 

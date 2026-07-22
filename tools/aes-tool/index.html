@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>AES加密解密 - 在线AES-GCM文本加解密工具 | zktool</title>
+    <meta name="description" content="免费在线 AES 加解密工具：AES-256-GCM 认证加密，PBKDF2-SHA256 派生密钥，随机 salt 与 IV，基于 Web Crypto 全程本地处理，密码与数据不上传。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="AES加密解密 - 在线AES-GCM文本加解密工具 | zktool" />
+    <meta property="og:description" content="免费在线 AES 加解密工具：AES-256-GCM 认证加密，PBKDF2-SHA256 派生密钥，随机 salt 与 IV，基于 Web Crypto 全程本地处理，密码与数据不上传。" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/aes-tool/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/aes-tool/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css?v=8efaf4a4" />
+    <script src="../../assets/analytics.js?v=3b95695b"></script>
+    <script src="../../assets/theme.js?v=72137155"></script>
+    <script src="../../assets/clipboard.js?v=51b0c84d"></script>
+    <script defer src="../../assets/registry.js?v=d5a1d2f4"></script>
+    <script defer src="../../assets/palette.js?v=21a6ffcc"></script>
+    <script defer src="../../assets/toolkit.js?v=e6e78f0f"></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://tools.zktww.cn/"},{"@type":"ListItem","position":2,"name":"生成与凭证","item":"https://tools.zktww.cn/#domain-gen"},{"@type":"ListItem","position":3,"name":"AES 加解密","item":"https://tools.zktww.cn/tools/aes-tool/"}]}</script>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">AES-256-GCM</p></div>
+    <h1><span class="title">AES 加解密</span></h1>
+    <p class="lead">使用密码对文本进行 AES-256-GCM 加密/解密，基于浏览器 Web Crypto 全程本地处理。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>输入</h2>
+            <textarea id="input" spellcheck="false" aria-label="明文或密文" placeholder="加密：输入任意明文&#10;解密：粘贴 zkaes1: 开头的密文..."></textarea>
+            <div class="row">
+                <label class="grow">密码
+                    <input type="password" id="passwd" data-zk-off autocomplete="off" placeholder="输入加密/解密密码" aria-label="密码" />
+                </label>
+                <button class="btn" id="togglePw" type="button" aria-label="显示或隐藏密码">显示</button>
+            </div>
+            <div class="row">
+                <button class="btn primary" id="encBtn">加密</button>
+                <button class="btn" id="decBtn">解密</button>
+                <button class="btn danger" id="clear">清空</button>
+            </div>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>结果</h2>
+                <pre class="output" id="output"></pre>
+                <div class="row"><button class="btn primary" id="copy">复制结果</button></div>
+                <p class="hint" id="status" aria-live="polite">密码与数据均在本地处理，不会上传。</p>
+            </section>
+            <section class="panel">
+                <h2>参数说明</h2>
+                <div class="chips">
+                    <span class="chip">算法 AES-256-GCM</span>
+                    <span class="chip">密钥派生 PBKDF2-SHA256 × 200000</span>
+                    <span class="chip">随机 salt 16B</span>
+                    <span class="chip">随机 IV 12B</span>
+                </div>
+                <p class="hint">输出格式：zkaes1: + Base64(salt ‖ iv ‖ 密文)，自包含参数，凭同一密码即可解密。</p>
+            </section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+    <h2>关于AES加解密</h2>
+    <p>AES 是目前应用最广的对称加密算法，本工具采用 AES-256-GCM 认证加密模式：不仅加密内容，还能校验数据完整性，密文被篡改会直接解密失败。密钥由你输入的密码经 PBKDF2-SHA256 迭代 200000 轮派生，每次加密使用随机生成的 16 字节 salt 和 12 字节 IV，相同明文每次加密结果都不同。全部运算通过浏览器内置的 Web Crypto API 在本地完成，适合加密备忘、口令、配置片段等敏感文本。</p>
+    <h2>常见问题</h2>
+    <details><summary>这个工具的加密强度如何？</summary><p>采用 AES-256-GCM 认证加密，是目前主流的安全标准，兼具机密性与完整性校验；密钥由 PBKDF2-SHA256 迭代 200000 轮派生并配合随机 salt，显著提高暴力破解成本。实际安全性主要取决于密码强度，建议使用足够长的随机密码。</p></details>
+    <details><summary>我的数据和密码会上传到服务器吗？</summary><p>不会。加密、解密和密钥派生全部通过浏览器内置的 Web Crypto API 在本地完成，密码和文本内容都不会离开你的设备，断网状态下也能正常使用。</p></details>
+    <details><summary>能解密其他工具加密的 AES 数据吗？</summary><p>不能。本工具使用自定义的 zkaes1 自描述格式（前缀 + Base64 编码的 salt、IV 与密文），与其他工具的输出格式和密钥派生参数不同，只有本工具加密的内容之间可以互通解密。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"AES加密解密","url":"https://tools.zktww.cn/tools/aes-tool/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 AES 加解密工具：AES-256-GCM 认证加密，PBKDF2-SHA256 派生密钥，随机 salt 与 IV，基于 Web Crypto 全程本地处理，密码与数据不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"这个工具的加密强度如何？","acceptedAnswer":{"@type":"Answer","text":"采用 AES-256-GCM 认证加密，是目前主流的安全标准，兼具机密性与完整性校验；密钥由 PBKDF2-SHA256 迭代 200000 轮派生并配合随机 salt，显著提高暴力破解成本。实际安全性主要取决于密码强度，建议使用足够长的随机密码。"}},{"@type":"Question","name":"我的数据和密码会上传到服务器吗？","acceptedAnswer":{"@type":"Answer","text":"不会。加密、解密和密钥派生全部通过浏览器内置的 Web Crypto API 在本地完成，密码和文本内容都不会离开你的设备，断网状态下也能正常使用。"}},{"@type":"Question","name":"能解密其他工具加密的 AES 数据吗？","acceptedAnswer":{"@type":"Answer","text":"不能。本工具使用自定义的 zkaes1 自描述格式（前缀 + Base64 编码的 salt、IV 与密文），与其他工具的输出格式和密钥派生参数不同，只有本工具加密的内容之间可以互通解密。"}}]}]}</script>
+</main>
+<script>
+(function () {
+    "use strict";
+    var PREFIX = "zkaes1:", ITER = 200000, SALT_LEN = 16, IV_LEN = 12;
+    var input = document.getElementById("input"), passwd = document.getElementById("passwd"),
+        output = document.getElementById("output"), status = document.getElementById("status");
+    var encBtn = document.getElementById("encBtn"), decBtn = document.getElementById("decBtn"),
+        togglePw = document.getElementById("togglePw");
+    var enc = new TextEncoder(), dec = new TextDecoder("utf-8", { fatal: true });
+    var busy = false;
+
+    function toB64(arr) {
+        var bin = "";
+        for (var i = 0; i < arr.length; i++) bin += String.fromCharCode(arr[i]);
+        return btoa(bin);
+    }
+    function fromB64(s) {
+        s = s.replace(/\s+/g, "");
+        var bin = atob(s);
+        var arr = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        return arr;
+    }
+    function deriveKey(password, salt, usage) {
+        return crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveKey"]).then(function (base) {
+            return crypto.subtle.deriveKey(
+                { name: "PBKDF2", salt: salt, iterations: ITER, hash: "SHA-256" },
+                base, { name: "AES-GCM", length: 256 }, false, [usage]
+            );
+        });
+    }
+    function ok(text, msg) { output.textContent = text; status.textContent = msg; status.className = "hint ok"; }
+    function fail(msg) { status.textContent = msg; status.className = "hint bad"; }
+    function pending(msg) { status.textContent = msg; status.className = "hint"; }
+    function check() {
+        if (busy) return false;
+        if (!input.value) { fail("请先输入内容"); return false; }
+        if (!passwd.value) { fail("请输入密码"); return false; }
+        return true;
+    }
+    function lock(v) { busy = v; encBtn.disabled = v; decBtn.disabled = v; }
+
+    encBtn.onclick = function () {
+        if (!check()) return;
+        lock(true); pending("加密中（PBKDF2 派生密钥需片刻）...");
+        var salt = crypto.getRandomValues(new Uint8Array(SALT_LEN));
+        var iv = crypto.getRandomValues(new Uint8Array(IV_LEN));
+        deriveKey(passwd.value, salt, "encrypt").then(function (key) {
+            return crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, enc.encode(input.value));
+        }).then(function (buf) {
+            var ct = new Uint8Array(buf);
+            var packed = new Uint8Array(SALT_LEN + IV_LEN + ct.length);
+            packed.set(salt, 0); packed.set(iv, SALT_LEN); packed.set(ct, SALT_LEN + IV_LEN);
+            ok(PREFIX + toB64(packed), "加密完成（" + ct.length + " 字节密文）");
+        }).catch(function (e) {
+            fail("加密失败：" + (e && e.message ? e.message : "未知错误"));
+        }).then(function () { lock(false); });
+    };
+
+    decBtn.onclick = function () {
+        if (!check()) return;
+        var raw = input.value.trim();
+        if (raw.indexOf(PREFIX) !== 0) { fail("格式不正确：应以 " + PREFIX + " 开头（仅支持本工具加密的内容）"); return; }
+        var packed;
+        try {
+            packed = fromB64(raw.slice(PREFIX.length));
+            if (packed.length <= SALT_LEN + IV_LEN) throw new Error("short");
+        } catch (e) { fail("解密失败：密文 Base64 不完整或已损坏"); return; }
+        lock(true); pending("解密中...");
+        var salt = packed.slice(0, SALT_LEN), iv = packed.slice(SALT_LEN, SALT_LEN + IV_LEN), ct = packed.slice(SALT_LEN + IV_LEN);
+        deriveKey(passwd.value, salt, "decrypt").then(function (key) {
+            return crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, ct);
+        }).then(function (buf) {
+            ok(dec.decode(new Uint8Array(buf)), "解密完成");
+        }).catch(function () {
+            fail("解密失败：密码错误或数据已损坏");
+        }).then(function () { lock(false); });
+    };
+
+    togglePw.onclick = function () {
+        var show = passwd.type === "password";
+        passwd.type = show ? "text" : "password";
+        togglePw.textContent = show ? "隐藏" : "显示";
+    };
+    document.getElementById("clear").onclick = function () {
+        input.value = ""; passwd.value = ""; output.textContent = "";
+        status.textContent = "已清空"; status.className = "hint";
+    };
+    document.getElementById("copy").onclick = function () {
+        copyText(output.textContent || "").then(function () { status.textContent = "结果已复制"; status.className = "hint ok"; },
+            function () { status.textContent = "复制失败，请手动选择复制"; status.className = "hint bad"; });
+    };
+})();
+</script>
+</body>
+</html>

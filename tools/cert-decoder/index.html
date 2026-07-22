@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>SSL证书解析 - 在线X.509证书查看器（有效期/SAN/指纹） | zktool</title>
+    <meta name="description" content="免费在线 SSL/X.509 证书解析工具：粘贴 PEM 即可查看主体、签发者、有效期与剩余天数、SAN 域名、公钥算法、序列号与 SHA-1/SHA-256 指纹，支持证书链，纯本地解析不上传。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="SSL证书解析 - 在线X.509证书查看器（有效期/SAN/指纹） | zktool" />
+    <meta property="og:description" content="免费在线 SSL/X.509 证书解析工具：粘贴 PEM 即可查看主体、签发者、有效期与剩余天数、SAN 域名、公钥算法、序列号与 SHA-1/SHA-256 指纹，支持证书链，纯本地解析不上传。" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/cert-decoder/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/cert-decoder/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css?v=8efaf4a4" />
+    <script src="../../assets/analytics.js?v=3b95695b"></script>
+    <script src="../../assets/theme.js?v=72137155"></script>
+    <script src="../../assets/clipboard.js?v=51b0c84d"></script>
+    <style>
+        .cert-field { margin: .3rem 0; padding: .45rem .6rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-soft); font-size: .82rem; }
+        .cert-field small { display: block; color: var(--text-3); margin-bottom: .15rem; }
+        .cert-field .mono { word-break: break-all; }
+        .cert-head { display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap; }
+        .cert-head .idx { color: var(--text-3); font-size: .78rem; }
+    </style>
+    <script defer src="../../assets/registry.js?v=d5a1d2f4"></script>
+    <script defer src="../../assets/palette.js?v=21a6ffcc"></script>
+    <script defer src="../../assets/toolkit.js?v=e6e78f0f"></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://tools.zktww.cn/"},{"@type":"ListItem","position":2,"name":"生成与凭证","item":"https://tools.zktww.cn/#domain-gen"},{"@type":"ListItem","position":3,"name":"X.509 证书解析","item":"https://tools.zktww.cn/tools/cert-decoder/"}]}</script>
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">X.509 / SSL</p></div>
+    <h1><span class="title">X.509 证书解析</span></h1>
+    <p class="lead">粘贴 PEM 格式证书，本地解析主体、签发者、有效期、SAN 域名、公钥信息与 SHA-1/SHA-256 指纹，支持整条证书链。证书不会离开浏览器。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>证书输入</h2>
+            <textarea id="input" class="mono" spellcheck="false" aria-label="PEM 证书输入" placeholder="粘贴 PEM 证书（可含多张组成证书链）：&#10;-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----"></textarea>
+            <div class="row">
+                <button class="btn primary" id="parse">解析</button>
+                <button class="btn" id="sample">示例</button>
+                <button class="btn danger" id="clear">清空</button>
+            </div>
+            <p class="hint" id="status" aria-live="polite">支持粘贴多张证书（证书链），逐张解析展示。</p>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>解析结果</h2>
+                <div id="result" aria-live="polite"><p class="hint">粘贴证书后点击「解析」，或点「示例」查看效果。</p></div>
+            </section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+    <h2>关于X.509证书解析</h2>
+    <p>X.509 是 SSL/TLS（HTTPS）证书的标准格式，一张证书包含主体与签发者的可分辨名称（DN）、有效期、SAN 备用域名、公钥、签名算法、序列号等字段。本工具内置一个最小 ASN.1/DER 解析器，在浏览器本地解码 PEM 证书并分块展示：概要区用红绿标注是否过期与剩余天数，SAN 区列出证书覆盖的全部域名，公钥区显示 RSA 位数或 EC 曲线，指纹区用 Web Crypto 对 DER 计算 SHA-1 与 SHA-256 摘要。粘贴整条证书链（多个 BEGIN CERTIFICATE 段）会逐张解析，方便排查链不完整、域名不匹配、证书过期等常见 HTTPS 问题。全程本地处理，证书不会上传到任何服务器。</p>
+    <h2>常见问题</h2>
+    <details><summary>怎么拿到网站的证书？</summary><p>浏览器里点地址栏的锁图标 → 「连接是安全的」→「证书有效」，在证书查看器中可导出为 PEM/CRT 文件；命令行可用 openssl s_client -connect 域名:443 -showcerts，输出中每段 BEGIN/END CERTIFICATE 就是一张 PEM 证书，直接复制粘贴到本工具即可。</p></details>
+    <details><summary>粘贴证书安全吗？会不会泄露私钥？</summary><p>安全。X.509 证书本身是公开信息（任何访问你网站的人都能拿到），其中只包含公钥，不含私钥。本工具也只解析证书，不接受、不解析私钥文件（BEGIN PRIVATE KEY），且全部计算在浏览器本地完成，内容不会上传。</p></details>
+    <details><summary>支持哪些格式？DER/CRT/PFX 可以吗？</summary><p>支持 PEM 文本格式（-----BEGIN CERTIFICATE----- 开头的 Base64 块），.crt/.cer 文件若是文本形式可直接粘贴。二进制 DER 需先转换：openssl x509 -inform der -in cert.der -out cert.pem；PFX/P12 需先提取证书：openssl pkcs12 -in cert.pfx -clcerts -nokeys -out cert.pem。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"SSL证书解析","url":"https://tools.zktww.cn/tools/cert-decoder/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 SSL/X.509 证书解析工具：粘贴 PEM 即可查看主体、签发者、有效期与剩余天数、SAN 域名、公钥算法、序列号与 SHA-1/SHA-256 指纹，支持证书链，纯本地解析不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"怎么拿到网站的证书？","acceptedAnswer":{"@type":"Answer","text":"浏览器里点地址栏的锁图标 → 「连接是安全的」→「证书有效」，在证书查看器中可导出为 PEM/CRT 文件；命令行可用 openssl s_client -connect 域名:443 -showcerts，输出中每段 BEGIN/END CERTIFICATE 就是一张 PEM 证书，直接复制粘贴到本工具即可。"}},{"@type":"Question","name":"粘贴证书安全吗？会不会泄露私钥？","acceptedAnswer":{"@type":"Answer","text":"安全。X.509 证书本身是公开信息（任何访问你网站的人都能拿到），其中只包含公钥，不含私钥。本工具也只解析证书，不接受、不解析私钥文件（BEGIN PRIVATE KEY），且全部计算在浏览器本地完成，内容不会上传。"}},{"@type":"Question","name":"支持哪些格式？DER/CRT/PFX 可以吗？","acceptedAnswer":{"@type":"Answer","text":"支持 PEM 文本格式（-----BEGIN CERTIFICATE----- 开头的 Base64 块），.crt/.cer 文件若是文本形式可直接粘贴。二进制 DER 需先转换：openssl x509 -inform der -in cert.der -out cert.pem；PFX/P12 需先提取证书：openssl pkcs12 -in cert.pfx -clcerts -nokeys -out cert.pem。"}}]}]}</script>
+</main>
+<script>
+(function () {
+    "use strict";
+    var input = document.getElementById("input"), result = document.getElementById("result"), status = document.getElementById("status");
+
+    /* ── 工具函数 ── */
+    function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+    function pemToDer(b64) {
+        var bin = atob(b64.replace(/\s+/g, ""));
+        var arr = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        return arr;
+    }
+    function toHex(arr, sep) {
+        var out = [];
+        for (var i = 0; i < arr.length; i++) out.push(arr[i].toString(16).padStart(2, "0").toUpperCase());
+        return out.join(sep === undefined ? "" : sep);
+    }
+    function fmtTime(d) {
+        function p(n) { return String(n).padStart(2, "0"); }
+        return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes()) + ":" + p(d.getSeconds());
+    }
+
+    /* ── 最小 ASN.1/DER 解析器：TLV 递归读取 ── */
+    function asn1Parse(bytes, offset, end) {
+        // 解析 [offset, end) 内的一串 TLV，返回节点数组
+        var nodes = [];
+        var pos = offset;
+        while (pos < end) {
+            var node = asn1Read(bytes, pos, end);
+            nodes.push(node);
+            pos = node.next;
+        }
+        return nodes;
+    }
+    function asn1Read(bytes, pos, end) {
+        if (pos + 2 > end) throw new Error("DER 数据不完整（偏移 " + pos + "）");
+        var tagByte = bytes[pos];
+        var cls = tagByte >> 6;                 // 0=universal 1=application 2=context 3=private
+        var constructed = !!(tagByte & 0x20);
+        var tag = tagByte & 0x1f;
+        pos++;
+        if (tag === 0x1f) throw new Error("不支持多字节 tag");
+        var len = bytes[pos++];
+        if (len & 0x80) {                       // 长 length 形式
+            var n = len & 0x7f;
+            if (n === 0 || n > 4) throw new Error("非法的 length 编码");
+            len = 0;
+            for (var i = 0; i < n; i++) len = len * 256 + bytes[pos++];
+        }
+        if (pos + len > end) throw new Error("长度越界：声明 " + len + " 字节超出数据范围");
+        var node = {
+            cls: cls, tag: tag, constructed: constructed,
+            start: pos, length: len, next: pos + len,
+            bytes: bytes
+        };
+        if (constructed) node.children = asn1Parse(bytes, pos, pos + len);
+        return node;
+    }
+    function content(node) { return node.bytes.subarray(node.start, node.start + node.length); }
+    function decodeOID(node) {
+        var b = content(node), out = [], val = 0;
+        for (var i = 0; i < b.length; i++) {
+            val = val * 128 + (b[i] & 0x7f);
+            if (!(b[i] & 0x80)) {
+                if (out.length === 0) { out.push(Math.floor(val / 40) > 2 ? 2 : Math.floor(val / 40)); out.push(val - out[0] * 40); }
+                else out.push(val);
+                val = 0;
+            }
+        }
+        return out.join(".");
+    }
+    function decodeInt(node) {
+        // 大整数按十六进制返回（去符号位前导 00）
+        var b = content(node);
+        var start = (b.length > 1 && b[0] === 0) ? 1 : 0;
+        return toHex(b.subarray(start));
+    }
+    function decodeString(node) {
+        var b = content(node);
+        if (node.tag === 0x1e) {                // BMPString: UTF-16BE
+            var s = "";
+            for (var i = 0; i + 1 < b.length; i += 2) s += String.fromCharCode(b[i] * 256 + b[i + 1]);
+            return s;
+        }
+        try { return new TextDecoder("utf-8", { fatal: true }).decode(b); }
+        catch (e) { return new TextDecoder("latin1").decode(b); }
+    }
+    function decodeTime(node) {
+        // UTCTime (tag 23): YYMMDDHHMMSSZ；GeneralizedTime (tag 24): YYYYMMDDHHMMSSZ
+        var s = decodeString(node).replace(/Z$/i, "");
+        var y;
+        if (node.tag === 0x17) { y = parseInt(s.slice(0, 2), 10); y += y >= 50 ? 1900 : 2000; s = s.slice(2); }
+        else { y = parseInt(s.slice(0, 4), 10); s = s.slice(4); }
+        var mo = parseInt(s.slice(0, 2), 10), d = parseInt(s.slice(2, 4), 10);
+        var h = parseInt(s.slice(4, 6), 10) || 0, mi = parseInt(s.slice(6, 8), 10) || 0, sec = parseInt(s.slice(8, 10), 10) || 0;
+        return new Date(Date.UTC(y, mo - 1, d, h, mi, sec));
+    }
+
+    /* ── OID → 名称映射 ── */
+    var OID_NAMES = {
+        "2.5.4.3": "CN", "2.5.4.6": "C", "2.5.4.7": "L", "2.5.4.8": "ST",
+        "2.5.4.10": "O", "2.5.4.11": "OU", "2.5.4.5": "serialNumber",
+        "2.5.4.9": "street", "2.5.4.17": "postalCode",
+        "1.2.840.113549.1.9.1": "emailAddress", "0.9.2342.19200300.100.1.25": "DC",
+        "2.5.29.17": "subjectAltName", "2.5.29.19": "basicConstraints",
+        "2.5.29.15": "keyUsage", "2.5.29.37": "extKeyUsage",
+        "2.5.29.14": "subjectKeyIdentifier", "2.5.29.35": "authorityKeyIdentifier",
+        "1.2.840.113549.1.1.1": "RSA",
+        "1.2.840.113549.1.1.5": "SHA1withRSA",
+        "1.2.840.113549.1.1.11": "SHA256withRSA",
+        "1.2.840.113549.1.1.12": "SHA384withRSA",
+        "1.2.840.113549.1.1.13": "SHA512withRSA",
+        "1.2.840.113549.1.1.10": "RSASSA-PSS",
+        "1.2.840.10045.2.1": "EC",
+        "1.2.840.10045.4.3.2": "SHA256withECDSA",
+        "1.2.840.10045.4.3.3": "SHA384withECDSA",
+        "1.2.840.10045.4.3.4": "SHA512withECDSA",
+        "1.3.101.112": "Ed25519", "1.3.101.113": "Ed448",
+        "1.2.840.10045.3.1.7": "P-256 (prime256v1)",
+        "1.3.132.0.34": "P-384 (secp384r1)",
+        "1.3.132.0.35": "P-521 (secp521r1)"
+    };
+    function oidName(oid) { return OID_NAMES[oid] || oid; }
+
+    /* ── X.509 结构解析（RFC 5280） ── */
+    function parseName(node) {
+        // Name = SEQUENCE OF RDN(SET OF AttributeTypeAndValue)
+        var parts = [], map = {};
+        (node.children || []).forEach(function (rdn) {
+            (rdn.children || []).forEach(function (atv) {
+                if (!atv.children || atv.children.length < 2) return;
+                var oid = decodeOID(atv.children[0]);
+                var val = decodeString(atv.children[1]);
+                var key = oidName(oid);
+                parts.push(key + "=" + val);
+                if (!(key in map)) map[key] = val;
+            });
+        });
+        return { text: parts.join(", ") || "（空）", map: map };
+    }
+    function parseAlgorithm(node) {
+        // AlgorithmIdentifier = SEQUENCE { algorithm OID, parameters ANY OPTIONAL }
+        var oid = decodeOID(node.children[0]);
+        var out = { oid: oid, name: oidName(oid), params: null };
+        if (node.children.length > 1 && node.children[1].tag === 0x06) out.params = decodeOID(node.children[1]);
+        return out;
+    }
+    function parseSAN(extnValue) {
+        // extnValue 是 OCTET STRING，内容为 GeneralNames = SEQUENCE OF GeneralName
+        var inner = asn1Read(extnValue, 0, extnValue.length);
+        var names = [];
+        (inner.children || []).forEach(function (gn) {
+            if (gn.cls === 2 && gn.tag === 2) {           // dNSName [2] IA5String
+                names.push(new TextDecoder("latin1").decode(content(gn)));
+            } else if (gn.cls === 2 && gn.tag === 7) {    // iPAddress [7]
+                var b = content(gn);
+                if (b.length === 4) names.push("IP: " + Array.prototype.join.call(b, "."));
+                else if (b.length === 16) {
+                    var segs = [];
+                    for (var i = 0; i < 16; i += 2) segs.push(((b[i] << 8) | b[i + 1]).toString(16));
+                    names.push("IP: " + segs.join(":"));
+                }
+            }
+        });
+        return names;
+    }
+    function parsePublicKey(spki) {
+        // SubjectPublicKeyInfo = SEQUENCE { algorithm AlgorithmIdentifier, subjectPublicKey BIT STRING }
+        var alg = parseAlgorithm(spki.children[0]);
+        var info = { algorithm: alg.name, detail: "" };
+        var bits = content(spki.children[1]);             // BIT STRING：首字节为未用位数
+        var keyBytes = bits.subarray(1);
+        if (alg.oid === "1.2.840.113549.1.1.1") {         // RSA: RSAPublicKey = SEQUENCE { modulus, exponent }
+            try {
+                var rsa = asn1Read(keyBytes, 0, keyBytes.length);
+                var mod = content(rsa.children[0]);
+                var modLen = mod.length; if (mod[0] === 0) modLen--;
+                info.detail = modLen * 8 + " 位";
+            } catch (e) { info.detail = ""; }
+        } else if (alg.oid === "1.2.840.10045.2.1") {     // EC：曲线在 parameters OID
+            info.detail = alg.params ? "曲线 " + oidName(alg.params) : "";
+        }
+        return info;
+    }
+    function parseCertificate(der) {
+        var root = asn1Read(der, 0, der.length);          // Certificate = SEQUENCE
+        if (!root.children || root.children.length < 3) throw new Error("不是有效的 X.509 证书结构");
+        var tbs = root.children[0];                        // tbsCertificate
+        var fields = tbs.children.slice();
+        var cert = { version: 1 };
+        // version [0] EXPLICIT 可选
+        if (fields[0] && fields[0].cls === 2 && fields[0].tag === 0) {
+            cert.version = (content(fields[0].children[0])[0] || 0) + 1;
+            fields.shift();
+        }
+        cert.serialNumber = decodeInt(fields[0]);          // serialNumber INTEGER
+        cert.tbsSignature = parseAlgorithm(fields[1]);     // signature AlgorithmIdentifier
+        cert.issuer = parseName(fields[2]);                // issuer Name
+        var validity = fields[3];                          // validity SEQUENCE { notBefore, notAfter }
+        cert.notBefore = decodeTime(validity.children[0]);
+        cert.notAfter = decodeTime(validity.children[1]);
+        cert.subject = parseName(fields[4]);               // subject Name
+        cert.publicKey = parsePublicKey(fields[5]);        // subjectPublicKeyInfo
+        cert.san = [];
+        // extensions [3] EXPLICIT 可选
+        for (var i = 6; i < fields.length; i++) {
+            if (fields[i].cls === 2 && fields[i].tag === 3) {
+                var extSeq = fields[i].children[0];
+                (extSeq.children || []).forEach(function (ext) {
+                    var oid = decodeOID(ext.children[0]);
+                    if (oid === "2.5.29.17") {             // subjectAltName
+                        var octet = ext.children[ext.children.length - 1];  // 跳过可选的 critical BOOLEAN
+                        try { cert.san = parseSAN(content(octet)); } catch (e) { /* SAN 解析失败不影响其他字段 */ }
+                    }
+                });
+            }
+        }
+        cert.signatureAlgorithm = parseAlgorithm(root.children[1]);
+        cert.der = der;
+        return cert;
+    }
+
+    /* ── 渲染 ── */
+    function field(label, valueHTML) {
+        return "<div class='cert-field'><small>" + label + "</small>" + valueHTML + "</div>";
+    }
+    function renderCert(cert, idx, total) {
+        var now = new Date();
+        var expired = now > cert.notAfter, notYet = now < cert.notBefore;
+        var days = Math.floor((cert.notAfter - now) / 86400000);
+        var state;
+        if (expired) state = "<b class='bad'>已过期 " + Math.abs(days) + " 天</b>";
+        else if (notYet) state = "<b class='warn'>尚未生效</b>";
+        else state = "<b class='ok'>有效，剩余 " + days + " 天</b>";
+        var subjectCN = cert.subject.map.CN || cert.subject.text;
+        var issuerCN = cert.issuer.map.CN || cert.issuer.text;
+        var selfSigned = cert.subject.text === cert.issuer.text;
+        var html = "<div class='cert-head'><h3>证书 " + (idx + 1) + (total > 1 ? " / " + total : "") + "</h3><span class='idx'>" + esc(subjectCN) + (selfSigned ? "（自签名）" : "") + "</span></div>";
+        html += field("概要", "<div>主体 CN：<span class='mono'>" + esc(subjectCN) + "</span></div>" +
+            "<div>签发者 CN：<span class='mono'>" + esc(issuerCN) + "</span></div>" +
+            "<div>生效时间：" + fmtTime(cert.notBefore) + "</div>" +
+            "<div>到期时间：" + fmtTime(cert.notAfter) + " " + state + "</div>");
+        html += field("主体（Subject DN）", "<span class='mono'>" + esc(cert.subject.text) + "</span>");
+        html += field("签发者（Issuer DN）", "<span class='mono'>" + esc(cert.issuer.text) + "</span>");
+        if (cert.san.length) {
+            html += field("SAN 备用名称（" + cert.san.length + " 个）", "<div class='chips'>" + cert.san.map(function (d) { return "<span class='chip mono'>" + esc(d) + "</span>"; }).join("") + "</div>");
+        } else {
+            html += field("SAN 备用名称", "<span class='hint'>未包含 subjectAltName 扩展</span>");
+        }
+        html += field("公钥", "<span class='mono'>" + esc(cert.publicKey.algorithm + (cert.publicKey.detail ? "，" + cert.publicKey.detail : "")) + "</span>");
+        html += field("签名算法", "<span class='mono'>" + esc(cert.signatureAlgorithm.name) + "</span>（版本 v" + cert.version + "）");
+        html += field("序列号", "<span class='mono'>" + esc(cert.serialNumber) + "</span>");
+        html += field("SHA-1 指纹", "<span class='mono' id='fp1-" + idx + "'>计算中...</span>");
+        html += field("SHA-256 指纹", "<span class='mono' id='fp256-" + idx + "'>计算中...</span>");
+        return html;
+    }
+    function fillFingerprints(cert, idx) {
+        // 指纹 = 对整张证书 DER 的摘要，冒号分隔大写十六进制
+        if (!(window.crypto && crypto.subtle && crypto.subtle.digest)) {
+            var el1 = document.getElementById("fp1-" + idx), el2 = document.getElementById("fp256-" + idx);
+            if (el1) el1.textContent = "当前环境不支持 Web Crypto（需 HTTPS）";
+            if (el2) el2.textContent = "当前环境不支持 Web Crypto（需 HTTPS）";
+            return;
+        }
+        [["SHA-1", "fp1-"], ["SHA-256", "fp256-"]].forEach(function (spec) {
+            crypto.subtle.digest(spec[0], cert.der).then(function (buf) {
+                var el = document.getElementById(spec[1] + idx);
+                if (el) el.textContent = toHex(new Uint8Array(buf), ":");
+            }, function () {
+                var el = document.getElementById(spec[1] + idx);
+                if (el) el.textContent = "指纹计算失败";
+            });
+        });
+    }
+
+    function run() {
+        var text = input.value;
+        result.innerHTML = "";
+        if (!text.trim()) { status.textContent = "请先粘贴 PEM 证书内容"; status.className = "hint warn"; return; }
+        if (/-----BEGIN[A-Z ]*PRIVATE KEY-----/.test(text)) { status.textContent = "检测到私钥内容——本工具只解析公开证书，请不要粘贴私钥"; status.className = "hint bad"; return; }
+        var blocks = [], re = /-----BEGIN CERTIFICATE-----([\s\S]*?)-----END CERTIFICATE-----/g, m;
+        while ((m = re.exec(text)) !== null) blocks.push(m[1]);
+        if (!blocks.length) { status.textContent = "未找到 -----BEGIN CERTIFICATE----- 块，请确认是 PEM 格式（DER 需先用 openssl 转 PEM）"; status.className = "hint bad"; return; }
+        var html = "", certs = [], errors = 0;
+        blocks.forEach(function (b64, i) {
+            try {
+                var der = pemToDer(b64);
+                var cert = parseCertificate(der);
+                certs.push({ cert: cert, idx: i });
+                html += renderCert(cert, i, blocks.length);
+            } catch (e) {
+                errors++;
+                html += "<div class='cert-head'><h3>证书 " + (i + 1) + (blocks.length > 1 ? " / " + blocks.length : "") + "</h3></div>" +
+                    "<div class='cert-field'><b class='bad'>解析失败</b><small>" + esc(e.message || "证书内容损坏或不是有效的 DER 编码") + "</small></div>";
+            }
+        });
+        result.innerHTML = html;
+        certs.forEach(function (c) { fillFingerprints(c.cert, c.idx); });
+        if (errors === 0) { status.textContent = "解析成功：共 " + blocks.length + " 张证书"; status.className = "hint ok"; }
+        else { status.textContent = "解析完成：" + (blocks.length - errors) + " 张成功，" + errors + " 张失败"; status.className = "hint warn"; }
+    }
+
+    var SAMPLE = "-----BEGIN CERTIFICATE-----\n" +
+        "MIIDpDCCAoygAwIBAgIJAIHfrYSax2wtMA0GCSqGSIb3DQEBCwUAMG8xCzAJBgNV\n" +
+        "BAYTAkNOMRAwDgYDVQQIDAdCZWlqaW5nMRAwDgYDVQQHDAdCZWlqaW5nMRQwEgYD\n" +
+        "VQQKDAtFeGFtcGxlIEx0ZDELMAkGA1UECwwCSVQxGTAXBgNVBAMMEGRlbW8uZXhh\n" +
+        "bXBsZS5jb20wHhcNMjYwNzIyMDIwNDU0WhcNMjgwNzIxMDIwNDU0WjBvMQswCQYD\n" +
+        "VQQGEwJDTjEQMA4GA1UECAwHQmVpamluZzEQMA4GA1UEBwwHQmVpamluZzEUMBIG\n" +
+        "A1UECgwLRXhhbXBsZSBMdGQxCzAJBgNVBAsMAklUMRkwFwYDVQQDDBBkZW1vLmV4\n" +
+        "YW1wbGUuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2FqsizT/\n" +
+        "x7ppt6Lc8OosPEGfMXDO397s/qIYqd8zR+6U/AVLtCWcD2sALVnaws/ArteICf0P\n" +
+        "xWHP7xn+taCWFiBB2V9Kc+5GWMYdyqyvVJyR7PwdBi9EY14lDixWHtJ+MKTcdF8r\n" +
+        "JBXnNA1+gftS7Eey61BAZhjSKU3IjvxPJTUxQ70I4Xbd8AgmYobcxSJJa3wcmiKm\n" +
+        "/Kt+KW6KsYZkihXxiZsCYMBByq6Gydm4djcS9kYIOGCQQDvjLx0qCylevKHFwJna\n" +
+        "TRkAt4WWzYrw2XR10pu9HikB+rPpgnBbKbmpy5GKSyu+m1sprXPMmnJvN4uqwrn9\n" +
+        "diFJyoIx/am2OQIDAQABo0MwQTA/BgNVHREEODA2ghBkZW1vLmV4YW1wbGUuY29t\n" +
+        "gg93d3cuZXhhbXBsZS5jb22CESouYXBpLmV4YW1wbGUuY29tMA0GCSqGSIb3DQEB\n" +
+        "CwUAA4IBAQDLsvFSKdYtThurAqWrBdCcupxNiTEEJmwSCp9YZEV+FoTXzZFtJBSE\n" +
+        "p1CtAlS48WFsWQwd0clBWc+cRZCoqW1Ej7hg1Qs7U/wD7Se4KY+iIbfoP50YGffO\n" +
+        "1pzD2RTI4dJxlX9ftrRC8WiITIdZZg/R2C7atZQgT5oG52afVi+WMQnOCcN5HonE\n" +
+        "XbKqNxTjQLhDNzzWIkclbPkL+08+Ags55iUj3yuHaj6FxvLw9WMGUDvIWa4qQlOa\n" +
+        "6af/fXooAQ2uMLY3ZVeD/WFJjePcW0pu+xeB5/TsOeBNl7i+OD/eVOg8oEcg1Fu9\n" +
+        "3gTSqxGrjBmMRaEtcsdwPf8UfbginZ9x\n" +
+        "-----END CERTIFICATE-----";
+
+    document.getElementById("parse").onclick = run;
+    document.getElementById("sample").onclick = function () { input.value = SAMPLE; run(); };
+    document.getElementById("clear").onclick = function () {
+        input.value = ""; result.innerHTML = "<p class='hint'>粘贴证书后点击「解析」，或点「示例」查看效果。</p>";
+        status.textContent = "已清空"; status.className = "hint";
+    };
+})();
+</script>
+</body>
+</html>

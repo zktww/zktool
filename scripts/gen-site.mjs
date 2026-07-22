@@ -191,14 +191,30 @@ async function build() {
     );
     out["index.html"] = stamp(html);
 
-    /* 全部工具/演示页 + 404：只盖资源版本戳 */
+    /* 全部工具/演示页 + 404：盖资源版本戳；工具页另注入/更新 BreadcrumbList JSON-LD */
+    const groupTitle = Object.fromEntries(domains.map((d) => [d.key, d.title]));
+    function breadcrumbLd(tool) {
+        const items = [{ "@type": "ListItem", position: 1, name: "首页", item: ORIGIN + "/" }];
+        if (groupTitle[tool.group]) items.push({ "@type": "ListItem", position: 2, name: groupTitle[tool.group], item: ORIGIN + "/#domain-" + tool.group });
+        items.push({ "@type": "ListItem", position: items.length + 1, name: tool.name, item: ORIGIN + "/" + tool.path });
+        return `<script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: items })}</script>`;
+    }
+    function injectBreadcrumb(html, tool) {
+        const tag = breadcrumbLd(tool);
+        const re = /<script type="application\/ld\+json">\{"@context":"https:\/\/schema\.org","@type":"BreadcrumbList"[\s\S]*?<\/script>/;
+        if (re.test(html)) return html.replace(re, tag);
+        return html.replace("</head>", `    ${tag}\n</head>`);
+    }
     const pagePaths = [
         ...tools.map((it) => it.path + "index.html"),
         ...demos.map((it) => it.path + "index.html"),
         "404.html",
     ];
     for (const p of pagePaths) {
-        out[p] = stamp(await readFile(ROOT + "/" + p, "utf8"));
+        let page = stamp(await readFile(ROOT + "/" + p, "utf8"));
+        const tool = tools.find((it) => it.path + "index.html" === p);
+        if (tool) page = injectBreadcrumb(page, tool);
+        out[p] = page;
     }
 
     /* sitemap.xml */

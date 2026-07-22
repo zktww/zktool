@@ -38,6 +38,11 @@
 - [设备信息面板](https://tools.zktww.cn/tools/device-info/)：屏幕分辨率、DPR、视口、safe-area、UA 与网络状态一屏速查
 - [触摸事件测试板](https://tools.zktww.cn/tools/touch-tester/)：多指触点可视化、滑动轨迹与事件日志，调试触屏交互
 - [传感器查看器](https://tools.zktww.cn/tools/sensor-viewer/)：陀螺仪、加速度计与指南针实时数值可视化，需手机访问
+- [进制转换器](https://tools.zktww.cn/tools/radix-converter/)：二/八/十/十六与自定义进制互转，BigInt 大数支持，实时联动
+- [AES 加解密](https://tools.zktww.cn/tools/aes-tool/)：AES-256-GCM 文本加解密，PBKDF2 密码派生，全程本地不上传
+- [X.509 证书解析](https://tools.zktww.cn/tools/cert-decoder/)：解析 SSL/TLS 证书 PEM：有效期、SAN、公钥与指纹，本地不上传
+- [JSON Diff 对比](https://tools.zktww.cn/tools/json-diff/)：两段 JSON 结构化对比：新增/删除/修改逐路径列出，不受键序影响
+- [CIDR 子网计算器](https://tools.zktww.cn/tools/cidr-calculator/)：IPv4 CIDR 计算：网络/广播/掩码/可用范围，IP 归属判断与子网划分
 <!-- /gen:llms-tools -->
 
 ## 说明

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>JSON对比 - 在线JSON差异比较工具（结构化diff） | zktool</title>
+    <meta name="description" content="免费在线 JSON 对比工具：结构化 diff 逐条列出新增、删除、修改的字段路径，不受 key 顺序和缩进影响，支持数组忽略顺序对比，本地处理不上传。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="JSON对比 - 在线JSON差异比较工具（结构化diff） | zktool" />
+    <meta property="og:description" content="免费在线 JSON 对比工具：结构化 diff 逐条列出新增、删除、修改的字段路径，不受 key 顺序和缩进影响，支持数组忽略顺序对比，本地处理不上传。" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/json-diff/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/json-diff/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css?v=8efaf4a4" />
+    <script src="../../assets/analytics.js?v=3b95695b"></script>
+    <script src="../../assets/theme.js?v=72137155"></script>
+    <script src="../../assets/clipboard.js?v=51b0c84d"></script>
+    <style>
+        .jd-item{display:flex;flex-wrap:wrap;align-items:baseline;gap:.5rem;padding:.32rem .45rem;border-radius:8px}
+        .jd-item+.jd-item{margin-top:.3rem}
+        .jd-path{font-family:var(--mono);font-size:.82rem;color:var(--text);word-break:break-all}
+        .jd-val{font-family:var(--mono);font-size:.78rem;color:var(--text-2);word-break:break-all}
+        .jd-arrow{color:var(--text-3);font-size:.78rem}
+        .jd-badge{flex:none;font-size:.68rem;padding:.08rem .45rem;border-radius:999px;border:1px solid transparent}
+        .jd-item.add{background:rgba(16,185,129,.08)}
+        .jd-item.add .jd-badge{color:#059669;border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.12)}
+        .jd-item.del{background:rgba(239,68,68,.07)}
+        .jd-item.del .jd-badge{color:#dc2626;border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.1)}
+        .jd-item.mod{background:rgba(245,158,11,.08)}
+        .jd-item.mod .jd-badge{color:#b45309;border-color:rgba(245,158,11,.45);background:rgba(245,158,11,.12)}
+        .jd-item.typ{background:rgba(139,92,246,.08)}
+        .jd-item.typ .jd-badge{color:#7c3aed;border-color:rgba(139,92,246,.45);background:rgba(139,92,246,.12)}
+        .jd-empty{color:var(--ok);padding:.4rem .2rem}
+        .opts{display:flex;align-items:center;gap:.4rem;font-size:.82rem;color:var(--text-2);cursor:pointer}
+        .opts input{accent-color:var(--brand)}
+    </style>
+    <script defer src="../../assets/registry.js?v=d5a1d2f4"></script>
+    <script defer src="../../assets/palette.js?v=21a6ffcc"></script>
+    <script defer src="../../assets/toolkit.js?v=e6e78f0f"></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://tools.zktww.cn/"},{"@type":"ListItem","position":2,"name":"格式化与数据","item":"https://tools.zktww.cn/#domain-data"},{"@type":"ListItem","position":3,"name":"JSON Diff 对比","item":"https://tools.zktww.cn/tools/json-diff/"}]}</script>
+</head>
+<body data-zk-qr-plain>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">JSON diff</p></div>
+    <h1><span class="title">JSON Diff 对比</span></h1>
+    <p class="lead">结构化对比两段 JSON：逐条列出新增、删除、修改的字段路径，不受 key 顺序和缩进影响。</p>
+    <section class="panel">
+        <h2>输入</h2>
+        <div class="tool-grid">
+            <label>旧 JSON<textarea id="left" spellcheck="false">{
+  "name": "zktool",
+  "version": 1,
+  "tags": ["json", "diff"],
+  "config": { "theme": "dark", "lang": "zh" }
+}</textarea></label>
+            <label>新 JSON<textarea id="right" spellcheck="false">{
+  "name": "zktool",
+  "version": 2,
+  "tags": ["json", "diff", "online"],
+  "config": { "theme": "light" },
+  "stars": 99
+}</textarea></label>
+        </div>
+        <div class="row">
+            <button class="btn primary" id="run">对比</button>
+            <button class="btn" id="sample">示例</button>
+            <button class="btn danger" id="clear">清空</button>
+            <label class="opts"><input type="checkbox" id="ignoreOrder" />数组忽略顺序</label>
+            <span class="hint" id="status" aria-live="polite"></span>
+        </div>
+    </section>
+    <section class="panel">
+        <h2>差异</h2>
+        <div class="chips" id="stats"></div>
+        <div class="output" id="out" style="margin-top:.7rem"></div>
+    </section>
+
+<section class="seo-notes">
+    <h2>关于JSON对比</h2>
+    <p>本工具对两段 JSON 做结构化差异对比（deep diff）：先解析再递归比较，逐条列出新增、删除、修改和类型变化的字段，每条差异都给出完整 JSON 路径（如 config.items[2].name），一眼定位改动位置。因为比较的是解析后的数据结构，key 顺序、缩进和空格的不同不会被误报为差异；数组默认按索引对比，也可勾选忽略顺序。适合对比接口两次返回、配置文件版本和数据快照，全程本地处理不上传。</p>
+    <h2>常见问题</h2>
+    <details><summary>和文本 diff 有什么区别？</summary><p>文本 diff 逐行比较字符，key 顺序变了、缩进不同都会报差异；JSON 结构化对比先解析再比较数据本身，只关心字段和值的真实变化，并直接给出字段路径，排查接口和配置改动更精准。</p></details>
+    <details><summary>支持多大的 JSON？</summary><p>解析和递归对比都在浏览器内存中完成，几 MB 的 JSON 毫无压力；上限取决于浏览器内存，几十 MB 的超大文件建议先拆分或用命令行工具处理。</p></details>
+    <details><summary>数据会上传到服务器吗？</summary><p>不会。解析和对比全部在浏览器本地用 JavaScript 完成，内容不经过任何服务器，可以放心粘贴包含内部字段的接口返回和配置。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"JSON对比","url":"https://tools.zktww.cn/tools/json-diff/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 JSON 对比工具：结构化 diff 逐条列出新增、删除、修改的字段路径，不受 key 顺序和缩进影响，支持数组忽略顺序对比，本地处理不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"和文本 diff 有什么区别？","acceptedAnswer":{"@type":"Answer","text":"文本 diff 逐行比较字符，key 顺序变了、缩进不同都会报差异；JSON 结构化对比先解析再比较数据本身，只关心字段和值的真实变化，并直接给出字段路径，排查接口和配置改动更精准。"}},{"@type":"Question","name":"支持多大的 JSON？","acceptedAnswer":{"@type":"Answer","text":"解析和递归对比都在浏览器内存中完成，几 MB 的 JSON 毫无压力；上限取决于浏览器内存，几十 MB 的超大文件建议先拆分或用命令行工具处理。"}},{"@type":"Question","name":"数据会上传到服务器吗？","acceptedAnswer":{"@type":"Answer","text":"不会。解析和对比全部在浏览器本地用 JavaScript 完成，内容不经过任何服务器，可以放心粘贴包含内部字段的接口返回和配置。"}}]}]}</script>
+</main>
+<script>
+(function () {
+    "use strict";
+    var left = document.getElementById("left"), right = document.getElementById("right");
+    var out = document.getElementById("out"), stats = document.getElementById("stats"), status = document.getElementById("status");
+    var ignoreOrder = document.getElementById("ignoreOrder");
+
+    function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+    function typeOf(v) {
+        if (v === null) return "null";
+        if (Array.isArray(v)) return "array";
+        return typeof v;
+    }
+    function preview(v) {
+        var s;
+        try { s = JSON.stringify(v); } catch (e) { s = String(v); }
+        if (s === undefined) s = "undefined";
+        return s.length > 120 ? s.slice(0, 120) + "…" : s;
+    }
+    /* 递归 diff：对象按 key 并集遍历，数组按索引对比，值用严格类型+值比较。
+       返回 { diffs: [{kind, path, oldVal, newVal}], same: 相同叶子计数 } */
+    function diffJson(a, b, opts) {
+        var diffs = [], same = 0;
+        var sortArr = opts && opts.ignoreOrder;
+        function sorted(arr) {
+            return arr.slice().sort(function (x, y) {
+                var sx = JSON.stringify(x), sy = JSON.stringify(y);
+                return sx < sy ? -1 : sx > sy ? 1 : 0;
+            });
+        }
+        function walk(x, y, path) {
+            var tx = typeOf(x), ty = typeOf(y);
+            if (tx !== ty) { diffs.push({ kind: "typ", path: path, oldVal: x, newVal: y }); return; }
+            if (tx === "object") {
+                var keys = {}, k;
+                for (k in x) if (Object.prototype.hasOwnProperty.call(x, k)) keys[k] = 1;
+                for (k in y) if (Object.prototype.hasOwnProperty.call(y, k)) keys[k] = 1;
+                for (k in keys) {
+                    var p = path ? path + "." + k : k;
+                    var inX = Object.prototype.hasOwnProperty.call(x, k), inY = Object.prototype.hasOwnProperty.call(y, k);
+                    if (!inX) diffs.push({ kind: "add", path: p, oldVal: undefined, newVal: y[k] });
+                    else if (!inY) diffs.push({ kind: "del", path: p, oldVal: x[k], newVal: undefined });
+                    else walk(x[k], y[k], p);
+                }
+                return;
+            }
+            if (tx === "array") {
+                var ax = x, ay = y;
+                if (sortArr) { ax = sorted(x); ay = sorted(y); }
+                var n = Math.min(ax.length, ay.length), i;
+                for (i = 0; i < n; i++) walk(ax[i], ay[i], path + "[" + i + "]");
+                for (i = n; i < ay.length; i++) diffs.push({ kind: "add", path: path + "[" + i + "]", oldVal: undefined, newVal: ay[i] });
+                for (i = n; i < ax.length; i++) diffs.push({ kind: "del", path: path + "[" + i + "]", oldVal: ax[i], newVal: undefined });
+                return;
+            }
+            // 叶子值：严格比较（NaN 视为相等，避免 NaN !== NaN 误报）
+            if (x === y || (tx === "number" && x !== x && y !== y)) same++;
+            else diffs.push({ kind: "mod", path: path, oldVal: x, newVal: y });
+        }
+        walk(a, b, "");
+        return { diffs: diffs, same: same };
+    }
+    function parseSide(text, label) {
+        try { return { ok: true, value: JSON.parse(text) }; }
+        catch (e) {
+            var msg = String(e.message || e), line = "";
+            var m = msg.match(/position (\d+)/);
+            if (m) line = "第 " + (text.slice(0, +m[1]).split("\n").length) + " 行附近";
+            m = msg.match(/line (\d+)/);
+            if (m) line = "第 " + m[1] + " 行附近";
+            return { ok: false, error: label + " 解析失败" + (line ? "（" + line + "）" : "") + "：" + msg };
+        }
+    }
+    var LABELS = { add: "新增", del: "删除", mod: "修改", typ: "类型变化" };
+    function render(result) {
+        var count = { add: 0, del: 0, mod: 0, typ: 0 };
+        var html = result.diffs.map(function (d) {
+            count[d.kind]++;
+            var vals;
+            if (d.kind === "add") vals = "<span class='jd-val'>" + esc(preview(d.newVal)) + "</span>";
+            else if (d.kind === "del") vals = "<span class='jd-val'>" + esc(preview(d.oldVal)) + "</span>";
+            else vals = "<span class='jd-val'>" + esc(preview(d.oldVal)) + "</span><span class='jd-arrow'>→</span><span class='jd-val'>" + esc(preview(d.newVal)) + "</span>";
+            return "<div class='jd-item " + d.kind + "'><span class='jd-badge'>" + LABELS[d.kind] + "</span><span class='jd-path'>" + esc(d.path || "(根)") + "</span>" + vals + "</div>";
+        }).join("");
+        out.innerHTML = result.diffs.length ? html : "<p class='jd-empty'>两段 JSON 完全一致 ✓</p>";
+        stats.innerHTML = "<span class='chip'>新增 " + count.add + "</span><span class='chip'>删除 " + count.del + "</span><span class='chip'>修改 " + (count.mod + count.typ) + "</span><span class='chip'>相同 " + result.same + "</span>";
+        status.textContent = result.diffs.length ? "共 " + result.diffs.length + " 条差异" : "无差异";
+        status.className = "hint " + (result.diffs.length ? "warn" : "ok");
+    }
+    function run() {
+        if (!left.value.trim() && !right.value.trim()) { out.innerHTML = ""; stats.innerHTML = ""; status.textContent = ""; status.className = "hint"; return; }
+        var pa = parseSide(left.value, "旧 JSON（左侧）"), pb = parseSide(right.value, "新 JSON（右侧）");
+        if (!pa.ok || !pb.ok) {
+            out.innerHTML = ""; stats.innerHTML = "";
+            status.textContent = !pa.ok ? pa.error : pb.error;
+            status.className = "hint bad";
+            return;
+        }
+        render(diffJson(pa.value, pb.value, { ignoreOrder: ignoreOrder.checked }));
+    }
+    var timer = null;
+    function runDebounced() { clearTimeout(timer); timer = setTimeout(run, 300); }
+    document.getElementById("run").onclick = run;
+    document.getElementById("sample").onclick = function () {
+        left.value = JSON.stringify({ user: { id: 1001, name: "张三", roles: ["admin", "dev"] }, items: [{ sku: "A1", price: 9.9 }, { sku: "B2", price: 19 }], active: true }, null, 2);
+        right.value = JSON.stringify({ user: { id: 1001, name: "李四", roles: ["dev", "admin"] }, items: [{ sku: "A1", price: 12.5 }], active: "true", createdAt: "2026-07-22" }, null, 2);
+        run();
+    };
+    document.getElementById("clear").onclick = function () { left.value = ""; right.value = ""; run(); };
+    ignoreOrder.addEventListener("change", run);
+    [left, right].forEach(function (el) { el.addEventListener("input", runDebounced); });
+    run();
+})();
+</script>
+</body>
+</html>

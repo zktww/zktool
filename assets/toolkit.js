@@ -181,6 +181,14 @@
             sbtn.innerHTML = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'/><path d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'/></svg>";
             sbtn.addEventListener("click", function () {
                 var url = zkShare.encode();
+                /* 长文本工具（qr-plain 页）状态超长时回退复制纯工具地址 */
+                if (!url && qrPlainMode()) {
+                    (window.copyText ? copyText(pageUrl()) : navigator.clipboard.writeText(pageUrl())).then(
+                        function () { toast("内容过长，已复制工具地址"); },
+                        function () { toast("复制失败"); }
+                    );
+                    return;
+                }
                 if (!url) { toast("内容过长，无法生成分享链接"); return; }
                 (window.copyText ? copyText(url) : navigator.clipboard.writeText(url)).then(
                     function () { toast("分享链接已复制"); },
@@ -240,6 +248,11 @@
         return null;
     }
 
+    /* 二维码内容模式：<body data-zk-qr-plain> 的页面（长文本/文档类工具）
+       直接编码纯工具地址——状态编进二维码会密到难扫，扫码诉求只是在手机上打开工具。 */
+    function qrPlainMode() { return document.body && document.body.hasAttribute("data-zk-qr-plain"); }
+    function pageUrl() { return location.href.split(/[#?]/)[0]; }
+
     function attachQrTip(btn) {
         var tip = null, hideTimer = null, seq = 0;
 
@@ -266,7 +279,8 @@
                 "text-align:center;opacity:0;transform:translateY(-4px);transition:opacity .18s,transform .18s";
             tip.innerHTML = "<div class='zk-qr-body' style='display:grid;place-items:center;min-height:10rem'>" +
                 "<span style='font-size:.78rem;color:var(--text-3,#7a8aa0)'>生成中…</span></div>" +
-                "<p style='margin:.5rem 0 0;font-size:.72rem;line-height:1.5;color:var(--text-2,#5b6b81)'>扫码在手机上打开当前状态</p>";
+                "<p style='margin:.5rem 0 0;font-size:.72rem;line-height:1.5;color:var(--text-2,#5b6b81)'>" +
+                (qrPlainMode() ? "扫码在手机上打开此工具" : "扫码在手机上打开当前状态") + "</p>";
             /* tip 挂在按钮容器上，与发送菜单同套定位 */
             var wrap = btn.parentElement;
             wrap.style.position = "relative";
@@ -279,7 +293,8 @@
 
             loadQrLib().then(function () {
                 if (!tip || my !== seq) return;
-                var url = zkShare.encode();
+                /* plain 模式编码纯工具地址：码点稀疏易扫；否则编码携带状态的分享链接 */
+                var url = qrPlainMode() ? pageUrl() : zkShare.encode();
                 var body = tip.querySelector(".zk-qr-body");
                 var svg = url ? qrSvg(url) : null;
                 if (!svg) {

@@ -2,7 +2,7 @@
    - HTML 导航请求：网络优先（短超时回退缓存）——发布后用户第一次打开就是新页面，离线才用缓存；
    - 带 ?v= 内容哈希的静态资源：缓存优先——URL 即版本，命中即最新；
    - 其余同源 GET：stale-while-revalidate；跨域（CDN、统计）不代理。 */
-var CACHE = "zktool-5ac81eca";
+var CACHE = "zktool-1d3b60e4";
 var CORE = [
     /* gen:core */
     "./",

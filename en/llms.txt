@@ -1,0 +1,46 @@
+# zktool
+
+> Free online developer tools that run locally in your browser.
+
+## Tools
+
+- [Timestamp Converter](https://tools.zktww.cn/en/tools/timestamp-converter/): Convert Unix timestamps and dates with automatic seconds/milliseconds detection, batch conversion, multiple formats, and time-zone comparison.
+- [JSON Formatter & Validator](https://tools.zktww.cn/en/tools/json-formatter/): Validate, format, minify, escape, and inspect JSON with syntax highlighting, tree view, precise errors, and statistics.
+- [Emoji Library](https://tools.zktww.cn/en/tools/emoji-tool/): Browse and search Emoji by category, keep favorites and recents, switch skin tones, and copy with one click.
+- [Mermaid Diagram Editor](https://tools.zktww.cn/en/tools/mermaid-editor/): Edit and render Mermaid flowcharts, sequence diagrams, and more with templates, pan and zoom, share links, and PNG/SVG export.
+- [URL Encoder & Query Parser](https://tools.zktww.cn/en/tools/url-codec/): Encode and decode URLs, inspect query parameters, and convert between query strings and objects.
+- [Base64 Converter](https://tools.zktww.cn/en/tools/base64-converter/): Encode and decode UTF-8 Base64, Hex, and Unicode escapes with byte statistics.
+- [Regular Expression Tester](https://tools.zktww.cn/en/tools/regex-tester/): Test JavaScript regular expressions with live highlights, capture groups, flags, and replacement previews.
+- [Random ID Generator](https://tools.zktww.cn/en/tools/random-generator/): Generate UUID v4 values, passwords, tokens, numeric codes, and custom random strings in batches.
+- [Cron Expression Parser](https://tools.zktww.cn/en/tools/cron-tool/): Parse five-field Cron expressions, explain each field, and preview the next ten run times.
+- [Color Converter & Contrast Checker](https://tools.zktww.cn/en/tools/color-tool/): Convert HEX, RGB, and HSL colors, generate shades, and check WCAG foreground/background contrast.
+- [Text Diff](https://tools.zktww.cn/en/tools/text-diff/): Compare two texts line by line and highlight additions, removals, and unchanged lines.
+- [Hash Calculator](https://tools.zktww.cn/en/tools/hash-tool/): Calculate MD5, SHA-1, SHA-256, and SHA-512 hashes for text or files locally in your browser.
+- [JWT Decoder & Verifier](https://tools.zktww.cn/en/tools/jwt-decoder/): Decode JWT headers and payloads, inspect expiration, and verify HS, RS, and ES signatures locally.
+- [JSON Format Converter](https://tools.zktww.cn/en/tools/json-converter/): Convert JSON to YAML, TypeScript interfaces, Go structs, or CSV.
+- [Text Case & Line Tools](https://tools.zktww.cn/en/tools/text-case/): Convert camelCase, snake_case, and other naming styles, or deduplicate, sort, and clean lines.
+- [Image Compressor & Converter](https://tools.zktww.cn/en/tools/image-compressor/): Compress and convert images to WebP, JPEG, or PNG locally with adjustable quality and size.
+- [HTTP Status & MIME Reference](https://tools.zktww.cn/en/tools/http-reference/): Search common HTTP status codes and MIME types, then click any entry to copy it.
+- [Unicode Character Inspector](https://tools.zktww.cn/en/tools/unicode-inspector/): Inspect code points and encodings character by character, including zero-width and invisible characters.
+- [SQL Formatter](https://tools.zktww.cn/en/tools/sql-formatter/): Format or minify SQL for common dialects and choose a keyword case style.
+- [YAML Converter & Validator](https://tools.zktww.cn/en/tools/yaml-converter/): Convert YAML and JSON in both directions with live syntax validation and line/column errors.
+- [cURL Command Parser](https://tools.zktww.cn/en/tools/curl-parser/): Parse cURL commands into structured requests and generate fetch and Python requests code.
+- [HTML Entity Encoder & Decoder](https://tools.zktww.cn/en/tools/html-entities/): Encode special characters as named, decimal, or hexadecimal HTML entities and decode them again.
+- [Key Pair Generator](https://tools.zktww.cn/en/tools/keypair-generator/): Generate RSA, ECDSA, and Ed25519 key pairs locally and export PEM or JWK.
+- [Markdown Preview & Publisher](https://tools.zktww.cn/en/tools/markdown-preview/): Render Markdown live, apply publishing themes, customize colors, and copy styled rich text or HTML.
+- [Time Zone Meeting Planner](https://tools.zktww.cn/en/tools/timezone-planner/): Compare local times and working hours across cities to find practical international meeting times.
+- [Date Difference Calculator](https://tools.zktww.cn/en/tools/date-calculator/): Calculate calendar days, business days, and calendar-unit differences, or add and subtract dates.
+- [Docker Run to Compose](https://tools.zktww.cn/en/tools/docker-compose-converter/): Parse a docker run command and generate modern Docker Compose YAML for common runtime options.
+- [Chinese RMB Uppercase Converter](https://tools.zktww.cn/en/tools/rmb-uppercase/): Convert numeric RMB amounts to formal Chinese uppercase notation and convert them back to numbers.
+- [chmod Permission Calculator](https://tools.zktww.cn/en/tools/chmod-calculator/): Convert Linux file permissions between checkboxes, octal values, symbolic notation, and chmod commands.
+- [SVG Optimizer & Preview](https://tools.zktww.cn/en/tools/svg-optimizer/): Optimize SVG markup locally, preview the result, and generate encoded or Base64 data URIs.
+- [QR Code Scanner](https://tools.zktww.cn/en/tools/qr-scanner/): Scan QR codes with a camera or image file entirely in your browser.
+- [EXIF Viewer & Remover](https://tools.zktww.cn/en/tools/exif-viewer/): Inspect photo metadata such as capture time, device, exposure, and GPS, then export a clean copy.
+- [Device Information](https://tools.zktww.cn/en/tools/device-info/): Inspect screen size, DPR, viewport, safe areas, browser capabilities, and network state.
+- [Touch Event Tester](https://tools.zktww.cn/en/tools/touch-tester/): Visualize multiple touch points, movement trails, pressure, dimensions, and pointer-event logs.
+- [Sensor Viewer](https://tools.zktww.cn/en/tools/sensor-viewer/): Visualize gyroscope, accelerometer, and compass readings on supported mobile devices.
+- [Number Base Converter](https://tools.zktww.cn/en/tools/radix-converter/): Convert binary, octal, decimal, hexadecimal, and custom bases from 2 to 36 with BigInt precision.
+- [AES Encrypt & Decrypt](https://tools.zktww.cn/en/tools/aes-tool/): Encrypt and decrypt text with AES-256-GCM and PBKDF2 password derivation entirely in your browser.
+- [X.509 Certificate Decoder](https://tools.zktww.cn/en/tools/cert-decoder/): Decode PEM certificates and inspect validity, SANs, public keys, fingerprints, and certificate chains.
+- [JSON Diff](https://tools.zktww.cn/en/tools/json-diff/): Compare two JSON structures by path and list added, removed, modified, and type-changed values.
+- [CIDR Subnet Calculator](https://tools.zktww.cn/en/tools/cidr-calculator/): Calculate IPv4 networks, broadcasts, masks, host ranges, membership, and subnet splits.

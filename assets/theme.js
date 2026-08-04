@@ -14,7 +14,11 @@
         light: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='12' cy='12' r='4'/><path d='M12 2v2'/><path d='M12 20v2'/><path d='m4.93 4.93 1.41 1.41'/><path d='m17.66 17.66 1.41 1.41'/><path d='M2 12h2'/><path d='M20 12h2'/><path d='m6.34 17.66-1.41 1.41'/><path d='m19.07 4.93-1.41 1.41'/></svg>",
         dark: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z'/></svg>"
     };
-    var LABELS = { auto: "主题：跟随系统", light: "主题：浅色", dark: "主题：深色" };
+    var EN = /^\/en(?:\/|$)/.test(location.pathname) || document.documentElement.lang === "en";
+    var LABELS = EN
+        ? { auto: "Theme: system", light: "Theme: light", dark: "Theme: dark" }
+        : { auto: "主题：跟随系统", light: "主题：浅色", dark: "主题：深色" };
+    var SWITCH_HINT = EN ? ", click to switch" : "，点击切换";
 
     function mode() { return root.getAttribute("data-theme") || "auto"; }
 
@@ -28,8 +32,8 @@
         }
         if (btn) {
             btn.innerHTML = ICONS[m];
-            btn.setAttribute("aria-label", LABELS[m] + "，点击切换");
-            btn.title = LABELS[m] + "，点击切换";
+            btn.setAttribute("aria-label", LABELS[m] + SWITCH_HINT);
+            btn.title = LABELS[m] + SWITCH_HINT;
         }
     }
 
@@ -41,7 +45,9 @@
             ".zk-icon-btn{display:inline-flex;align-items:center;justify-content:center;width:2.35rem;height:2.35rem;padding:0;border:1px solid var(--border,#e4e9f0);border-radius:999px;background:var(--surface,#fff);color:var(--text-2,#5b6b81);cursor:pointer;box-shadow:var(--shadow-sm,0 1px 2px rgba(15,23,42,.05));transition:color .2s,border-color .2s,background .2s}" +
             ".zk-icon-btn:hover,.zk-icon-btn:focus-visible{color:var(--text,#1e293b);border-color:var(--border-hover,#c9d4e3);background:var(--surface-hover,#f1f5f9);outline:none}" +
             ".zk-icon-btn:focus-visible{box-shadow:0 0 0 3px var(--brand-ring-soft,rgba(37,99,235,.12))}" +
-            ".zk-icon-btn svg{width:16px;height:16px}";
+            ".zk-icon-btn svg{width:16px;height:16px}" +
+            ".zk-lang-link{display:inline-flex;align-items:center;justify-content:center;min-width:2.35rem;height:2.35rem;padding:0 .65rem;border:1px solid var(--border,#e4e9f0);border-radius:999px;background:var(--surface,#fff);color:var(--text-2,#5b6b81);font:600 .78rem/1 inherit;text-decoration:none;box-shadow:var(--shadow-sm,0 1px 2px rgba(15,23,42,.05));transition:color .2s,border-color .2s,background .2s}" +
+            ".zk-lang-link:hover,.zk-lang-link:focus-visible{color:var(--text,#1e293b);border-color:var(--border-hover,#c9d4e3);background:var(--surface-hover,#f1f5f9);outline:none}";
         document.head.appendChild(style);
 
         var host = document.querySelector(".top") || document.querySelector(".toolbar");
@@ -56,8 +62,8 @@
         btn.type = "button";
         btn.className = "zk-icon-btn zk-theme-btn";
         btn.innerHTML = ICONS[mode()];
-        btn.setAttribute("aria-label", LABELS[mode()] + "，点击切换");
-        btn.title = LABELS[mode()] + "，点击切换";
+        btn.setAttribute("aria-label", LABELS[mode()] + SWITCH_HINT);
+        btn.title = LABELS[mode()] + SWITCH_HINT;
         btn.addEventListener("click", function () {
             var order = ["auto", "light", "dark"];
             apply(order[(order.indexOf(mode()) + 1) % order.length], btn);

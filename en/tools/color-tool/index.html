@@ -1,0 +1,126 @@
+<!-- Generated from /tools/color-tool/; edit the Chinese source page and assets/i18n.js instead. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Color Converter & Contrast Checker - Free Online Tool | zktool</title>
+    <meta name="description" content="Convert HEX, RGB, and HSL colors, generate shades, and check WCAG foreground/background contrast." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="Color Converter & Contrast Checker | zktool" />
+    <meta property="og:description" content="Convert HEX, RGB, and HSL colors, generate shades, and check WCAG foreground/background contrast." />
+    <meta property="og:url" content="https://tools.zktww.cn/en/tools/color-tool/" />
+    <link rel="canonical" href="https://tools.zktww.cn/en/tools/color-tool/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../../../assets/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../../assets/tool-page.css?v=cf7be6b7" />
+    <script src="../../../assets/analytics.js?v=3b95695b"></script>
+    <script src="../../../assets/theme.js?v=a8b19431"></script>
+    <script src="../../../assets/clipboard.js?v=51b0c84d"></script>
+    <style>.swatch{flex:1;min-height:7rem;border-radius:14px;border:1px solid var(--border);box-shadow:var(--shadow-sm)}.mini{width:2.4rem;height:2.4rem;border-radius:10px;border:1px solid var(--border)}</style>
+    <script defer src="../../../assets/registry.js?v=280e3baf"></script><script defer src="../../../assets/i18n.js?v=6498f0fe"></script>
+    <script defer src="../../../assets/palette.js?v=1f6efcdf"></script>
+    <script defer src="../../../assets/toolkit.js?v=21692c6f"></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://tools.zktww.cn/en/"},{"@type":"ListItem","position":2,"name":"Charts & Images","item":"https://tools.zktww.cn/en/#domain-visual"},{"@type":"ListItem","position":3,"name":"Color Converter & Contrast Checker","item":"https://tools.zktww.cn/en/tools/color-tool/"}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Color Converter & Contrast Checker","url":"https://tools.zktww.cn/en/tools/color-tool/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","inLanguage":"en","description":"Convert HEX, RGB, and HSL colors, generate shades, and check WCAG foreground/background contrast.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+    <link rel="alternate" hreflang="zh-CN" href="https://tools.zktww.cn/tools/color-tool/" /><link rel="alternate" hreflang="en" href="https://tools.zktww.cn/en/tools/color-tool/" /><link rel="alternate" hreflang="x-default" href="https://tools.zktww.cn/tools/color-tool/" />
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../../">← Back to home</a><p class="meta">Color</p></div>
+    <h1><span class="title">Color Converter & Contrast Checker</span></h1>
+    <p class="lead">Convert HEX, RGB, and HSL colors, generate shades, and check WCAG foreground/background contrast.</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>Color</h2>
+            <div class="row"><input id="color" type="color" value="#2563eb" aria-label="Color picker" /><input id="text" class="mono grow" value="#2563eb" aria-label="Color code (HEX / RGB / HSL)" /></div>
+            <div class="swatch" id="swatch"></div>
+            <div class="row"><label class="grow">Foreground<input id="fg" class="mono" value="#1e293b" /></label><label class="grow">Background<input id="bg" class="mono" value="#ffffff" /></label></div>
+        </section>
+        <aside>
+            <section class="panel"><h2>Format</h2><pre class="output min-h-8" id="formats"></pre><div class="row"><button class="btn primary" id="copy">复制格式</button></div><p class="hint" id="copyStatus" aria-live="polite"></p></section>
+            <section class="panel"><h2>Shades</h2><div class="chips" id="palette"></div></section>
+            <section class="panel"><h2>Contrast</h2><div class="output min-h-4" id="contrast"></div></section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+        <h2>About Color Converter & Contrast Checker</h2>
+        <p>Convert HEX, RGB, and HSL colors, generate shades, and check WCAG foreground/background contrast. Processing happens locally in your browser, and the tool does not upload the entered content.</p>
+        <h2>Privacy and compatibility</h2>
+        <p>Results depend on browser capabilities and the supplied input. Review generated output before using it in production or formal documents.</p>
+    </section>
+
+</main>
+<script>
+(function () {
+    "use strict";
+    var color = document.getElementById("color"), text = document.getElementById("text"), swatch = document.getElementById("swatch"), formats = document.getElementById("formats"), palette = document.getElementById("palette"), fg = document.getElementById("fg"), bg = document.getElementById("bg"), contrast = document.getElementById("contrast");
+    function clamp255(n) { return Math.max(0, Math.min(255, Math.round(n))); }
+    function hslToRgb(h, s, l) {
+        h = ((h % 360) + 360) % 360; s /= 100; l /= 100;
+        var c = (1 - Math.abs(2 * l - 1)) * s;
+        var x = c * (1 - Math.abs((h / 60) % 2 - 1));
+        var m = l - c / 2, r = 0, g = 0, b = 0;
+        if (h < 60) { r = c; g = x; }
+        else if (h < 120) { r = x; g = c; }
+        else if (h < 180) { g = c; b = x; }
+        else if (h < 240) { g = x; b = c; }
+        else if (h < 300) { r = x; b = c; }
+        else { r = c; b = x; }
+        return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
+    }
+    function parse(s) {
+        s = s.trim();
+        if (/^#?[0-9a-f]{3}$/i.test(s)) { s = s.replace("#","").split("").map(function (c) { return c+c; }).join(""); }
+        if (/^#?[0-9a-f]{6}$/i.test(s)) { s = s.replace("#",""); return [parseInt(s.slice(0,2),16), parseInt(s.slice(2,4),16), parseInt(s.slice(4,6),16)]; }
+        var hm = s.match(/hsla?\(\s*([\d.]+)\s*(?:deg)?\s*[,\s]\s*([\d.]+)%?\s*[,\s]\s*([\d.]+)%?/i);
+        if (hm) return hslToRgb(parseFloat(hm[1]), parseFloat(hm[2]), parseFloat(hm[3]));
+        var m = s.match(/rgba?\(\s*(-?[\d.]+)\s*[,\s]\s*(-?[\d.]+)\s*[,\s]\s*(-?[\d.]+)/i);
+        if (m) return [clamp255(+m[1]), clamp255(+m[2]), clamp255(+m[3])];
+        throw new Error("无法识别颜色");
+    }
+    function hex(rgb) { return "#" + rgb.map(function (n) { return Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2,"0"); }).join(""); }
+    function hsl(rgb) {
+        var r=rgb[0]/255,g=rgb[1]/255,b=rgb[2]/255,max=Math.max(r,g,b),min=Math.min(r,g,b),h=0,s,l=(max+min)/2,d=max-min;
+        if(d){s=l>.5?d/(2-max-min):d/(max+min); if(max===r)h=(g-b)/d+(g<b?6:0); else if(max===g)h=(b-r)/d+2; else h=(r-g)/d+4; h*=60;}
+        return [Math.round(h), Math.round(s*100), Math.round(l*100)];
+    }
+    function mix(rgb, target, t) { return rgb.map(function (v,i) { return v + (target[i]-v)*t; }); }
+    function lum(rgb) { return rgb.map(function (v) { v/=255; return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4); }).reduce(function(a,v,i){return a+v*[.2126,.7152,.0722][i];},0); }
+    function render() {
+        try {
+            var rgb = parse(text.value), hs = hsl(rgb), hx = hex(rgb);
+            color.value = hx; swatch.style.background = hx;
+            formats.textContent = [hx, "rgb(" + rgb.join(", ") + ")", "hsl(" + hs[0] + " " + hs[1] + "% " + hs[2] + "%)", "css var: --color: " + hx + ";"].join("\n");
+            var shades = [0.75,0.5,0.25,0,0.25,0.5,0.75].map(function (t,i) { return i<3 ? mix(rgb,[255,255,255],t) : i===3 ? rgb : mix(rgb,[0,0,0],t); });
+            palette.innerHTML = shades.map(function (c) { var h=hex(c); return "<span class='chip'><span class='mini' style='background:"+h+"'></span>"+h+"</span>"; }).join("");
+        } catch (e) { formats.textContent = e.message; }
+        renderContrast();
+    }
+    function renderContrast() {
+        try {
+            var lf = lum(parse(fg.value)), lb = lum(parse(bg.value));
+            var ratio = (Math.max(lf, lb) + .05) / (Math.min(lf, lb) + .05);
+            var normal = ratio >= 7 ? "<span class='ok'>AAA 通过</span>" : ratio >= 4.5 ? "<span class='ok'>AA 通过</span>" : "<span class='bad'>不达标</span>";
+            var large = ratio >= 4.5 ? "<span class='ok'>AAA 通过</span>" : ratio >= 3 ? "<span class='ok'>AA 通过</span>" : "<span class='bad'>不达标</span>";
+            contrast.innerHTML = "<b class='mono'>" + ratio.toFixed(2) + ":1</b><br>普通正文（≥4.5:1）：" + normal + "<br>大字号（≥3:1）：" + large;
+        } catch (e) { contrast.innerHTML = "<span class='bad'>" + e.message + "</span>"; }
+    }
+    color.oninput = function () { text.value = color.value; render(); };
+    [text, fg, bg].forEach(function (el) { el.addEventListener("input", render); });
+    document.getElementById("copy").onclick = function () {
+        var cs = document.getElementById("copyStatus");
+        copyText(formats.textContent).then(function () { cs.textContent = "已复制"; cs.className = "hint ok"; },
+            function () { cs.textContent = "复制失败，请手动选择复制"; cs.className = "hint bad"; });
+    };
+    render();
+})();
+</script>
+</body>
+</html>

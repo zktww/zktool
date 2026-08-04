@@ -1,0 +1,169 @@
+<!-- Generated from /tools/html-entities/; edit the Chinese source page and assets/i18n.js instead. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>HTML Entity Encoder & Decoder - Free Online Tool | zktool</title>
+    <meta name="description" content="Encode special characters as named, decimal, or hexadecimal HTML entities and decode them again." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="HTML Entity Encoder & Decoder | zktool" />
+    <meta property="og:description" content="Encode special characters as named, decimal, or hexadecimal HTML entities and decode them again." />
+    <meta property="og:url" content="https://tools.zktww.cn/en/tools/html-entities/" />
+    <link rel="canonical" href="https://tools.zktww.cn/en/tools/html-entities/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../../../assets/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../../assets/tool-page.css?v=cf7be6b7" />
+    <script src="../../../assets/analytics.js?v=3b95695b"></script>
+    <script src="../../../assets/theme.js?v=a8b19431"></script>
+    <script src="../../../assets/clipboard.js?v=51b0c84d"></script>
+    <script defer src="../../../assets/registry.js?v=280e3baf"></script><script defer src="../../../assets/i18n.js?v=6498f0fe"></script>
+    <script defer src="../../../assets/palette.js?v=1f6efcdf"></script>
+    <script defer src="../../../assets/toolkit.js?v=21692c6f"></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://tools.zktww.cn/en/"},{"@type":"ListItem","position":2,"name":"Encoding & Characters","item":"https://tools.zktww.cn/en/#domain-codec"},{"@type":"ListItem","position":3,"name":"HTML Entity Encoder & Decoder","item":"https://tools.zktww.cn/en/tools/html-entities/"}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"HTML Entity Encoder & Decoder","url":"https://tools.zktww.cn/en/tools/html-entities/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","inLanguage":"en","description":"Encode special characters as named, decimal, or hexadecimal HTML entities and decode them again.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+    <link rel="alternate" hreflang="zh-CN" href="https://tools.zktww.cn/tools/html-entities/" /><link rel="alternate" hreflang="en" href="https://tools.zktww.cn/en/tools/html-entities/" /><link rel="alternate" hreflang="x-default" href="https://tools.zktww.cn/tools/html-entities/" />
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../../">← Back to home</a><p class="meta">HTML Entities</p></div>
+    <h1><span class="title">HTML Entity Encoder & Decoder</span></h1>
+    <p class="lead">Encode special characters as named, decimal, or hexadecimal HTML entities and decode them again.</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>Input</h2>
+            <textarea id="input" spellcheck="false" aria-label="输入文本或 HTML 实体" placeholder="输入文本或含实体的 HTML，例如：<div class=&quot;a&quot;> © 版权…"></textarea>
+            <div class="row">
+                <button class="btn primary" id="encMin">Encode (required only)</button>
+                <button class="btn" id="encNamed">Prefer named entities</button>
+                <button class="btn danger" id="clear">Clear</button>
+            </div>
+            <div class="row">
+                <button class="btn" id="encDec">Convert all to decimal</button>
+                <button class="btn" id="encHex">Convert all to hexadecimal</button>
+                <button class="btn" id="decode">Decode entities</button>
+            </div>
+            <div class="chips" id="stats"></div>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>Result</h2>
+                <pre class="output" id="output"></pre>
+                <div class="row"><button class="btn primary" id="copy">Copy result</button></div>
+                <p class="hint" id="status" aria-live="polite">Everything is converted locally in your browser; content is never uploaded.</p>
+            </section>
+            <section class="panel">
+                <h2>HTML entity reference (click a row to copy)</h2>
+                <table id="cheat">
+                    <thead><tr><th>字符</th><th>命名</th><th>十进制</th><th>十六进制</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+        <h2>About HTML Entity Encoder & Decoder</h2>
+        <p>Encode special characters as named, decimal, or hexadecimal HTML entities and decode them again. Processing happens locally in your browser, and the tool does not upload the entered content.</p>
+        <h2>Privacy and compatibility</h2>
+        <p>Results depend on browser capabilities and the supplied input. Review generated output before using it in production or formal documents.</p>
+    </section>
+
+</main>
+<script>
+(function () {
+    "use strict";
+    var input = document.getElementById("input"), output = document.getElementById("output"), status = document.getElementById("status"), stats = document.getElementById("stats");
+    // 必需转义的五个字符
+    var ESSENTIAL = { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&apos;" };
+    // 常用命名实体表：码点 -> 实体名（约 30 个）
+    var NAMED = {
+        38: "amp", 60: "lt", 62: "gt", 34: "quot", 39: "apos",
+        160: "nbsp", 169: "copy", 174: "reg", 8482: "trade",
+        8230: "hellip", 8212: "mdash", 8211: "ndash",
+        171: "laquo", 187: "raquo", 215: "times", 247: "divide",
+        176: "deg", 177: "plusmn", 181: "micro", 183: "middot",
+        167: "sect", 182: "para", 162: "cent", 163: "pound",
+        165: "yen", 8364: "euro", 8226: "bull", 8592: "larr",
+        8594: "rarr", 8593: "uarr", 8595: "darr", 8734: "infin"
+    };
+    // 速查表数据（约 20 行）
+    var CHEAT = [38, 60, 62, 34, 39, 160, 169, 174, 8482, 8230, 8212, 8211, 171, 187, 215, 247, 176, 177, 8364, 8594];
+    function encEssential(s) {
+        return s.replace(/[&<>"']/g, function (ch) { return ESSENTIAL[ch]; });
+    }
+    function encNamed(s) {
+        // 命名实体优先，其余非 ASCII 用十进制
+        return Array.from(s).map(function (ch) {
+            var cp = ch.codePointAt(0);
+            if (NAMED[cp]) return "&" + NAMED[cp] + ";";
+            if (cp > 127) return "&#" + cp + ";";
+            return ch;
+        }).join("");
+    }
+    function encDec(s) {
+        return Array.from(s).map(function (ch) {
+            var cp = ch.codePointAt(0);
+            return (cp > 127 || ESSENTIAL[ch]) ? "&#" + cp + ";" : ch;
+        }).join("");
+    }
+    function encHex(s) {
+        return Array.from(s).map(function (ch) {
+            var cp = ch.codePointAt(0);
+            return (cp > 127 || ESSENTIAL[ch]) ? "&#x" + cp.toString(16).toUpperCase() + ";" : ch;
+        }).join("");
+    }
+    function decode(s) {
+        // 用 DOMParser 解码所有实体（命名/十进制/十六进制）
+        var doc = new DOMParser().parseFromString("<!DOCTYPE html><body>" + s.replace(/</g, "&lt;"), "text/html");
+        return doc.body.textContent || "";
+    }
+    function countEntities(s) {
+        var m = s.match(/&(#x?[0-9a-f]+|[a-z][a-z0-9]*);/gi);
+        return m ? m.length : 0;
+    }
+    function set(text, ok) { output.textContent = text; status.textContent = ok; status.className = "hint ok"; updateStats(); }
+    function fail(e) { status.textContent = "转换失败：" + e.message; status.className = "hint bad"; }
+    function updateStats() {
+        stats.innerHTML = "<span class='chip'>字符 " + input.value.length + "</span><span class='chip'>实体 " + countEntities(input.value) + "</span>";
+    }
+    document.getElementById("encMin").onclick = function () { set(encEssential(input.value), "已转义必需字符（& < > \" '）"); };
+    document.getElementById("encNamed").onclick = function () { set(encNamed(input.value), "命名实体优先编码完成"); };
+    document.getElementById("encDec").onclick = function () { set(encDec(input.value), "十进制实体编码完成"); };
+    document.getElementById("encHex").onclick = function () { set(encHex(input.value), "十六进制实体编码完成"); };
+    document.getElementById("decode").onclick = function () { try { set(decode(input.value), "实体解码完成"); } catch (e) { fail(e); } };
+    document.getElementById("clear").onclick = function () { input.value = ""; output.textContent = ""; updateStats(); status.textContent = "已清空"; status.className = "hint"; };
+    document.getElementById("copy").onclick = function () {
+        copyText(output.textContent || "").then(function () { status.textContent = "结果已复制"; status.className = "hint ok"; },
+            function () { status.textContent = "复制失败，请手动选择复制"; status.className = "hint bad"; });
+    };
+    // 渲染速查表，点击行复制命名实体
+    (function renderCheat() {
+        var tbody = document.querySelector("#cheat tbody");
+        CHEAT.forEach(function (cp) {
+            var tr = document.createElement("tr");
+            var named = "&" + NAMED[cp] + ";";
+            var display = cp === 160 ? "(空格)" : String.fromCodePoint(cp);
+            tr.innerHTML = "<td>" + (cp === 60 ? "&lt;" : cp === 62 ? "&gt;" : cp === 38 ? "&amp;" : display) + "</td>" +
+                "<td class='mono'>" + named.replace(/&/g, "&amp;") + "</td>" +
+                "<td class='mono'>&amp;#" + cp + ";</td>" +
+                "<td class='mono'>&amp;#x" + cp.toString(16).toUpperCase() + ";</td>";
+            tr.style.cursor = "pointer";
+            tr.title = "点击复制 " + named;
+            tr.onclick = function () {
+                copyText(named).then(function () { status.textContent = "已复制 " + named; status.className = "hint ok"; },
+                    function () { status.textContent = "复制失败"; status.className = "hint bad"; });
+            };
+            tbody.appendChild(tr);
+        });
+    })();
+    input.addEventListener("input", updateStats); updateStats();
+})();
+</script>
+</body>
+</html>

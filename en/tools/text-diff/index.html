@@ -1,0 +1,120 @@
+<!-- Generated from /tools/text-diff/; edit the Chinese source page and assets/i18n.js instead. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Text Diff - Free Online Tool | zktool</title>
+    <meta name="description" content="Compare two texts line by line and highlight additions, removals, and unchanged lines." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="Text Diff | zktool" />
+    <meta property="og:description" content="Compare two texts line by line and highlight additions, removals, and unchanged lines." />
+    <meta property="og:url" content="https://tools.zktww.cn/en/tools/text-diff/" />
+    <link rel="canonical" href="https://tools.zktww.cn/en/tools/text-diff/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../../../assets/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../../assets/tool-page.css?v=cf7be6b7" />
+    <script src="../../../assets/analytics.js?v=3b95695b"></script>
+    <script src="../../../assets/theme.js?v=a8b19431"></script>
+    <script src="../../../assets/clipboard.js?v=51b0c84d"></script>
+    <style>.diff-line{display:grid;grid-template-columns:3rem 1fr;gap:.6rem;padding:.18rem .35rem;border-radius:6px}.diff-line.add{background:rgba(16,185,129,.1)}.diff-line.del{background:rgba(239,68,68,.08)}.diff-line.same{color:var(--text-2)}.mark{font-family:var(--mono);color:var(--text-3)}</style>
+    <script defer src="../../../assets/registry.js?v=280e3baf"></script><script defer src="../../../assets/i18n.js?v=6498f0fe"></script>
+    <script defer src="../../../assets/palette.js?v=1f6efcdf"></script>
+    <script defer src="../../../assets/toolkit.js?v=21692c6f"></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://tools.zktww.cn/en/"},{"@type":"ListItem","position":2,"name":"Text Processing","item":"https://tools.zktww.cn/en/#domain-text"},{"@type":"ListItem","position":3,"name":"Text Diff","item":"https://tools.zktww.cn/en/tools/text-diff/"}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Text Diff","url":"https://tools.zktww.cn/en/tools/text-diff/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","inLanguage":"en","description":"Compare two texts line by line and highlight additions, removals, and unchanged lines.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+    <link rel="alternate" hreflang="zh-CN" href="https://tools.zktww.cn/tools/text-diff/" /><link rel="alternate" hreflang="en" href="https://tools.zktww.cn/en/tools/text-diff/" /><link rel="alternate" hreflang="x-default" href="https://tools.zktww.cn/tools/text-diff/" />
+</head>
+<body data-zk-qr-plain>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../../">← Back to home</a><p class="meta">Text diff</p></div>
+    <h1><span class="title">Text Diff</span></h1>
+    <p class="lead">Compare two texts line by line and highlight additions, removals, and unchanged lines.</p>
+    <section class="panel">
+        <h2>Input</h2>
+        <div class="tool-grid">
+            <label>原文本<textarea id="left" spellcheck="false">name: zktool
+theme: dark
+tools: 4</textarea></label>
+            <label>新文本<textarea id="right" spellcheck="false">name: zktool
+theme: light
+tools: 11</textarea></label>
+        </div>
+        <div class="row"><button class="btn primary" id="run">Compare</button><button class="btn" id="swap">左右互换</button><button class="btn" id="copy">Copy result</button><button class="btn danger" id="clear">Clear</button><span class="hint" id="status" aria-live="polite"></span></div>
+    </section>
+    <section class="panel">
+        <h2>差异</h2>
+        <div class="output" id="out"></div>
+    </section>
+
+<section class="seo-notes">
+        <h2>About Text Diff</h2>
+        <p>Compare two texts line by line and highlight additions, removals, and unchanged lines. Processing happens locally in your browser, and the tool does not upload the entered content.</p>
+        <h2>Privacy and compatibility</h2>
+        <p>Results depend on browser capabilities and the supplied input. Review generated output before using it in production or formal documents.</p>
+    </section>
+
+</main>
+<script>
+(function () {
+    "use strict";
+    var left = document.getElementById("left"), right = document.getElementById("right"), out = document.getElementById("out"), status = document.getElementById("status");
+    var lastText = "";
+    function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+    function diff(a, b) {
+        // 先剥离公共前后缀，缩小 DP 规模
+        var pre = 0, suf = 0;
+        while (pre < a.length && pre < b.length && a[pre] === b[pre]) pre++;
+        while (suf < a.length - pre && suf < b.length - pre && a[a.length-1-suf] === b[b.length-1-suf]) suf++;
+        var ca = a.slice(pre, a.length - suf), cb = b.slice(pre, b.length - suf);
+        var mid;
+        if (ca.length * cb.length > 4000000) {
+            // 差异区过大时降级为整段删除+新增，避免 DP 表撑爆内存
+            mid = ca.map(function (l) { return ["del", l]; }).concat(cb.map(function (l) { return ["add", l]; }));
+            mid.degraded = true;
+        } else {
+            mid = lcsDiff(ca, cb);
+        }
+        var res = a.slice(0, pre).map(function (l) { return ["same", l]; }).concat(mid, a.slice(a.length - suf).map(function (l) { return ["same", l]; }));
+        res.degraded = mid.degraded;
+        return res;
+    }
+    function lcsDiff(a, b) {
+        var n=a.length,m=b.length,dp=Array.from({length:n+1},function(){return Array(m+1).fill(0);});
+        for(var i=n-1;i>=0;i--) for(var j=m-1;j>=0;j--) dp[i][j]=a[i]===b[j]?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1]);
+        var res=[],x=0,y=0;
+        while(x<n||y<m){ if(x<n&&y<m&&a[x]===b[y]){res.push(["same",a[x++]]);y++;} else if(y<m&&(x===n||dp[x][y+1]>=dp[x+1][y])) res.push(["add",b[y++]]); else res.push(["del",a[x++]]); }
+        return res;
+    }
+    function run() {
+        var a=left.value.split(/\r?\n/), b=right.value.split(/\r?\n/), rows=diff(a,b), add=0, del=0;
+        out.innerHTML = rows.map(function (r) {
+            if(r[0]==="add") add++; if(r[0]==="del") del++;
+            var mark = r[0]==="add" ? "+" : r[0]==="del" ? "-" : " ";
+            return "<div class='diff-line "+r[0]+"'><span class='mark'>"+mark+"</span><span>"+esc(r[1] || " ")+"</span></div>";
+        }).join("");
+        lastText = rows.map(function (r) {
+            return (r[0]==="add" ? "+ " : r[0]==="del" ? "- " : "  ") + (r[1] || "");
+        }).join("\n");
+        status.textContent = "新增 " + add + " 行，删除 " + del + " 行" + (rows.degraded ? "（差异区过大，已降级为整段对比）" : "");
+        status.className = "hint " + (add||del ? "warn" : "ok");
+    }
+    var timer = null;
+    function runDebounced() { clearTimeout(timer); timer = setTimeout(run, 200); }
+    document.getElementById("run").onclick = run;
+    document.getElementById("swap").onclick = function(){ var t=left.value; left.value=right.value; right.value=t; run(); };
+    document.getElementById("copy").onclick = function () {
+        copyText(lastText || "").then(function () { status.textContent = "结果已复制"; status.className = "hint ok"; },
+            function () { status.textContent = "复制失败，请手动选择复制"; status.className = "hint bad"; });
+    };
+    document.getElementById("clear").onclick = function(){ left.value=""; right.value=""; run(); };
+    [left,right].forEach(function(el){ el.addEventListener("input", runDebounced); }); run();
+})();
+</script>
+</body>
+</html>

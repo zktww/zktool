@@ -1,0 +1,263 @@
+<!-- Generated from /tools/svg-optimizer/; edit the Chinese source page and assets/i18n.js instead. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>SVG Optimizer & Preview - Free Online Tool | zktool</title>
+    <meta name="description" content="Optimize SVG markup locally, preview the result, and generate encoded or Base64 data URIs." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="SVG Optimizer & Preview | zktool" />
+    <meta property="og:description" content="Optimize SVG markup locally, preview the result, and generate encoded or Base64 data URIs." />
+    <meta property="og:url" content="https://tools.zktww.cn/en/tools/svg-optimizer/" />
+    <link rel="canonical" href="https://tools.zktww.cn/en/tools/svg-optimizer/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../../../assets/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../../assets/tool-page.css?v=cf7be6b7" />
+    <script src="../../../assets/analytics.js?v=3b95695b"></script>
+    <script src="../../../assets/theme.js?v=a8b19431"></script>
+    <script src="../../../assets/clipboard.js?v=51b0c84d"></script>
+    <style>
+        .preview-box { display:flex; align-items:center; justify-content:center; min-height:12rem; max-height:20rem; padding:0.8rem; border:1px solid var(--border); border-radius:10px; overflow:auto; }
+        .preview-box svg { max-width:100%; max-height:18rem; }
+        .preview-box.bg-checker { background:repeating-conic-gradient(rgba(128,128,128,0.25) 0% 25%, transparent 0% 50%) 0 0/16px 16px; }
+        .preview-box.bg-white { background:#ffffff; }
+        .preview-box.bg-black { background:#0a0a0a; }
+        .bg-btns .btn { min-height:1.9rem; padding:0.2rem 0.7rem; font-size:0.76rem; }
+        .bg-btns .btn.on { color:var(--brand); border-color:var(--brand-ring-soft); background:var(--brand-soft); }
+        .uri-out { min-height:3.4rem; max-height:8rem; margin-bottom:0.6rem; }
+        textarea.drag-over { border-color:var(--brand-ring); background:var(--brand-soft); }
+    </style>
+    <script defer src="../../../assets/registry.js?v=280e3baf"></script><script defer src="../../../assets/i18n.js?v=6498f0fe"></script>
+    <script defer src="../../../assets/palette.js?v=1f6efcdf"></script>
+    <script defer src="../../../assets/toolkit.js?v=21692c6f"></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://tools.zktww.cn/en/"},{"@type":"ListItem","position":2,"name":"Charts & Images","item":"https://tools.zktww.cn/en/#domain-visual"},{"@type":"ListItem","position":3,"name":"SVG Optimizer & Preview","item":"https://tools.zktww.cn/en/tools/svg-optimizer/"}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"SVG Optimizer & Preview","url":"https://tools.zktww.cn/en/tools/svg-optimizer/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","inLanguage":"en","description":"Optimize SVG markup locally, preview the result, and generate encoded or Base64 data URIs.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+    <link rel="alternate" hreflang="zh-CN" href="https://tools.zktww.cn/tools/svg-optimizer/" /><link rel="alternate" hreflang="en" href="https://tools.zktww.cn/en/tools/svg-optimizer/" /><link rel="alternate" hreflang="x-default" href="https://tools.zktww.cn/tools/svg-optimizer/" />
+</head>
+<body data-zk-qr-plain>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../../">← Back to home</a><p class="meta">SVG</p></div>
+    <h1><span class="title">SVG Optimizer & Preview</span></h1>
+    <p class="lead">Optimize SVG markup locally, preview the result, and generate encoded or Base64 data URIs.</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>SVG source</h2>
+            <textarea id="input" spellcheck="false" aria-label="SVG source" placeholder="粘贴 SVG source，或直接把 .svg 文件拖到这里..."></textarea>
+            <div class="row">
+                <button class="btn primary" id="optimize">Optimize</button>
+                <button class="btn" id="pick">Choose an .svg file</button>
+                <button class="btn" id="sample">SVG example</button>
+                <button class="btn danger" id="clear">Clear</button>
+                <input type="file" id="file" accept=".svg,image/svg+xml" hidden />
+            </div>
+            <div class="row">
+                <label><input type="checkbox" id="rmTitle" checked />移除 &lt;title&gt;/&lt;desc&gt;</label>
+                <label>小数精度
+                    <select id="precision" class="w-8" style="width:5rem;display:inline-block;margin-left:0.3rem;">
+                        <option value="1">1 位</option>
+                        <option value="2" selected>2 位</option>
+                        <option value="3">3 位</option>
+                    </select>
+                </label>
+            </div>
+            <p class="hint" id="status" aria-live="polite">Optimization runs as you type; comments, metadata, Inkscape/Sodipodi attributes, and empty defs/g nodes are removed.</p>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>Preview</h2>
+                <div class="row bg-btns">
+                    <button class="btn on" id="bgChecker">棋盘</button>
+                    <button class="btn" id="bgWhite">白底</button>
+                    <button class="btn" id="bgBlack">黑底</button>
+                </div>
+                <div class="preview-box bg-checker" id="preview" aria-label="SVG 预览"></div>
+            </section>
+            <section class="panel">
+                <h2>Optimized result</h2>
+                <pre class="output min-h-6" id="output"></pre>
+                <div class="row"><button class="btn primary" id="copy">Copy result</button></div>
+                <div class="chips" id="stats"></div>
+            </section>
+            <section class="panel">
+                <h2>data URI</h2>
+                <pre class="output uri-out" id="uriUtf8"></pre>
+                <div class="row"><button class="btn" id="copyUtf8">Copy UTF-8</button></div>
+                <pre class="output uri-out" id="uriB64"></pre>
+                <div class="row"><button class="btn" id="copyB64">Copy Base64</button></div>
+            </section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+        <h2>About SVG Optimizer & Preview</h2>
+        <p>Optimize SVG markup locally, preview the result, and generate encoded or Base64 data URIs. Processing happens locally in your browser, and the tool does not upload the entered content.</p>
+        <h2>Privacy and compatibility</h2>
+        <p>Results depend on browser capabilities and the supplied input. Review generated output before using it in production or formal documents.</p>
+    </section>
+
+</main>
+<script>
+(function () {
+    "use strict";
+    var input = document.getElementById("input"), output = document.getElementById("output"), status = document.getElementById("status");
+    var preview = document.getElementById("preview"), stats = document.getElementById("stats");
+    var uriUtf8 = document.getElementById("uriUtf8"), uriB64 = document.getElementById("uriB64");
+    var rmTitle = document.getElementById("rmTitle"), precision = document.getElementById("precision");
+    var fileInput = document.getElementById("file");
+    var enc = new TextEncoder();
+
+    var SAMPLE = '<?xml version="1.0" encoding="UTF-8"?>\n<!-- 由某编辑器导出 -->\n<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="64" height="64" viewBox="0 0 64.000000 64.000000" inkscape:version="1.2">\n    <title>示例图标</title>\n    <metadata>editor metadata</metadata>\n    <defs></defs>\n    <g inkscape:label="Layer 1">\n        <circle cx="32.000001" cy="32.0" r="27.333333" fill="#38bdf8"/>\n        <path d="M20.123456 34.567890 L28.999999 43.111111 L45.876543 24.222222" stroke="#fff" stroke-width="5.500000" fill="none" stroke-linecap="round" stroke-linejoin="round"/>\n    </g>\n    <g></g>\n</svg>';
+
+    function ok(msg) { status.textContent = msg; status.className = "hint ok"; }
+    function fail(msg) { status.textContent = msg; status.className = "hint bad"; }
+    function kb(n) { return n < 1024 ? n + " B" : (n / 1024).toFixed(2) + " KB"; }
+
+    /* 判断属性是否属于编辑器私有命名空间 */
+    function isEditorAttr(name) {
+        return /^(inkscape|sodipodi):/.test(name) || /^xmlns:(inkscape|sodipodi|dc|cc|rdf)$/.test(name);
+    }
+
+    /* 递归清理节点：注释、metadata、编辑器元素与属性、空白文本 */
+    function cleanNode(node, opts) {
+        var kids = Array.prototype.slice.call(node.childNodes);
+        for (var i = 0; i < kids.length; i++) {
+            var child = kids[i];
+            if (child.nodeType === 8) { node.removeChild(child); continue; } // 注释
+            if (child.nodeType === 3) {
+                // 折叠纯空白文本（text/tspan/style 内的内容保留）
+                var parent = (node.tagName || "").toLowerCase();
+                if (!/^(text|tspan|textpath|style|script)$/.test(parent) && !child.nodeValue.trim()) node.removeChild(child);
+                continue;
+            }
+            if (child.nodeType !== 1) continue;
+            var tag = (child.tagName || "").toLowerCase();
+            if (tag === "metadata" || /^(inkscape|sodipodi):/.test(tag)) { node.removeChild(child); continue; }
+            if (opts.rmTitle && (tag === "title" || tag === "desc")) { node.removeChild(child); continue; }
+            // 移除编辑器私有属性
+            var attrs = Array.prototype.slice.call(child.attributes);
+            for (var a = 0; a < attrs.length; a++) {
+                if (isEditorAttr(attrs[a].name)) child.removeAttribute(attrs[a].name);
+            }
+            cleanNode(child, opts);
+            // 清理后变空的 defs / g
+            if ((tag === "defs" || tag === "g") && !child.childNodes.length && !child.attributes.length) node.removeChild(child);
+        }
+    }
+
+    /* 数字精度压缩：小数超过 N 位的四舍五入并去掉尾零 */
+    function shrinkNumbers(text, n) {
+        var re = new RegExp("\\d+\\.\\d{" + (n + 1) + ",}", "g");
+        return text.replace(re, function (m) {
+            return parseFloat(parseFloat(m).toFixed(n)).toString();
+        });
+    }
+
+    /* UTF-8 安全的 base64 */
+    function b64(s) {
+        var bytes = enc.encode(s), bin = "";
+        for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+        return btoa(bin);
+    }
+
+    function clearOutputs() {
+        preview.innerHTML = "";
+        output.textContent = "";
+        uriUtf8.textContent = "";
+        uriB64.textContent = "";
+        stats.innerHTML = "";
+    }
+
+    function optimize() {
+        var src = input.value.trim();
+        if (!src) { clearOutputs(); status.textContent = "等待输入 SVG 源码。"; status.className = "hint"; return; }
+        var doc = new DOMParser().parseFromString(src, "image/svg+xml");
+        if (doc.getElementsByTagName("parsererror").length) {
+            clearOutputs();
+            fail("SVG 解析失败：请检查标签是否闭合、xmlns 是否正确。");
+            return;
+        }
+        var root = doc.documentElement;
+        var rootAttrs = Array.prototype.slice.call(root.attributes);
+        for (var a = 0; a < rootAttrs.length; a++) {
+            if (isEditorAttr(rootAttrs[a].name)) root.removeAttribute(rootAttrs[a].name);
+        }
+        cleanNode(root, { rmTitle: rmTitle.checked });
+        var out = new XMLSerializer().serializeToString(root);
+        out = shrinkNumbers(out, parseInt(precision.value, 10));
+        out = out.replace(/>\s+</g, "><").replace(/\s{2,}/g, " ").trim();
+        // 输出与预览
+        output.textContent = out;
+        preview.innerHTML = out;
+        uriUtf8.textContent = "data:image/svg+xml;utf8," + encodeURIComponent(out);
+        uriB64.textContent = "data:image/svg+xml;base64," + b64(out);
+        var before = enc.encode(src).length, after = enc.encode(out).length;
+        var saved = before > 0 ? Math.round((1 - after / before) * 100) : 0;
+        stats.innerHTML = "<span class='chip'>原始 " + kb(before) + "</span><span class='chip'>优化后 " + kb(after) + "</span><span class='chip " + (saved >= 0 ? "ok" : "warn") + "'>节省 " + saved + "%</span>";
+        ok("优化完成：" + kb(before) + " → " + kb(after));
+    }
+
+    /* 文件读入（选择或拖拽） */
+    function loadFile(file) {
+        if (!file) return;
+        if (!/\.svg$/i.test(file.name) && file.type !== "image/svg+xml") { fail("请选择 .svg 文件"); return; }
+        var reader = new FileReader();
+        reader.onload = function () {
+            input.value = String(reader.result);
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+            ok("已读入文件：" + file.name);
+        };
+        reader.onerror = function () { fail("文件读取失败，请重试"); };
+        reader.readAsText(file);
+    }
+    document.getElementById("pick").onclick = function () { fileInput.click(); };
+    fileInput.onchange = function () { loadFile(fileInput.files[0]); fileInput.value = ""; };
+    ["dragover", "dragenter"].forEach(function (ev) { input.addEventListener(ev, function (e) { e.preventDefault(); input.classList.add("drag-over"); }); });
+    ["dragleave", "drop"].forEach(function (ev) { input.addEventListener(ev, function (e) { e.preventDefault(); input.classList.remove("drag-over"); }); });
+    input.addEventListener("drop", function (e) { if (e.dataTransfer.files.length) loadFile(e.dataTransfer.files[0]); });
+
+    /* 预览背景切换 */
+    var bgBtns = { bgChecker: "bg-checker", bgWhite: "bg-white", bgBlack: "bg-black" };
+    Object.keys(bgBtns).forEach(function (id) {
+        document.getElementById(id).onclick = function () {
+            preview.className = "preview-box " + bgBtns[id];
+            Object.keys(bgBtns).forEach(function (other) { document.getElementById(other).classList.toggle("on", other === id); });
+        };
+    });
+
+    /* 复制按钮 */
+    function bindCopy(btnId, el, label) {
+        document.getElementById(btnId).onclick = function () {
+            copyText(el.textContent || "").then(function () { ok(label + "已复制"); },
+                function () { fail("复制失败，请手动选择复制"); });
+        };
+    }
+    bindCopy("copy", output, "优化结果");
+    bindCopy("copyUtf8", uriUtf8, "utf8 版 data URI ");
+    bindCopy("copyB64", uriB64, "base64 版 data URI ");
+
+    document.getElementById("optimize").onclick = optimize;
+    document.getElementById("sample").onclick = function () {
+        input.value = SAMPLE;
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+    document.getElementById("clear").onclick = function () {
+        input.value = "";
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        clearOutputs();
+        status.textContent = "已清空";
+        status.className = "hint";
+    };
+    rmTitle.addEventListener("change", optimize);
+    precision.addEventListener("change", optimize);
+    var timer = null;
+    input.addEventListener("input", function () { clearTimeout(timer); timer = setTimeout(optimize, 200); });
+})();
+</script>
+</body>
+</html>

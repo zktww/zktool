@@ -3,6 +3,8 @@
 (function () {
     "use strict";
     if (!window.ZKTOOL_REGISTRY) return;
+    var EN = window.zkLocale === "en" || /^\/en(?:\/|$)/.test(location.pathname);
+    function text(en, zh) { return EN ? en : zh; }
 
     /* 站点根路径：palette.js 位于 <root>/assets/ 下 */
     var root = "./";
@@ -17,15 +19,15 @@
 
     /* 动作型条目：不跳转页面，执行本地操作 */
     var ACTIONS = [
-        { name: "切换主题", desc: "跟随系统 → 浅色 → 深色 循环", tag: "动作", kw: "theme dark light qhzt 切换 主题 暗色 深色 浅色", run: function () {
+        { name: text("Switch theme", "切换主题"), desc: text("Cycle through system, light, and dark", "跟随系统 → 浅色 → 深色 循环"), tag: text("Action", "动作"), kw: "theme dark light", run: function () {
             if (window.zkTheme) {
                 var m = window.zkTheme.cycle();
-                if (window.zkToast) zkToast({ auto: "主题：跟随系统", light: "主题：浅色", dark: "主题：深色" }[m]);
+                if (window.zkToast) zkToast({ auto: text("Theme: system", "主题：跟随系统"), light: text("Theme: light", "主题：浅色"), dark: text("Theme: dark", "主题：深色") }[m]);
             }
         } },
-        { name: "复制本页链接", desc: "把当前页面地址复制到剪贴板", tag: "动作", kw: "copy link url fzlj 复制 链接 地址", run: function () {
+        { name: text("Copy page link", "复制本页链接"), desc: text("Copy the current page URL to the clipboard", "把当前页面地址复制到剪贴板"), tag: text("Action", "动作"), kw: "copy link url", run: function () {
             var url = location.href;
-            var done = function () { if (window.zkToast) zkToast("链接已复制"); };
+            var done = function () { if (window.zkToast) zkToast(text("Page link copied", "链接已复制")); };
             if (window.copyText) copyText(url).then(done, function () {});
             else if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, function () {});
         } },
@@ -70,10 +72,10 @@
         document.head.appendChild(style);
         overlay = document.createElement("div");
         overlay.className = "zk-palette";
-        overlay.innerHTML = "<div class='zk-palette-box' role='dialog' aria-modal='true' aria-label='工具搜索'>" +
-            "<input type='text' placeholder='搜索工具，回车打开…' aria-label='搜索工具' />" +
+        overlay.innerHTML = "<div class='zk-palette-box' role='dialog' aria-modal='true' aria-label='" + text("Tool search", "工具搜索") + "'>" +
+            "<input type='text' placeholder='" + text("Search tools and press Enter to open...", "搜索工具，回车打开…") + "' aria-label='" + text("Search tools", "搜索工具") + "' />" +
             "<div class='zk-palette-list' role='listbox'></div>" +
-            "<div class='zk-palette-hint'>↑↓ 选择 · Enter 打开 · Esc 关闭</div></div>";
+            "<div class='zk-palette-hint'>" + text("Up/Down select · Enter open · Esc close", "↑↓ 选择 · Enter 打开 · Esc 关闭") + "</div></div>";
         document.body.appendChild(overlay);
         box = overlay.firstChild;
         input = box.querySelector("input");
@@ -112,7 +114,7 @@
     }
 
     function render() {
-        if (!filtered.length) { list.innerHTML = "<div class='zk-palette-empty'>没有匹配的工具</div>"; return; }
+        if (!filtered.length) { list.innerHTML = "<div class='zk-palette-empty'>" + text("No matching tools", "没有匹配的工具") + "</div>"; return; }
         list.innerHTML = filtered.map(function (it, i) {
             return "<div class='zk-palette-item" + (i === active ? " active" : "") + "' data-i='" + i + "' role='option' aria-selected='" + (i === active) + "'>" +
                 "<b>" + esc(it.name) + "</b><span class='zk-desc'>" + esc(it.desc) + "</span><span class='zk-tag'>" + esc(it.tag) + "</span></div>";
@@ -125,7 +127,7 @@
         if (!it) return;
         if (it.run) { close(); it.run(); return; }
         if (it.type === "external") window.open(it.path, "_blank", "noopener");
-        else location.href = /^https?:/.test(it.path) ? it.path : root + it.path;
+        else location.href = /^https?:/.test(it.path) ? it.path : root + (window.zkLocalePrefix || "") + it.path;
         close();
     }
 
@@ -160,8 +162,8 @@
         var btn = document.createElement("button");
         btn.type = "button";
         btn.className = "zk-icon-btn zk-palette-trigger";
-        btn.setAttribute("aria-label", "搜索工具（Ctrl+K）");
-        btn.title = "搜索工具（Ctrl+K）";
+        btn.setAttribute("aria-label", text("Search tools (Ctrl+K)", "搜索工具（Ctrl+K）"));
+        btn.title = btn.getAttribute("aria-label");
         btn.innerHTML = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='11' cy='11' r='8'/><path d='m21 21-4.3-4.3'/></svg>";
         btn.addEventListener("click", open);
         /* 搜索按钮排在主题按钮前 */

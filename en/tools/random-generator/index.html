@@ -1,0 +1,117 @@
+<!-- Generated from /tools/random-generator/; edit the Chinese source page and assets/i18n.js instead. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Random ID Generator - Free Online Tool | zktool</title>
+    <meta name="description" content="Generate UUID v4 values, passwords, tokens, numeric codes, and custom random strings in batches." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="Random ID Generator | zktool" />
+    <meta property="og:description" content="Generate UUID v4 values, passwords, tokens, numeric codes, and custom random strings in batches." />
+    <meta property="og:url" content="https://tools.zktww.cn/en/tools/random-generator/" />
+    <link rel="canonical" href="https://tools.zktww.cn/en/tools/random-generator/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../../../assets/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../../assets/tool-page.css?v=cf7be6b7" />
+    <script src="../../../assets/analytics.js?v=3b95695b"></script>
+    <script src="../../../assets/theme.js?v=a8b19431"></script>
+    <script src="../../../assets/clipboard.js?v=51b0c84d"></script>
+    <script defer src="../../../assets/registry.js?v=280e3baf"></script><script defer src="../../../assets/i18n.js?v=6498f0fe"></script>
+    <script defer src="../../../assets/palette.js?v=1f6efcdf"></script>
+    <script defer src="../../../assets/toolkit.js?v=21692c6f"></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://tools.zktww.cn/en/"},{"@type":"ListItem","position":2,"name":"Generators & Credentials","item":"https://tools.zktww.cn/en/#domain-gen"},{"@type":"ListItem","position":3,"name":"Random ID Generator","item":"https://tools.zktww.cn/en/tools/random-generator/"}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Random ID Generator","url":"https://tools.zktww.cn/en/tools/random-generator/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","inLanguage":"en","description":"Generate UUID v4 values, passwords, tokens, numeric codes, and custom random strings in batches.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+    <link rel="alternate" hreflang="zh-CN" href="https://tools.zktww.cn/tools/random-generator/" /><link rel="alternate" hreflang="en" href="https://tools.zktww.cn/en/tools/random-generator/" /><link rel="alternate" hreflang="x-default" href="https://tools.zktww.cn/tools/random-generator/" />
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../../">← Back to home</a><p class="meta">UUID / Random</p></div>
+    <h1><span class="title">Random ID Generator</span></h1>
+    <p class="lead">Generate UUID v4 values, passwords, tokens, numeric codes, and custom random strings in batches.</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>Options</h2>
+            <div class="row"><label class="grow">Type<select id="type"><option value="uuid">UUID v4</option><option value="password">Password</option><option value="token">Token</option><option value="number">数字串</option><option value="custom">自定义Character set</option></select></label><label class="w-8">Length<input id="len" type="number" min="1" max="512" value="32" /></label><label class="w-8">Amount<input id="count" type="number" min="1" max="200" value="10" /></label></div>
+            <label for="charset">自定义Character set</label>
+            <input id="charset" class="mono" value="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789" />
+            <div class="row"><button class="btn primary" id="gen">Generate</button><button class="btn" id="copy">Copy all</button><button class="btn danger" id="clear">Clear</button></div>
+        </section>
+        <aside>
+            <section class="panel"><h2>Result</h2><pre class="output" id="output"></pre><p class="hint" id="status" aria-live="polite"></p></section>
+            <section class="panel"><h2>Character set</h2><div class="chips" id="chips"></div></section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+        <h2>About Random ID Generator</h2>
+        <p>Generate UUID v4 values, passwords, tokens, numeric codes, and custom random strings in batches. Processing happens locally in your browser, and the tool does not upload the entered content.</p>
+        <h2>Privacy and compatibility</h2>
+        <p>Results depend on browser capabilities and the supplied input. Review generated output before using it in production or formal documents.</p>
+    </section>
+
+</main>
+<script>
+(function () {
+    "use strict";
+    var type = document.getElementById("type"), len = document.getElementById("len"), count = document.getElementById("count"), charset = document.getElementById("charset"), output = document.getElementById("output"), status = document.getElementById("status"), chips = document.getElementById("chips");
+    var sets = { password: "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*", token: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_", number: "0123456789" };
+    function randInt(max) {
+        // 拒绝采样：丢弃会导致取模偏差的高位区间
+        var limit = Math.floor(4294967296 / max) * max;
+        var a = new Uint32Array(1);
+        do { crypto.getRandomValues(a); } while (a[0] >= limit);
+        return a[0] % max;
+    }
+    function randomString(n, chars) { var s = ""; for (var i = 0; i < n; i++) s += chars[randInt(chars.length)]; return s; }
+    function uuid() { return crypto.randomUUID ? crypto.randomUUID() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, function (c) { return (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16); }); }
+    function updateChips(chars, l) {
+        var html = "<span class='chip'>字符集 " + chars.length + "</span><span class='chip'>模式 " + type.value + "</span>";
+        if (typeof l === "number" && chars.length > 1) {
+            var entropy = Math.round(l * Math.log2(chars.length));
+            var grade = entropy >= 128 ? "极强" : entropy >= 80 ? "强" : entropy >= 60 ? "中等" : "弱";
+            html += "<span class='chip'>熵 " + entropy + " bit · " + grade + "</span>";
+        }
+        chips.innerHTML = html;
+    }
+    function gen() {
+        var n = Math.max(1, Math.min(200, parseInt(count.value, 10) || 1));
+        var l = Math.max(1, Math.min(512, parseInt(len.value, 10) || 32));
+        var chars = Array.from(type.value === "custom" ? charset.value : (sets[type.value] || ""));
+        if (type.value !== "uuid" && !chars.length) {
+            status.textContent = "字符集不能为空";
+            status.className = "hint bad";
+            return;
+        }
+        var arr = [];
+        for (var i = 0; i < n; i++) arr.push(type.value === "uuid" ? uuid() : randomString(l, chars));
+        output.textContent = arr.join("\n");
+        if (type.value === "uuid") { chips.innerHTML = "<span class='chip'>模式 uuid</span><span class='chip'>熵 122 bit · 极强</span>"; }
+        else updateChips(chars, l);
+        status.textContent = "已生成 " + n + " 条"; status.className = "hint ok";
+    }
+    function refreshChips() {
+        if (type.value === "uuid") { chips.innerHTML = "<span class='chip'>模式 uuid</span><span class='chip'>熵 122 bit · 极强</span>"; return; }
+        var chars = Array.from(type.value === "custom" ? charset.value : (sets[type.value] || ""));
+        var l = Math.max(1, Math.min(512, parseInt(len.value, 10) || 32));
+        if (!chars.length) { chips.innerHTML = "<span class='chip'>字符集 0</span><span class='chip'>模式 " + type.value + "</span>"; return; }
+        updateChips(chars, l);
+    }
+    type.onchange = function () { charset.disabled = type.value !== "custom"; len.disabled = type.value === "uuid"; gen(); };
+    [len, count, charset].forEach(function (el) { el.addEventListener("input", refreshChips); });
+    document.getElementById("gen").onclick = gen;
+    document.getElementById("copy").onclick = function () {
+        copyText(output.textContent || "").then(function () { status.textContent = "已复制"; status.className = "hint ok"; },
+            function () { status.textContent = "复制失败，请手动选择复制"; status.className = "hint bad"; });
+    };
+    document.getElementById("clear").onclick = function () { output.textContent = ""; status.textContent = "已清空"; };
+    charset.disabled = true; gen();
+})();
+</script>
+</body>
+</html>

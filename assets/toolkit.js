@@ -12,6 +12,8 @@
     var PAGE = location.pathname.replace(/index\.html$/, "");
     var LS_PREFIX = "zktool.draft:" + PAGE + ":";
     var PIPE_KEY = "zktool.pipe";
+    var EN = window.zkLocale === "en" || /^\/en(?:\/|$)/.test(location.pathname);
+    function text(en, zh) { return EN ? en : zh; }
 
     function tryLS(fn, fallback) {
         try { return fn(); } catch (e) { return fallback; }
@@ -124,7 +126,7 @@
         send: function (toolPath, text) {
             tryLS(function () { sessionStorage.setItem(PIPE_KEY, JSON.stringify({ to: toolPath, text: String(text) })); });
             var root = (window.zkRoot || "../../");
-            location.href = /^https?:/.test(toolPath) ? toolPath : root + toolPath;
+            location.href = /^https?:/.test(toolPath) ? toolPath : root + (window.zkLocalePrefix || "") + toolPath;
         },
         /* 目标页调用：若有属于本页的管道数据则取走（一次性） */
         receive: function () {
@@ -188,10 +190,11 @@
         var root = window.zkRoot || "../../";
         var nav = document.createElement("nav");
         nav.className = "zk-crumb";
-        nav.setAttribute("aria-label", "面包屑");
-        var html = "<a href='" + root + "'>首页</a>";
+        nav.setAttribute("aria-label", text("Breadcrumb", "面包屑"));
+        var localeRoot = root + (window.zkLocalePrefix || "");
+        var html = "<a href='" + localeRoot + "'>" + text("Home", "首页") + "</a>";
         if (grp) html += "<span class='zk-crumb-sep' aria-hidden='true'>›</span>" +
-            "<a href='" + root + "#domain-" + grp.key + "'>" + grp.title + "</a>";
+            "<a href='" + localeRoot + "#domain-" + grp.key + "'>" + grp.title + "</a>";
         html += "<span class='zk-crumb-sep' aria-hidden='true'>›</span>" +
             "<span class='zk-crumb-cur' aria-current='page'>" + tool.name + "</span>";
         nav.innerHTML = html;
@@ -215,8 +218,8 @@
             gh.href = GITHUB_URL;
             gh.target = "_blank";
             gh.rel = "noopener noreferrer";
-            gh.title = "GitHub 仓库 · 反馈问题";
-            gh.setAttribute("aria-label", "GitHub 仓库，反馈问题");
+            gh.title = text("GitHub repository and issue tracker", "GitHub 仓库 · 反馈问题");
+            gh.setAttribute("aria-label", text("GitHub repository and issue tracker", "GitHub 仓库，反馈问题"));
             gh.innerHTML = "<svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55 0-.27-.01-1.17-.02-2.12-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.72-1.53-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18.92-.26 1.9-.38 2.88-.39.98 0 1.96.13 2.88.39 2.2-1.49 3.16-1.18 3.16-1.18.63 1.59.24 2.76.12 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.35.77 1.05.77 2.12 0 1.53-.01 2.76-.01 3.14 0 .3.2.67.8.55A10.52 10.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z'/></svg>";
             box.appendChild(gh);
         }
@@ -225,8 +228,8 @@
             var nbtn = document.createElement("button");
             nbtn.type = "button";
             nbtn.className = "zk-icon-btn zk-nav-btn";
-            nbtn.title = "全部工具";
-            nbtn.setAttribute("aria-label", "全部工具");
+            nbtn.title = text("All tools", "全部工具");
+            nbtn.setAttribute("aria-label", text("All tools", "全部工具"));
             nbtn.setAttribute("aria-haspopup", "true");
             nbtn.innerHTML = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><rect x='3' y='3' width='7' height='7' rx='1'/><rect x='14' y='3' width='7' height='7' rx='1'/><rect x='3' y='14' width='7' height='7' rx='1'/><rect x='14' y='14' width='7' height='7' rx='1'/></svg>";
             nbtn.addEventListener("click", function () { toggleNavMenu(nbtn); });
@@ -238,6 +241,7 @@
     function toggleNavMenu(anchor) {
         if (navMenu) { closeNavMenu(); return; }
         var root = window.zkRoot || "../../";
+        var localeRoot = root + (window.zkLocalePrefix || "");
         navMenu = document.createElement("div");
         navMenu.className = "zk-nav-menu";
         navMenu.setAttribute("role", "menu");
@@ -248,7 +252,7 @@
             html += "<div class='zk-nav-g'>" + g.title + "</div>";
             list.forEach(function (it) {
                 var cur = PAGE.indexOf(it.path.replace(/\/$/, "")) !== -1;
-                html += "<a role='menuitem' href='" + root + it.path + "'" + (cur ? " aria-current='page'" : "") + ">" + it.name + "</a>";
+                html += "<a role='menuitem' href='" + localeRoot + it.path + "'" + (cur ? " aria-current='page'" : "") + ">" + it.name + "</a>";
             });
         });
         navMenu.innerHTML = html;
@@ -293,12 +297,13 @@
         }).slice(0, 6);
         if (!sibs.length) return;
         var root = window.zkRoot || "../../";
+        var localeRoot = root + (window.zkLocalePrefix || "");
         var grp = groupOf(tool.group);
         var sec = document.createElement("section");
         sec.className = "zk-related";
-        sec.innerHTML = "<h2>" + (grp ? grp.title + " · " : "") + "相关工具</h2>" +
+        sec.innerHTML = "<h2>" + (grp ? grp.title + " · " : "") + text("Related tools", "相关工具") + "</h2>" +
             "<nav class='zk-related-grid'>" + sibs.map(function (it) {
-                return "<a href='" + root + it.path + "'><span class='zk-related-icon' style='--c1:" + it.c1 + ";--c2:" + it.c2 + "' aria-hidden='true'>" + it.icon + "</span>" +
+                return "<a href='" + localeRoot + it.path + "'><span class='zk-related-icon' style='--c1:" + it.c1 + ";--c2:" + it.c2 + "' aria-hidden='true'>" + it.icon + "</span>" +
                     "<span><b>" + it.name + "</b><small>" + it.desc + "</small></span></a>";
             }).join("") + "</nav>";
         seo.parentNode.insertBefore(sec, seo);
@@ -325,23 +330,23 @@
             var sbtn = document.createElement("button");
             sbtn.type = "button";
             sbtn.className = "zk-icon-btn zk-share-btn";
-            sbtn.title = "复制当前状态的分享链接";
-            sbtn.setAttribute("aria-label", "复制当前状态的分享链接");
+            sbtn.title = text("Copy a share link for the current state", "复制当前状态的分享链接");
+            sbtn.setAttribute("aria-label", sbtn.title);
             sbtn.innerHTML = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'/><path d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'/></svg>";
             sbtn.addEventListener("click", function () {
                 var url = zkShare.encode();
                 /* 长文本工具（qr-plain 页）状态超长时回退复制纯工具地址 */
                 if (!url && qrPlainMode()) {
                     (window.copyText ? copyText(pageUrl()) : navigator.clipboard.writeText(pageUrl())).then(
-                        function () { toast("内容过长，已复制工具地址"); },
-                        function () { toast("复制失败"); }
+                        function () { toast(text("Tool link copied because the content is too long", "内容过长，已复制工具地址")); },
+                        function () { toast(text("Copy failed", "复制失败")); }
                     );
                     return;
                 }
-                if (!url) { toast("内容过长，无法生成分享链接"); return; }
+                if (!url) { toast(text("The content is too long to create a share link", "内容过长，无法生成分享链接")); return; }
                 (window.copyText ? copyText(url) : navigator.clipboard.writeText(url)).then(
-                    function () { toast("分享链接已复制"); },
-                    function () { toast("复制失败"); }
+                    function () { toast(text("Share link copied", "分享链接已复制")); },
+                    function () { toast(text("Copy failed", "复制失败")); }
                 );
             });
             attachQrTip(sbtn);
@@ -354,8 +359,8 @@
             var pbtn = document.createElement("button");
             pbtn.type = "button";
             pbtn.className = "zk-icon-btn zk-pipe-btn";
-            pbtn.title = "把结果发送到其他工具";
-            pbtn.setAttribute("aria-label", "把结果发送到其他工具");
+            pbtn.title = text("Send the result to another tool", "把结果发送到其他工具");
+            pbtn.setAttribute("aria-label", pbtn.title);
             pbtn.innerHTML = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M22 2 11 13'/><path d='M22 2 15 22l-4-9-9-4Z'/></svg>";
             pbtn.addEventListener("click", function () { openPipeMenu(pbtn, src); });
             box.insertBefore(pbtn, box.firstChild);
@@ -479,7 +484,7 @@
     function openPipeMenu(anchor, src) {
         if (pipeMenu) { closePipeMenu(); return; }
         var text = sourceText(src).trim();
-        if (!text) { toast("当前没有可发送的内容"); return; }
+        if (!text) { toast(EN ? "There is no result to send" : "当前没有可发送的内容"); return; }
         var items = window.ZKTOOL_REGISTRY.filter(function (it) {
             return it.type === "tool" && it.pipe !== false && PAGE.indexOf(it.path.replace(/\/$/, "")) === -1;
         });
@@ -549,7 +554,7 @@
                 if (!nw) return;
                 nw.addEventListener("statechange", function () {
                     /* 新 SW 装好且当前页面已有旧 SW 控制 → 站点有新版本 */
-                    if (nw.state === "installed" && navigator.serviceWorker.controller) toast("站点有新版本，刷新页面即可更新");
+                    if (nw.state === "installed" && navigator.serviceWorker.controller) toast(text("A new version is available. Refresh to update.", "站点有新版本，刷新页面即可更新"));
                 });
             });
         }).catch(function () { /* 注册失败不影响使用 */ });

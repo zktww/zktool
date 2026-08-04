@@ -1,0 +1,72 @@
+{
+    "name": "zktool Developer Tools",
+    "short_name": "zktool",
+    "description": "Privacy-friendly developer tools that run locally in your browser",
+    "lang": "en",
+    "start_url": "./",
+    "scope": "./",
+    "display": "standalone",
+    "background_color": "#f6f8fb",
+    "theme_color": "#2563eb",
+    "icons": [
+        {
+            "src": "../favicon.ico",
+            "sizes": "48x48",
+            "type": "image/x-icon"
+        },
+        {
+            "src": "../assets/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
+        {
+            "src": "../assets/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "../assets/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "../assets/icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "JSON Formatter",
+            "url": "./tools/json-formatter/",
+            "description": "Validate and format JSON"
+        },
+        {
+            "name": "Timestamp Converter",
+            "url": "./tools/timestamp-converter/",
+            "description": "Convert timestamps and dates"
+        },
+        {
+            "name": "Base64 Converter",
+            "url": "./tools/base64-converter/",
+            "description": "Encode and decode Base64"
+        },
+        {
+            "name": "Regex Tester",
+            "url": "./tools/regex-tester/",
+            "description": "Test regular expressions"
+        }
+    ],
+    "share_target": {
+        "action": "./tools/unicode-inspector/",
+        "method": "GET",
+        "params": {
+            "text": "text",
+            "url": "text"
+        }
+    }
+}

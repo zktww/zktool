@@ -1,0 +1,149 @@
+<!-- Generated from /tools/url-codec/; edit the Chinese source page and assets/i18n.js instead. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>URL Encoder & Query Parser - Free Online Tool | zktool</title>
+    <meta name="description" content="Encode and decode URLs, inspect query parameters, and convert between query strings and objects." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="URL Encoder & Query Parser | zktool" />
+    <meta property="og:description" content="Encode and decode URLs, inspect query parameters, and convert between query strings and objects." />
+    <meta property="og:url" content="https://tools.zktww.cn/en/tools/url-codec/" />
+    <link rel="canonical" href="https://tools.zktww.cn/en/tools/url-codec/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../../../assets/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../../assets/tool-page.css?v=cf7be6b7" />
+    <script src="../../../assets/analytics.js?v=3b95695b"></script>
+    <script src="../../../assets/theme.js?v=a8b19431"></script>
+    <script src="../../../assets/clipboard.js?v=51b0c84d"></script>
+    <script defer src="../../../assets/registry.js?v=280e3baf"></script><script defer src="../../../assets/i18n.js?v=6498f0fe"></script>
+    <script defer src="../../../assets/palette.js?v=1f6efcdf"></script>
+    <script defer src="../../../assets/toolkit.js?v=21692c6f"></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://tools.zktww.cn/en/"},{"@type":"ListItem","position":2,"name":"Encoding & Characters","item":"https://tools.zktww.cn/en/#domain-codec"},{"@type":"ListItem","position":3,"name":"URL Encoder & Query Parser","item":"https://tools.zktww.cn/en/tools/url-codec/"}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"URL Encoder & Query Parser","url":"https://tools.zktww.cn/en/tools/url-codec/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","inLanguage":"en","description":"Encode and decode URLs, inspect query parameters, and convert between query strings and objects.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+    <link rel="alternate" hreflang="zh-CN" href="https://tools.zktww.cn/tools/url-codec/" /><link rel="alternate" hreflang="en" href="https://tools.zktww.cn/en/tools/url-codec/" /><link rel="alternate" hreflang="x-default" href="https://tools.zktww.cn/tools/url-codec/" />
+</head>
+<body>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top">
+        <a class="back" href="../../../">← Back to home</a>
+        <p class="meta">URL codec</p>
+    </div>
+    <h1><span class="title">URL Encoder & Query Parser</span></h1>
+    <p class="lead">Encode and decode URLs, inspect query parameters, and convert between query strings and objects.</p>
+
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>Input</h2>
+            <textarea id="input" spellcheck="false" aria-label="粘贴 URL、查询字符串或普通文本" placeholder="粘贴 URL、查询字符串或普通文本..."></textarea>
+            <div class="row">
+                <button class="btn primary" id="btnEncode">Encode</button>
+                <button class="btn" id="btnDecode">Decode</button>
+                <button class="btn" id="btnParams">Parse parameters</button>
+                <button class="btn danger" id="btnClear">Clear</button>
+            </div>
+            <div class="row"><label class="hint"><input type="checkbox" id="plusSpace" /> Treat + as a space when decoding (form query strings)</label></div>
+        </section>
+
+        <aside>
+            <section class="panel">
+                <h2>Result</h2>
+                <pre class="output" id="output"></pre>
+                <div class="row">
+                    <button class="btn primary" id="btnCopy">Copy result</button>
+                </div>
+                <p class="hint" id="status" aria-live="polite">Supports full URLs, ?a=1&b=2, or a=1&b=2. Parameters use standard URLSearchParams parsing (+ is treated as a space).</p>
+            </section>
+            <section class="panel">
+                <h2>Parameters</h2>
+                <div class="output min-h-4" id="tableBox">No parameters</div>
+            </section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+        <h2>About URL Encoder & Query Parser</h2>
+        <p>Encode and decode URLs, inspect query parameters, and convert between query strings and objects. Processing happens locally in your browser, and the tool does not upload the entered content.</p>
+        <h2>Privacy and compatibility</h2>
+        <p>Results depend on browser capabilities and the supplied input. Review generated output before using it in production or formal documents.</p>
+    </section>
+
+</main>
+
+<script>
+(function () {
+    "use strict";
+    var input = document.getElementById("input");
+    var output = document.getElementById("output");
+    var tableBox = document.getElementById("tableBox");
+    var status = document.getElementById("status");
+
+    function setOut(text) { output.textContent = text; }
+    function value() { return input.value.trim(); }
+    function msg(text, ok) { status.textContent = text; status.className = "hint " + (ok ? "ok" : "bad"); }
+
+    function parseParams() {
+        var raw = value();
+        if (!raw) { setOut(""); tableBox.textContent = "暂无参数"; return; }
+        var search = raw;
+        try {
+            if (/^[a-z][a-z0-9+.-]*:\/\//i.test(raw)) search = new URL(raw).search;
+        } catch (e) { /* fall through */ }
+        if (search.indexOf("?") >= 0) search = search.slice(search.indexOf("?") + 1);
+        if (search.indexOf("#") >= 0) search = search.slice(0, search.indexOf("#"));
+        var params = new URLSearchParams(search);
+        var rows = [];
+        params.forEach(function (v, k) { rows.push([k, v]); });
+        if (!rows.length) {
+            tableBox.textContent = "未识别到查询参数";
+            setOut("{}");
+            msg("没有可解析的查询参数", false);
+            return;
+        }
+        var obj = {};
+        rows.forEach(function (r) {
+            if (Object.prototype.hasOwnProperty.call(obj, r[0])) {
+                if (!Array.isArray(obj[r[0]])) obj[r[0]] = [obj[r[0]]];
+                obj[r[0]].push(r[1]);
+            } else obj[r[0]] = r[1];
+        });
+        setOut(JSON.stringify(obj, null, 2));
+        tableBox.innerHTML = "<table><thead><tr><th>Key</th><th>Value</th></tr></thead><tbody>" +
+            rows.map(function (r) {
+                return "<tr><td class='mono'>" + esc(r[0]) + "</td><td class='mono'>" + esc(r[1]) + "</td></tr>";
+            }).join("") + "</tbody></table>";
+        msg("已解析 " + rows.length + " 个参数", true);
+    }
+
+    function esc(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+            return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
+        });
+    }
+
+    document.getElementById("btnEncode").onclick = function () {
+        setOut(encodeURIComponent(input.value));
+        msg("已使用 encodeURIComponent 编码", true);
+    };
+    document.getElementById("btnDecode").onclick = function () {
+        var raw = input.value;
+        if (document.getElementById("plusSpace").checked) raw = raw.replace(/\+/g, " ");
+        try { setOut(decodeURIComponent(raw)); msg("解码完成", true); }
+        catch (e) { msg("解码失败：" + e.message, false); }
+    };
+    document.getElementById("btnParams").onclick = parseParams;
+    document.getElementById("btnClear").onclick = function () { input.value = ""; setOut(""); tableBox.textContent = "暂无参数"; status.className = "hint"; status.textContent = "已清空"; };
+    document.getElementById("btnCopy").onclick = function () {
+        copyText(output.textContent || "").then(function () { msg("结果已复制", true); },
+            function () { msg("复制失败，请手动选择复制", false); });
+    };
+})();
+</script>
+</body>
+</html>

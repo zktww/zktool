@@ -240,8 +240,9 @@ IPv4 CIDR 实时计算网络/广播地址、掩码与反掩码、可用主机范
 
 1. 工具类放 **`tools/<模块名>/`**；演示/实验类放 **`demos/<模块名>/`**，入口命名为 **`index.html`**（模块内还可放专属脚本、样式或数据文件）；
 2. 在 **`assets/registry.js`** 注册表中补一条（首页卡片、命令面板与站内搜索的唯一数据源；卡片还需 `icon`/`c1`/`c2` 字段，工具类另需 `group` 字段对应 `ZKTOOL_GROUPS` 分域）；
-3. 运行 **`node scripts/gen-site.mjs`**：自动重生成首页卡片与 JSON-LD、`sitemap.xml`、`llms.txt`、`sw.js` 预缓存与缓存版本、全站资源版本戳、本 README 的两张索引表（勿手改生成区块，会被覆盖）。**每次改动任何 assets 下的 CSS/JS 后发布前都要跑一次**，否则版本戳不更新、线上会命中旧缓存；
-4. 在本 README 的「工具说明」中补一段详细说明（按需详写）。
+3. 在 **`assets/i18n.js`** 补充工具名称、简介、标签和必要的英文界面文案；中文工具页是唯一手工维护的页面源码，`en/` 下的英文页面全部由构建脚本生成，禁止直接修改；
+4. 运行 **`node scripts/gen-site.mjs`**：自动重生成中英文首页与工具页、JSON-LD、`sitemap.xml`、中英文 `llms.txt`、`sw.js` 预缓存与缓存版本、全站资源版本戳、本 README 的两张索引表（勿手改生成区块，会被覆盖）。**每次改动任何 assets 下的 CSS/JS 后发布前都要跑一次**，否则版本戳不更新、线上会命中旧缓存；
+5. 运行 **`node scripts/gen-site.mjs --check`** 校验生成物没有漂移，再在本 README 的「工具说明」中按需补充详细说明。
 
 > 站点部署域名变更时：全局替换页面 `og:url`、`sitemap.xml` 与 `robots.txt` 中的 `https://tools.zktww.cn`。
 

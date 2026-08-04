@@ -68,6 +68,13 @@
 .row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.65rem; margin-bottom: 0.8rem; }
 .row:last-child { margin-bottom: 0; }
 .row .hint { margin-top: 0; }
+
+/* 面板内的操作行与上方输入/输出保持呼吸感；标题首行和连续表单行不叠加间距。 */
+.panel > .row { margin-top: 0.8rem; }
+.panel > h2 + .row,
+.panel > .row:first-child,
+.panel > .row + .row { margin-top: 0; }
+
 .grow { flex: 1; min-width: 0; }
 .w-8 { width: 8rem; }
 .min-h-4 { min-height: 4rem; }

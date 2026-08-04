@@ -47,6 +47,9 @@
 | [tools/keypair-generator/](tools/keypair-generator/) | 密钥对生成器：浏览器本地生成 RSA / ECDSA / Ed25519 密钥对，导出 PEM 与 JWK |
 | [tools/markdown-preview/](tools/markdown-preview/) | Markdown 排版预览：Markdown 实时渲染，多套公众号主题与自定义主色，全屏编辑，一键复制到公众号 |
 | [tools/timezone-planner/](tools/timezone-planner/) | 时区会议规划：多城市时间对照与工作时段标注，跨时区约会议不再算错时间 |
+| [tools/date-calculator/](tools/date-calculator/) | 日期间隔计算器：计算两个日期的自然日、工作日和年月日间隔，并支持按天、周、月、年推算日期 |
+| [tools/docker-compose-converter/](tools/docker-compose-converter/) | Docker Run 转 Compose：将 docker run 命令解析为 Docker Compose YAML，覆盖常用端口、卷、环境与运行参数 |
+| [tools/rmb-uppercase/](tools/rmb-uppercase/) | 人民币大写转换：人民币数字金额与中文大写实时互转，精确到分并提供票据规范写法 |
 | [tools/chmod-calculator/](tools/chmod-calculator/) | chmod 权限计算器：Linux 文件权限三向换算：勾选、八进制与符号表示实时同步 |
 | [tools/svg-optimizer/](tools/svg-optimizer/) | SVG 优化与预览：SVG 本地优化压缩、预览与转 data URI，看体积对比 |
 | [tools/qr-scanner/](tools/qr-scanner/) | 二维码扫描器：摄像头实时扫码或识别图片中的二维码，本地解码不上传 |

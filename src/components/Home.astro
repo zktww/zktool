@@ -7,69 +7,82 @@ const { locale } = Astro.props;
 const isEnglish = locale === "en";
 const labels = isEnglish
     ? {
-        eyebrow: "ZKTOOL / DEVELOPER UTILITIES",
-        title: "The right tool for the next task.",
-        intro: "A focused collection of fast, private utilities for formatting, debugging, converting, and testing in your browser.",
+        eyebrow: "ZKTOOL / LOCAL-FIRST TOOLS",
+        title: "Leave the complexity to the tools.",
+        intro: "A quiet, local-first toolkit for formatting, debugging, converting, and testing.",
         searchPlaceholder: "Search tools by name, format, or keyword",
         searchLabel: "Search all tools",
+        searchHint: "Press ⌘ K to focus",
         available: "tools available",
         result: "matching tools",
         clear: "Clear search",
         emptyTitle: "No tools found",
         emptyText: "Try a different name, format, or keyword.",
-        local: "Runs locally in your browser",
-        privacy: "Your data stays on this device",
+        local: "Runs locally",
+        privacy: "No account required",
         open: "Open tool",
         external: "External service",
-        browse: "Browse the collection",
+        browse: "All tools",
+        quick: "Explore by workflow",
+        quickText: "Start with a focused set of tools",
     }
     : {
-        eyebrow: "ZKTOOL / 开发者工具箱",
-        title: "为下一个任务，找到恰到好处的工具。",
-        intro: "一组快速、克制且注重隐私的浏览器工具，覆盖格式化、调试、转换与设备测试。",
+        eyebrow: "ZKTOOL / LOCAL-FIRST TOOLS",
+        title: "把复杂，留给工具。",
+        intro: "一组本地运行的实用工具，覆盖格式化、调试、转换与测试。",
         searchPlaceholder: "搜索工具名称、格式或关键词",
         searchLabel: "搜索全部工具",
+        searchHint: "按 / 快速聚焦",
         available: "个工具可用",
         result: "个匹配工具",
         clear: "清空搜索",
         emptyTitle: "没有找到相关工具",
         emptyText: "换一个名称、格式或关键词试试。",
-        local: "在浏览器本地运行",
-        privacy: "数据只保留在当前设备",
+        local: "浏览器本地运行",
+        privacy: "无需登录",
         open: "打开工具",
         external: "外部服务",
-        browse: "浏览全部工具",
+        browse: "全部工具",
+        quick: "按工作流浏览",
+        quickText: "从常用工具开始",
     };
 const totalTools = tools.length;
 const homePath = isEnglish ? "/en/" : "/";
 ---
 <main class="home" data-home>
   <section class="home-hero" aria-labelledby="home-title">
-    <div class="hero-copy">
-      <p class="eyebrow">{labels.eyebrow}</p>
-      <h1 id="home-title">{labels.title}</h1>
-      <p class="hero-intro">{labels.intro}</p>
-      <div class="search-wrap">
-        <label class="sr-only" for="tool-search">{labels.searchLabel}</label>
-        <span class="search-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-        </span>
-        <input id="tool-search" data-tool-search type="search" autocomplete="off" placeholder={labels.searchPlaceholder} />
-        <button type="button" class="search-clear" data-search-clear aria-label={labels.clear} hidden>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
-        </button>
+    <div class="hero-inner">
+      <div class="hero-topline">
+        <p class="eyebrow">{labels.eyebrow}</p>
+        <span class="hero-note"><span class="status-dot" aria-hidden="true"></span>{labels.local}</span>
+      </div>
+      <div class="hero-copy">
+        <h1 id="home-title">{isEnglish ? labels.title : <><span>把复杂，留给</span><span class="title-tail">工具。</span></>}</h1>
+        <p class="hero-intro">{labels.intro}</p>
+      </div>
+      <div class="search-shell">
+        <div class="search-wrap">
+          <label class="sr-only" for="tool-search">{labels.searchLabel}</label>
+          <span class="search-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          </span>
+          <input id="tool-search" data-tool-search type="search" autocomplete="off" placeholder={labels.searchPlaceholder} />
+          <button type="button" class="search-clear" data-search-clear aria-label={labels.clear} hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <span class="search-hint">{labels.searchHint}</span>
+      </div>
+      <div class="quick-heading"><span>{labels.quick}</span><small>{labels.quickText}</small></div>
+      <div class="quick-links" aria-label={labels.quick}>
+        {groups.slice(0, 3).map((group) => <a class="quick-link" href={`#group-${group.key}`}><span>{localizedGroup(group, locale).title}</span><span aria-hidden="true">&#8599;</span></a>)}
       </div>
       <div class="hero-meta">
-        <span class="status-dot" aria-hidden="true"></span>
-        <span>{labels.local}</span>
+        <span><strong data-tool-count>{totalTools}</strong> {labels.available}</span>
         <span class="meta-separator" aria-hidden="true">/</span>
         <span>{labels.privacy}</span>
+        <a class="browse-link" href="#tools">{labels.browse}<span aria-hidden="true">&#8595;</span></a>
       </div>
-    </div>
-    <div class="hero-aside" aria-label={labels.available}>
-      <span class="tool-count" data-tool-count>{totalTools}</span>
-      <span class="tool-count-label">{labels.available}</span>
-      <a class="browse-link" href="#tools">{labels.browse}<span aria-hidden="true">&#8595;</span></a>
     </div>
   </section>
 
@@ -163,64 +176,86 @@ const homePath = isEnglish ? "/en/" : "/";
 
   search?.addEventListener("input", filterTools);
   clear?.addEventListener("click", () => { if (search) { search.value = ""; search.focus(); filterTools(); } });
+  window.addEventListener("keydown", (event) => {
+    const target = event.target as HTMLElement | null;
+    const typing = target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.isContentEditable;
+    if ((event.key === "/" && !typing) || ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k")) {
+      event.preventDefault();
+      search?.focus();
+    }
+  });
 </script>
 
 <style>
-  :global(:root) { color-scheme: light; }
-  .home { width: min(1180px, calc(100% - 2.5rem)); margin: 0 auto 5rem; color: #182235; }
-  .home-hero { display: grid; grid-template-columns: minmax(0, 1fr) 12rem; align-items: end; gap: 3rem; padding: clamp(3.5rem, 8vw, 6.5rem) 0 3.25rem; border-bottom: 1px solid #dfe5ed; }
-  .hero-copy { max-width: 52rem; }
-  .eyebrow { margin: 0 0 1rem; color: #2563eb; font-size: .72rem; font-weight: 750; letter-spacing: .14em; }
-  h1 { max-width: 17ch; margin: 0; color: #111827; font-size: clamp(2.65rem, 6vw, 5.1rem); font-weight: 730; letter-spacing: 0; line-height: 1.02; }
-  .hero-intro { max-width: 42rem; margin: 1.35rem 0 1.8rem; color: #5b687b; font-size: 1.05rem; line-height: 1.75; }
-  .search-wrap { position: relative; display: flex; align-items: center; max-width: 42rem; }
-  .search-wrap input { width: 100%; height: 3.6rem; padding: 0 3.25rem 0 3.25rem; border: 1px solid #cdd7e4; border-radius: 8px; outline: none; background: #fff; color: #182235; font: inherit; font-size: .95rem; box-shadow: 0 8px 25px rgba(24, 34, 53, .06); transition: border-color .18s, box-shadow .18s; }
-  .search-wrap input:focus { border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37, 99, 235, .12), 0 8px 25px rgba(24, 34, 53, .08); }
-  .search-wrap input::placeholder { color: #8793a5; }
-  .search-icon { position: absolute; left: 1.15rem; z-index: 1; display: grid; color: #64748b; pointer-events: none; }
-  .search-icon svg, .search-clear svg { width: 1.15rem; height: 1.15rem; }
-  .search-clear { position: absolute; right: .8rem; display: grid; width: 2rem; height: 2rem; place-items: center; border: 0; border-radius: 5px; background: transparent; color: #64748b; cursor: pointer; }
-  .search-clear:hover, .search-clear:focus-visible { background: #eef2f7; color: #182235; outline: none; }
-  .hero-meta { display: flex; align-items: center; flex-wrap: wrap; gap: .55rem; color: #728096; font-size: .78rem; }
-  .status-dot { width: .45rem; height: .45rem; border-radius: 50%; background: #16a34a; box-shadow: 0 0 0 4px rgba(22, 163, 74, .1); }
-  .meta-separator { color: #c2cad5; }
-  .hero-aside { display: flex; flex-direction: column; align-items: flex-start; padding-bottom: .2rem; border-left: 1px solid #dfe5ed; padding-left: 2rem; }
-  .tool-count { color: #111827; font-size: 3.9rem; font-weight: 720; letter-spacing: 0; line-height: 1; }
-  .tool-count-label { max-width: 8rem; margin-top: .65rem; color: #728096; font-size: .78rem; line-height: 1.4; }
-  .browse-link { display: inline-flex; align-items: center; gap: .55rem; margin-top: 2rem; color: #2563eb; font-size: .83rem; font-weight: 680; text-decoration: none; }
-  .browse-link:hover { color: #1d4ed8; }
-  .browse-link span { font-size: 1rem; }
-  .group-nav { display: flex; gap: .5rem; overflow-x: auto; padding: 1.35rem 0 1.1rem; scrollbar-width: none; }
+  :global(:root) { color-scheme: light; background: #f4f6f8; }
+  :global(body) { background: #f4f6f8; }
+  .home { width: min(1180px, calc(100% - 2.5rem)); margin: 0 auto 5.5rem; color: #20252b; }
+  .home-hero { width: 100vw; margin-left: calc(50% - 50vw); overflow: hidden; background: #eef1f4; color: #20252b; }
+  .home-hero::before { display: block; height: 1px; background: #e1e5e8; content: ""; }
+  .hero-inner { position: relative; width: min(1180px, calc(100% - 2.5rem)); margin: 0 auto; padding: clamp(3.8rem, 7vw, 6rem) 0 3.25rem; }
+  .hero-inner::before { position: absolute; top: 0; right: -12rem; width: 32rem; height: 32rem; border: 1px solid #e0e5e8; border-radius: 50%; content: ""; opacity: .7; pointer-events: none; }
+  .hero-topline, .hero-copy, .search-shell, .quick-heading, .quick-links, .hero-meta { position: relative; z-index: 1; }
+  .hero-topline { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .eyebrow { margin: 0 0 1.25rem; color: #69737c; font-size: .68rem; font-weight: 750; letter-spacing: .15em; }
+  .hero-note { display: inline-flex; align-items: center; gap: .45rem; margin-bottom: 1.25rem; color: #77818a; font-size: .72rem; }
+  .status-dot { width: .42rem; height: .42rem; border-radius: 50%; background: #37b581; box-shadow: 0 0 0 4px rgba(55,181,129,.12); }
+  h1 { max-width: 48rem; margin: 0; color: #182027; font-size: clamp(3rem, 6vw, 5.15rem); font-weight: 650; letter-spacing: -.025em; line-height: 1.03; }
+  .title-tail { white-space: nowrap; color: #5d6972; }
+  .hero-intro { max-width: 36rem; margin: 1.25rem 0 2.15rem; color: #6b757d; font-size: 1rem; line-height: 1.75; }
+  .search-shell { max-width: 49rem; padding: .55rem; border: 1px solid #dce2e6; border-radius: 11px; background: #eef1f4; box-shadow: 8px 8px 18px rgba(143, 155, 165, .2), -8px -8px 18px rgba(255, 255, 255, .9); }
+  .search-wrap { position: relative; display: flex; align-items: center; }
+  .search-wrap input { width: 100%; height: 3.75rem; padding: 0 7.2rem 0 3.35rem; border: 1px solid #d4dbe0; border-radius: 7px; outline: none; background: #f8fafb; color: #1d262d; font: inherit; font-size: .98rem; box-shadow: inset 2px 2px 5px rgba(173, 183, 191, .18), inset -2px -2px 5px rgba(255, 255, 255, .9); transition: border-color .18s, box-shadow .18s, background .18s; }
+  .search-wrap input:focus { border-color: #aab8c1; background: #fff; box-shadow: 0 0 0 3px rgba(104, 132, 149, .14), inset 2px 2px 5px rgba(173, 183, 191, .12); }
+  .search-wrap input::placeholder { color: #8a959d; }
+  .search-icon { position: absolute; left: 1.15rem; z-index: 1; display: grid; color: #5f6d76; pointer-events: none; }
+  .search-icon svg, .search-clear svg { width: 1.1rem; height: 1.1rem; }
+  .search-clear { position: absolute; right: .75rem; display: grid; width: 2rem; height: 2rem; place-items: center; border: 0; border-radius: 5px; background: transparent; color: #73808a; cursor: pointer; }
+  .search-clear:hover, .search-clear:focus-visible { color: #172128; background: #e9eef1; outline: none; }
+  .search-hint { position: absolute; top: 50%; right: 3.2rem; padding: .25rem .42rem; border: 1px solid #dce3e7; border-radius: 4px; color: #89949c; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .63rem; transform: translateY(-50%); }
+  .quick-heading { display: flex; align-items: baseline; gap: .7rem; margin-top: 1.45rem; color: #39434a; font-size: .76rem; font-weight: 700; }
+  .quick-heading small { color: #89939a; font-size: .72rem; font-weight: 450; }
+  .quick-links { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: .65rem; }
+  .quick-link { display: inline-flex; align-items: center; gap: .5rem; padding: .52rem .7rem; border: 1px solid #d7dfe4; border-radius: 6px; background: rgba(248, 250, 251, .6); color: #4d5961; font-size: .73rem; text-decoration: none; box-shadow: 2px 2px 5px rgba(146, 157, 166, .11); transition: border-color .18s, color .18s, background .18s, transform .18s; }
+  .quick-link span:last-child { color: #859099; font-size: .84rem; }
+  .quick-link:hover, .quick-link:focus-visible { border-color: #aebbc4; background: #fff; color: #172128; transform: translateY(-1px); outline: none; }
+  .hero-meta { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; margin-top: 1.35rem; color: #7c878f; font-size: .74rem; }
+  .hero-meta strong { color: #2f3b43; font-weight: 700; }
+  .meta-separator { color: #b0b8bd; }
+  .browse-link { display: inline-flex; align-items: center; gap: .45rem; margin-left: .25rem; color: #344149; font-size: .74rem; font-weight: 700; text-decoration: none; }
+  .browse-link:hover { color: #167a58; }
+  .browse-link span { font-size: .95rem; }
+  .group-nav { display: flex; gap: .2rem; overflow-x: auto; margin-top: 1.35rem; padding: .42rem; border: 1px solid #dce2e6; border-radius: 8px; background: #eef1f4; box-shadow: inset 2px 2px 5px rgba(159, 171, 180, .12), inset -2px -2px 5px rgba(255, 255, 255, .8); scrollbar-width: none; }
   .group-nav::-webkit-scrollbar { display: none; }
-  .group-nav a { flex: 0 0 auto; padding: .45rem .8rem; border: 1px solid #dfe5ed; border-radius: 999px; color: #5b687b; background: #fff; font-size: .78rem; text-decoration: none; transition: border-color .16s, color .16s, background .16s; }
-  .group-nav a:hover, .group-nav a:focus-visible { border-color: #9bb8ee; color: #1d4ed8; background: #f7faff; outline: none; }
-  .collection-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: 1.9rem 0 1rem; }
-  .collection-head h2 { margin: 0; color: #111827; font-size: 1.45rem; letter-spacing: 0; }
-  .result-count { color: #7b8799; font-size: .78rem; }
-  .tool-group { margin-top: 1.8rem; }
-  .group-heading { display: flex; align-items: center; gap: .7rem; margin-bottom: .8rem; }
-  .group-heading h3 { margin: 0; color: #344156; font-size: .88rem; font-weight: 720; }
-  .group-heading span { color: #9aa5b5; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .7rem; }
-  .tool-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .65rem; }
-  .tool-card { display: grid; grid-template-columns: 2.45rem minmax(0, 1fr); gap: .75rem; min-width: 0; min-height: 8.9rem; padding: .85rem; border: 1px solid #dfe5ed; border-radius: 7px; background: #fff; color: #182235; text-decoration: none; transition: border-color .18s, box-shadow .18s, transform .18s; }
-  .tool-card:hover, .tool-card:focus-visible { border-color: #9bb8ee; box-shadow: 0 12px 24px rgba(24, 34, 53, .08); transform: translateY(-2px); outline: none; }
-  .tool-icon { display: grid; width: 2.45rem; height: 2.45rem; place-items: center; border-radius: 6px; background: linear-gradient(135deg, var(--start), var(--end)); color: #fff; }
-  .tool-icon :global(svg) { width: 1.22rem; height: 1.22rem; }
+  .group-nav a { flex: 0 0 auto; padding: .58rem .75rem; border: 1px solid transparent; border-radius: 5px; color: #6f7b83; font-size: .76rem; text-decoration: none; transition: border-color .16s, color .16s, background .16s, box-shadow .16s; }
+  .group-nav a:hover, .group-nav a:focus-visible { border-color: #d8dfe3; background: #f8fafb; color: #202a30; box-shadow: 2px 2px 5px rgba(146, 157, 166, .1), -2px -2px 5px rgba(255, 255, 255, .85); outline: none; }
+  .collection-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: 3rem 0 1.15rem; }
+  .collection-head h2 { margin: 0; color: #202a30; font-size: 1.35rem; font-weight: 720; letter-spacing: -.01em; }
+  .result-count { padding: .3rem .5rem; border: 1px solid #dde3e6; border-radius: 5px; background: #eef1f4; color: #7d8990; font-size: .7rem; box-shadow: inset 1px 1px 3px rgba(157, 169, 178, .1); }
+  .tool-group { margin-top: 2.25rem; scroll-margin-top: 1.25rem; }
+  .group-heading { display: flex; align-items: center; gap: .65rem; margin-bottom: 1rem; }
+  .group-heading::after { height: 1px; flex: 1; background: #dfe4e7; content: ""; }
+  .group-heading h3 { margin: 0; color: #46525a; font-size: .84rem; font-weight: 750; }
+  .group-heading span { color: #98a3a9; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .66rem; }
+  .tool-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .8rem; }
+  .tool-card { display: grid; grid-template-columns: 2.3rem minmax(0, 1fr); gap: .78rem; min-width: 0; min-height: 8.7rem; padding: .95rem; border: 1px solid rgba(215, 222, 226, .9); border-radius: 7px; background: #f1f4f6; color: #202a30; text-decoration: none; box-shadow: 5px 5px 11px rgba(151, 163, 172, .16), -5px -5px 11px rgba(255, 255, 255, .88); transition: border-color .18s, background .18s, box-shadow .18s, transform .18s; }
+  .tool-card:hover, .tool-card:focus-visible { border-color: #b5c0c7; background: #f8fafb; box-shadow: 7px 9px 18px rgba(137, 151, 161, .2), -5px -5px 12px rgba(255, 255, 255, .9); transform: translateY(-2px); outline: none; }
+  .tool-icon { display: grid; width: 2.3rem; height: 2.3rem; place-items: center; border: 1px solid rgba(255, 255, 255, .45); border-radius: 6px; background: linear-gradient(135deg, var(--start), var(--end)); color: #fff; box-shadow: 3px 4px 8px rgba(55, 75, 86, .16); }
+  .tool-icon :global(svg) { width: 1.12rem; height: 1.12rem; }
   .tool-copy { display: flex; min-width: 0; flex-direction: column; }
   .tool-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: .5rem; }
-  .tool-card-top b { color: #182235; font-size: .86rem; font-weight: 680; line-height: 1.35; }
-  .tool-arrow { flex: none; color: #9aa5b5; font-size: .9rem; line-height: 1.1; transition: color .18s, transform .18s; }
-  .tool-card:hover .tool-arrow, .tool-card:focus-visible .tool-arrow { color: #2563eb; transform: translate(1px, -1px); }
-  .tool-copy small { display: -webkit-box; margin-top: .35rem; overflow: hidden; color: #68758a; font-size: .73rem; line-height: 1.5; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-  .tool-tag { align-self: flex-start; margin-top: auto; padding-top: .55rem; color: #8a96a8; font-size: .66rem; line-height: 1; }
-  .search-empty { padding: 4.5rem 1rem; text-align: center; border-top: 1px solid #dfe5ed; }
-  .empty-mark { display: inline-grid; width: 2.4rem; height: 2.4rem; place-items: center; border: 1px solid #cdd7e4; border-radius: 50%; color: #728096; font-weight: 700; }
-  .search-empty h2 { margin: 1rem 0 .35rem; color: #344156; font-size: 1rem; }
-  .search-empty p { margin: 0; color: #7b8799; font-size: .84rem; }
+  .tool-card-top b { color: #26333a; font-size: .86rem; font-weight: 700; line-height: 1.35; }
+  .tool-arrow { flex: none; color: #a0aab0; font-size: .88rem; line-height: 1.1; transition: color .18s, transform .18s; }
+  .tool-card:hover .tool-arrow, .tool-card:focus-visible .tool-arrow { color: #30434d; transform: translate(1px, -1px); }
+  .tool-copy small { display: -webkit-box; margin-top: .35rem; overflow: hidden; color: #6f7b83; font-size: .73rem; line-height: 1.5; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .tool-tag { align-self: flex-start; margin-top: auto; padding: .25rem .42rem; border: 1px solid #dce2e5; border-radius: 4px; background: #e9edef; color: #879299; font-size: .62rem; line-height: 1; }
+  .search-empty { padding: 4.5rem 1rem; text-align: center; border-top: 1px solid #dce2e5; }
+  .empty-mark { display: inline-grid; width: 2.4rem; height: 2.4rem; place-items: center; border: 1px solid #cbd5da; border-radius: 50%; color: #68767e; font-weight: 700; }
+  .search-empty h2 { margin: 1rem 0 .35rem; color: #3e4a52; font-size: 1rem; }
+  .search-empty p { margin: 0; color: #858f95; font-size: .84rem; }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
   .home [hidden] { display: none !important; }
   @media (max-width: 1000px) { .tool-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-  @media (max-width: 760px) { .home { width: min(100% - 2rem, 42rem); } .home-hero { grid-template-columns: 1fr; gap: 2rem; padding-top: 3rem; } .hero-aside { flex-direction: row; align-items: center; gap: .8rem; border: 0; padding: 0; } .tool-count { font-size: 2.8rem; } .tool-count-label { margin: 0; max-width: none; } .browse-link { margin: 0 0 0 auto; } .tool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 520px) { .home { width: min(100% - 1.25rem, 42rem); } .home-hero { padding-bottom: 2.4rem; } h1 { font-size: clamp(2.35rem, 12vw, 3.3rem); } .hero-intro { font-size: .92rem; } .tool-grid { grid-template-columns: 1fr; } .tool-card { min-height: 7.9rem; } .collection-head { align-items: flex-start; flex-direction: column; gap: .3rem; } }
-  @media (prefers-reduced-motion: reduce) { .tool-card, .tool-arrow, .search-wrap input { transition: none; } }
+  @media (max-width: 760px) { .home { width: min(100% - 2rem, 42rem); } .hero-inner { width: min(100% - 2rem, 42rem); padding: 3.8rem 0 2.75rem; } .group-nav { width: calc(100% + 1rem); margin-left: -.5rem; } .tool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hero-inner::before { right: -18rem; } }
+  @media (max-width: 520px) { .home { width: min(100% - 1.25rem, 42rem); } .hero-inner { width: min(100% - 1.25rem, 42rem); padding: 3.2rem 0 2.35rem; } .hero-topline { align-items: flex-start; flex-direction: column; gap: 0; } .hero-note { margin-top: -.65rem; } h1 { font-size: clamp(2.65rem, 12vw, 3.5rem); } .hero-intro { margin-bottom: 1.7rem; font-size: .92rem; } .search-wrap input { height: 3.55rem; padding-right: 3.5rem; } .search-hint { display: none; } .quick-heading { align-items: flex-start; flex-direction: column; gap: .22rem; } .hero-meta { gap: .5rem; } .browse-link { margin-left: 0; width: 100%; } .tool-grid { grid-template-columns: 1fr; } .tool-card { min-height: 7.8rem; } .collection-head { align-items: flex-start; flex-direction: column; gap: .3rem; } }
+  @media (prefers-reduced-motion: reduce) { .tool-card, .tool-arrow, .quick-link, .search-wrap input { transition: none; } }
 </style>

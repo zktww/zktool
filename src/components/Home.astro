@@ -1,0 +1,57 @@
+---
+import type { Locale } from "../data/catalog";
+import { groups, localizedGroup, localizedTool, tools } from "../data/catalog";
+
+interface Props { locale: Locale; }
+const { locale } = Astro.props;
+const labels = locale === "en"
+    ? { eyebrow: "Developer tools", title: "Tools that run in your browser", intro: "Privacy-friendly utilities for daily development, formatting, debugging, and device testing.", open: "Open tool" }
+    : { eyebrow: "开发者工具", title: "浏览器本地运行的实用工具", intro: "覆盖日常开发、格式化、调试与设备测试，内容不上传服务器。", open: "打开工具" };
+---
+<main class="home">
+  <section class="home-intro">
+    <p>{labels.eyebrow}</p>
+    <h1>{labels.title}</h1>
+    <div>{labels.intro}</div>
+  </section>
+  {groups.map((group) => {
+    const entries = tools.filter((tool) => tool.type === "tool" && tool.group === group.key);
+    if (!entries.length) return null;
+    const localized = localizedGroup(group, locale);
+    return <section class="tool-group" aria-labelledby={`group-${group.key}`}>
+      <h2 id={`group-${group.key}`}>{localized.title}</h2>
+      <div class="tool-grid">
+        {entries.map((source) => {
+          const tool = localizedTool(source, locale);
+          const href = `${locale === "en" ? "/en/" : "/"}${tool.path}`;
+          return <a class="tool-card" href={href} data-keywords={tool.kw}>
+            <span class="tool-icon" style={`--start:${tool.c1};--end:${tool.c2}`} set:html={tool.icon} />
+            <span class="tool-copy"><b>{tool.name}</b><small>{tool.desc}</small></span>
+            <span class="tool-open">{labels.open}</span>
+          </a>;
+        })}
+      </div>
+    </section>;
+  })}
+</main>
+
+<style>
+.home { width: min(1160px, calc(100% - 2rem)); margin: 0 auto 4rem; }
+.home-intro { padding: clamp(2.5rem, 7vw, 5.5rem) 0 2.5rem; max-width: 48rem; }
+.home-intro p { margin: 0 0 0.8rem; color: #6d28d9; font-size: 0.84rem; font-weight: 700; letter-spacing: 0; text-transform: uppercase; }
+.home-intro h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.6rem); line-height: 1.1; letter-spacing: 0; }
+.home-intro div { max-width: 42rem; margin-top: 1rem; color: #5b6678; line-height: 1.7; }
+.tool-group { margin-top: 2.8rem; }
+.tool-group h2 { margin: 0 0 1rem; font-size: 1.2rem; }
+.tool-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
+.tool-card { display: grid; grid-template-columns: 2.7rem minmax(0, 1fr); gap: 0.7rem; min-height: 7.5rem; padding: 1rem; border: 1px solid #dce3ec; border-radius: 8px; background: #fff; color: #172033; text-decoration: none; transition: border-color .16s, box-shadow .16s, transform .16s; }
+.tool-card:hover { border-color: #9f8ada; box-shadow: 0 8px 20px rgba(50, 40, 90, .1); transform: translateY(-1px); }
+.tool-icon { display: grid; width: 2.7rem; height: 2.7rem; place-items: center; border-radius: 7px; background: linear-gradient(135deg, var(--start), var(--end)); color: #fff; }
+.tool-icon :global(svg) { width: 1.4rem; height: 1.4rem; }
+.tool-copy { min-width: 0; }
+.tool-copy b { display: block; font-size: .95rem; }
+.tool-copy small { display: -webkit-box; margin-top: .4rem; overflow: hidden; color: #5d6879; font-size: .78rem; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.tool-open { grid-column: 2; color: #6d28d9; font-size: .78rem; font-weight: 650; }
+@media (max-width: 820px) { .tool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .tool-grid { grid-template-columns: 1fr; } }
+</style>

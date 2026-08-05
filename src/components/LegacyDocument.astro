@@ -1,0 +1,26 @@
+---
+import type { LegacyDocument } from "../lib/legacy";
+
+interface Props { document: LegacyDocument; alternatePath: string; }
+const { document, alternatePath } = Astro.props;
+const language = document.lang.startsWith("en") ? "中文" : "EN";
+const languageCode = document.lang.startsWith("en") ? "zh-CN" : "en";
+const languageLink = `<a class="language-link" href="${alternatePath}" lang="${languageCode}">${language}</a>`;
+const topContainer = /(<(?:div|header)\s+[^>]*class=["'][^"']*(?:\btop\b|\btopbar\b|\bshell-bar\b)[^"']*["'][^>]*>)/i;
+const body = topContainer.test(document.body)
+  ? document.body.replace(topContainer, `$1${languageLink}`)
+  : `<div class="legacy-language-fallback">${languageLink}</div>${document.body}`;
+const languageStyle = `<style>
+.language-link { display:inline-flex; align-items:center; justify-content:center; min-width:2.5rem; min-height:2rem; padding:0 .7rem; border:1px solid var(--border,#d7dee9); border-radius:6px; color:var(--text,#172033); background:var(--surface,#fff); font:600 .8rem/1 system-ui,sans-serif; text-decoration:none; }
+.language-link:hover { border-color:#7c3aed; color:#6d28d9; }
+.legacy-language-fallback { width:min(1160px,calc(100% - 2rem)); margin:.75rem auto 0; display:flex; justify-content:flex-end; }
+</style>`;
+---
+<!doctype html>
+<html lang={document.lang}>
+  <head><Fragment set:html={document.head + languageStyle} /></head>
+  <body {...document.bodyAttrs}>
+    <Fragment set:html={body} />
+    <script is:inline>if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");</script>
+  </body>
+</html>

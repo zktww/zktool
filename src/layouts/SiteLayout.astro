@@ -1,0 +1,47 @@
+---
+import LanguageSwitch from "../components/LanguageSwitch.vue";
+
+interface Props {
+    title: string;
+    description: string;
+    locale: "zh-CN" | "en";
+    path: string;
+}
+
+const { title, description, locale, path } = Astro.props;
+const origin = "https://tools.zktww.cn";
+const alternate = locale === "en" ? (path.replace(/^\/en/, "") || "/") : (path === "/" ? "/en/" : `/en${path}`);
+---
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="manifest" href={locale === "en" ? "/en/manifest.webmanifest" : "/manifest.webmanifest"} />
+    <link rel="canonical" href={origin + path} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={origin + path} />
+    <link rel="alternate" hreflang="zh-CN" href={origin + (locale === "en" ? alternate : path)} />
+    <link rel="alternate" hreflang="en" href={origin + (locale === "en" ? path : alternate)} />
+    <link rel="alternate" hreflang="x-default" href={origin + (locale === "en" ? alternate : path)} />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="site-brand" href={locale === "en" ? "/en/" : "/"}>zktool</a>
+      <nav><LanguageSwitch client:load locale={locale} path={path} /></nav>
+    </header>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+:root { color-scheme: light dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f7f9fc; color: #172033; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+.site-header { width: min(1160px, calc(100% - 2rem)); margin: 0 auto; min-height: 4.5rem; display: flex; align-items: center; justify-content: space-between; }
+.site-brand { color: inherit; font-size: 1.1rem; font-weight: 750; letter-spacing: 0; text-decoration: none; }
+</style>

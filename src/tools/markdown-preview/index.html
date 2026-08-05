@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Markdown排版编辑器 - 微信公众号排版与md转HTML | zktool</title>
+    <meta name="description" content="免费在线 Markdown 排版工具：实时渲染预览，内置多套微信公众号主题样式（可调字号、Mac 代码块、首行缩进），一键复制带格式内容直接粘贴到公众号编辑器，纯本地处理不上传。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="Markdown排版编辑器 - 微信公众号排版与md转HTML | zktool" />
+    <meta property="og:description" content="免费在线 Markdown 排版工具：实时渲染预览，内置多套微信公众号主题样式（可调字号、Mac 代码块、首行缩进），一键复制带格式内容直接粘贴到公众号编辑器，纯本地处理不上传。" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/markdown-preview/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/markdown-preview/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css?v=cf7be6b7" />
+    <script src="../../assets/analytics.js?v=3b95695b"></script>
+    <script src="../../assets/theme.js?v=a8b19431"></script>
+    <script src="../../assets/clipboard.js?v=51b0c84d"></script>
+    <script src="../../assets/vendor/marked.min.js?v=15fabce5"></script>
+    <script src="../../assets/vendor/purify.min.js?v=c45ba939"></script>
+    <style>
+        /* 预览容器：内容样式全部由 JS 内联生成（所见即公众号所得），容器固定白底 */
+        .md-body {
+            flex: 1;
+            min-height: 10rem;
+            max-height: 60vh;
+            padding: 0.9rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+            word-break: break-word;
+            overflow: auto;
+        }
+        .opts { display: flex; flex-wrap: wrap; gap: 0.5rem 0.9rem; align-items: center; }
+        .opts label { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; color: var(--text-2); white-space: nowrap; }
+        .opts select {
+            font: inherit;
+            font-size: 0.82rem;
+            padding: 0.28rem 0.45rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface);
+            color: var(--text);
+        }
+        .opts input[type="checkbox"] { accent-color: var(--brand); }
+        .opts input[type="color"] {
+            width: 2rem;
+            height: 1.45rem;
+            padding: 0.1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--surface);
+            cursor: pointer;
+        }
+
+        /* ── 全屏编辑：固定遮罩 + 顶部工具条 + 左右分栏（窄屏上下分栏） ── */
+        .fs-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 900; /* 低于命令面板，高于页面内容 */
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+        }
+        .fs-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem 1rem;
+            padding: 0.55rem clamp(0.8rem, 2vw, 1.2rem);
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+        }
+        .fs-bar .fs-title { font-size: 0.88rem; font-weight: 700; color: var(--text); margin-right: 0.2rem; }
+        .fs-bar .opts { flex: 1; }
+        .fs-bar .row { margin: 0; display: flex; flex-wrap: wrap; gap: 0.45rem; }
+        .fs-main {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+        .fs-pane { min-width: 0; min-height: 0; display: flex; }
+        .fs-pane + .fs-pane { border-left: 1px solid var(--border); }
+        .fs-overlay textarea {
+            flex: 1;
+            width: 100%;
+            min-height: 0;
+            resize: none;
+            border: none;
+            border-radius: 0;
+            padding: 1rem clamp(0.9rem, 2vw, 1.4rem);
+            background: var(--bg-soft);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+        .fs-overlay textarea:focus { outline: none; box-shadow: none; border: none; }
+        .fs-overlay .md-body {
+            flex: 1;
+            max-height: none;
+            border: none;
+            border-radius: 0;
+            padding: 1rem clamp(0.9rem, 2vw, 1.4rem);
+        }
+        body.fs-lock { overflow: hidden; }
+        @media (max-width: 860px) {
+            .fs-main { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+            .fs-pane + .fs-pane { border-left: none; border-top: 1px solid var(--border); }
+        }
+    </style>
+    <script defer src="../../assets/registry.js?v=7910a398"></script><script defer src="../../assets/i18n.js?v=b7a21dd2"></script>
+    <script defer src="../../assets/palette.js?v=1f6efcdf"></script>
+    <script defer src="../../assets/toolkit.js?v=21692c6f"></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://tools.zktww.cn/"},{"@type":"ListItem","position":2,"name":"文本处理","item":"https://tools.zktww.cn/#domain-text"},{"@type":"ListItem","position":3,"name":"Markdown 排版预览","item":"https://tools.zktww.cn/tools/markdown-preview/"}]}</script>
+    <link rel="alternate" hreflang="zh-CN" href="https://tools.zktww.cn/tools/markdown-preview/" /><link rel="alternate" hreflang="en" href="https://tools.zktww.cn/en/tools/markdown-preview/" /><link rel="alternate" hreflang="x-default" href="https://tools.zktww.cn/tools/markdown-preview/" />
+</head>
+<body data-zk-qr-plain>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">Markdown</p></div>
+    <h1><span class="title">Markdown 预览</span></h1>
+    <p class="lead">输入 Markdown 实时渲染，多套排版主题 + 自定义主色（样式全部内联），支持全屏左右分栏编辑、外链转脚注，一键复制到微信公众号即得预览效果。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>Markdown 输入</h2>
+            <textarea id="input" spellcheck="false" aria-label="Markdown 文本"># zktool 使用示例
+
+一段普通段落：**加粗**、*斜体*、`行内代码` 与 [链接](https://tools.zktww.cn/)。
+
+## 待办列表
+
+- 整理会议纪要
+- 编写周报
+  1. 收集数据
+  2. 输出结论
+
+## 功能对比
+
+| 功能 | 说明 | 状态 |
+| --- | --- | --- |
+| 实时预览 | 输入即渲染 | 已完成 |
+| 复制 HTML | 输出净化后的 HTML | 已完成 |
+
+## 代码块
+
+```js
+function hello(name) {
+    console.log("你好，" + name);
+}
+```
+
+> 引用：所有内容均在浏览器本地渲染，不会上传服务器。</textarea>
+            <div class="row">
+                <button class="btn primary" id="copyWechat">复制到公众号</button>
+                <button class="btn" id="copyHtml">复制 HTML</button>
+                <button class="btn" id="download">下载 .html</button>
+                <button class="btn" id="fsBtn">全屏编辑</button>
+                <button class="btn danger" id="clear">清空</button>
+            </div>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>排版样式</h2>
+                <div class="opts">
+                    <label>主题
+                        <select id="optTheme" data-zk-save aria-label="排版主题">
+                            <option value="classic">经典蓝</option>
+                            <option value="mint">清新绿</option>
+                            <option value="warm">暖阳橙</option>
+                            <option value="violet">紫罗兰</option>
+                            <option value="ink">极简黑</option>
+                        </select>
+                    </label>
+                    <label>主色
+                        <input type="color" id="optColor" data-zk-save value="#2563eb" aria-label="自定义主题色" />
+                    </label>
+                    <label>字号
+                        <select id="optSize" data-zk-save aria-label="正文字号">
+                            <option value="14">14px</option>
+                            <option value="15">15px</option>
+                            <option value="16" selected>16px</option>
+                            <option value="17">17px</option>
+                        </select>
+                    </label>
+                    <label><input type="checkbox" id="optMac" data-zk-save checked /> Mac 风格代码块</label>
+                    <label><input type="checkbox" id="optIndent" data-zk-save /> 首行缩进</label>
+                    <label><input type="checkbox" id="optFootnote" data-zk-save /> 外链转脚注</label>
+                </div>
+            </section>
+            <section class="panel">
+                <h2>预览（即公众号粘贴效果）</h2>
+                <div class="md-body" id="preview" aria-live="polite"></div>
+                <p class="hint" id="status" aria-live="polite">输入 250ms 后自动渲染；样式已内联，粘贴到公众号后台即为预览效果。</p>
+            </section>
+            <section class="panel">
+                <h2>统计</h2>
+                <div class="chips" id="stats"></div>
+            </section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+    <h2>关于Markdown在线预览</h2>
+    <p>Markdown 是一种轻量级标记语言，用简单的符号（# 标题、- 列表、| 表格）就能写出结构化文档，广泛用于 README、博客、技术文档和笔记。本工具基于 marked 在浏览器本地把 md 文本实时渲染为 HTML，并内置经典蓝、清新绿、暖阳橙、紫罗兰、极简黑多套排版主题，支持自定义主题色、正文字号、Mac 风格代码块、首行缩进与外链转脚注（公众号不支持外部链接，自动转成文末参考链接），并提供全屏左右分栏编辑（编辑滚动预览跟随，Esc 退出）；所有样式都写成内联 style，点「复制到公众号」即以富文本形式进入剪贴板，粘贴到微信公众号、知乎、邮件等富文本编辑器后排版原样保留。渲染结果先经 DOMPurify 消毒（白名单过滤，移除脚本、事件属性与危险链接）再展示，也可复制 HTML 源码或下载为独立 .html 文件，全程不上传任何内容。</p>
+    <h2>常见问题</h2>
+    <details><summary>支持哪些 Markdown 语法？</summary><p>支持 CommonMark 标准语法（标题、段落、列表、引用、代码块、链接、图片、水平线等），以及 GFM 扩展的表格和删除线。数学公式、脚注等更小众的扩展语法暂不支持。</p></details>
+    <details><summary>怎么把排版结果发到微信公众号？</summary><p>选好主题和字号后点「复制到公众号」，然后到公众号后台编辑器里直接 Ctrl+V 粘贴即可，标题、引用、代码块等样式会原样保留（样式全部内联，不依赖外部 CSS）。同样适用于知乎、掘金等支持富文本粘贴的编辑器。</p></details>
+    <details><summary>复制的 HTML 可以直接用吗？安全吗？</summary><p>可以。输出的 HTML 已经 DOMPurify 白名单消毒：仅保留安全的标签与属性，移除脚本、事件属性和危险协议链接，可直接粘贴到邮件、CMS 或网页中。如果目标环境有更严格的安全要求，建议再过一遍服务端过滤。</p></details>
+    <details><summary>我的文档内容会上传到服务器吗？</summary><p>不会。渲染完全在浏览器本地完成，内容不经过任何网络请求；输入草稿仅保存在你自己浏览器的 localStorage 里，方便下次打开继续编辑，可随时点"清空"删除。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"Markdown排版编辑器","url":"https://tools.zktww.cn/tools/markdown-preview/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 Markdown 排版工具：实时渲染预览，内置多套微信公众号主题样式（可调字号、Mac 代码块、首行缩进），一键复制带格式内容直接粘贴到公众号编辑器，纯本地处理不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"支持哪些 Markdown 语法？","acceptedAnswer":{"@type":"Answer","text":"支持 CommonMark 标准语法（标题、段落、列表、引用、代码块、链接、图片、水平线等），以及 GFM 扩展的表格和删除线。数学公式、脚注等更小众的扩展语法暂不支持。"}},{"@type":"Question","name":"怎么把排版结果发到微信公众号？","acceptedAnswer":{"@type":"Answer","text":"选好主题和字号后点「复制到公众号」，然后到公众号后台编辑器里直接 Ctrl+V 粘贴即可，标题、引用、代码块等样式会原样保留（样式全部内联，不依赖外部 CSS）。同样适用于知乎、掘金等支持富文本粘贴的编辑器。"}},{"@type":"Question","name":"复制的 HTML 可以直接用吗？安全吗？","acceptedAnswer":{"@type":"Answer","text":"可以。输出的 HTML 已经 DOMPurify 白名单消毒：仅保留安全的标签与属性，移除脚本、事件属性和危险协议链接，可直接粘贴到邮件、CMS 或网页中。如果目标环境有更严格的安全要求，建议再过一遍服务端过滤。"}},{"@type":"Question","name":"我的文档内容会上传到服务器吗？","acceptedAnswer":{"@type":"Answer","text":"不会。渲染完全在浏览器本地完成，内容不经过任何网络请求；输入草稿仅保存在你自己浏览器的 localStorage 里，方便下次打开继续编辑，可随时点'清空'删除。"}}]}]}</script>
+</main>
+<script>
+(function () {
+    "use strict";
+    var input = document.getElementById("input"), preview = document.getElementById("preview"), status = document.getElementById("status"), stats = document.getElementById("stats");
+    var optTheme = document.getElementById("optTheme"), optColor = document.getElementById("optColor"), optSize = document.getElementById("optSize"), optMac = document.getElementById("optMac"), optIndent = document.getElementById("optIndent"), optFootnote = document.getElementById("optFootnote");
+    var fsBtn = document.getElementById("fsBtn");
+    var timer = null, styledHtml = "";
+
+    // 消毒交给本地 vendor 的 DOMPurify（黑名单式手写过滤易被 mXSS 绕过）
+    function sanitize(html) {
+        return DOMPurify.sanitize(html, { USE_PROFILES: { html: true }, FORBID_TAGS: ["style"] });
+    }
+
+    /* 与白色按比例混合，从主色派生浅色底（公众号对 rgba 支持参差，用实色更稳） */
+    function mix(hex, ratio) {
+        var n = parseInt(hex.slice(1), 16), r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255;
+        var f = function (x) { return Math.round(x + (255 - x) * ratio).toString(16).padStart(2, "0"); };
+        return "#" + f(r) + f(g) + f(b);
+    }
+
+    /* ── 排版主题：主色可被「主色」色板覆盖，h2 风格按主题差异化 ── */
+    var THEMES = {
+        classic: { primary: "#2563eb", strongColored: true, h2: function (c, l) { return "border-left:4px solid " + c + ";padding:3px 12px;background:" + l + ";border-radius:0 6px 6px 0;"; } },
+        mint:    { primary: "#16a34a", strongColored: true, h2: function (c) { return "display:table;margin:1.6em auto 0.9em;padding:3px 16px;border-bottom:2px solid " + c + ";"; } },
+        warm:    { primary: "#ea580c", strongColored: true, h2: function (c) { return "display:table;padding:3px 2px;border-bottom:3px solid " + c + ";"; } },
+        violet:  { primary: "#7c3aed", strongColored: true, h2: function (c) { return "display:table;padding:4px 16px;background:" + c + ";color:#ffffff;border-radius:6px;"; } },
+        ink:     { primary: "#111827", strongColored: false, h2: function () { return "padding-bottom:6px;border-bottom:1px solid #d1d5db;"; } }
+    };
+
+    /* 按当前选项生成各标签的内联样式表 */
+    function styleMap() {
+        var t = THEMES[optTheme.value] || THEMES.classic;
+        var c = /^#[0-9a-fA-F]{6}$/.test(optColor.value) ? optColor.value : t.primary;
+        var l = mix(c, 0.92);
+        var base = parseInt(optSize.value, 10) || 16;
+        var p = "margin:0.9em 0;line-height:1.75;" + (optIndent.checked ? "text-indent:2em;" : "");
+        return {
+            _primary: c, _base: base,
+            h1: "margin:1.6em 0 0.9em;font-size:" + (base + 6) + "px;font-weight:700;text-align:center;line-height:1.4;color:#1f2937;",
+            h2: "margin:1.6em 0 0.9em;font-size:" + (base + 4) + "px;font-weight:700;line-height:1.4;color:#1f2937;" + t.h2(c, l),
+            h3: "margin:1.4em 0 0.7em;font-size:" + (base + 2) + "px;font-weight:700;line-height:1.4;color:#1f2937;",
+            h4: "margin:1.2em 0 0.6em;font-size:" + (base + 1) + "px;font-weight:700;line-height:1.4;color:#1f2937;",
+            p: p,
+            a: "color:" + c + ";text-decoration:underline;",
+            strong: "font-weight:700;" + (t.strongColored ? "color:" + c + ";" : ""),
+            em: "font-style:italic;",
+            blockquote: "margin:1em 0;padding:8px 14px;border-left:3px solid " + c + ";background:" + l + ";color:#4b5563;border-radius:0 6px 6px 0;",
+            code: "padding:2px 5px;border-radius:4px;background:" + l + ";color:" + c + ";font-family:Menlo,Consolas,monospace;font-size:" + (base - 2) + "px;",
+            pre: "margin:1em 0;padding:14px 16px;border-radius:8px;background:#282c34;overflow-x:auto;",
+            preCode: "display:block;padding:0;background:none;color:#abb2bf;font-family:Menlo,Consolas,monospace;font-size:" + (base - 3) + "px;line-height:1.7;white-space:pre-wrap;word-break:break-all;",
+            ul: "margin:0.9em 0;padding-left:1.8em;line-height:1.75;",
+            ol: "margin:0.9em 0;padding-left:1.8em;line-height:1.75;",
+            li: "margin:0.3em 0;",
+            table: "width:100%;margin:1em 0;border-collapse:collapse;font-size:" + (base - 2) + "px;",
+            th: "padding:7px 10px;border:1px solid #e5e7eb;background:" + l + ";font-weight:600;text-align:left;",
+            td: "padding:7px 10px;border:1px solid #e5e7eb;text-align:left;",
+            hr: "margin:1.6em 0;border:none;border-top:1px solid #e5e7eb;",
+            img: "max-width:100%;border-radius:6px;display:block;margin:1em auto;",
+            del: "color:#9ca3af;"
+        };
+    }
+
+    /* Mac 风格代码块：红黄绿圆点标题条 + pre，全内联 */
+    function macWrap(pre, doc) {
+        var bar = doc.createElement("section");
+        bar.setAttribute("style", "margin:1em 0 0;padding:10px 14px 0;background:#282c34;border-radius:8px 8px 0 0;line-height:0;");
+        ["#fc625d", "#fdbc40", "#35cd4b"].forEach(function (c) {
+            var dot = doc.createElement("span");
+            dot.setAttribute("style", "display:inline-block;width:12px;height:12px;margin-right:8px;border-radius:50%;background:" + c + ";");
+            bar.appendChild(dot);
+        });
+        pre.parentNode.insertBefore(bar, pre);
+        pre.setAttribute("style", pre.getAttribute("style").replace("margin:1em 0;", "margin:0 0 1em;").replace("border-radius:8px;", "border-radius:0 0 8px 8px;"));
+    }
+
+    /* 外链转脚注：公众号会剥掉外部 <a>，把链接编号成上标并在文末列出「参考链接」 */
+    function addFootnotes(doc, map) {
+        var links = doc.body.querySelectorAll("a[href]"), notes = [];
+        for (var i = 0; i < links.length; i++) {
+            var a = links[i], href = a.getAttribute("href") || "";
+            if (!/^https?:/i.test(href)) continue;
+            notes.push({ text: (a.textContent || "").trim(), href: href });
+            var sup = doc.createElement("sup");
+            sup.setAttribute("style", "color:" + map._primary + ";font-weight:600;font-size:0.8em;margin-left:1px;");
+            sup.textContent = "[" + notes.length + "]";
+            a.parentNode.insertBefore(sup, a.nextSibling);
+        }
+        if (!notes.length) return;
+        var hr = doc.createElement("hr");
+        hr.setAttribute("style", map.hr);
+        var h = doc.createElement("h4");
+        h.setAttribute("style", map.h4);
+        h.textContent = "参考链接";
+        doc.body.appendChild(hr);
+        doc.body.appendChild(h);
+        notes.forEach(function (n, idx) {
+            var line = doc.createElement("p");
+            line.setAttribute("style", "margin:0.3em 0;font-size:" + (map._base - 3) + "px;color:#9ca3af;line-height:1.6;word-break:break-all;");
+            line.textContent = "[" + (idx + 1) + "] " + (n.text && n.text !== n.href ? n.text + "：" : "") + n.href;
+            doc.body.appendChild(line);
+        });
+    }
+
+    /* 渲染 + 内联化：md → HTML → 消毒 → 逐标签写 style → 脚注 → 包 section 外壳 */
+    function build() {
+        var map = styleMap();
+        var doc = new DOMParser().parseFromString(sanitize(marked.parse(input.value)), "text/html");
+        Object.keys(map).forEach(function (tag) {
+            if (tag.charAt(0) === "_") return;
+            var sel = tag === "preCode" ? "pre code" : tag;
+            var els = doc.body.querySelectorAll(sel);
+            for (var i = 0; i < els.length; i++) els[i].setAttribute("style", map[tag]);
+        });
+        if (optFootnote.checked) addFootnotes(doc, map);
+        if (optMac.checked) {
+            var pres = doc.body.querySelectorAll("pre");
+            for (var j = 0; j < pres.length; j++) macWrap(pres[j], doc);
+        }
+        if (!doc.body.innerHTML.trim()) return "";
+        return "<section style=\"font-size:" + map._base + "px;color:#3f3f3f;line-height:1.75;letter-spacing:0.5px;word-break:break-word;\">" + doc.body.innerHTML + "</section>";
+    }
+
+    function render() {
+        try {
+            if (typeof marked === "undefined" || typeof DOMPurify === "undefined") throw new Error("渲染组件未加载，请刷新页面重试");
+            styledHtml = build();
+            preview.innerHTML = styledHtml;
+            status.textContent = "渲染完成"; status.className = "hint ok";
+        } catch (e) {
+            status.textContent = "渲染失败：" + e.message; status.className = "hint bad";
+        }
+        updateStats();
+    }
+
+    function updateStats() {
+        var v = input.value;
+        var lines = v ? v.split("\n").length : 0;
+        var words = (v.match(/[一-鿿]|[A-Za-z0-9_]+/g) || []).length;
+        var mins = words ? Math.max(1, Math.round(words / 400)) : 0;
+        stats.innerHTML = "<span class='chip'>字符 " + v.length + "</span><span class='chip'>行 " + lines + "</span><span class='chip'>词数 " + words + "</span><span class='chip'>预计阅读 " + mins + " 分钟</span>";
+    }
+
+    /* 富文本复制：写入 text/html，公众号/邮件粘贴后保留排版；旧浏览器回退选区复制 */
+    function copyRich() {
+        if (navigator.clipboard && window.ClipboardItem) {
+            return navigator.clipboard.write([new ClipboardItem({
+                "text/html": new Blob([styledHtml], { type: "text/html" }),
+                "text/plain": new Blob([preview.textContent || ""], { type: "text/plain" })
+            })]);
+        }
+        return new Promise(function (resolve, reject) {
+            var range = document.createRange();
+            range.selectNodeContents(preview);
+            var sel = window.getSelection();
+            sel.removeAllRanges(); sel.addRange(range);
+            var ok = document.execCommand("copy");
+            sel.removeAllRanges();
+            ok ? resolve() : reject(new Error("copy failed"));
+        });
+    }
+
+    /* ── 全屏编辑：把现有输入框/预览/工具条搬进遮罩层（保留监听与状态），退出时原位放回 ── */
+    var fsOn = false, fsOverlay = null, homes = [];
+    function stash(el) { homes.push({ el: el, parent: el.parentNode, next: el.nextSibling }); }
+    function enterFs() {
+        if (fsOn) return;
+        fsOn = true;
+        fsOverlay = document.createElement("div");
+        fsOverlay.className = "fs-overlay";
+        var bar = document.createElement("div");
+        bar.className = "fs-bar";
+        var title = document.createElement("span");
+        title.className = "fs-title";
+        title.textContent = "Markdown 全屏编辑";
+        bar.appendChild(title);
+        var opts = document.querySelector(".opts");
+        var btnRow = fsBtn.parentElement;
+        [opts, btnRow, status].forEach(function (el) { stash(el); bar.appendChild(el); });
+        var main = document.createElement("div");
+        main.className = "fs-main";
+        var p1 = document.createElement("div"); p1.className = "fs-pane";
+        var p2 = document.createElement("div"); p2.className = "fs-pane";
+        stash(input); p1.appendChild(input);
+        stash(preview); p2.appendChild(preview);
+        main.appendChild(p1); main.appendChild(p2);
+        fsOverlay.appendChild(bar);
+        fsOverlay.appendChild(main);
+        document.body.appendChild(fsOverlay);
+        document.body.classList.add("fs-lock");
+        fsBtn.textContent = "退出全屏";
+        document.addEventListener("keydown", fsKey);
+        input.focus();
+    }
+    function exitFs() {
+        if (!fsOn) return;
+        fsOn = false;
+        for (var i = homes.length - 1; i >= 0; i--) homes[i].parent.insertBefore(homes[i].el, homes[i].next);
+        homes = [];
+        fsOverlay.remove(); fsOverlay = null;
+        document.body.classList.remove("fs-lock");
+        fsBtn.textContent = "全屏编辑";
+        document.removeEventListener("keydown", fsKey);
+    }
+    function fsKey(e) { if (e.key === "Escape") exitFs(); }
+    fsBtn.onclick = function () { fsOn ? exitFs() : enterFs(); };
+
+    /* 全屏时编辑区滚动 → 预览区按比例跟随 */
+    input.addEventListener("scroll", function () {
+        if (!fsOn) return;
+        var ratio = input.scrollTop / ((input.scrollHeight - input.clientHeight) || 1);
+        preview.scrollTop = ratio * (preview.scrollHeight - preview.clientHeight);
+    }, { passive: true });
+
+    input.addEventListener("input", function () {
+        // 250ms 防抖，避免长文档输入时频繁重排
+        clearTimeout(timer);
+        timer = setTimeout(render, 250);
+    });
+    /* 换主题时主色跟随该主题默认色（用户再改色板即为覆盖） */
+    optTheme.addEventListener("change", function () {
+        optColor.value = (THEMES[optTheme.value] || THEMES.classic).primary;
+        optColor.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    [optTheme, optColor, optSize, optMac, optIndent, optFootnote].forEach(function (el) {
+        el.addEventListener("change", render);
+    });
+    document.getElementById("copyWechat").onclick = function () {
+        if (!styledHtml) { status.textContent = "没有可复制的内容"; status.className = "hint bad"; return; }
+        copyRich().then(function () { status.textContent = "已复制，去公众号编辑器直接粘贴即可"; status.className = "hint ok"; },
+            function () { status.textContent = "复制失败，请手动全选预览区复制"; status.className = "hint bad"; });
+    };
+    document.getElementById("copyHtml").onclick = function () {
+        copyText(styledHtml || "").then(function () { status.textContent = "HTML 源码已复制"; status.className = "hint ok"; },
+            function () { status.textContent = "复制失败，请手动选择复制"; status.className = "hint bad"; });
+    };
+    document.getElementById("download").onclick = function () {
+        // 包一个最小 HTML 骨架，保证下载文件可独立打开
+        var page = "<!DOCTYPE html>\n<html lang=\"zh-CN\">\n<head>\n<meta charset=\"UTF-8\" />\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n<title>Markdown 导出</title>\n</head>\n<body style=\"max-width:677px;margin:0 auto;padding:20px;\">\n" + styledHtml + "\n</body>\n</html>\n";
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([page], { type: "text/html;charset=utf-8" }));
+        a.download = "markdown.html";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        status.textContent = "已下载 markdown.html"; status.className = "hint ok";
+    };
+    document.getElementById("clear").onclick = function () {
+        input.value = ""; styledHtml = ""; preview.innerHTML = "";
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        status.textContent = "已清空"; status.className = "hint";
+        updateStats();
+    };
+    render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "name": "zktool",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "generate:i18n": "node scripts/generate-en-tools.mjs",
+    "build": "pnpm generate:i18n && astro build && node scripts/postbuild.mjs && node scripts/verify-dist.mjs",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/vue": "4.5.3",
+    "astro": "4.16.18",
+    "vue": "3.4.38"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/node": "^22.20.1",
+    "typescript": "^5.6.3"
+  }
+}

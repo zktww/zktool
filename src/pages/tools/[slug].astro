@@ -1,0 +1,13 @@
+---
+import LegacyDocument from "../../components/LegacyDocument.astro";
+import { tools, toolSlug } from "../../data/catalog";
+import { legacyToolPath, loadLegacyDocument } from "../../lib/legacy";
+
+export function getStaticPaths() {
+    return tools.filter((tool) => tool.type === "tool").map((tool) => ({ params: { slug: toolSlug(tool) } }));
+}
+
+const document = loadLegacyDocument(legacyToolPath(Astro.params.slug!, "zh-CN"));
+const alternatePath = `/en/tools/${Astro.params.slug}/`;
+---
+<LegacyDocument {document} {alternatePath} />

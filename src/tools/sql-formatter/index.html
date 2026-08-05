@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>SQL格式化 - 在线SQL美化压缩工具（MySQL/PostgreSQL） | zktool</title>
+    <meta name="description" content="免费在线 SQL 格式化工具：一键美化 SQL 语句，支持 MySQL、PostgreSQL、Oracle、Hive 等 9 种方言，关键字大小写和缩进可调，SQL 压缩单行。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="SQL格式化 - 在线SQL美化压缩工具（MySQL/PostgreSQL） | zktool" />
+    <meta property="og:description" content="免费在线 SQL 格式化工具：一键美化 SQL 语句，支持 MySQL、PostgreSQL、Oracle、Hive 等 9 种方言，关键字大小写和缩进可调，SQL 压缩单行。" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/sql-formatter/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/sql-formatter/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css?v=cf7be6b7" />
+    <script src="../../assets/analytics.js?v=3b95695b"></script>
+    <script src="../../assets/theme.js?v=a8b19431"></script>
+    <script src="../../assets/clipboard.js?v=51b0c84d"></script>
+    <script src="../../assets/vendor/sql-formatter.min.js?v=e3123498"></script>
+    <script defer src="../../assets/registry.js?v=7910a398"></script><script defer src="../../assets/i18n.js?v=b7a21dd2"></script>
+    <script defer src="../../assets/palette.js?v=1f6efcdf"></script>
+    <script defer src="../../assets/toolkit.js?v=21692c6f"></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://tools.zktww.cn/"},{"@type":"ListItem","position":2,"name":"格式化与数据","item":"https://tools.zktww.cn/#domain-data"},{"@type":"ListItem","position":3,"name":"SQL 格式化","item":"https://tools.zktww.cn/tools/sql-formatter/"}]}</script>
+    <link rel="alternate" hreflang="zh-CN" href="https://tools.zktww.cn/tools/sql-formatter/" /><link rel="alternate" hreflang="en" href="https://tools.zktww.cn/en/tools/sql-formatter/" /><link rel="alternate" hreflang="x-default" href="https://tools.zktww.cn/tools/sql-formatter/" />
+</head>
+<body data-zk-qr-plain>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">SQL</p></div>
+    <h1><span class="title">SQL 格式化</span></h1>
+    <p class="lead">格式化或压缩 SQL 语句，支持常见方言与大小写风格；基于 sql-formatter，本地运行。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>SQL 输入</h2>
+            <textarea id="input" spellcheck="false">select u.id, u.name, count(o.id) as order_count from users u left join orders o on o.user_id = u.id where u.created_at >= '2026-01-01' and u.status in ('active','vip') group by u.id, u.name having count(o.id) > 3 order by order_count desc limit 20;</textarea>
+            <div class="row">
+                <label class="grow">方言<select id="dialect">
+                    <option value="sql">标准 SQL</option>
+                    <option value="mysql" selected>MySQL</option>
+                    <option value="postgresql">PostgreSQL</option>
+                    <option value="sqlite">SQLite</option>
+                    <option value="tsql">SQL Server (T-SQL)</option>
+                    <option value="plsql">Oracle (PL/SQL)</option>
+                    <option value="hive">Hive</option>
+                    <option value="spark">Spark SQL</option>
+                    <option value="bigquery">BigQuery</option>
+                </select></label>
+                <label class="grow">关键字<select id="kwCase">
+                    <option value="upper" selected>UPPER</option>
+                    <option value="lower">lower</option>
+                    <option value="preserve">保持原样</option>
+                </select></label>
+                <label class="w-8">缩进<select id="indent">
+                    <option value="2" selected>2 空格</option>
+                    <option value="4">4 空格</option>
+                    <option value="tab">Tab</option>
+                </select></label>
+            </div>
+            <div class="row">
+                <button class="btn primary" id="fmt">格式化</button>
+                <button class="btn" id="minify">压缩为单行</button>
+                <button class="btn danger" id="clear">清空</button>
+            </div>
+        </section>
+        <aside>
+            <section class="panel">
+                <h2>结果</h2>
+                <pre class="output" id="output"></pre>
+                <div class="row"><button class="btn primary" id="copy">复制结果</button></div>
+                <p class="hint" id="status" aria-live="polite"></p>
+            </section>
+        </aside>
+    </div>
+
+<section class="seo-notes">
+    <h2>关于SQL格式化</h2>
+    <p>从日志或代码里拿到的 SQL 往往挤成一行，读起来很吃力。本工具一键把 SQL 格式化为规范缩进的多行形式，支持 MySQL、PostgreSQL、SQLite、SQL Server、Oracle、Hive、Spark、BigQuery 等 9 种方言的语法差异，关键字大小写（UPPER/lower）和缩进风格可调；也能反向把多行 SQL 压缩成单行（保留字符串内容、移除注释），方便塞进配置或命令行。</p>
+    <h2>常见问题</h2>
+    <details><summary>格式化会改变 SQL 的执行结果吗？</summary><p>不会。格式化只调整空白、换行和关键字大小写，语句的语义完全不变；字符串字面量里的内容（包括其中的空格）会原样保留。</p></details>
+    <details><summary>为什么要选择 SQL 方言？</summary><p>各数据库语法有差异：反引号是 MySQL 的标识符引用、TOP 是 SQL Server 的、LATERAL VIEW 是 Hive 的。选对方言才能正确解析这些专有语法，不确定时选"标准 SQL"通常也能工作。</p></details>
+    <details><summary>支持格式化存储过程或很长的 SQL 吗？</summary><p>支持常见的 DML/DDL 和多语句脚本；数千行的 SQL 也能处理。极复杂的存储过程语法（如深度嵌套的流程控制）可能解析失败，此时会保留原文并提示错误。</p></details>
+</section>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"SQL格式化","url":"https://tools.zktww.cn/tools/sql-formatter/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 SQL 格式化工具：一键美化 SQL 语句，支持 MySQL、PostgreSQL、Oracle、Hive 等 9 种方言，关键字大小写和缩进可调，SQL 压缩单行。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"格式化会改变 SQL 的执行结果吗？","acceptedAnswer":{"@type":"Answer","text":"不会。格式化只调整空白、换行和关键字大小写，语句的语义完全不变；字符串字面量里的内容（包括其中的空格）会原样保留。"}},{"@type":"Question","name":"为什么要选择 SQL 方言？","acceptedAnswer":{"@type":"Answer","text":"各数据库语法有差异：反引号是 MySQL 的标识符引用、TOP 是 SQL Server 的、LATERAL VIEW 是 Hive 的。选对方言才能正确解析这些专有语法，不确定时选\"标准 SQL\"通常也能工作。"}},{"@type":"Question","name":"支持格式化存储过程或很长的 SQL 吗？","acceptedAnswer":{"@type":"Answer","text":"支持常见的 DML/DDL 和多语句脚本；数千行的 SQL 也能处理。极复杂的存储过程语法（如深度嵌套的流程控制）可能解析失败，此时会保留原文并提示错误。"}}]}]}</script>
+</main>
+<script>
+(function () {
+    "use strict";
+    var input = document.getElementById("input"), output = document.getElementById("output"), status = document.getElementById("status");
+    var dialect = document.getElementById("dialect"), kwCase = document.getElementById("kwCase"), indent = document.getElementById("indent");
+    function msg(t, cls) { status.textContent = t; status.className = "hint " + (cls || ""); }
+    function fmt() {
+        if (!window.sqlFormatter) { msg("sql-formatter 库未加载", "bad"); return; }
+        try {
+            output.textContent = sqlFormatter.format(input.value, {
+                language: dialect.value,
+                keywordCase: kwCase.value,
+                tabWidth: indent.value === "tab" ? 1 : parseInt(indent.value, 10),
+                useTabs: indent.value === "tab",
+            });
+            msg("格式化完成", "ok");
+        } catch (e) { msg("格式化失败：" + e.message, "bad"); }
+    }
+    function minify() {
+        /* 单次字符串感知扫描：只在字符串外识别注释与压缩空白，字符串内原样保留 */
+        var s = input.value, out = "", inStr = null;
+        for (var i = 0; i < s.length; i++) {
+            var c = s[i];
+            if (inStr) {
+                out += c;
+                if (c === "\\" && inStr !== "`") {          // MySQL 反斜杠转义：下一个字符原样保留
+                    if (i + 1 < s.length) out += s[++i];
+                } else if (c === inStr) {
+                    if (s[i + 1] === inStr) out += s[++i];   // 双写转义：'' "" ``
+                    else inStr = null;
+                }
+            } else if (c === "'" || c === '"' || c === "`") {
+                inStr = c; out += c;
+            } else if (c === "-" && s[i + 1] === "-") {      // 行注释：跳到行尾
+                while (i < s.length && s[i] !== "\n") i++;
+                if (out && !/\s/.test(out[out.length - 1])) out += " ";
+            } else if (c === "/" && s[i + 1] === "*") {      // 块注释：跳到 */
+                i += 2;
+                while (i < s.length && !(s[i] === "*" && s[i + 1] === "/")) i++;
+                i++;                                         // 跳过 '*'，循环 i++ 跳过 '/'
+                if (out && !/\s/.test(out[out.length - 1])) out += " ";
+            } else if (/\s/.test(c)) {
+                if (out && !/\s/.test(out[out.length - 1])) out += " ";
+            } else out += c;
+        }
+        output.textContent = out.trim();
+        msg("已压缩为单行（注释已移除）", "ok");
+    }
+    document.getElementById("fmt").onclick = fmt;
+    document.getElementById("minify").onclick = minify;
+    [dialect, kwCase, indent].forEach(function (el) { el.onchange = fmt; });
+    var t; input.addEventListener("input", function () { clearTimeout(t); t = setTimeout(fmt, 300); });
+    document.getElementById("clear").onclick = function () { input.value = ""; output.textContent = ""; msg("已清空"); };
+    document.getElementById("copy").onclick = function () {
+        copyText(output.textContent || "").then(function () { msg("结果已复制", "ok"); },
+            function () { msg("复制失败，请手动选择复制", "bad"); });
+    };
+    fmt();
+})();
+</script>
+</body>
+</html>

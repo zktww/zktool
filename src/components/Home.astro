@@ -4,54 +4,223 @@ import { groups, localizedGroup, localizedTool, tools } from "../data/catalog";
 
 interface Props { locale: Locale; }
 const { locale } = Astro.props;
-const labels = locale === "en"
-    ? { eyebrow: "Developer tools", title: "Tools that run in your browser", intro: "Privacy-friendly utilities for daily development, formatting, debugging, and device testing.", open: "Open tool" }
-    : { eyebrow: "开发者工具", title: "浏览器本地运行的实用工具", intro: "覆盖日常开发、格式化、调试与设备测试，内容不上传服务器。", open: "打开工具" };
+const isEnglish = locale === "en";
+const labels = isEnglish
+    ? {
+        eyebrow: "ZKTOOL / DEVELOPER UTILITIES",
+        title: "The right tool for the next task.",
+        intro: "A focused collection of fast, private utilities for formatting, debugging, converting, and testing in your browser.",
+        searchPlaceholder: "Search tools by name, format, or keyword",
+        searchLabel: "Search all tools",
+        available: "tools available",
+        result: "matching tools",
+        clear: "Clear search",
+        emptyTitle: "No tools found",
+        emptyText: "Try a different name, format, or keyword.",
+        local: "Runs locally in your browser",
+        privacy: "Your data stays on this device",
+        open: "Open tool",
+        external: "External service",
+        browse: "Browse the collection",
+    }
+    : {
+        eyebrow: "ZKTOOL / 开发者工具箱",
+        title: "为下一个任务，找到恰到好处的工具。",
+        intro: "一组快速、克制且注重隐私的浏览器工具，覆盖格式化、调试、转换与设备测试。",
+        searchPlaceholder: "搜索工具名称、格式或关键词",
+        searchLabel: "搜索全部工具",
+        available: "个工具可用",
+        result: "个匹配工具",
+        clear: "清空搜索",
+        emptyTitle: "没有找到相关工具",
+        emptyText: "换一个名称、格式或关键词试试。",
+        local: "在浏览器本地运行",
+        privacy: "数据只保留在当前设备",
+        open: "打开工具",
+        external: "外部服务",
+        browse: "浏览全部工具",
+    };
+const totalTools = tools.length;
+const homePath = isEnglish ? "/en/" : "/";
 ---
-<main class="home">
-  <section class="home-intro">
-    <p>{labels.eyebrow}</p>
-    <h1>{labels.title}</h1>
-    <div>{labels.intro}</div>
-  </section>
-  {groups.map((group) => {
-    const entries = tools.filter((tool) => tool.type === "tool" && tool.group === group.key);
-    if (!entries.length) return null;
-    const localized = localizedGroup(group, locale);
-    return <section class="tool-group" aria-labelledby={`group-${group.key}`}>
-      <h2 id={`group-${group.key}`}>{localized.title}</h2>
-      <div class="tool-grid">
-        {entries.map((source) => {
-          const tool = localizedTool(source, locale);
-          const href = `${locale === "en" ? "/en/" : "/"}${tool.path}`;
-          return <a class="tool-card" href={href} data-keywords={tool.kw}>
-            <span class="tool-icon" style={`--start:${tool.c1};--end:${tool.c2}`} set:html={tool.icon} />
-            <span class="tool-copy"><b>{tool.name}</b><small>{tool.desc}</small></span>
-            <span class="tool-open">{labels.open}</span>
-          </a>;
-        })}
+<main class="home" data-home>
+  <section class="home-hero" aria-labelledby="home-title">
+    <div class="hero-copy">
+      <p class="eyebrow">{labels.eyebrow}</p>
+      <h1 id="home-title">{labels.title}</h1>
+      <p class="hero-intro">{labels.intro}</p>
+      <div class="search-wrap">
+        <label class="sr-only" for="tool-search">{labels.searchLabel}</label>
+        <span class="search-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        </span>
+        <input id="tool-search" data-tool-search type="search" autocomplete="off" placeholder={labels.searchPlaceholder} />
+        <button type="button" class="search-clear" data-search-clear aria-label={labels.clear} hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
       </div>
-    </section>;
-  })}
+      <div class="hero-meta">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span>{labels.local}</span>
+        <span class="meta-separator" aria-hidden="true">/</span>
+        <span>{labels.privacy}</span>
+      </div>
+    </div>
+    <div class="hero-aside" aria-label={labels.available}>
+      <span class="tool-count" data-tool-count>{totalTools}</span>
+      <span class="tool-count-label">{labels.available}</span>
+      <a class="browse-link" href="#tools">{labels.browse}<span aria-hidden="true">&#8595;</span></a>
+    </div>
+  </section>
+
+  <nav class="group-nav" aria-label={labels.browse}>
+    {groups.map((group) => {
+      const hasEntries = tools.some((tool) => (tool.type === "tool" || tool.type === "external") && tool.group === group.key);
+      if (!hasEntries) return null;
+      return <a href={`#group-${group.key}`}>{localizedGroup(group, locale).title}</a>;
+    })}
+  </nav>
+
+  <div class="collection-head" id="tools">
+    <h2>{labels.browse}</h2>
+    <span class="result-count" data-result-count>{totalTools} {labels.available}</span>
+  </div>
+
+  <div class="tool-collection">
+    {groups.map((group) => {
+      const entries = tools.filter((tool) => (tool.type === "tool" || tool.type === "external") && tool.group === group.key);
+      if (!entries.length) return null;
+      const localized = localizedGroup(group, locale);
+      return <section class="tool-group" id={`group-${group.key}`} data-tool-group aria-labelledby={`group-title-${group.key}`}>
+        <div class="group-heading">
+          <h3 id={`group-title-${group.key}`}>{localized.title}</h3>
+          <span>{entries.length.toString().padStart(2, "0")}</span>
+        </div>
+        <div class="tool-grid">
+          {entries.map((source) => {
+            const tool = localizedTool(source, locale);
+            const external = tool.path.startsWith("http");
+            const href = external ? tool.path : `${homePath}${tool.path}`;
+            const searchText = `${tool.name} ${tool.desc} ${tool.tag} ${tool.kw}`.toLowerCase();
+            return <a
+              class="tool-card"
+              href={href}
+              data-tool-card
+              data-search={searchText}
+              data-external={external ? "true" : undefined}
+              target={external ? "_blank" : undefined}
+              rel={external ? "noreferrer" : undefined}
+            >
+              <span class="tool-icon" style={`--start:${tool.c1};--end:${tool.c2}`} set:html={tool.icon} />
+              <span class="tool-copy">
+                <span class="tool-card-top"><b>{tool.name}</b><span class="tool-arrow" aria-hidden="true">&#8599;</span></span>
+                <small>{tool.desc}</small>
+                <span class="tool-tag">{external ? labels.external : tool.tag}</span>
+              </span>
+              <span class="sr-only">{labels.open}</span>
+            </a>;
+          })}
+        </div>
+      </section>;
+    })}
+  </div>
+
+  <section class="search-empty" data-search-empty hidden>
+    <span class="empty-mark" aria-hidden="true">?</span>
+    <h2>{labels.emptyTitle}</h2>
+    <p>{labels.emptyText}</p>
+  </section>
 </main>
 
+<script>
+  const home = document.querySelector("[data-home]");
+  const search = home?.querySelector<HTMLInputElement>("[data-tool-search]");
+  const clear = home?.querySelector<HTMLButtonElement>("[data-search-clear]");
+  const count = home?.querySelector<HTMLElement>("[data-result-count]");
+  const empty = home?.querySelector<HTMLElement>("[data-search-empty]");
+  const cards = home ? Array.from(home.querySelectorAll<HTMLElement>("[data-tool-card]")) : [];
+  const groups = home ? Array.from(home.querySelectorAll<HTMLElement>("[data-tool-group]")) : [];
+  const availableLabel = {available: home?.querySelector(".result-count")?.textContent?.replace(/^\d+\s*/, "") || ""};
+  const resultLabel = document.documentElement.lang === "en" ? "matching tools" : "个匹配工具";
+
+  function filterTools() {
+    const query = search?.value.trim().toLowerCase() || "";
+    const terms: string[] = query.split(/\s+/).filter(Boolean);
+    let visible = 0;
+    cards.forEach((card) => {
+      const haystack = card.getAttribute("data-search") || "";
+      const matches = terms.every((term) => haystack.includes(term));
+      card.hidden = !matches;
+      if (matches) visible += 1;
+    });
+    groups.forEach((group) => {
+      group.hidden = !group.querySelector("[data-tool-card]:not([hidden])");
+    });
+    if (count) count.textContent = query ? `${visible} ${resultLabel}` : `${cards.length} ${availableLabel.available}`;
+    if (empty) empty.hidden = visible > 0;
+    if (clear) clear.hidden = !query;
+  }
+
+  search?.addEventListener("input", filterTools);
+  clear?.addEventListener("click", () => { if (search) { search.value = ""; search.focus(); filterTools(); } });
+</script>
+
 <style>
-.home { width: min(1160px, calc(100% - 2rem)); margin: 0 auto 4rem; }
-.home-intro { padding: clamp(2.5rem, 7vw, 5.5rem) 0 2.5rem; max-width: 48rem; }
-.home-intro p { margin: 0 0 0.8rem; color: #6d28d9; font-size: 0.84rem; font-weight: 700; letter-spacing: 0; text-transform: uppercase; }
-.home-intro h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.6rem); line-height: 1.1; letter-spacing: 0; }
-.home-intro div { max-width: 42rem; margin-top: 1rem; color: #5b6678; line-height: 1.7; }
-.tool-group { margin-top: 2.8rem; }
-.tool-group h2 { margin: 0 0 1rem; font-size: 1.2rem; }
-.tool-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
-.tool-card { display: grid; grid-template-columns: 2.7rem minmax(0, 1fr); gap: 0.7rem; min-height: 7.5rem; padding: 1rem; border: 1px solid #dce3ec; border-radius: 8px; background: #fff; color: #172033; text-decoration: none; transition: border-color .16s, box-shadow .16s, transform .16s; }
-.tool-card:hover { border-color: #9f8ada; box-shadow: 0 8px 20px rgba(50, 40, 90, .1); transform: translateY(-1px); }
-.tool-icon { display: grid; width: 2.7rem; height: 2.7rem; place-items: center; border-radius: 7px; background: linear-gradient(135deg, var(--start), var(--end)); color: #fff; }
-.tool-icon :global(svg) { width: 1.4rem; height: 1.4rem; }
-.tool-copy { min-width: 0; }
-.tool-copy b { display: block; font-size: .95rem; }
-.tool-copy small { display: -webkit-box; margin-top: .4rem; overflow: hidden; color: #5d6879; font-size: .78rem; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-.tool-open { grid-column: 2; color: #6d28d9; font-size: .78rem; font-weight: 650; }
-@media (max-width: 820px) { .tool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 560px) { .tool-grid { grid-template-columns: 1fr; } }
+  :global(:root) { color-scheme: light; }
+  .home { width: min(1180px, calc(100% - 2.5rem)); margin: 0 auto 5rem; color: #182235; }
+  .home-hero { display: grid; grid-template-columns: minmax(0, 1fr) 12rem; align-items: end; gap: 3rem; padding: clamp(3.5rem, 8vw, 6.5rem) 0 3.25rem; border-bottom: 1px solid #dfe5ed; }
+  .hero-copy { max-width: 52rem; }
+  .eyebrow { margin: 0 0 1rem; color: #2563eb; font-size: .72rem; font-weight: 750; letter-spacing: .14em; }
+  h1 { max-width: 17ch; margin: 0; color: #111827; font-size: clamp(2.65rem, 6vw, 5.1rem); font-weight: 730; letter-spacing: 0; line-height: 1.02; }
+  .hero-intro { max-width: 42rem; margin: 1.35rem 0 1.8rem; color: #5b687b; font-size: 1.05rem; line-height: 1.75; }
+  .search-wrap { position: relative; display: flex; align-items: center; max-width: 42rem; }
+  .search-wrap input { width: 100%; height: 3.6rem; padding: 0 3.25rem 0 3.25rem; border: 1px solid #cdd7e4; border-radius: 8px; outline: none; background: #fff; color: #182235; font: inherit; font-size: .95rem; box-shadow: 0 8px 25px rgba(24, 34, 53, .06); transition: border-color .18s, box-shadow .18s; }
+  .search-wrap input:focus { border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37, 99, 235, .12), 0 8px 25px rgba(24, 34, 53, .08); }
+  .search-wrap input::placeholder { color: #8793a5; }
+  .search-icon { position: absolute; left: 1.15rem; z-index: 1; display: grid; color: #64748b; pointer-events: none; }
+  .search-icon svg, .search-clear svg { width: 1.15rem; height: 1.15rem; }
+  .search-clear { position: absolute; right: .8rem; display: grid; width: 2rem; height: 2rem; place-items: center; border: 0; border-radius: 5px; background: transparent; color: #64748b; cursor: pointer; }
+  .search-clear:hover, .search-clear:focus-visible { background: #eef2f7; color: #182235; outline: none; }
+  .hero-meta { display: flex; align-items: center; flex-wrap: wrap; gap: .55rem; color: #728096; font-size: .78rem; }
+  .status-dot { width: .45rem; height: .45rem; border-radius: 50%; background: #16a34a; box-shadow: 0 0 0 4px rgba(22, 163, 74, .1); }
+  .meta-separator { color: #c2cad5; }
+  .hero-aside { display: flex; flex-direction: column; align-items: flex-start; padding-bottom: .2rem; border-left: 1px solid #dfe5ed; padding-left: 2rem; }
+  .tool-count { color: #111827; font-size: 3.9rem; font-weight: 720; letter-spacing: 0; line-height: 1; }
+  .tool-count-label { max-width: 8rem; margin-top: .65rem; color: #728096; font-size: .78rem; line-height: 1.4; }
+  .browse-link { display: inline-flex; align-items: center; gap: .55rem; margin-top: 2rem; color: #2563eb; font-size: .83rem; font-weight: 680; text-decoration: none; }
+  .browse-link:hover { color: #1d4ed8; }
+  .browse-link span { font-size: 1rem; }
+  .group-nav { display: flex; gap: .5rem; overflow-x: auto; padding: 1.35rem 0 1.1rem; scrollbar-width: none; }
+  .group-nav::-webkit-scrollbar { display: none; }
+  .group-nav a { flex: 0 0 auto; padding: .45rem .8rem; border: 1px solid #dfe5ed; border-radius: 999px; color: #5b687b; background: #fff; font-size: .78rem; text-decoration: none; transition: border-color .16s, color .16s, background .16s; }
+  .group-nav a:hover, .group-nav a:focus-visible { border-color: #9bb8ee; color: #1d4ed8; background: #f7faff; outline: none; }
+  .collection-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: 1.9rem 0 1rem; }
+  .collection-head h2 { margin: 0; color: #111827; font-size: 1.45rem; letter-spacing: 0; }
+  .result-count { color: #7b8799; font-size: .78rem; }
+  .tool-group { margin-top: 1.8rem; }
+  .group-heading { display: flex; align-items: center; gap: .7rem; margin-bottom: .8rem; }
+  .group-heading h3 { margin: 0; color: #344156; font-size: .88rem; font-weight: 720; }
+  .group-heading span { color: #9aa5b5; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .7rem; }
+  .tool-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .65rem; }
+  .tool-card { display: grid; grid-template-columns: 2.45rem minmax(0, 1fr); gap: .75rem; min-width: 0; min-height: 8.9rem; padding: .85rem; border: 1px solid #dfe5ed; border-radius: 7px; background: #fff; color: #182235; text-decoration: none; transition: border-color .18s, box-shadow .18s, transform .18s; }
+  .tool-card:hover, .tool-card:focus-visible { border-color: #9bb8ee; box-shadow: 0 12px 24px rgba(24, 34, 53, .08); transform: translateY(-2px); outline: none; }
+  .tool-icon { display: grid; width: 2.45rem; height: 2.45rem; place-items: center; border-radius: 6px; background: linear-gradient(135deg, var(--start), var(--end)); color: #fff; }
+  .tool-icon :global(svg) { width: 1.22rem; height: 1.22rem; }
+  .tool-copy { display: flex; min-width: 0; flex-direction: column; }
+  .tool-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: .5rem; }
+  .tool-card-top b { color: #182235; font-size: .86rem; font-weight: 680; line-height: 1.35; }
+  .tool-arrow { flex: none; color: #9aa5b5; font-size: .9rem; line-height: 1.1; transition: color .18s, transform .18s; }
+  .tool-card:hover .tool-arrow, .tool-card:focus-visible .tool-arrow { color: #2563eb; transform: translate(1px, -1px); }
+  .tool-copy small { display: -webkit-box; margin-top: .35rem; overflow: hidden; color: #68758a; font-size: .73rem; line-height: 1.5; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .tool-tag { align-self: flex-start; margin-top: auto; padding-top: .55rem; color: #8a96a8; font-size: .66rem; line-height: 1; }
+  .search-empty { padding: 4.5rem 1rem; text-align: center; border-top: 1px solid #dfe5ed; }
+  .empty-mark { display: inline-grid; width: 2.4rem; height: 2.4rem; place-items: center; border: 1px solid #cdd7e4; border-radius: 50%; color: #728096; font-weight: 700; }
+  .search-empty h2 { margin: 1rem 0 .35rem; color: #344156; font-size: 1rem; }
+  .search-empty p { margin: 0; color: #7b8799; font-size: .84rem; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  .home [hidden] { display: none !important; }
+  @media (max-width: 1000px) { .tool-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 760px) { .home { width: min(100% - 2rem, 42rem); } .home-hero { grid-template-columns: 1fr; gap: 2rem; padding-top: 3rem; } .hero-aside { flex-direction: row; align-items: center; gap: .8rem; border: 0; padding: 0; } .tool-count { font-size: 2.8rem; } .tool-count-label { margin: 0; max-width: none; } .browse-link { margin: 0 0 0 auto; } .tool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 520px) { .home { width: min(100% - 1.25rem, 42rem); } .home-hero { padding-bottom: 2.4rem; } h1 { font-size: clamp(2.35rem, 12vw, 3.3rem); } .hero-intro { font-size: .92rem; } .tool-grid { grid-template-columns: 1fr; } .tool-card { min-height: 7.9rem; } .collection-head { align-items: flex-start; flex-direction: column; gap: .3rem; } }
+  @media (prefers-reduced-motion: reduce) { .tool-card, .tool-arrow, .search-wrap input { transition: none; } }
 </style>

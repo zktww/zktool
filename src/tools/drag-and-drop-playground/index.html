@@ -5,22 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HTML5 Drag and Drop · 交互工具</title>
     <meta name="description" content="HTML5 拖拽 API 的三个实战示例：基础拖放、列表排序、文件拖拽上传，附事件日志面板。" />
-    <meta name="theme-color" content="#0a0e17" />
+    <meta name="theme-color" content="#f6f8fb" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
         :root {
-            --bg: #0a0e17;
-            --surface: #131c2e;
-            --surface-2: #1a2540;
-            --text: #e0f7ff;
-            --muted: #a0c8e0;
-            --primary: #00eeff;
-            --secondary: #ff00ea;
-            --accent: #00ff9d;
-            --warn: #ffb347;
-            --border: rgba(0, 238, 255, 0.25);
-            --glow: 0 0 20px rgba(0, 238, 255, 0.15);
-            --radius: 14px;
+            --bg: #f6f8fb;
+            --surface: #ffffff;
+            --surface-2: #f1f5f9;
+            --text: #1e293b;
+            --muted: #5b6b81;
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --accent: #0ea5e9;
+            --warn: #d97706;
+            --border: rgba(15, 23, 42, 0.10);
+            --glow: 0 10px 28px rgba(15, 23, 42, 0.08);
+            --radius: 12px;
             --ease: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -33,8 +33,8 @@
             min-height: 100vh;
             line-height: 1.6;
             background-image:
-                    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 238, 255, 0.12), transparent),
-                    radial-gradient(circle at 100% 100%, rgba(255, 0, 234, 0.06), transparent 40%);
+                    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(37, 99, 235, 0.08), transparent),
+                    radial-gradient(circle at 100% 100%, rgba(14, 165, 233, 0.05), transparent 40%);
         }
 
         .wrap {
@@ -133,7 +133,7 @@
 
         .drop-zone {
             min-height: 160px;
-            border: 2px dashed rgba(0, 238, 255, 0.35);
+            border: 2px dashed rgba(37, 99, 235, 0.28);
             border-radius: 10px;
             padding: 1rem;
             display: flex;
@@ -141,7 +141,7 @@
             align-content: flex-start;
             gap: 0.6rem;
             transition: all 0.2s ease;
-            background: rgba(0, 238, 255, 0.03);
+            background: rgba(37, 99, 235, 0.025);
         }
 
         .drop-zone::before {
@@ -155,8 +155,8 @@
 
         .drop-zone.drag-over {
             border-color: var(--accent);
-            background: rgba(0, 255, 157, 0.08);
-            box-shadow: 0 0 0 3px rgba(0, 255, 157, 0.18);
+            background: rgba(14, 165, 233, 0.08);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
         }
 
         .chip {
@@ -174,7 +174,7 @@
         }
 
         .chip:hover {
-            border-color: rgba(0, 238, 255, 0.6);
+            border-color: rgba(37, 99, 235, 0.45);
             transform: translateY(-1px);
         }
 
@@ -206,11 +206,11 @@
             transition: border-color 0.15s ease;
         }
 
-        .sortable li:hover { border-color: rgba(0, 238, 255, 0.55); }
+        .sortable li:hover { border-color: rgba(37, 99, 235, 0.45); }
 
         .sortable li.dragging {
             opacity: 0.35;
-            background: rgba(0, 238, 255, 0.08);
+            background: rgba(37, 99, 235, 0.08);
         }
 
         .sortable .grip {
@@ -222,7 +222,7 @@
             margin-left: auto;
             font-size: 0.75rem;
             color: var(--muted);
-            background: rgba(0, 238, 255, 0.08);
+            background: rgba(37, 99, 235, 0.08);
             padding: 0.15rem 0.55rem;
             border-radius: 999px;
         }
@@ -230,7 +230,7 @@
         /* ---------- Demo 3: file upload ---------- */
         .file-zone {
             min-height: 180px;
-            border: 2px dashed rgba(0, 238, 255, 0.35);
+            border: 2px dashed rgba(37, 99, 235, 0.28);
             border-radius: 10px;
             display: flex;
             flex-direction: column;
@@ -244,7 +244,7 @@
 
         .file-zone.drag-over {
             border-color: var(--accent);
-            background: rgba(0, 255, 157, 0.08);
+            background: rgba(14, 165, 233, 0.08);
         }
 
         .file-zone i.big {
@@ -284,7 +284,7 @@
             position: sticky;
             bottom: 1rem;
             margin-top: 2.5rem;
-            background: rgba(10, 14, 23, 0.85);
+            background: rgba(241, 245, 249, 0.94);
             backdrop-filter: blur(8px);
             border: 1px solid var(--border);
             border-radius: var(--radius);
@@ -364,7 +364,7 @@
 
     <header>
         <p class="badge"><i class="fa-solid fa-hand-pointer"></i> Interactive tool</p>
-        <h1>HTML5 拖拽 API 工具</h1>
+        <h1><span class="title">HTML5 拖拽 API 工具</span></h1>
         <p class="lead">
             三个循序渐进的案例：<strong>基础拖放</strong>、<strong>列表排序</strong>、<strong>文件拖拽上传</strong>。
             右下方日志面板实时显示触发的事件，便于理解 <code>dragstart → dragover → drop</code> 事件流。

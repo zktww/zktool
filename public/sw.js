@@ -1,5 +1,6 @@
-const CACHE = "zktool-runtime-v2";
+const CACHE = "zktool-runtime-v3";
 const CACHE_PREFIX = "zktool-";
+const VERSION_PARAM = "v";
 
 function shouldCache(request, url) {
   return request.method === "GET"
@@ -20,6 +21,41 @@ async function networkFirst(request) {
   }
 }
 
+async function cacheFirst(request) {
+  const cache = await caches.open(CACHE);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+
+  const response = await fetch(request);
+  if (response.ok && response.type === "basic") await cache.put(request, response.clone());
+  return response;
+}
+
+async function staleWhileRevalidate(request) {
+  const cache = await caches.open(CACHE);
+  const cached = await cache.match(request);
+  const network = fetch(request).then((response) => {
+    if (response.ok && response.type === "basic") cache.put(request, response.clone());
+    return response;
+  });
+
+  if (cached) {
+    network.catch(() => {});
+    return cached;
+  }
+
+  return network;
+}
+
+function isStaticAsset(url) {
+  return url.pathname.startsWith("/assets/") || url.pathname.startsWith("/_astro/");
+}
+
+function isVersionedAsset(url) {
+  return url.pathname.startsWith("/_astro/")
+    || (url.pathname.startsWith("/assets/") && url.searchParams.has(VERSION_PARAM));
+}
+
 self.addEventListener("install", () => self.skipWaiting());
 
 self.addEventListener("activate", (event) => event.waitUntil(
@@ -31,5 +67,14 @@ self.addEventListener("activate", (event) => event.waitUntil(
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (!shouldCache(event.request, url)) return;
-  event.respondWith(networkFirst(event.request));
+
+  if (event.request.mode === "navigate") {
+    event.respondWith(networkFirst(event.request));
+  } else if (isVersionedAsset(url)) {
+    event.respondWith(cacheFirst(event.request));
+  } else if (isStaticAsset(url)) {
+    event.respondWith(staleWhileRevalidate(event.request));
+  } else {
+    event.respondWith(networkFirst(event.request));
+  }
 });

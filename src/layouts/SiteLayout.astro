@@ -35,6 +35,13 @@ const alternate = locale === "en" ? (path.replace(/^\/en/, "") || "/") : (path =
       <nav><LanguageSwitch client:load locale={locale} path={path} /></nav>
     </header>
     <slot />
+    <script is:inline>
+      if ("serviceWorker" in navigator && location.protocol !== "file:") {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" }).catch(() => {});
+        }, { once: true });
+      }
+    </script>
   </body>
 </html>
 

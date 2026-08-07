@@ -33,7 +33,11 @@ function escapeXml(value) {
 const sitemapEntries = ["", ...tools.map((tool) => tool.path)]
     .flatMap((path) => [url(path), url(path, "en")])
     .map((current) => `  <url>\n    <loc>${escapeXml(current)}</loc>\n  </url>`);
-await writeFile(resolve(DIST, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapEntries.join("\n")}\n</urlset>\n`);
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapEntries.join("\n")}\n</urlset>\n`;
+await Promise.all([
+    writeFile(resolve(DIST, "sitemap.xml"), sitemap),
+    writeFile(resolve(DIST, "sitemap-v2.xml"), sitemap)
+]);
 
 function list(locale) {
     return tools.map((tool) => {

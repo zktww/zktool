@@ -15,17 +15,25 @@ async function loadData(file) {
 const registry = await loadData("src/data/registry.js");
 const i18n = await loadData("src/data/i18n.js");
 const tools = registry.ZKTOOL_REGISTRY.filter((item) => item.type === "tool");
-const today = new Date().toISOString().slice(0, 10);
 
 function url(path, locale = "zh-CN") {
     return `${ORIGIN}/${locale === "en" ? "en/" : ""}${path}`;
 }
 
-const sitemapEntries = ["", ...tools.map((tool) => tool.path)].flatMap((path) => {
-    const zh = url(path), en = url(path, "en");
-    return [zh, en].map((current) => `  <url><loc>${current}</loc><lastmod>${today}</lastmod><xhtml:link rel="alternate" hreflang="zh-CN" href="${zh}"/><xhtml:link rel="alternate" hreflang="en" href="${en}"/><xhtml:link rel="alternate" hreflang="x-default" href="${zh}"/></url>`);
-});
-await writeFile(resolve(DIST, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${sitemapEntries.join("\n")}\n</urlset>\n`);
+function escapeXml(value) {
+    return value.replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&apos;"
+    })[character]);
+}
+
+const sitemapEntries = ["", ...tools.map((tool) => tool.path)]
+    .flatMap((path) => [url(path), url(path, "en")])
+    .map((current) => `  <url>\n    <loc>${escapeXml(current)}</loc>\n  </url>`);
+await writeFile(resolve(DIST, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapEntries.join("\n")}\n</urlset>\n`);
 
 function list(locale) {
     return tools.map((tool) => {

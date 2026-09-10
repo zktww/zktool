@@ -19,6 +19,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
+      - run: pnpm test
       - run: pnpm build
       - name: verify generated routes
         run: |
@@ -28,5 +29,4 @@ jobs:
           test -f dist/sw.js
           test ! -e dist/demos
           test ! -e dist/en/demos
-          test "$(find dist/tools -mindepth 2 -maxdepth 2 -name index.html | wc -l | tr -d ' ')" = "42"
-          test "$(find dist/en/tools -mindepth 2 -maxdepth 2 -name index.html | wc -l | tr -d ' ')" = "42"
+          # Route coverage is checked against the registry by verify-dist.mjs.

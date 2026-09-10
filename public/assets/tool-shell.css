@@ -218,6 +218,19 @@ h1 {
 }
 
 h1 .title { color: var(--brand); }
+.zk-privacy-note { margin: 1rem 0; padding: .85rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-soft); color: var(--text-2); font-size: .85rem; line-height: 1.6; }
+.zk-privacy-note p { margin: 0 0 .6rem; }
+.zk-privacy-note label { display: inline-flex; align-items: center; gap: .5rem; margin-right: .75rem; }
+.zk-privacy-note input[type="checkbox"] { width: 1rem; height: 1rem; }
+.zk-privacy-note button { margin: .35rem .5rem .35rem 0; }
+.zk-share-dialog { width: min(36rem, calc(100% - 2rem)); max-height: 85vh; margin: auto; overflow: auto; padding: 1.5rem; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); color: var(--text); box-shadow: var(--shadow-md); }
+.zk-share-dialog::backdrop { background: rgb(0 0 0 / .55); }
+.zk-share-dialog h2 { margin-top: 0; font-size: 1.2rem; }
+.zk-share-dialog p { color: var(--text-2); line-height: 1.6; }
+.zk-share-dialog pre { max-height: 35vh; overflow: auto; padding: 1rem; border-radius: 8px; background: var(--bg-soft); white-space: pre-wrap; overflow-wrap: anywhere; font: .85rem/1.6 var(--mono); }
+.zk-share-dialog button { margin: .5rem .75rem 0 0; padding: .65rem 1rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); color: var(--text); cursor: pointer; }
+.zk-share-dialog button:disabled { opacity: .5; cursor: not-allowed; }
+.zk-share-dialog button:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 .lead { max-width: 62em; margin-bottom: 1.2rem; color: var(--text-2); font-size: 0.95rem; }
 
 /* ── 页底 SEO 说明区：所有工具页共用，与 .wrap 左右边缘对齐 ── */

@@ -5,6 +5,8 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import vm from "node:vm";
+import { toolUiEn, toolScriptEn, attributeUiEn } from "../src/data/tool-ui-en.mjs";
+import { toolHelpEn } from "../src/data/tool-help-en.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 function loadLegacyData(file) {
@@ -213,6 +215,9 @@ if (translationConflicts.length) {
 }
 
 const SCRIPT_TEXT_EN = {
+    "tools/json-formatter/": {
+        '"输入 <strong>"': '"Input: <strong>"', '"</strong> 字符"': '"</strong> characters"'
+    },
     "tools/date-calculator/": {
         "请选择有效的开始和结束日期。": "Choose valid start and end dates.", "两个日期是同一天。": "The dates are the same.",
         "结束日期在开始日期之后 ": "The end date is after the start date by ", "结束日期在开始日期之前 ": "The end date is before the start date by ",
@@ -263,18 +268,19 @@ function injectAlternates(html, path) {
     return html.replace("</head>", `    ${alternates(path)}\n</head>`);
 }
 
-function translateVisibleText(html) {
+function translateVisibleText(html, scopedCopy = {}) {
+    const copy = { ...COMMON_TEXT_EN, ...attributeUiEn, ...scopedCopy };
     const protectedParts = [];
     html = html.replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, (part) => {
         const token = `@@ZK_PROTECTED_${protectedParts.length}@@`;
         protectedParts.push(part); return token;
     });
-    const entries = Object.entries(COMMON_TEXT_EN)
+    const entries = Object.entries(copy)
         .filter(([from]) => from.length >= 4)
         .sort((a, b) => b[0].length - a[0].length);
     const translateFragment = (text) => {
         const trimmed = text.trim();
-        if (COMMON_TEXT_EN[trimmed]) return text.replace(trimmed, COMMON_TEXT_EN[trimmed]);
+        if (copy[trimmed]) return text.replace(trimmed, copy[trimmed]);
         return entries.reduce((value, [from, to]) => value.split(from).join(to), text);
     };
     html = html.replace(/(<textarea\b[^>]*>)([\s\S]*?)(<\/textarea>)/gi, (match, open, text, close) => open + translateFragment(text) + close);
@@ -282,17 +288,19 @@ function translateVisibleText(html) {
         const translated = translateFragment(text);
         return translated === text ? match : ">" + translated + "<";
     });
-    html = html.replace(/\b(placeholder|aria-label|title|data-label|data-group)="([^"]*)"/g, (match, attr, value) => {
+    html = html.replace(/\b(placeholder|aria-label|title|data-label|data-group)=(["'])(.*?)\2/g, (match, attr, quote, value) => {
         const translated = translateFragment(value);
-        return translated === value ? match : `${attr}="${translated}"`;
+        return translated === value ? match : `${attr}=${quote}${translated.replaceAll(quote, quote === '"' ? '&quot;' : '&#39;')}${quote}`;
     });
     return html.replace(/@@ZK_PROTECTED_(\d+)@@/g, (match, index) => protectedParts[Number(index)]);
 }
 
 function translateScriptText(html, map) {
     const entries = Object.entries(map).sort(([a], [b]) => b.length - a.length);
+    // One pass: overlapping keys cannot re-translate a partial replacement.
+    const pattern = new RegExp(entries.map(([key]) => key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'g');
     return html.replace(/(<script\b[^>]*>)([\s\S]*?)(<\/script>)/gi, (whole, open, body, close) => {
-        const translated = entries.reduce((value, [from, to]) => value.split(from).join(to), body);
+        const translated = body.replace(pattern, (key) => map[key]);
         return open + translated + close;
     });
 }
@@ -305,11 +313,13 @@ function setMetaContent(html, selector, value) {
 
 function englishSeoSection(tool) {
     const item = localizedItem(tool, "en");
+    const help = toolHelpEn[tool.path.split('/')[1]];
+    if (!help) throw new Error(`Missing English help: ${tool.path}`);
+    const escape = (value) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
     return `<section class="seo-notes">
         <h2>About ${item.name}</h2>
-        <p>${item.desc} Processing happens locally in your browser, and the tool does not upload the entered content.</p>
-        <h2>Privacy and compatibility</h2>
-        <p>Results depend on browser capabilities and the supplied input. Review generated output before using it in production or formal documents.</p>
+        <p>${escape(help[0])}</p>
+        <details><summary>${escape(help[1])}</summary><p>${escape(help[2])}</p></details>
     </section>`;
 }
 
@@ -323,11 +333,11 @@ function localizeEnglishPage(html, tool, path) {
     html = setMetaContent(html, 'property="og:description"', item.desc);
     html = setMetaContent(html, 'property="og:url"', localeUrl(tool.path, "en"));
     html = html.replace(/<link rel="canonical" href="[^"]*"\s*\/>/, `<link rel="canonical" href="${localeUrl(tool.path, "en")}" />`);
-    html = html.replace(/(<h1[^>]*>[\s\S]*?<span class="title">)[\s\S]*?(<\/span>[\s\S]*?<\/h1>)/, `$1${item.name}$2`);
+    html = html.replace(/(<h1[^>]*>[\s\S]*?<span class="(?:title|grad)">)[\s\S]*?(<\/span>[\s\S]*?<\/h1>)/, `$1${item.name}$2`);
     html = html.replace(/<p class="lead">[\s\S]*?<\/p>/, `<p class="lead">${item.desc}</p>`);
     html = html.replace(/<section class="seo-notes">[\s\S]*?<\/section>/, englishSeoSection(tool));
-    html = translateVisibleText(html);
-    const scriptText = { ...COMMON_SCRIPT_TEXT_EN, ...(SCRIPT_TEXT_EN[tool.path] || {}) };
+    html = translateVisibleText(html, toolUiEn[tool.path.split('/')[1]]);
+    const scriptText = { ...COMMON_SCRIPT_TEXT_EN, ...(toolScriptEn[tool.path.split('/')[1]] || {}), ...(SCRIPT_TEXT_EN[tool.path] || {}) };
     html = translateScriptText(html, scriptText);
     // Keep only the generated application JSON-LD. The source breadcrumb JSON-LD
     // contains Chinese labels and would otherwise leak into the English payload.

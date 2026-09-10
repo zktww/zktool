@@ -47,10 +47,11 @@
             ".zk-icon-btn:focus-visible{box-shadow:0 0 0 3px var(--brand-ring-soft,rgba(37,99,235,.12))}" +
             ".zk-icon-btn svg{width:16px;height:16px}" +
             ".zk-lang-link{display:inline-flex;align-items:center;justify-content:center;min-width:2.35rem;height:2.35rem;padding:0 .65rem;border:1px solid var(--border,#e4e9f0);border-radius:999px;background:var(--surface,#fff);color:var(--text-2,#5b6b81);font:600 .78rem/1 inherit;text-decoration:none;box-shadow:var(--shadow-sm,0 1px 2px rgba(15,23,42,.05));transition:color .2s,border-color .2s,background .2s}" +
-            ".zk-lang-link:hover,.zk-lang-link:focus-visible{color:var(--text,#1e293b);border-color:var(--border-hover,#c9d4e3);background:var(--surface-hover,#f1f5f9);outline:none}";
+            ".zk-lang-link:hover{color:var(--text,#1e293b);border-color:var(--border-hover,#c9d4e3);background:var(--surface-hover,#f1f5f9)}" +
+            ".zk-lang-link:focus-visible{outline:2px solid var(--brand,#2563eb);outline-offset:3px}";
         document.head.appendChild(style);
 
-        var host = document.querySelector(".top") || document.querySelector(".toolbar");
+        var host = document.querySelector(".top") || document.querySelector(".site-header") || document.querySelector(".toolbar");
         if (!host) return;
         var box = host.querySelector(".zk-actions");
         if (!box) {

@@ -24,12 +24,14 @@ export function loadLegacyDocument(relativePath: string): LegacyDocument {
     const source = readFileSync(resolve(ROOT, relativePath), "utf8");
     const html = /<html\b([^>]*)>/i.exec(source);
     const head = /<head\b[^>]*>([\s\S]*?)<\/head>/i.exec(source);
-    const body = /<body\b([^>]*)>([\s\S]*?)<\/body>/i.exec(source);
+    // Inline export templates may contain a literal </body>. The actual document
+    // closes last; a non-greedy match cuts off the remaining application script.
+    const body = /<body\b([^>]*)>([\s\S]*)<\/body\s*>/i.exec(source);
 
     if (!head || !body) throw new Error(`Invalid legacy HTML document: ${relativePath}`);
 
     const lang = /\blang=["']([^"']+)["']/i.exec(html?.[1] || "")?.[1] || "zh-CN";
-    return { lang, head: head[1], body: body[2], bodyAttrs: parseAttributes(body[1]) };
+    return { lang, head: head[1].replace(/#domain-/g, "#group-"), body: body[2], bodyAttrs: parseAttributes(body[1]) };
 }
 
 export function legacyToolPath(slug: string, locale: "zh-CN" | "en") {

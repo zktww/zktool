@@ -1,6 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import vm from "node:vm";
+import { versionAssets } from "./version-assets.mjs";
 
 const ROOT = resolve(process.cwd());
 const DIST = resolve(ROOT, "dist");
@@ -61,3 +62,5 @@ await writeFile(resolve(DIST, "en/manifest.webmanifest"), `${JSON.stringify({
     start_url: "/en/",
     scope: "/en/"
 }, null, 2)}\n`);
+
+await versionAssets(DIST);

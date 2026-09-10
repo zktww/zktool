@@ -1,0 +1,21 @@
+---
+// Development pages must not be controlled by a worker installed by an earlier
+// local PWA preview. Only remove this site's worker/cache, never local drafts.
+---
+{import.meta.env.DEV && <script is:inline>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(async (registrations) => {
+      let removed = false;
+      for (const registration of registrations) {
+        const worker = registration.active || registration.waiting || registration.installing;
+        if (worker && worker.scriptURL === location.origin + '/sw.js') {
+          removed = await registration.unregister() || removed;
+        }
+      }
+      if (removed) {
+        if ('caches' in window) await Promise.all((await caches.keys()).filter(key => key.startsWith('zktool-')).map(key => caches.delete(key)));
+        if (navigator.serviceWorker.controller) location.reload();
+      }
+    }).catch(() => {});
+  }
+</script>}

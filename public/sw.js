@@ -1,4 +1,4 @@
-const CACHE = "zktool-runtime-v3";
+const CACHE = "zktool-runtime-v4";
 const CACHE_PREFIX = "zktool-";
 const VERSION_PARAM = "v";
 

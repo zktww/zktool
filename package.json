@@ -4,11 +4,12 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "pnpm generate:i18n && astro dev",
     "generate:i18n": "node scripts/generate-en-tools.mjs",
     "build": "pnpm generate:i18n && astro build && node scripts/postbuild.mjs && node scripts/verify-dist.mjs",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
     "@astrojs/vue": "4.5.3",

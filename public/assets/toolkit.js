@@ -36,6 +36,8 @@
     }
 
     function manual() { return document.body && document.body.hasAttribute("data-zk-manual"); }
+    var sensitivePage = /\/tools\/(jwt-decoder|curl-parser|aes-tool|docker-compose-converter)\/$/.test(PAGE);
+    var saveSensitiveDraft = false;
 
     /* 约定 + 声明 合并出参与草稿/分享的控件 */
     function stateFields() {
@@ -62,7 +64,7 @@
     }
     function initDraft(skipRestore) {
         stateFields().forEach(function (el) {
-            if (!skipRestore && fieldVal(el) === fieldDefault(el)) {
+            if (!sensitivePage && !skipRestore && fieldVal(el) === fieldDefault(el)) {
                 var saved = tryLS(function () { return localStorage.getItem(LS_PREFIX + el.id); }, null);
                 if (saved !== null && saved !== fieldVal(el)) {
                     setFieldVal(el, saved);
@@ -74,6 +76,7 @@
             function persist() {
                 clearTimeout(timer);
                 timer = setTimeout(function () {
+                    if (sensitivePage && !saveSensitiveDraft) return;
                     tryLS(function () {
                         var v = fieldVal(el);
                         if (v === "" || v === fieldDefault(el)) localStorage.removeItem(LS_PREFIX + el.id);
@@ -89,7 +92,8 @@
     /* ── 2. URL 状态分享 ── */
     var zkShare = {
         /* 把参与状态的控件值编码为可分享 URL；超长（>4KB）时返回 null */
-        encode: function () {
+        encode: function (allowSensitive) {
+            if (sensitivePage && allowSensitive !== true) return null;
             var state = {};
             stateFields().forEach(function (el) {
                 var v = fieldVal(el);
@@ -101,15 +105,17 @@
             return location.href.split("#")[0] + "#zk=" + enc;
         },
         /* 从 #zk= 解码回填；成功返回 true */
-        restore: function () {
+        restore: function (allowSensitive) {
+            if (sensitivePage && allowSensitive !== true) return false;
             var m = location.hash.match(/^#zk=(.+)$/);
             if (!m) return false;
             var state;
             try { state = JSON.parse(b64decode(m[1])); } catch (e) { return false; }
             var hit = false;
-            Object.keys(state).forEach(function (id) {
-                var el = document.getElementById(id);
-                if (!el) return;
+            if (!state || typeof state !== "object" || Array.isArray(state)) return false;
+            stateFields().forEach(function (el) {
+                var id = el.id;
+                if (!Object.prototype.hasOwnProperty.call(state, id) || typeof state[id] !== "string") return;
                 if (el.type === "checkbox" || el.type === "radio") el.checked = state[id] === "1";
                 else el.value = state[id];
                 el.dispatchEvent(new Event("input", { bubbles: true }));
@@ -119,6 +125,83 @@
             return hit;
         }
     };
+
+    function mountPrivacyControls() {
+        if (!sensitivePage) return;
+        var input = document.querySelector("textarea[id]");
+        if (!input) return;
+        var notice = document.createElement("div");
+        notice.className = "zk-privacy-note";
+        var description = document.createElement("p");
+        description.textContent = text("Sensitive input: draft saving is off. Previously saved drafts can be cleared below. Share only with trusted recipients.", "敏感内容默认不保存草稿；此前已保存的草稿可在下方清除。分享内容仅应发送给可信接收者。");
+        var label = document.createElement("label");
+        var opt = document.createElement("input");
+        opt.type = "checkbox";
+        label.appendChild(opt);
+        label.appendChild(document.createTextNode(text("Save inputs locally during this visit", "本次访问允许保存输入到本机")));
+        opt.addEventListener("change", function () {
+            saveSensitiveDraft = opt.checked;
+            stateFields().forEach(function (el) {
+                if (opt.checked) {
+                    if (fieldVal(el) === fieldDefault(el)) {
+                        var saved = tryLS(function () { return localStorage.getItem(LS_PREFIX + el.id); }, null);
+                        if (saved !== null) setFieldVal(el, saved);
+                    }
+                    el.dispatchEvent(new Event("input", { bubbles: true }));
+                    el.dispatchEvent(new Event("change", { bubbles: true }));
+                }
+                else tryLS(function () { localStorage.removeItem(LS_PREFIX + el.id); });
+            });
+        });
+        var clear = document.createElement("button");
+        clear.type = "button"; clear.className = "btn";
+        clear.textContent = text("Clear saved drafts", "清除已存草稿");
+        clear.addEventListener("click", function () {
+            saveSensitiveDraft = false; opt.checked = false;
+            var paths = [PAGE.replace(/^\/en/, ""), "/en" + PAGE.replace(/^\/en/, "")];
+            tryLS(function () {
+                Object.keys(localStorage).forEach(function (key) {
+                    if (paths.some(function (path) { return key.indexOf("zktool.draft:" + path + ":") === 0; })) localStorage.removeItem(key);
+                });
+            });
+            toast(text("Saved drafts cleared for this tool in both languages", "已清除本工具中英文版本的草稿"));
+        });
+        notice.appendChild(description); notice.appendChild(label); notice.appendChild(clear);
+        if (/^#zk=/.test(location.hash)) {
+            var restore = document.createElement("button");
+            restore.type = "button"; restore.className = "btn";
+            restore.textContent = text("Load shared input", "载入分享内容");
+            restore.addEventListener("click", function () { toast(zkShare.restore(true) ? text("Input loaded", "已载入") : text("Invalid shared input", "分享内容无效")); });
+            notice.appendChild(restore);
+        }
+        input.parentNode.insertBefore(notice, input);
+    }
+
+    function previewSensitiveShare() {
+        var dialog = document.createElement("dialog");
+        dialog.className = "zk-share-dialog";
+        var title = document.createElement("h2");
+        title.textContent = text("Review shared content", "确认分享内容");
+        title.id = "zk-share-title"; dialog.setAttribute("aria-labelledby", title.id);
+        var warning = document.createElement("p");
+        warning.textContent = text("This link contains your input, encoded but not encrypted. Anyone with the link can read it. Remove credentials before sharing.", "链接会包含输入内容，编码不等于加密。任何拿到链接的人都能读取，请先移除凭证等敏感信息。");
+        var preview = document.createElement("pre");
+        var sharedUrl = zkShare.encode(true);
+        preview.textContent = stateFields().filter(function (el) { return fieldVal(el) && fieldVal(el) !== fieldDefault(el); }).map(function (el) { return el.id + ":\n" + fieldVal(el); }).join("\n\n") || text("No input; only the tool address will be shared.", "无输入，仅分享工具地址。");
+        var copy = document.createElement("button");
+        copy.type = "button"; copy.className = "btn primary"; copy.textContent = text("Copy reviewed link", "复制已确认的链接");
+        copy.disabled = !sharedUrl;
+        if (!sharedUrl) warning.textContent += text(" Content is too long to share.", " 内容过长，无法生成链接。");
+        var cancel = document.createElement("button");
+        cancel.type = "button"; cancel.className = "btn"; cancel.textContent = text("Cancel", "取消");
+        copy.addEventListener("click", function () {
+            (window.copyText ? copyText(sharedUrl) : navigator.clipboard.writeText(sharedUrl)).then(function () { dialog.close(); toast(text("Share link copied", "分享链接已复制")); }, function () { toast(text("Copy failed", "复制失败")); });
+        });
+        cancel.addEventListener("click", function () { dialog.close(); });
+        dialog.addEventListener("close", function () { dialog.remove(); });
+        [title, warning, preview, copy, cancel].forEach(function (el) { dialog.appendChild(el); });
+        document.body.appendChild(dialog); dialog.showModal(); cancel.focus();
+    }
 
     /* ── 3. 工具间管道 ── */
     var zkPipe = {
@@ -194,7 +277,7 @@
         var localeRoot = root + (window.zkLocalePrefix || "");
         var html = "<a href='" + localeRoot + "'>" + text("Home", "首页") + "</a>";
         if (grp) html += "<span class='zk-crumb-sep' aria-hidden='true'>›</span>" +
-            "<a href='" + localeRoot + "#domain-" + grp.key + "'>" + grp.title + "</a>";
+            "<a href='" + localeRoot + "#group-" + grp.key + "'>" + grp.title + "</a>";
         html += "<span class='zk-crumb-sep' aria-hidden='true'>›</span>" +
             "<span class='zk-crumb-cur' aria-current='page'>" + tool.name + "</span>";
         nav.innerHTML = html;
@@ -334,6 +417,7 @@
             sbtn.setAttribute("aria-label", sbtn.title);
             sbtn.innerHTML = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'/><path d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'/></svg>";
             sbtn.addEventListener("click", function () {
+                if (sensitivePage) { previewSensitiveShare(); return; }
                 var url = zkShare.encode();
                 /* 长文本工具（qr-plain 页）状态超长时回退复制纯工具地址 */
                 if (!url && qrPlainMode()) {
@@ -349,13 +433,13 @@
                     function () { toast(text("Copy failed", "复制失败")); }
                 );
             });
-            attachQrTip(sbtn);
+            if (!sensitivePage) attachQrTip(sbtn);
             box.insertBefore(sbtn, box.firstChild);
         }
 
         /* 发送到…：页面有输出区（.output 或 data-zk-pipe-source）时出现 */
         var src = document.querySelector("[data-zk-pipe-source]") || document.querySelector(".output");
-        if (src && window.ZKTOOL_REGISTRY && !box.querySelector(".zk-pipe-btn")) {
+        if (!sensitivePage && src && window.ZKTOOL_REGISTRY && !box.querySelector(".zk-pipe-btn")) {
             var pbtn = document.createElement("button");
             pbtn.type = "button";
             pbtn.className = "zk-icon-btn zk-pipe-btn";
@@ -546,7 +630,7 @@
        updateViaCache:none 让浏览器每次都绕过 HTTP 缓存检查 sw.js，发布即生效。
        首页自带注册（含新版本刷新提示），重复 register 同一 URL 是幂等的。 */
     function registerSW() {
-        if (!("serviceWorker" in navigator) || location.protocol === "file:") return;
+        if (!("serviceWorker" in navigator) || location.protocol !== "https:") return;
         var root = window.zkRoot || "../../";
         navigator.serviceWorker.register(root + "sw.js", { updateViaCache: "none" }).then(function (reg) {
             reg.addEventListener("updatefound", function () {
@@ -579,6 +663,7 @@
             }
         }
         if (!manual()) initDraft(fromShare);
+        mountPrivacyControls();
         mountButtons();
         mountNav();
         registerSW();

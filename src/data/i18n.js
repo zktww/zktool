@@ -124,12 +124,12 @@
     }
 
     function mountLanguageSwitch() {
-        if (document.querySelector(".zk-lang-link")) return;
+        var existing = document.querySelector(".zk-lang-link");
         var host = document.querySelector(".top") || document.querySelector(".toolbar");
         if (!host) return;
         var box = host.querySelector(".zk-actions");
         if (!box) { box = document.createElement("div"); box.className = "zk-actions"; host.appendChild(box); }
-        var link = document.createElement("a");
+        var link = existing || document.createElement("a");
         link.className = "zk-lang-link";
         link.href = alternatePath() + location.search + location.hash;
         link.lang = isEnglish ? "zh-CN" : "en";

@@ -58,7 +58,8 @@
     "tools/cidr-calculator/": ["CIDR Subnet Calculator", "Calculate IPv4 networks, broadcasts, masks, host ranges, membership, and subnet splits.", "Networking"],
         "https://qc.zktww.cn/": ["QR Code Generator", "Generate QR codes for links, text, and sharing in a separate service.", "External"],
         "tools/css-length-unit/": ["CSS Length Unit Explorer", "Compare px, rem, vw, and other CSS length units with adjustable visual examples.", "CSS"],
-        "tools/drag-and-drop-playground/": ["HTML Drag and Drop Playground", "Test native HTML drag and drop, list sorting, file drops, and live event logs.", "DnD"]
+        "tools/drag-and-drop-playground/": ["HTML Drag and Drop Playground", "Test native HTML drag and drop, list sorting, file drops, and live event logs.", "DnD"],
+        "tools/id-card-checker/": ["Chinese ID Checksum Calculator", "Calculate or verify the final checksum character of a mainland Chinese resident ID locally using GB 11643-1999. Input is not stored.", "Identity"]
     };
 
     var strings = {

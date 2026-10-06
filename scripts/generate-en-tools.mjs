@@ -237,6 +237,13 @@ const SCRIPT_TEXT_EN = {
         "支持 shell 引号、反斜杠转义和多行续写，命令不会上传。": "Supports shell quotes, backslash escapes, and multiline continuations. Commands are never uploaded.",
         'join("；")': 'join("; ")'
     },
+    "tools/id-card-checker/": {
+        "输入 17 位或 18 位号码后显示结果。": "Enter 17 or 18 characters to see the result.",
+        "请输入 17 位数字，或完整的 18 位号码（末位可为 X）。": "Enter 17 digits, or a complete 18-character number (the final character may be X).",
+        "校验码已计算，请与原号码的第 18 位组合使用。": "The checksum has been calculated. Combine it with the first 17 digits to form the complete number.",
+        "校验通过：末位校验码正确。": "Checksum valid: the final character is correct.",
+        "校验不一致：输入末位应为 ": "Checksum mismatch: the final character should be "
+    },
     "tools/rmb-uppercase/": {
         "请输入金额": "Enter an amount", "金额应为数字，且小数最多两位": "Enter a number with no more than two decimal places",
         "整数部分最多 16 位": "The integer part supports up to 16 digits", "转换完成，共 ": "Converted: ", " 个大写字符。": " Chinese uppercase characters.",

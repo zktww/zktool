@@ -25,6 +25,26 @@ export const toolUiEn = {
     '排除自身，在': 'to exclude the dragged item. During', '中实时': 'events, reorder with',
     '把任意文件拖入下方虚线区域，或点击选择。示例': 'Drop files below or click to select. This demonstrates'
   },
+  'id-card-checker': {
+    '身份证校验码计算器': 'Chinese ID Checksum Calculator',
+    '输入前 17 位计算末位校验码，或粘贴完整 18 位号码进行校验。计算在本地完成，输入不会保存或上传。': 'Enter the first 17 digits to calculate the final checksum character, or paste a complete 18-character number to verify it. The calculation runs locally; input is not saved or uploaded.',
+    '输入身份证号码': 'Enter ID number',
+    '17 位或完整 18 位号码': '17 digits or a complete 18-character number',
+    '例如：11010519491231002': 'For example: 11010519491231002',
+    '仅用于计算校验码，不会写入草稿、分享链接或网络请求。': 'Used only to calculate the checksum; never saved to drafts, shared links, or network requests.',
+    '示例 17 位': '17-digit example',
+    '示例 18 位': '18-digit example',
+    '校验结果': 'Verification result',
+    '输入 17 位或 18 位号码后显示结果。': 'Enter 17 or 18 characters to see the result.',
+    '计算出的校验码': 'Calculated checksum',
+    '标准完整号码': 'Standard full number',
+    '关于身份证校验码': 'About ID checksums',
+    '本工具依据 GB 11643-1999 的加权求和与模 11 映射规则计算第 18 位校验码。它只能发现部分录入错误，不能证明号码真实签发、归属某个人或包含有效的地址与出生日期。': 'This tool calculates the 18th checksum character with the weighted-sum and modulo-11 mapping rules from GB 11643-1999. It can detect some input errors, but cannot prove that a number was issued, belongs to a person, or contains a valid address or date of birth.',
+    '输入完整号码会发生什么？': 'What happens when I enter a complete number?',
+    '工具会重新计算第 18 位，并与输入的最后一位比较，显示校验通过或不一致。完整号码只在当前页面内处理。': 'The tool recalculates the 18th character and compares it with the final character you entered. The complete number is processed only on this page.',
+    '支持 15 位身份证号吗？': 'Are 15-digit ID numbers supported?',
+    '15 位号码不能直接计算 18 位校验码。请先按规则补齐出生年份和校验位后再核对，本工具不会替你推断或保存身份信息。': 'A 15-digit number cannot be used directly to calculate an 18-digit checksum. Expand it according to the applicable rules before checking; this tool will not infer or save identity information.'
+  },
   'emoji-tool': { '收藏与最近使用保存在本机浏览器（localStorage）。': 'Favorites and recent emoji are saved in this browser (localStorage).' },
   'http-reference': { '共': 'Total:', '条 · 点击条目复制': 'entries · Click an entry to copy' },
   'json-formatter': {

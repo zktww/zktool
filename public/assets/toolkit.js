@@ -36,7 +36,7 @@
     }
 
     function manual() { return document.body && document.body.hasAttribute("data-zk-manual"); }
-    var sensitivePage = /\/tools\/(jwt-decoder|curl-parser|aes-tool|docker-compose-converter)\/$/.test(PAGE);
+    var sensitivePage = /\/tools\/(jwt-decoder|curl-parser|aes-tool|docker-compose-converter|id-card-checker)\/$/.test(PAGE);
     var saveSensitiveDraft = false;
 
     /* 约定 + 声明 合并出参与草稿/分享的控件 */

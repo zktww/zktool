@@ -76,7 +76,7 @@ async function toolkitHarness(pathname = '/tools/jwt-decoder/') {
   return { ...context, input, secret, output, stored, parent, flush() { const jobs = [...timers.values()]; timers.clear(); jobs.forEach(fn => fn()); } };
 }
 
-for (const locale of ['', '/en']) for (const slug of ['jwt-decoder', 'aes-tool', 'curl-parser', 'docker-compose-converter']) {
+for (const locale of ['', '/en']) for (const slug of ['jwt-decoder', 'aes-tool', 'curl-parser', 'docker-compose-converter', 'id-card-checker']) {
   test(`sensitive drafts require fresh opt-in: ${locale}/tools/${slug}/`, async () => {
     const path = `${locale}/tools/${slug}/`;
     const h = await toolkitHarness(path);
@@ -96,6 +96,17 @@ for (const locale of ['', '/en']) for (const slug of ['jwt-decoder', 'aes-tool',
     assert.equal(h.stored.has(key), false, 'pending timer must not restore a disabled draft');
   });
 }
+
+test('ID-card checksum uses the GB 11643-1999 mapping', async () => {
+  const source = await readFile(new URL('../src/tools/id-card-checker/index.html', import.meta.url), 'utf8');
+  const first17 = '11010519491231002';
+  const weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+  const mapping = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2'];
+  const checksum = mapping[[...first17].reduce((sum, digit, i) => sum + Number(digit) * weights[i], 0) % 11];
+  assert.equal(checksum, 'X');
+  assert.match(source, /var weights = \[7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2\]/);
+  assert.match(source, /var mapping = \["1", "0", "X", "9", "8", "7", "6", "5", "4", "3", "2"\]/);
+});
 
 test('share restoration requires consent and rejects excluded fields and invalid state', async () => {
   const h = await toolkitHarness();

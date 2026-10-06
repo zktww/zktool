@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>身份证校验码计算器 - 本地计算身份证号校验码 | zktool</title>
+    <meta name="description" content="按 GB 11643-1999 在浏览器本地计算或校验居民身份证号码末位校验码，不保存、不上传输入。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="身份证校验码计算器 | zktool" />
+    <meta property="og:description" content="按 GB 11643-1999 在浏览器本地计算或校验居民身份证号码末位校验码，不保存、不上传输入。" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/id-card-checker/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/id-card-checker/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/theme.js"></script>
+    <script src="../../assets/clipboard.js"></script>
+    <script defer src="../../assets/registry.js"></script><script defer src="../../assets/i18n.js"></script>
+    <script defer src="../../assets/palette.js"></script>
+    <script defer src="../../assets/toolkit.js"></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://tools.zktww.cn/"},{"@type":"ListItem","position":2,"name":"速查参考","item":"https://tools.zktww.cn/#group-ref"},{"@type":"ListItem","position":3,"name":"身份证校验码计算器","item":"https://tools.zktww.cn/tools/id-card-checker/"}]}</script>
+    <style>
+        .field-label { display:block; margin-bottom:.45rem; color:var(--text-2); font-size:.85rem; font-weight:650; }
+        .input-row { display:flex; align-items:center; gap:.65rem; }
+        .input-row input { min-width:0; flex:1; }
+        .example-row { display:flex; flex-wrap:wrap; gap:.55rem; margin-top:1rem; }
+        .result-panel { min-height:13rem; }
+        .result-empty, .result-message { padding:1rem; border:1px dashed var(--border); border-radius:10px; color:var(--text-2); line-height:1.7; }
+        .result-message.ok { border-style:solid; border-color:color-mix(in srgb, var(--ok) 45%, var(--border)); color:var(--ok); background:color-mix(in srgb, var(--ok) 8%, var(--surface)); }
+        .result-message.bad { border-style:solid; border-color:var(--danger-border); color:var(--danger); background:var(--danger-soft); }
+        .details { display:grid; gap:.75rem; margin-top:1rem; }
+        .details > div { display:flex; align-items:center; flex-wrap:wrap; gap:.7rem; padding:.75rem; border:1px solid var(--border); border-radius:9px; background:var(--bg-soft); }
+        .details span { color:var(--text-2); font-size:.85rem; }
+        .details strong { color:var(--brand); font-size:1.5rem; }
+        .details code { flex:1; min-width:12rem; overflow-wrap:anywhere; color:var(--text); font:600 .9rem var(--mono); }
+        .btn.small { padding:.35rem .6rem; font-size:.78rem; }
+    </style>
+</head>
+<body data-zk-manual>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">GB 11643-1999</p></div>
+    <h1><span class="title">身份证校验码计算器</span></h1>
+    <p class="lead">输入前 17 位计算末位校验码，或粘贴完整 18 位号码进行校验。计算在本地完成，输入不会保存或上传。</p>
+    <div class="tool-grid">
+        <section class="panel">
+            <h2>输入身份证号码</h2>
+            <label class="field-label" for="idNumber">17 位或完整 18 位号码</label>
+            <div class="input-row">
+                <input id="idNumber" data-zk-off class="mono" inputmode="text" autocomplete="off" spellcheck="false" maxlength="18" pattern="[0-9Xx -]*" placeholder="例如：11010519491231002" aria-describedby="privacyHint" />
+                <button class="btn" id="clear" type="button">清空</button>
+            </div>
+            <p class="hint" id="privacyHint">仅用于计算校验码，不会写入草稿、分享链接或网络请求。</p>
+            <div class="example-row" aria-label="示例">
+                <button class="btn secondary" type="button" data-example="11010519491231002">示例 17 位</button>
+                <button class="btn secondary" type="button" data-example="11010519491231002X">示例 18 位</button>
+            </div>
+        </section>
+        <section class="panel result-panel" aria-live="polite">
+            <h2>校验结果</h2>
+            <div id="result" class="result-empty">输入 17 位或 18 位号码后显示结果。</div>
+            <div id="details" class="details" hidden>
+                <div><span>计算出的校验码</span><strong id="checkDigit">—</strong></div>
+                <div><span>标准完整号码</span><code id="fullNumber">—</code><button class="btn small" id="copy" type="button">复制</button></div>
+            </div>
+        </section>
+    </div>
+    <section class="seo-notes">
+        <h2>关于身份证校验码</h2>
+        <p>本工具依据 GB 11643-1999 的加权求和与模 11 映射规则计算第 18 位校验码。它只能发现部分录入错误，不能证明号码真实签发、归属某个人或包含有效的地址与出生日期。</p>
+        <h2>常见问题</h2>
+        <details><summary>输入完整号码会发生什么？</summary><p>工具会重新计算第 18 位，并与输入的最后一位比较，显示校验通过或不一致。完整号码只在当前页面内处理。</p></details>
+        <details><summary>支持 15 位身份证号吗？</summary><p>15 位号码不能直接计算 18 位校验码。请先按规则补齐出生年份和校验位后再核对，本工具不会替你推断或保存身份信息。</p></details>
+    </section>
+</main>
+<script>
+(function () {
+    "use strict";
+    var input = document.getElementById("idNumber");
+    var result = document.getElementById("result");
+    var details = document.getElementById("details");
+    var digit = document.getElementById("checkDigit");
+    var full = document.getElementById("fullNumber");
+    var clear = document.getElementById("clear");
+    var copy = document.getElementById("copy");
+    var weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+    var mapping = ["1", "0", "X", "9", "8", "7", "6", "5", "4", "3", "2"];
+
+    function normalize(value) { return String(value || "").replace(/[\s-]/g, "").toUpperCase(); }
+    function compute(first17) {
+        var sum = 0;
+        for (var i = 0; i < 17; i++) sum += Number(first17.charAt(i)) * weights[i];
+        return mapping[sum % 11];
+    }
+    function show(text, kind) {
+        result.textContent = text;
+        result.className = "result-message " + (kind || "");
+    }
+    function update() {
+        var value = normalize(input.value);
+        details.hidden = true;
+        input.classList.remove("bad");
+        if (!value) { show("输入 17 位或 18 位号码后显示结果。", ""); return; }
+        if (!/^\d{17}[0-9X]?$/.test(value)) { input.classList.add("bad"); show("请输入 17 位数字，或完整的 18 位号码（末位可为 X）。", "bad"); return; }
+        var first17 = value.slice(0, 17);
+        var expected = compute(first17);
+        var standard = first17 + expected;
+        digit.textContent = expected;
+        full.textContent = standard;
+        details.hidden = false;
+        if (value.length === 17) show("校验码已计算，请与原号码的第 18 位组合使用。", "ok");
+        else if (value.charAt(17) === expected) show("校验通过：末位校验码正确。", "ok");
+        else show("校验不一致：输入末位应为 " + expected + "。", "bad");
+    }
+    input.addEventListener("input", update);
+    clear.addEventListener("click", function () { input.value = ""; update(); input.focus(); });
+    document.querySelectorAll("[data-example]").forEach(function (button) { button.addEventListener("click", function () { input.value = button.getAttribute("data-example"); update(); }); });
+    copy.addEventListener("click", function () { if (window.copyText) copyText(full.textContent); else navigator.clipboard.writeText(full.textContent); });
+    update();
+}());
+</script>
+</body>
+</html>

@@ -1,107 +1,121 @@
 @charset "UTF-8";
 
-/* zktool 设计 token：全站唯一的变量来源，页面各自的组件样式仍留在本页。
-   暗色值默认跟随 prefers-color-scheme；palette.js 的主题开关通过
+/* zktool 设计 token（Craft Bento 温润便当盒体系）：全站唯一的变量来源。
+   暗色值默认跟随 prefers-color-scheme；palette.js / theme.js 的主题开关通过
    <html data-theme="light|dark"> 强制覆盖（变量与下方媒体查询保持同步）。 */
 
 :root {
     color-scheme: light dark;
-    --bg: #f6f8fb;
-    --bg-soft: #f8fafc;
+    --bg: #f2f5fa;
+    --bg-soft: #f6f8fc;
     --surface: #ffffff;
-    --surface-2: #f1f5f9;
-    --surface-hover: #f1f5f9;
-    --border: #e4e9f0;
-    --border-hover: #c9d4e3;
-    --text: #1e293b;
-    --text-2: #5b6b81;
-    --text-3: #7a8aa0;
-    --brand: #2563eb;
-    --brand-soft: rgba(37, 99, 235, 0.1);
-    --brand-ring: rgba(37, 99, 235, 0.55);
-    --brand-ring-soft: rgba(37, 99, 235, 0.12);
-    --brand-1: #5b6cf9;
+    --surface-2: #edf2f9;
+    --surface-hover: #f1f5fb;
+    --border: rgba(15, 23, 42, 0.085);
+    --border-hover: rgba(0, 102, 255, 0.28);
+    --text: #0f172a;
+    --text-2: #52627a;
+    --text-3: #7c8ba1;
+    --brand: #0066ff;
+    --brand-fg: #ffffff;
+    --brand-hover: #0055d6;
+    --brand-soft: rgba(0, 102, 255, 0.09);
+    --brand-ring: rgba(0, 102, 255, 0.5);
+    --brand-ring-soft: rgba(0, 102, 255, 0.14);
+    --brand-1: #0066ff;
     --brand-2: #0ea5e9;
-    --brand-3: #8b5cf6;
+    --brand-3: #6366f1;
     --ok: #10b981;
     --danger: #ef4444;
-    --danger-soft: rgba(239, 68, 68, 0.06);
-    --danger-border: rgba(239, 68, 68, 0.25);
+    --danger-soft: rgba(239, 68, 68, 0.07);
+    --danger-border: rgba(239, 68, 68, 0.24);
     --warn: #d97706;
-    --grid-line: rgba(15, 23, 42, 0.028);
-    --glass: rgba(255, 255, 255, 0.88);
+    --grid-line: rgba(15, 23, 42, 0.024);
+    --glass: rgba(255, 255, 255, 0.78);
+    --glass-border: rgba(255, 255, 255, 0.65);
     --icon-shadow-mix: 100%;
-    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
-    --shadow-md: 0 8px 28px -14px rgba(15, 23, 42, 0.22);
-    --radius: 16px;
-    --font: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
-    --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.035), 0 6px 16px -6px rgba(15, 23, 42, 0.06);
+    --shadow-md: 0 2px 6px rgba(15, 23, 42, 0.04), 0 16px 36px -12px rgba(15, 23, 42, 0.12);
+    --shadow-pop: 0 4px 14px rgba(15, 23, 42, 0.06), 0 24px 54px -14px rgba(15, 23, 42, 0.22);
+    --radius: 18px;
+    --radius-md: 12px;
+    --radius-sm: 9px;
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    --mono: "SF Mono", "JetBrains Mono", "Cascadia Code", Consolas, monospace;
     --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-        --bg: #0e1420;
-        --bg-soft: #151c2b;
-        --surface: #1a2234;
-        --surface-2: #212b40;
-        --surface-hover: #212b40;
-        --border: #2a354c;
-        --border-hover: #3b4a68;
-        --text: #e2e8f0;
-        --text-2: #a3b0c4;
-        --text-3: #7f8ca6;
-        --brand: #60a5fa;
-        --brand-soft: rgba(96, 165, 250, 0.14);
-        --brand-ring: rgba(96, 165, 250, 0.6);
-        --brand-ring-soft: rgba(96, 165, 250, 0.18);
-        --brand-1: #818cf8;
+        --bg: #0b0f17;
+        --bg-soft: #111723;
+        --surface: #161e2e;
+        --surface-2: #1e293d;
+        --surface-hover: #1d273b;
+        --border: rgba(226, 232, 240, 0.09);
+        --border-hover: rgba(59, 130, 246, 0.42);
+        --text: #f1f5f9;
+        --text-2: #9fb0c7;
+        --text-3: #73849e;
+        --brand: #3b82f6;
+        --brand-fg: #ffffff;
+        --brand-hover: #2563eb;
+        --brand-soft: rgba(59, 130, 246, 0.15);
+        --brand-ring: rgba(59, 130, 246, 0.58);
+        --brand-ring-soft: rgba(59, 130, 246, 0.18);
+        --brand-1: #60a5fa;
         --brand-2: #38bdf8;
-        --brand-3: #a78bfa;
+        --brand-3: #818cf8;
         --ok: #34d399;
         --danger: #f87171;
-        --danger-soft: rgba(248, 113, 113, 0.1);
-        --danger-border: rgba(248, 113, 113, 0.3);
+        --danger-soft: rgba(248, 113, 113, 0.11);
+        --danger-border: rgba(248, 113, 113, 0.28);
         --warn: #fbbf24;
-        --grid-line: rgba(148, 163, 184, 0.045);
-        --glass: rgba(26, 34, 52, 0.88);
+        --grid-line: rgba(148, 163, 184, 0.04);
+        --glass: rgba(22, 30, 46, 0.76);
+        --glass-border: rgba(255, 255, 255, 0.08);
         --icon-shadow-mix: 35%;
-        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-        --shadow-md: 0 8px 28px -14px rgba(0, 0, 0, 0.55);
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        --shadow-md: 0 16px 38px -12px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        --shadow-pop: 0 24px 58px -12px rgba(0, 0, 0, 0.68), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
     :root:not([data-theme="light"]) { color-scheme: dark; }
 }
 
-/* 手动指定暗色（palette.js 主题开关写入 data-theme） */
+/* 手动指定暗色（theme.js 写入 data-theme） */
 :root[data-theme="dark"] {
     color-scheme: dark;
-    --bg: #0e1420;
-    --bg-soft: #151c2b;
-    --surface: #1a2234;
-    --surface-2: #212b40;
-    --surface-hover: #212b40;
-    --border: #2a354c;
-    --border-hover: #3b4a68;
-    --text: #e2e8f0;
-    --text-2: #a3b0c4;
-    --text-3: #7f8ca6;
-    --brand: #60a5fa;
-    --brand-soft: rgba(96, 165, 250, 0.14);
-    --brand-ring: rgba(96, 165, 250, 0.6);
-    --brand-ring-soft: rgba(96, 165, 250, 0.18);
-    --brand-1: #818cf8;
+    --bg: #0b0f17;
+    --bg-soft: #111723;
+    --surface: #161e2e;
+    --surface-2: #1e293d;
+    --surface-hover: #1d273b;
+    --border: rgba(226, 232, 240, 0.09);
+    --border-hover: rgba(59, 130, 246, 0.42);
+    --text: #f1f5f9;
+    --text-2: #9fb0c7;
+    --text-3: #73849e;
+    --brand: #3b82f6;
+    --brand-fg: #ffffff;
+    --brand-hover: #2563eb;
+    --brand-soft: rgba(59, 130, 246, 0.15);
+    --brand-ring: rgba(59, 130, 246, 0.58);
+    --brand-ring-soft: rgba(59, 130, 246, 0.18);
+    --brand-1: #60a5fa;
     --brand-2: #38bdf8;
-    --brand-3: #a78bfa;
+    --brand-3: #818cf8;
     --ok: #34d399;
     --danger: #f87171;
-    --danger-soft: rgba(248, 113, 113, 0.1);
-    --danger-border: rgba(248, 113, 113, 0.3);
+    --danger-soft: rgba(248, 113, 113, 0.11);
+    --danger-border: rgba(248, 113, 113, 0.28);
     --warn: #fbbf24;
-    --grid-line: rgba(148, 163, 184, 0.045);
-    --glass: rgba(26, 34, 52, 0.88);
+    --grid-line: rgba(148, 163, 184, 0.04);
+    --glass: rgba(22, 30, 46, 0.76);
+    --glass-border: rgba(255, 255, 255, 0.08);
     --icon-shadow-mix: 35%;
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 8px 28px -14px rgba(0, 0, 0, 0.55);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    --shadow-md: 0 16px 38px -12px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    --shadow-pop: 0 24px 58px -12px rgba(0, 0, 0, 0.68), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 /* 手动指定浅色时锁定 color-scheme，避免系统暗色下表单控件仍按暗色渲染 */

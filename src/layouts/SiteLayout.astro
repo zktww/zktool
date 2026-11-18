@@ -37,17 +37,29 @@ const alternate = locale === "en" ? (path.replace(/^\/en/, "") || "/") : (path =
     <link rel="alternate" hreflang="x-default" href={origin + (locale === "en" ? alternate : path)} />
   </head>
   <body>
+    <div class="site-ambient" aria-hidden="true"></div>
     <header class="site-header">
-      <a class="site-brand" href={locale === "en" ? "/en/" : "/"}><span class="brand-mark" aria-hidden="true">Z</span><span>zktool</span></a>
+      <a class="site-brand" href={locale === "en" ? "/en/" : "/"}>
+        <span class="brand-mark" aria-hidden="true">Z</span>
+        <span class="brand-name">zktool</span>
+      </a>
       <nav class="zk-actions" aria-label={locale === "en" ? "Site settings" : "站点设置"}>
         <a class="zk-lang-link" href={alternate} lang={locale === "en" ? "zh-CN" : "en"}>{locale === "en" ? "中文" : "EN"}</a>
       </nav>
     </header>
     <slot />
     <footer class="site-footer">
-      <span>{locale === "en" ? `${localTools} local tools · ${externalTools} external service` : `${localTools} 个本地工具 · ${externalTools} 个外部服务`}</span>
-      <a href="https://github.com/zktww/zktool/issues" target="_blank" rel="noopener noreferrer">{locale === "en" ? "Feedback" : "问题反馈"}</a>
-      <details><summary>{locale === "en" ? "Privacy & storage" : "隐私与本地存储"}</summary><p>{locale === "en" ? "Tool inputs are processed locally. Some tools save drafts in this browser. Sensitive tools require opt-in; shared links may contain your input. Production tool pages use Baidu Analytics for visit statistics. External services have their own policies." : "工具输入在浏览器本地处理。部分工具会保存本地草稿，敏感工具需主动开启；分享链接可能包含输入内容。线上工具页使用百度统计记录访问情况，外部服务适用其自身隐私规则。"}</p></details>
+      <div class="footer-card">
+        <div class="footer-main">
+          <span>{locale === "en" ? `${localTools} local tools · ${externalTools} external service` : `${localTools} 个本地工具 · ${externalTools} 个外部服务`}</span>
+          <span class="footer-dot" aria-hidden="true">·</span>
+          <a href="https://github.com/zktww/zktool/issues" target="_blank" rel="noopener noreferrer">{locale === "en" ? "Feedback on GitHub" : "GitHub 问题反馈"}</a>
+        </div>
+        <details>
+          <summary>{locale === "en" ? "Privacy & local storage" : "隐私与本地存储说明"}</summary>
+          <p>{locale === "en" ? "Tool inputs are processed locally. Some tools save drafts in this browser. Sensitive tools require opt-in; shared links may contain your input. Production tool pages use Baidu Analytics for visit statistics. External services have their own policies." : "工具输入在浏览器本地处理。部分工具会保存本地草稿，敏感工具需主动开启；分享链接可能包含输入内容。线上工具页使用百度统计记录访问情况，外部服务适用其自身隐私规则。"}</p>
+        </details>
+      </div>
     </footer>
     <script is:inline>
       if ("serviceWorker" in navigator && location.protocol === "https:") {
@@ -60,15 +72,88 @@ const alternate = locale === "en" ? (path.replace(/^\/en/, "") || "/") : (path =
 </html>
 
 <style is:global>
-:root { font-family: var(--font); background: var(--bg); color: var(--text); }
+:root { font-family: var(--font); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
 * { box-sizing: border-box; }
-body { margin: 0; min-width: 320px; }
-.site-header { position: relative; width: min(1180px, calc(100% - 2.5rem)); margin: 0 auto; min-height: 4.4rem; display: flex; align-items: center; justify-content: space-between; }
-.site-header::after { content: ""; position: absolute; right: 0; bottom: 0; left: 0; height: 1px; background: var(--border); }
-.site-brand { display: inline-flex; align-items: center; gap: .55rem; color: var(--text); font-size: 1rem; font-weight: 760; letter-spacing: 0; text-decoration: none; }
-.site-footer { display: flex; flex-wrap: wrap; gap: 1rem; width: min(1180px, calc(100% - 2.5rem)); margin: 2rem auto; padding-top: 1.5rem; border-top: 1px solid var(--border); color: var(--text-2); font-size: .85rem; }
-.site-footer a, .site-footer summary { color: var(--text-2); cursor: pointer; }
-.site-footer p { max-width: 42rem; line-height: 1.7; }
-.brand-mark { display: grid; width: 1.45rem; height: 1.45rem; place-items: center; border-radius: 4px; background: #2563eb; color: #fff; font-size: .72rem; font-weight: 800; line-height: 1; }
-@media (max-width: 520px) { .site-header { width: min(100% - 1.25rem, 42rem); min-height: 4rem; } }
+[hidden] { display: none !important; }
+body { margin: 0; min-width: 320px; position: relative; overflow-x: hidden; }
+.site-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 58% 42% at 16% -6%, var(--brand-soft), transparent 65%),
+    radial-gradient(ellipse 46% 36% at 86% 2%, rgba(14, 165, 233, 0.08), transparent 60%),
+    radial-gradient(ellipse 50% 36% at 50% 106%, rgba(16, 185, 129, 0.05), transparent 65%),
+    var(--bg);
+}
+.site-header {
+  position: sticky;
+  top: 0.85rem;
+  z-index: 90;
+  width: min(1220px, calc(100% - 2rem));
+  margin: 0.85rem auto 0;
+  padding: 0.45rem 0.55rem 0.45rem 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--glass);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  backdrop-filter: saturate(180%) blur(18px);
+  box-shadow: var(--shadow-sm);
+}
+.site-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--text);
+  font-size: 0.98rem;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+.brand-mark {
+  display: grid;
+  width: 1.7rem;
+  height: 1.7rem;
+  place-items: center;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 3px 10px -2px rgba(0, 102, 255, 0.38);
+}
+.site-footer {
+  width: min(1220px, calc(100% - 2rem));
+  margin: 2.5rem auto 2.2rem;
+}
+.footer-card {
+  padding: 1.1rem 1.35rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-2);
+  font-size: 0.84rem;
+}
+.footer-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+.footer-dot { color: var(--text-3); }
+.site-footer a { color: var(--brand); font-weight: 600; text-decoration: none; }
+.site-footer a:hover { text-decoration: underline; }
+.site-footer details { margin-top: 0.55rem; }
+.site-footer summary { color: var(--text-3); font-size: 0.8rem; cursor: pointer; user-select: none; }
+.site-footer p { max-width: 52rem; margin: 0.45rem 0 0; color: var(--text-2); font-size: 0.8rem; line-height: 1.65; }
+@media (max-width: 560px) {
+  .site-header { width: calc(100% - 1.25rem); top: 0.55rem; margin-top: 0.55rem; }
+  .site-footer { width: calc(100% - 1.25rem); }
+}
 </style>

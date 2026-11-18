@@ -264,7 +264,7 @@
         return null;
     }
 
-    /* ── 面包屑：把「← 返回主页」升级为 首页 › 分组 › 工具名 ── */
+    /* ── 面包屑：把「← 返回主页」升级为 [Z] 首页 › 分组 › 工具名 ── */
     function mountBreadcrumb() {
         var back = document.querySelector(".top .back");
         var tool = currentTool();
@@ -275,13 +275,25 @@
         nav.className = "zk-crumb";
         nav.setAttribute("aria-label", text("Breadcrumb", "面包屑"));
         var localeRoot = root + (window.zkLocalePrefix || "");
-        var html = "<a href='" + localeRoot + "'>" + text("Home", "首页") + "</a>";
+        var html = "<a href='" + localeRoot + "' class='zk-crumb-home'><span class='zk-brand-dot' aria-hidden='true'>Z</span><span>" + text("Home", "首页") + "</span></a>";
         if (grp) html += "<span class='zk-crumb-sep' aria-hidden='true'>›</span>" +
             "<a href='" + localeRoot + "#group-" + grp.key + "'>" + grp.title + "</a>";
         html += "<span class='zk-crumb-sep' aria-hidden='true'>›</span>" +
             "<span class='zk-crumb-cur' aria-current='page'>" + tool.name + "</span>";
         nav.innerHTML = html;
         back.replaceWith(nav);
+    }
+
+    /* ── 记录最近访问工具（供首页 Craft Bento Dock 与 Cmd+K 面板使用）── */
+    function recordRecent() {
+        var tool = currentTool();
+        if (!tool || !tool.path) return;
+        tryLS(function () {
+            var prev = JSON.parse(localStorage.getItem("zktool.recents") || "[]");
+            if (!Array.isArray(prev)) prev = [];
+            var next = [tool.path].concat(prev.filter(function (p) { return p !== tool.path; })).slice(0, 8);
+            localStorage.setItem("zktool.recents", JSON.stringify(next));
+        });
     }
 
     /* ── 全部工具下拉菜单（按分域分组）+ GitHub 按钮，挂在 .zk-actions ── */
@@ -393,6 +405,7 @@
     }
 
     function mountNav() {
+        recordRecent();
         mountBreadcrumb();
         mountNavButtons();
         mountRelated();
@@ -644,6 +657,375 @@
         }).catch(function () { /* 注册失败不影响使用 */ });
     }
 
+    /* ── 5. 全站自定义下拉菜单（接管原生 <select>）── */
+    var activeSelect = null;
+
+    function closeActiveSelect(restoreFocus) {
+        if (!activeSelect) return;
+        var cur = activeSelect;
+        activeSelect = null;
+        cur.btn.setAttribute("aria-expanded", "false");
+        if (cur.pop && cur.pop.parentNode) cur.pop.parentNode.removeChild(cur.pop);
+        document.removeEventListener("mousedown", cur.onDocDown, true);
+        document.removeEventListener("keydown", cur.onKeyDown, true);
+        window.removeEventListener("resize", cur.onViewport);
+        window.removeEventListener("scroll", cur.onScroll, true);
+        if (restoreFocus && cur.btn && !cur.btn.disabled && cur.btn.focus) {
+            try { cur.btn.focus({ preventScroll: true }); } catch (e) { cur.btn.focus(); }
+        }
+    }
+
+    function enhanceSelect(sel) {
+        if (!sel || sel._zkEnhanced || sel.multiple || (sel.size && sel.size > 1) || sel.hasAttribute("data-zk-native")) return;
+        if (!sel.parentNode) return;
+        sel._zkEnhanced = true;
+
+        var wrap = document.createElement("div");
+        wrap.className = "zk-select" + (sel.className ? " " + sel.className : "");
+        if (sel.style && sel.style.cssText) {
+            wrap.style.cssText = sel.style.cssText;
+            if (sel.style.display === "inline-block" || sel.style.display === "inline-flex") wrap.style.marginTop = "0";
+        }
+
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "zk-select-btn";
+        btn.setAttribute("aria-haspopup", "listbox");
+        btn.setAttribute("aria-expanded", "false");
+
+        var labelSpan = document.createElement("span");
+        labelSpan.className = "zk-select-label";
+
+        var arrow = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        arrow.setAttribute("class", "zk-select-arrow");
+        arrow.setAttribute("viewBox", "0 0 24 24");
+        arrow.setAttribute("fill", "none");
+        arrow.setAttribute("stroke", "currentColor");
+        arrow.setAttribute("stroke-width", "2.2");
+        arrow.setAttribute("stroke-linecap", "round");
+        arrow.setAttribute("stroke-linejoin", "round");
+        arrow.setAttribute("aria-hidden", "true");
+        arrow.innerHTML = "<polyline points='6 9 12 15 18 9'/>";
+
+        btn.appendChild(labelSpan);
+        btn.appendChild(arrow);
+
+        sel.parentNode.insertBefore(wrap, sel);
+        wrap.appendChild(btn);
+        wrap.appendChild(sel);
+
+        sel.className = (sel.className ? sel.className + " " : "") + "zk-select-native";
+        sel.tabIndex = -1;
+        sel.setAttribute("aria-hidden", "true");
+
+        function sync() {
+            var ariaLabel = sel.getAttribute("aria-label");
+            if (ariaLabel) btn.setAttribute("aria-label", ariaLabel);
+            btn.disabled = !!sel.disabled;
+            var opts = sel.options || [];
+            var idx = sel.selectedIndex;
+            var picked = (idx >= 0 && idx < opts.length) ? opts[idx] : (opts[0] || null);
+            labelSpan.textContent = picked ? picked.textContent : "";
+            if (activeSelect && activeSelect.sel === sel) {
+                if (sel.disabled || !opts.length) closeActiveSelect(false);
+                else activeSelect.rebuild();
+            }
+        }
+
+        if (typeof HTMLSelectElement !== "undefined") {
+            try {
+                var proto = HTMLSelectElement.prototype;
+                ["value", "selectedIndex", "disabled"].forEach(function (prop) {
+                    var desc = Object.getOwnPropertyDescriptor(proto, prop);
+                    if (desc && desc.get && desc.set) {
+                        Object.defineProperty(sel, prop, {
+                            configurable: true,
+                            enumerable: true,
+                            get: function () { return desc.get.call(this); },
+                            set: function (v) { desc.set.call(this, v); sync(); }
+                        });
+                    }
+                });
+            } catch (e) { /* 环境不支持属性拦截时回退事件与观察器 */ }
+        }
+
+        sel.addEventListener("change", sync);
+        sel.addEventListener("input", sync);
+        sel.addEventListener("focus", function () {
+            if (!sel.disabled) btn.focus();
+        });
+
+        if (typeof MutationObserver !== "undefined") {
+            var mo = new MutationObserver(sync);
+            mo.observe(sel, { childList: true, subtree: true, attributes: true, attributeFilter: ["disabled", "aria-label"] });
+        }
+
+        function openMenu() {
+            if (sel.disabled || !sel.options || !sel.options.length) return;
+            closeActiveSelect(false);
+
+            var pop = document.createElement("div");
+            pop.className = "zk-select-popover";
+
+            var searchable = sel.options.length >= 8;
+            var searchInput = null;
+            if (searchable) {
+                var sw = document.createElement("div");
+                sw.className = "zk-select-search-wrap";
+                searchInput = document.createElement("input");
+                searchInput.type = "search";
+                searchInput.className = "zk-select-search";
+                searchInput.autocomplete = "off";
+                searchInput.spellcheck = false;
+                searchInput.setAttribute("data-zk-off", "");
+                searchInput.placeholder = text("Filter options...", "搜索选项…");
+                searchInput.setAttribute("aria-label", searchInput.placeholder);
+                sw.appendChild(searchInput);
+                pop.appendChild(sw);
+            }
+
+            var listEl = document.createElement("div");
+            listEl.className = "zk-select-list";
+            listEl.setAttribute("role", "listbox");
+            if (btn.getAttribute("aria-label")) listEl.setAttribute("aria-label", btn.getAttribute("aria-label"));
+            pop.appendChild(listEl);
+
+            var enabledButtons = [];
+            var activeIdx = -1;
+
+            function setHighlight(nextIdx, scroll) {
+                if (!enabledButtons.length) { activeIdx = -1; return; }
+                if (nextIdx < 0) nextIdx = enabledButtons.length - 1;
+                if (nextIdx >= enabledButtons.length) nextIdx = 0;
+                activeIdx = nextIdx;
+                enabledButtons.forEach(function (b, i) {
+                    b.classList.toggle("is-active", i === activeIdx);
+                });
+                if (scroll && enabledButtons[activeIdx] && enabledButtons[activeIdx].scrollIntoView) {
+                    enabledButtons[activeIdx].scrollIntoView({ block: "nearest" });
+                }
+            }
+
+            function selectOptionIndex(optIdx) {
+                var prev = sel.selectedIndex;
+                sel.selectedIndex = optIdx;
+                sync();
+                closeActiveSelect(true);
+                if (optIdx !== prev) {
+                    sel.dispatchEvent(new Event("input", { bubbles: true }));
+                    sel.dispatchEvent(new Event("change", { bubbles: true }));
+                }
+            }
+
+            function createOptionButton(opt, optIdx, isDisabled) {
+                var item = document.createElement("button");
+                item.type = "button";
+                item.className = "zk-select-opt";
+                item.setAttribute("role", "option");
+                var isSelected = optIdx === sel.selectedIndex;
+                item.setAttribute("aria-selected", isSelected ? "true" : "false");
+                if (isDisabled) {
+                    item.disabled = true;
+                    item.setAttribute("aria-disabled", "true");
+                }
+                item.dataset.optIndex = String(optIdx);
+
+                var span = document.createElement("span");
+                span.className = "zk-select-opt-text";
+                span.textContent = opt.textContent;
+
+                var chk = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                chk.setAttribute("class", "zk-select-check");
+                chk.setAttribute("viewBox", "0 0 24 24");
+                chk.setAttribute("fill", "none");
+                chk.setAttribute("stroke", "currentColor");
+                chk.setAttribute("stroke-width", "2.5");
+                chk.setAttribute("stroke-linecap", "round");
+                chk.setAttribute("stroke-linejoin", "round");
+                chk.setAttribute("aria-hidden", "true");
+                chk.innerHTML = "<polyline points='20 6 9 17 4 12'/>";
+
+                item.appendChild(span);
+                item.appendChild(chk);
+
+                if (!isDisabled) {
+                    var pos = enabledButtons.length;
+                    enabledButtons.push(item);
+                    if (isSelected && activeIdx === -1) activeIdx = pos;
+                    item.addEventListener("mouseenter", function () { setHighlight(pos, false); });
+                    item.addEventListener("click", function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        selectOptionIndex(optIdx);
+                    });
+                }
+                return item;
+            }
+
+            function buildList() {
+                var q = searchInput ? searchInput.value.trim().toLowerCase() : "";
+                listEl.innerHTML = "";
+                enabledButtons = [];
+                activeIdx = -1;
+                var allOpts = Array.prototype.slice.call(sel.options);
+                var count = 0;
+
+                function matches(opt, groupLabel) {
+                    if (!q) return true;
+                    return opt.textContent.toLowerCase().indexOf(q) !== -1 ||
+                        String(opt.value).toLowerCase().indexOf(q) !== -1 ||
+                        (groupLabel && groupLabel.toLowerCase().indexOf(q) !== -1);
+                }
+
+                Array.prototype.forEach.call(sel.children, function (node) {
+                    if (node.tagName === "OPTGROUP") {
+                        var glabel = node.getAttribute("label") || "";
+                        var gDis = !!node.disabled;
+                        var matchedItems = [];
+                        Array.prototype.forEach.call(node.children, function (opt) {
+                            if (opt.tagName !== "OPTION" || !matches(opt, glabel)) return;
+                            var idx = allOpts.indexOf(opt);
+                            matchedItems.push(createOptionButton(opt, idx, gDis || !!opt.disabled));
+                        });
+                        if (matchedItems.length) {
+                            if (glabel) {
+                                var gh = document.createElement("div");
+                                gh.className = "zk-select-group";
+                                gh.textContent = glabel;
+                                listEl.appendChild(gh);
+                            }
+                            matchedItems.forEach(function (el) { listEl.appendChild(el); count++; });
+                        }
+                    } else if (node.tagName === "OPTION") {
+                        if (!matches(node, "")) return;
+                        var idx = allOpts.indexOf(node);
+                        listEl.appendChild(createOptionButton(node, idx, !!node.disabled));
+                        count++;
+                    }
+                });
+
+                if (!count) {
+                    var empty = document.createElement("div");
+                    empty.className = "zk-select-empty";
+                    empty.textContent = text("No matching options", "无匹配选项");
+                    listEl.appendChild(empty);
+                } else {
+                    setHighlight(activeIdx >= 0 ? activeIdx : 0, true);
+                }
+            }
+
+            function reposition() {
+                var rect = btn.getBoundingClientRect();
+                var vw = window.innerWidth || document.documentElement.clientWidth;
+                var vh = window.innerHeight || document.documentElement.clientHeight;
+                if (rect.bottom < 0 || rect.top > vh) { closeActiveSelect(false); return; }
+
+                var minW = Math.min(vw - 16, Math.max(rect.width, searchable ? 220 : 136));
+                var maxW = Math.min(vw - 16, Math.max(rect.width, 340));
+                pop.style.minWidth = minW + "px";
+                pop.style.maxWidth = maxW + "px";
+
+                var spaceBelow = vh - rect.bottom - 10;
+                var spaceAbove = rect.top - 10;
+                var extra = searchable ? 52 : 12;
+                if (spaceBelow < 200 && spaceAbove > spaceBelow) {
+                    pop.style.top = "auto";
+                    pop.style.bottom = (vh - rect.top + 6) + "px";
+                    listEl.style.maxHeight = Math.max(96, Math.min(280, spaceAbove - extra)) + "px";
+                } else {
+                    pop.style.bottom = "auto";
+                    pop.style.top = (rect.bottom + 6) + "px";
+                    listEl.style.maxHeight = Math.max(96, Math.min(280, spaceBelow - extra)) + "px";
+                }
+
+                var pw = pop.offsetWidth || minW;
+                var left = Math.max(8, Math.min(rect.left, vw - pw - 8));
+                pop.style.left = left + "px";
+            }
+
+            function onDocDown(e) {
+                if (!pop.contains(e.target) && !wrap.contains(e.target)) closeActiveSelect(false);
+            }
+
+            function onScroll(e) {
+                if (pop.contains(e.target)) return;
+                reposition();
+            }
+
+            function onKeyDown(e) {
+                if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeActiveSelect(true); return; }
+                if (e.key === "Tab") { closeActiveSelect(false); return; }
+                if (e.key === "ArrowDown") { e.preventDefault(); setHighlight(activeIdx + 1, true); return; }
+                if (e.key === "ArrowUp") { e.preventDefault(); setHighlight(activeIdx - 1, true); return; }
+                if (e.key === "Home" && (!searchInput || !searchInput.value)) { e.preventDefault(); setHighlight(0, true); return; }
+                if (e.key === "End" && (!searchInput || !searchInput.value)) { e.preventDefault(); setHighlight(enabledButtons.length - 1, true); return; }
+                if (e.key === "Enter" || (e.key === " " && document.activeElement !== searchInput)) {
+                    if (activeIdx >= 0 && enabledButtons[activeIdx]) {
+                        e.preventDefault();
+                        selectOptionIndex(Number(enabledButtons[activeIdx].dataset.optIndex));
+                    }
+                }
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener("input", function () {
+                    buildList();
+                    reposition();
+                });
+            }
+
+            buildList();
+            document.body.appendChild(pop);
+            btn.setAttribute("aria-expanded", "true");
+            reposition();
+
+            if (activeIdx >= 0 && enabledButtons[activeIdx] && enabledButtons[activeIdx].scrollIntoView) {
+                enabledButtons[activeIdx].scrollIntoView({ block: "nearest" });
+            }
+            if (searchInput && window.matchMedia && window.matchMedia("(pointer: fine)").matches) {
+                try { searchInput.focus({ preventScroll: true }); } catch (e) { searchInput.focus(); }
+            }
+
+            activeSelect = {
+                sel: sel,
+                btn: btn,
+                pop: pop,
+                rebuild: function () { buildList(); reposition(); },
+                onDocDown: onDocDown,
+                onKeyDown: onKeyDown,
+                onViewport: reposition,
+                onScroll: onScroll
+            };
+
+            document.addEventListener("mousedown", onDocDown, true);
+            document.addEventListener("keydown", onKeyDown, true);
+            window.addEventListener("resize", reposition);
+            window.addEventListener("scroll", onScroll, true);
+        }
+
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            if (activeSelect && activeSelect.sel === sel) closeActiveSelect(false);
+            else openMenu();
+        });
+
+        btn.addEventListener("keydown", function (e) {
+            if (!activeSelect && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+                e.preventDefault();
+                openMenu();
+            }
+        });
+
+        sync();
+    }
+
+    function mountSelects(root) {
+        var scope = root || document;
+        if (!scope || !scope.querySelectorAll) return;
+        var list = scope.querySelectorAll("select");
+        for (var i = 0; i < list.length; i++) enhanceSelect(list[i]);
+    }
+
     function init() {
         var fromShare = manual() ? false : zkShare.restore();
         if (!fromShare && !manual()) {
@@ -663,6 +1045,7 @@
             }
         }
         if (!manual()) initDraft(fromShare);
+        mountSelects();
         mountPrivacyControls();
         mountButtons();
         mountNav();
@@ -672,6 +1055,7 @@
     window.zkShare = zkShare;
     window.zkPipe = zkPipe;
     window.zkToast = toast;
+    window.zkMountSelects = mountSelects;
 
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
     else init();

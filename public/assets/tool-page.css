@@ -1,17 +1,16 @@
 @charset "UTF-8";
 @import url("tool-shell.css");
 
-/* zktool 工具页公共组件：面板、表单、按钮、输出区等内容组件。
-   页面骨架（reset/背景/返回条/标题/seo-notes）在 tool-shell.css。 */
+/* zktool 工具页公共组件（Craft Bento 温润便当盒体系）：
+   18px 悬浮面板、12px 柔和控件、实心科技蓝主按钮与分段胶囊标签。 */
 
 .tool-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
-    gap: 1rem;
+    gap: 1.05rem;
     align-items: stretch;
 }
 
-/* 两栏纵向弹性布局：主输入区与结果区各自撑满整行高度，底边始终对齐 */
 .tool-grid > section.panel,
 .tool-grid > aside {
     display: flex;
@@ -19,10 +18,9 @@
     min-width: 0;
 }
 
-.tool-grid > aside { gap: 1rem; }
+.tool-grid > aside { gap: 1.05rem; }
 .tool-grid > aside > .panel + .panel { margin-top: 0; }
 
-/* 每栏第一个面板作为弹性主体，吸收高度差 */
 .tool-grid > aside > .panel:first-child {
     flex: 1;
     display: flex;
@@ -36,7 +34,6 @@
     max-height: 60vh;
 }
 
-/* 左栏为单面板时，让 textarea 弹性伸展填满 */
 .tool-grid > section.panel > textarea {
     flex: 1;
     min-height: 14rem;
@@ -44,34 +41,33 @@
 
 .panel {
     min-width: 0;
-    padding: 1.15rem;
+    padding: 1.25rem;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background: var(--surface);
     box-shadow: var(--shadow-sm);
 }
 
-.panel + .panel { margin-top: 1rem; }
+.panel + .panel { margin-top: 1.05rem; }
 
 .panel h2 {
     display: flex;
     align-items: center;
     gap: 0.45rem;
-    margin-bottom: 0.85rem;
+    margin-bottom: 0.9rem;
     color: var(--text-2);
     font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
+    font-weight: 720;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
 }
 
-.row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.65rem; margin-bottom: 0.8rem; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.65rem; margin-bottom: 0.82rem; }
 .row:last-child { margin-bottom: 0; }
 textarea + .drop { margin-top: 1rem; }
 .row .hint { margin-top: 0; }
 
-/* 面板内的操作行与上方输入/输出保持呼吸感；标题首行和连续表单行不叠加间距。 */
-.panel > .row { margin-top: 0.8rem; }
+.panel > .row { margin-top: 0.82rem; }
 .panel > h2 + .row,
 .panel > .row:first-child,
 .panel > .row + .row { margin-top: 0; }
@@ -83,28 +79,41 @@ textarea + .drop { margin-top: 1rem; }
 .min-h-6 { min-height: 6rem; }
 .min-h-8 { min-height: 8rem; }
 
-label, .label { color: var(--text-2); font-size: 0.86rem; }
-label > input, label > select, label > textarea { margin-top: 0.3rem; }
+label, .label { color: var(--text-2); font-size: 0.85rem; font-weight: 560; }
+label > input, label > select, label > .zk-select, label > textarea { margin-top: 0.34rem; }
+
+.zk-select { display: flex; width: 100%; }
+.zk-select.grow { flex: 1; min-width: 0; }
+.zk-select.w-8 { width: 8rem; }
+.row > .zk-select:not(.grow):not(.w-8),
+.opts label > .zk-select { display: inline-flex; width: auto; margin-top: 0; }
 
 input, textarea, select {
     width: 100%;
     min-width: 0;
     font: inherit;
+    font-weight: 450;
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     background: var(--bg-soft);
     color: var(--text);
     outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease), background 0.2s var(--ease);
 }
 
-input, select { min-height: 2.5rem; padding: 0.55rem 0.75rem; }
+input:hover:not(:disabled):not(:focus),
+textarea:hover:not(:disabled):not(:focus),
+select:hover:not(:disabled):not(:focus) {
+    border-color: var(--border-hover);
+}
+
+input, select { min-height: 2.55rem; padding: 0.55rem 0.82rem; }
 
 input[type="checkbox"], input[type="radio"] {
     width: auto;
     min-height: 0;
     padding: 0;
-    margin-right: 0.35rem;
+    margin-right: 0.38rem;
     accent-color: var(--brand);
     vertical-align: -0.1em;
 }
@@ -118,16 +127,17 @@ input[type="color"] {
 
 textarea {
     min-height: 14rem;
-    padding: 0.75rem 0.85rem;
+    padding: 0.8rem 0.9rem;
     resize: vertical;
     font-family: var(--mono);
-    font-size: 0.88rem;
-    line-height: 1.65;
+    font-size: 0.87rem;
+    line-height: 1.68;
 }
 
 input:focus, textarea:focus, select:focus {
     border-color: var(--brand-ring);
-    box-shadow: 0 0 0 3px var(--brand-ring-soft);
+    background: var(--surface);
+    box-shadow: 0 0 0 3.5px var(--brand-ring-soft);
 }
 
 input:disabled, textarea:disabled, select:disabled, .btn:disabled {
@@ -139,20 +149,20 @@ input:disabled, textarea:disabled, select:disabled, .btn:disabled {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.4rem;
-    min-height: 2.5rem;
-    padding: 0.55rem 0.95rem;
+    gap: 0.42rem;
+    min-height: 2.55rem;
+    padding: 0.55rem 1.02rem;
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     background: var(--surface);
-    color: var(--text-2);
+    color: var(--text);
     font: inherit;
     font-size: 0.86rem;
-    font-weight: 650;
+    font-weight: 620;
     white-space: nowrap;
     cursor: pointer;
     box-shadow: var(--shadow-sm);
-    transition: color 0.2s, border-color 0.2s, background 0.2s, transform 0.2s var(--ease);
+    transition: color 0.2s var(--ease), border-color 0.2s var(--ease), background 0.2s var(--ease), box-shadow 0.2s var(--ease), transform 0.2s var(--ease);
 }
 
 .btn:hover, .btn:focus-visible {
@@ -162,20 +172,38 @@ input:disabled, textarea:disabled, select:disabled, .btn:disabled {
     outline: none;
 }
 
-.btn:focus-visible { box-shadow: 0 0 0 3px var(--brand-ring-soft); }
+.btn:focus-visible { box-shadow: 0 0 0 3.5px var(--brand-ring-soft); }
 .btn:active { transform: scale(0.98); }
-.btn.primary { color: var(--brand); border-color: var(--brand-ring-soft); background: var(--brand-soft); }
-.btn.danger { color: var(--danger); border-color: var(--danger-border); background: var(--danger-soft); }
+
+.btn.primary {
+    color: var(--brand-fg);
+    border-color: transparent;
+    background: var(--brand);
+    box-shadow: 0 2px 8px -2px rgba(0, 102, 255, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.btn.primary:hover, .btn.primary:focus-visible {
+    color: var(--brand-fg);
+    border-color: transparent;
+    background: var(--brand-hover);
+    box-shadow: 0 4px 14px -3px rgba(0, 102, 255, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    transform: translateY(-1px);
+}
+
+.btn.primary:active { transform: scale(0.985); }
+
+.btn.danger { color: var(--danger); border-color: var(--danger-border); background: var(--danger-soft); box-shadow: none; }
+.btn.danger:hover, .btn.danger:focus-visible { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, var(--surface)); }
 
 .output {
     min-height: 10rem;
-    padding: 0.8rem 0.9rem;
+    padding: 0.85rem 0.95rem;
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     background: var(--bg-soft);
     color: var(--text);
     font-family: var(--mono);
-    font-size: 0.86rem;
+    font-size: 0.85rem;
     line-height: 1.7;
     white-space: pre-wrap;
     overflow: auto;
@@ -187,10 +215,10 @@ input:disabled, textarea:disabled, select:disabled, .btn:disabled {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    padding: 0.28rem 0.65rem;
+    padding: 0.3rem 0.68rem;
     border: 1px solid var(--border);
     border-radius: 999px;
-    background: var(--surface);
+    background: var(--bg-soft);
     color: var(--text-2);
     font-family: var(--mono);
     font-size: 0.76rem;
@@ -203,7 +231,7 @@ input:disabled, textarea:disabled, select:disabled, .btn:disabled {
 .mono { font-family: var(--mono); }
 
 table { width: 100%; border-collapse: collapse; }
-th, td { padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.86rem; word-break: break-word; }
+th, td { padding: 0.58rem 0.65rem; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.86rem; word-break: break-word; }
 th { color: var(--text-3); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
 tr:last-child td { border-bottom: 0; }
 
@@ -212,7 +240,7 @@ tr:last-child td { border-bottom: 0; }
     .tool-grid > aside > .panel:first-child { flex: none; }
     .tool-grid > aside > .panel:first-child > .output { flex: none; max-height: none; }
     .tool-grid > section.panel > textarea { flex: none; }
-    .panel { padding: 1rem; border-radius: 14px; }
+    .panel { padding: 1.05rem; border-radius: 16px; }
     .btn { flex: 1 1 auto; }
     .row { align-items: stretch; }
     textarea { min-height: 12rem; }

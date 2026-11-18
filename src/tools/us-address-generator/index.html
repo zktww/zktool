@@ -25,16 +25,20 @@
     <script defer src="../../assets/toolkit.js"></script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://tools.zktww.cn/"},{"@type":"ListItem","position":2,"name":"生成与凭证","item":"https://tools.zktww.cn/#group-gen"},{"@type":"ListItem","position":3,"name":"美国地址生成器","item":"https://tools.zktww.cn/tools/us-address-generator/"}]}</script>
     <style>
-        .controls-panel { margin-bottom: 1rem; }
-        .preset-bar { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 0.9rem; }
+        .controls-panel { margin-bottom: 1.05rem; }
+        .preset-bar {
+            display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.95rem;
+            padding: 0.35rem; border: 1px solid var(--border); border-radius: 14px;
+            background: var(--bg-soft);
+        }
         .preset-btn {
             display: inline-flex; align-items: center; gap: 0.35rem;
-            padding: 0.34rem 0.72rem; border: 1px solid var(--border); border-radius: 999px;
-            background: var(--bg-soft); color: var(--text-2); font: 600 0.78rem/1.2 inherit;
-            cursor: pointer; transition: color 0.18s, border-color 0.18s, background 0.18s;
+            padding: 0.38rem 0.78rem; border: 1px solid transparent; border-radius: 999px;
+            background: transparent; color: var(--text-2); font: 600 0.78rem/1.2 inherit;
+            cursor: pointer; transition: color 0.18s var(--ease), border-color 0.18s var(--ease), background 0.18s var(--ease), box-shadow 0.18s var(--ease);
         }
-        .preset-btn:hover, .preset-btn:focus-visible { color: var(--text); border-color: var(--border-hover); outline: none; }
-        .preset-btn.active { color: var(--brand); border-color: var(--brand-ring); background: var(--brand-soft); }
+        .preset-btn:hover, .preset-btn:focus-visible { color: var(--text); background: var(--surface-hover); outline: none; }
+        .preset-btn.active { color: var(--brand); border-color: var(--border); background: var(--surface); box-shadow: var(--shadow-sm); }
         .opt-grid {
             display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 0.65rem; margin-bottom: 0.85rem;
@@ -73,6 +77,7 @@
         .kv-row.copied .copy-tag { color: var(--ok); border-color: transparent; background: transparent; font-weight: 700; }
         .mailing-box { min-height: 6.4rem; max-height: 11rem; margin: 0; font-size: 0.84rem; line-height: 1.65; }
         .batch-panel { margin-top: 1rem; }
+        .batch-row { align-items: flex-end; }
         .batch-box { min-height: 13rem; max-height: 28rem; }
         .w-count { width: 7rem; }
         @media (max-width: 980px) {
@@ -191,7 +196,7 @@
 
     <section class="panel batch-panel" id="batchPanel" hidden>
         <h2>批量生成与导出</h2>
-        <div class="row">
+        <div class="row batch-row">
             <label class="w-count">数量
                 <input id="batchCount" type="number" min="1" max="100" value="10" aria-label="批量生成条数" />
             </label>

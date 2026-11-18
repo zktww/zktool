@@ -12,10 +12,10 @@ const body = topContainer.test(document.body)
   ? document.body.replace(topContainer, `$1${languageLink}`)
   : `<div class="legacy-language-fallback">${languageLink}</div>${document.body}`;
 const languageStyle = `<style>
-.language-link { display:inline-flex; align-items:center; justify-content:center; min-width:2.5rem; min-height:2rem; padding:0 .7rem; border:1px solid var(--border,#d7dee9); border-radius:6px; color:var(--text,#172033); background:var(--surface,#fff); font:600 .8rem/1 system-ui,sans-serif; text-decoration:none; }
-.language-link:hover { border-color:var(--brand); color:var(--brand); }
+.language-link { display:inline-flex; align-items:center; justify-content:center; min-width:2.25rem; height:2.25rem; padding:0 .72rem; border:1px solid var(--border,rgba(15,23,42,.085)); border-radius:999px; color:var(--text-2,#52627a); background:var(--surface,#fff); font:650 .78rem/1 system-ui,sans-serif; text-decoration:none; box-shadow:var(--shadow-sm); }
+.language-link:hover { border-color:var(--border-hover); color:var(--text); background:var(--surface-hover); }
 .language-link:focus-visible { outline:2px solid var(--brand); outline-offset:3px; }
-.legacy-language-fallback { width:min(1160px,calc(100% - 2rem)); margin:.75rem auto 0; display:flex; justify-content:flex-end; }
+.legacy-language-fallback { width:min(1260px,calc(100% - 2rem)); margin:.75rem auto 0; display:flex; justify-content:flex-end; }
 </style>`;
 ---
 <!doctype html>

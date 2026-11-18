@@ -182,3 +182,132 @@ test('US address generator covers 50 states + DC with valid ZIP/NANP rules and n
     assert.ok(counts[code] >= 2, `expected at least 2 verified addresses for ${code}`);
   }
 });
+
+test('toolkit custom select enhances native selects, filters long lists, and dispatches change events', async () => {
+  class MockNode extends EventTarget {
+    constructor(tag) {
+      super();
+      this.tagName = tag.toUpperCase();
+      this.className = '';
+      this.style = { cssText: '' };
+      this.dataset = {};
+      this.attributes = new Map();
+      this.children = [];
+      this.parentNode = null;
+      this.disabled = false;
+      this.textContent = '';
+      this._html = '';
+      this.value = '';
+      this.classList = {
+        toggle: (cls, force) => {
+          const set = new Set(this.className.split(/\s+/).filter(Boolean));
+          const add = force === undefined ? !set.has(cls) : Boolean(force);
+          if (add) set.add(cls); else set.delete(cls);
+          this.className = [...set].join(' ');
+        }
+      };
+    }
+    set innerHTML(v) { this._html = v; if (v === '') this.children = []; }
+    get innerHTML() { return this._html; }
+    setAttribute(k, v) { this.attributes.set(k, String(v)); }
+    getAttribute(k) { return this.attributes.get(k) ?? null; }
+    hasAttribute(k) { return this.attributes.has(k); }
+    appendChild(child) {
+      if (child.parentNode) child.parentNode.removeChild(child);
+      child.parentNode = this;
+      this.children.push(child);
+      return child;
+    }
+    removeChild(child) {
+      const idx = this.children.indexOf(child);
+      if (idx >= 0) { this.children.splice(idx, 1); child.parentNode = null; }
+      return child;
+    }
+    insertBefore(node, ref) {
+      const idx = this.children.indexOf(ref);
+      node.parentNode = this;
+      if (idx >= 0) this.children.splice(idx, 0, node);
+      else this.children.push(node);
+      return node;
+    }
+    contains(target) {
+      if (target === this) return true;
+      return this.children.some((c) => c.contains && c.contains(target));
+    }
+    focus() {}
+    getBoundingClientRect() { return { top: 80, bottom: 120, left: 24, width: 200, height: 40 }; }
+  }
+
+  const body = new MockNode('body');
+  const host = new MockNode('label');
+  body.appendChild(host);
+  const select = new MockNode('select');
+  select.setAttribute('aria-label', 'State');
+  const opts = [];
+  for (let i = 0; i < 9; i++) {
+    const opt = new MockNode('option');
+    opt.value = `S${i}`;
+    opt.textContent = i === 3 ? 'OR · Oregon (免税)' : `State ${i}`;
+    opts.push(opt);
+    select.appendChild(opt);
+  }
+  select.options = opts;
+  let selIdx = 0;
+  Object.defineProperty(select, 'selectedIndex', {
+    get: () => selIdx,
+    set: (v) => { selIdx = v; select.value = opts[v]?.value || ''; }
+  });
+  select.selectedIndex = 0;
+  host.appendChild(select);
+
+  const doc = {
+    readyState: 'loading',
+    documentElement: { clientWidth: 1024, clientHeight: 768 },
+    body,
+    getElementsByTagName: () => [],
+    querySelectorAll: (q) => (q === 'select' ? [select] : []),
+    querySelector: () => null,
+    createElement: (tag) => new MockNode(tag),
+    createElementNS: (_ns, tag) => new MockNode(tag),
+    createTextNode: (t) => ({ textContent: t }),
+    addEventListener() {},
+    removeEventListener() {}
+  };
+  const win = { innerWidth: 1024, innerHeight: 768, addEventListener() {}, removeEventListener() {} };
+  const context = {
+    window: win, document: doc, location: { pathname: '/tools/us-address-generator/', href: 'https://example.com/tools/us-address-generator/', hash: '', search: '' },
+    Event, TextEncoder, TextDecoder, URLSearchParams, btoa, atob, setTimeout, clearTimeout,
+    localStorage: { getItem: () => null, setItem() {}, removeItem() {} }
+  };
+  const source = await readFile(new URL('../public/assets/toolkit.js', import.meta.url), 'utf8');
+  vm.runInNewContext(source, context);
+  win.zkMountSelects(doc);
+
+  const wrap = host.children[0];
+  assert.match(wrap.className, /\bzk-select\b/);
+  const trigger = wrap.children[0];
+  assert.equal(trigger.children[0].textContent, 'State 0');
+
+  let changed = 0;
+  select.addEventListener('change', () => { changed++; });
+
+  trigger.dispatchEvent(new Event('click'));
+  assert.equal(trigger.getAttribute('aria-expanded'), 'true');
+  const pop = body.children.find((c) => c.className === 'zk-select-popover');
+  assert.ok(pop, 'expected popover mounted on document.body');
+
+  const searchInput = pop.children[0].children[0];
+  assert.equal(searchInput.className, 'zk-select-search', 'selects with >= 8 options include a search filter');
+  searchInput.value = 'oregon';
+  searchInput.dispatchEvent(new Event('input'));
+
+  const list = pop.children[1];
+  assert.equal(list.children.length, 1);
+  list.children[0].dispatchEvent(new Event('click'));
+
+  assert.equal(select.selectedIndex, 3);
+  assert.equal(select.value, 'S3');
+  assert.equal(changed, 1);
+  assert.equal(trigger.children[0].textContent, 'OR · Oregon (免税)');
+  assert.equal(trigger.getAttribute('aria-expanded'), 'false');
+});

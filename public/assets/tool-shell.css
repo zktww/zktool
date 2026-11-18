@@ -1,9 +1,8 @@
 @charset "UTF-8";
 @import url("tokens.css");
 
-/* zktool 工具页公共骨架：reset、背景氛围、返回条、标题与 SEO 说明区。
-   所有工具页（含自带布局的大工具页）统一引用，保证“同一双手做的”观感；
-   页面内容区的组件样式仍留在各页或 tool-page.css。 */
+/* zktool 工具页公共骨架（Craft Bento 温润便当盒体系）：
+   毛玻璃胶囊顶栏、柔和弥散背景、紧凑标题与底部相关工具/FAQ 卡片。 */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 [hidden] { display: none !important; }
@@ -26,152 +25,177 @@ body {
     z-index: -1;
     pointer-events: none;
     background:
-        radial-gradient(ellipse 55% 42% at 15% -8%, var(--brand-soft), transparent 62%),
-        radial-gradient(ellipse 42% 34% at 88% 0%, rgba(14, 165, 233, 0.06), transparent 58%),
-        radial-gradient(ellipse 46% 35% at 52% 110%, rgba(16, 185, 129, 0.045), transparent 62%),
+        radial-gradient(ellipse 58% 42% at 16% -6%, var(--brand-soft), transparent 65%),
+        radial-gradient(ellipse 46% 36% at 86% 2%, rgba(14, 165, 233, 0.08), transparent 60%),
+        radial-gradient(ellipse 50% 36% at 50% 106%, rgba(16, 185, 129, 0.05), transparent 65%),
         var(--bg);
-}
-
-.bg-fx::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image:
-        linear-gradient(var(--grid-line) 1px, transparent 1px),
-        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-    background-size: 44px 44px;
-    -webkit-mask-image: radial-gradient(ellipse 80% 62% at 50% 0%, #000 25%, transparent 88%);
-    mask-image: radial-gradient(ellipse 80% 62% at 50% 0%, #000 25%, transparent 88%);
 }
 
 .wrap {
     width: 100%;
-    max-width: min(1320px, 100%);
+    max-width: min(1260px, 100%);
     min-height: 100vh;
     min-height: 100dvh;
     margin: 0 auto;
-    padding: clamp(1rem, 3.5vw, 2rem)
+    padding: clamp(0.85rem, 2.5vw, 1.35rem)
         calc(clamp(1rem, 3vw, 1.75rem) + env(safe-area-inset-right))
         max(2.5rem, env(safe-area-inset-bottom))
         calc(clamp(1rem, 3vw, 1.75rem) + env(safe-area-inset-left));
 }
 
+/* ── 毛玻璃胶囊顶栏（与首页 .site-header 视觉同源）── */
 .top {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1.3rem;
+    gap: 0.65rem;
+    margin-bottom: 1.2rem;
+    padding: 0.42rem 0.52rem 0.42rem 0.62rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--glass);
+    -webkit-backdrop-filter: saturate(180%) blur(18px);
+    backdrop-filter: saturate(180%) blur(18px);
+    box-shadow: var(--shadow-sm);
 }
 
 .back {
     display: inline-flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: 0.42rem;
     color: var(--text-2);
     text-decoration: none;
-    font-size: 0.88rem;
-    padding: 0.5rem 0.95rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.36rem 0.78rem;
     border-radius: 999px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    box-shadow: var(--shadow-sm);
-    transition: color 0.25s var(--ease), border-color 0.25s var(--ease), transform 0.25s var(--ease);
+    transition: color 0.2s var(--ease), background 0.2s var(--ease);
 }
 
 .back:hover, .back:focus-visible {
     color: var(--text);
-    border-color: var(--border-hover);
+    background: var(--surface);
     outline: none;
-    transform: translateX(-2px);
 }
 
 .meta {
+    padding: 0.22rem 0.62rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-soft);
     color: var(--text-3);
     font-family: var(--mono);
-    font-size: 0.78rem;
+    font-size: 0.72rem;
+    line-height: 1.3;
 }
 
-/* palette.js 注入的顶部操作区（搜索 / 主题切换）挂在 .top 内，样式由 palette.js 自带 */
-
-/* ── 面包屑（toolkit.js 用 registry 替换 .back 生成）── */
+/* ── 面包屑（toolkit.js 用 registry 替换 .back 生成，带品牌方块 Z）── */
 .zk-crumb {
     display: inline-flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 0.4rem;
+    gap: 0.42rem;
     font-size: 0.85rem;
-    padding: 0.5rem 0.95rem;
-    border-radius: 999px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    box-shadow: var(--shadow-sm);
+    padding: 0.2rem 0.45rem 0.2rem 0.22rem;
 }
-.zk-crumb a { color: var(--text-2); text-decoration: none; }
+
+.zk-brand-dot {
+    display: inline-grid;
+    width: 1.65rem;
+    height: 1.65rem;
+    place-items: center;
+    margin-right: 0.15rem;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1;
+    box-shadow: 0 3px 10px -2px rgba(0, 102, 255, 0.38);
+}
+
+.zk-crumb a {
+    color: var(--text-2);
+    font-weight: 560;
+    text-decoration: none;
+    transition: color 0.18s;
+}
+.zk-crumb a.zk-crumb-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.38rem;
+}
 .zk-crumb a:hover, .zk-crumb a:focus-visible { color: var(--brand); outline: none; }
-.zk-crumb-sep { color: var(--text-3); }
-.zk-crumb-cur { color: var(--text); font-weight: 600; }
-@media (max-width: 560px) { .zk-crumb-cur { max-width: 11em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } }
+.zk-crumb-sep { color: var(--text-3); font-size: 0.8rem; }
+.zk-crumb-cur { color: var(--text); font-weight: 680; }
+@media (max-width: 560px) { .zk-crumb-cur { max-width: 10.5em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } }
 
 /* ── 全部工具下拉菜单（toolkit.js 注入）── */
 .zk-nav-menu {
     position: absolute;
     right: 0;
-    top: calc(100% + 0.4rem);
-    z-index: 1100;
-    min-width: 15rem;
+    top: calc(100% + 0.5rem);
+    z-index: 1200;
+    min-width: 15.5rem;
     max-height: min(26rem, 70vh);
     overflow-y: auto;
-    padding: 0.5rem;
+    padding: 0.45rem;
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 16px;
     background: var(--surface, #fff);
-    box-shadow: 0 16px 48px -16px rgba(0, 0, 0, 0.35);
+    box-shadow: var(--shadow-pop);
 }
 .zk-nav-g {
-    padding: 0.55rem 0.65rem 0.25rem;
-    font-size: 0.7rem;
+    padding: 0.52rem 0.65rem 0.22rem;
+    font-size: 0.68rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: var(--text-3);
 }
-.zk-nav-g:not(:first-child) { border-top: 1px solid var(--border); margin-top: 0.25rem; padding-top: 0.7rem; }
+.zk-nav-g:not(:first-child) { border-top: 1px solid var(--border); margin-top: 0.25rem; padding-top: 0.65rem; }
 .zk-nav-menu a[role="menuitem"] {
     display: block;
-    padding: 0.4rem 0.65rem;
-    border-radius: 8px;
-    font-size: 0.85rem;
+    padding: 0.44rem 0.65rem;
+    border-radius: 10px;
+    font-size: 0.84rem;
     color: var(--text);
     text-decoration: none;
+    transition: background 0.14s, color 0.14s;
 }
 .zk-nav-menu a[role="menuitem"]:hover, .zk-nav-menu a[role="menuitem"]:focus-visible {
-    background: var(--surface-2, #f1f5f9);
+    background: var(--surface-hover);
     outline: none;
 }
-.zk-nav-menu a[aria-current="page"] { color: var(--brand); font-weight: 600; }
+.zk-nav-menu a[aria-current="page"] {
+    color: var(--brand);
+    background: var(--brand-soft);
+    font-weight: 650;
+}
 
-/* ── 相关工具（toolkit.js 注入到 seo-notes 前）── */
-.zk-related { margin-top: 2.6rem; }
-.zk-related h2 { margin: 0 0 0.75rem; font-size: 0.95rem; color: var(--text); }
+/* ── 相关工具（Bento 卡片 + 柔和渐变圆角图标）── */
+.zk-related { margin-top: 2.4rem; }
+.zk-related h2 { margin: 0 0 0.8rem; font-size: 0.98rem; font-weight: 720; color: var(--text); letter-spacing: -0.01em; }
 .zk-related-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-    gap: 0.6rem;
+    grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
+    gap: 0.75rem;
 }
 .zk-related-grid a {
     display: flex;
     align-items: flex-start;
-    gap: 0.65rem;
-    padding: 0.7rem 0.8rem;
+    gap: 0.75rem;
+    padding: 0.88rem 0.95rem;
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 16px;
     background: var(--surface);
+    box-shadow: var(--shadow-sm);
     text-decoration: none;
-    transition: border-color 0.2s var(--ease), transform 0.2s var(--ease);
+    transition: border-color 0.22s var(--ease), box-shadow 0.22s var(--ease), transform 0.22s var(--ease);
 }
 .zk-related-grid a:hover, .zk-related-grid a:focus-visible {
     border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
     transform: translateY(-2px);
     outline: none;
 }
@@ -179,28 +203,33 @@ body {
     flex: none;
     display: grid;
     place-items: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 8px;
-    color: #fff;
-    background: linear-gradient(135deg, var(--c1, #2563eb), var(--c2, #0ea5e9));
+    width: 2.35rem;
+    height: 2.35rem;
+    border: 1px solid color-mix(in srgb, var(--c1, #0066ff) 22%, transparent);
+    border-radius: 11px;
+    background: linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--c1, #0066ff) 14%, var(--surface)),
+        color-mix(in srgb, var(--c2, #0ea5e9) 10%, var(--surface))
+    );
+    color: color-mix(in srgb, var(--c1, #0066ff) 78%, var(--text));
 }
-.zk-related-icon svg { width: 1.05rem; height: 1.05rem; }
-.zk-related-grid b { display: block; font-size: 0.85rem; color: var(--text); font-weight: 600; line-height: 1.35; }
+.zk-related-icon svg { width: 1.1rem; height: 1.1rem; }
+.zk-related-grid b { display: block; font-size: 0.87rem; color: var(--text); font-weight: 660; line-height: 1.35; }
 .zk-related-grid small {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    font-size: 0.74rem;
-    color: var(--text-3);
+    font-size: 0.76rem;
+    color: var(--text-2);
     line-height: 1.5;
-    margin-top: 0.15rem;
+    margin-top: 0.18rem;
 }
-/* 全屏应用型页面 .zk-related 与 body 直挂的 seo-notes 同套对齐 */
+
 body > .zk-related {
     width: 100%;
-    max-width: var(--wrap-w, min(1320px, 100%));
+    max-width: var(--wrap-w, min(1260px, 100%));
     margin-left: auto;
     margin-right: auto;
     padding-left: calc(var(--wrap-px, clamp(1rem, 3vw, 1.75rem)) + env(safe-area-inset-left) + 0.2rem);
@@ -211,43 +240,272 @@ h1 {
     display: flex;
     align-items: center;
     gap: 0.55rem;
-    margin-bottom: 0.4rem;
-    font-size: clamp(1.45rem, 4vw, 2.1rem);
+    margin-bottom: 0.35rem;
+    font-size: clamp(1.42rem, 3.2vw, 1.9rem);
+    font-weight: 760;
     line-height: 1.2;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
+    color: var(--text);
 }
 
-h1 .title { color: var(--brand); }
-.zk-privacy-note { margin: 1rem 0; padding: .85rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-soft); color: var(--text-2); font-size: .85rem; line-height: 1.6; }
-.zk-privacy-note p { margin: 0 0 .6rem; }
-.zk-privacy-note label { display: inline-flex; align-items: center; gap: .5rem; margin-right: .75rem; }
+h1 .title { color: var(--text); }
+
+/* ── 全站下拉选择组件（原生无闪烁兜底 + toolkit.js 浮层菜单）── */
+select:not([multiple]):not([size]) {
+    -webkit-appearance: none;
+    appearance: none;
+    padding-right: 2.1rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237c8ba1' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.65rem center;
+    background-size: 0.95rem 0.95rem;
+}
+
+.zk-select {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    vertical-align: middle;
+}
+
+.zk-select-native {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.zk-select-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.55rem;
+    width: 100%;
+    min-width: 0;
+    min-height: 2.55rem;
+    padding: 0.5rem 0.72rem 0.5rem 0.82rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-soft);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.86rem;
+    font-weight: 520;
+    line-height: 1.35;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease), background 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.toolbar .zk-select-btn,
+.opts .zk-select-btn {
+    min-height: 2.2rem;
+    padding: 0.36rem 0.64rem 0.36rem 0.72rem;
+    font-size: 0.82rem;
+    border-radius: 10px;
+}
+
+.zk-select-btn:hover {
+    border-color: var(--border-hover);
+    background: var(--surface-hover);
+}
+
+.zk-select-btn:focus-visible,
+.zk-select-btn[aria-expanded="true"] {
+    border-color: var(--brand-ring);
+    background: var(--surface);
+    box-shadow: 0 0 0 3.5px var(--brand-ring-soft);
+    outline: none;
+}
+
+.zk-select-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.zk-select-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.zk-select-arrow {
+    flex: 0 0 auto;
+    width: 0.95rem;
+    height: 0.95rem;
+    color: var(--text-3);
+    transition: transform 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.zk-select-btn[aria-expanded="true"] .zk-select-arrow {
+    transform: rotate(180deg);
+    color: var(--brand);
+}
+
+.zk-select-popover {
+    position: fixed;
+    z-index: 1300;
+    display: flex;
+    flex-direction: column;
+    padding: 0.42rem;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-pop);
+    animation: zk-select-pop 0.16s var(--ease);
+}
+
+@keyframes zk-select-pop {
+    from { opacity: 0; transform: translateY(-4px) scale(0.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.zk-select-search-wrap {
+    padding: 0.12rem 0.12rem 0.38rem;
+    margin-bottom: 0.28rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.zk-select-search {
+    width: 100%;
+    min-height: 2.1rem !important;
+    padding: 0.38rem 0.68rem !important;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-soft);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+}
+
+.zk-select-search:focus {
+    border-color: var(--brand-ring);
+    background: var(--surface);
+    box-shadow: 0 0 0 2.5px var(--brand-ring-soft);
+}
+
+.zk-select-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    max-height: 17.5rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.zk-select-group {
+    padding: 0.5rem 0.6rem 0.2rem;
+    color: var(--text-3);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    user-select: none;
+}
+
+.zk-select-group:not(:first-child) {
+    margin-top: 0.24rem;
+    padding-top: 0.55rem;
+    border-top: 1px solid var(--border);
+}
+
+.zk-select-opt {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.46rem 0.64rem;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: 0.84rem;
+    line-height: 1.35;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+}
+
+.zk-select-opt:hover,
+.zk-select-opt.is-active {
+    background: var(--surface-hover);
+}
+
+.zk-select-opt[aria-selected="true"] {
+    color: var(--brand);
+    font-weight: 620;
+    background: var(--brand-soft);
+}
+
+.zk-select-opt[aria-disabled="true"] {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.zk-select-opt-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.zk-select-check {
+    flex: 0 0 auto;
+    width: 0.9rem;
+    height: 0.9rem;
+    color: var(--brand);
+    opacity: 0;
+}
+
+.zk-select-opt[aria-selected="true"] .zk-select-check { opacity: 1; }
+
+.zk-select-empty {
+    padding: 0.85rem 0.6rem;
+    color: var(--text-3);
+    font-size: 0.82rem;
+    text-align: center;
+}
+
+.zk-privacy-note { margin: 1rem 0; padding: 0.9rem 1.05rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-soft); color: var(--text-2); font-size: 0.85rem; line-height: 1.6; }
+.zk-privacy-note p { margin: 0 0 0.6rem; }
+.zk-privacy-note label { display: inline-flex; align-items: center; gap: 0.5rem; margin-right: 0.75rem; }
 .zk-privacy-note input[type="checkbox"] { width: 1rem; height: 1rem; }
-.zk-privacy-note button { margin: .35rem .5rem .35rem 0; }
-.zk-share-dialog { width: min(36rem, calc(100% - 2rem)); max-height: 85vh; margin: auto; overflow: auto; padding: 1.5rem; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); color: var(--text); box-shadow: var(--shadow-md); }
-.zk-share-dialog::backdrop { background: rgb(0 0 0 / .55); }
+.zk-privacy-note button { margin: 0.35rem 0.5rem 0.35rem 0; }
+.zk-share-dialog { width: min(36rem, calc(100% - 2rem)); max-height: 85vh; margin: auto; overflow: auto; padding: 1.5rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); box-shadow: var(--shadow-pop); }
+.zk-share-dialog::backdrop { background: rgb(15 23 42 / 0.48); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
 .zk-share-dialog h2 { margin-top: 0; font-size: 1.2rem; }
 .zk-share-dialog p { color: var(--text-2); line-height: 1.6; }
-.zk-share-dialog pre { max-height: 35vh; overflow: auto; padding: 1rem; border-radius: 8px; background: var(--bg-soft); white-space: pre-wrap; overflow-wrap: anywhere; font: .85rem/1.6 var(--mono); }
-.zk-share-dialog button { margin: .5rem .75rem 0 0; padding: .65rem 1rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); color: var(--text); cursor: pointer; }
-.zk-share-dialog button:disabled { opacity: .5; cursor: not-allowed; }
+.zk-share-dialog pre { max-height: 35vh; overflow: auto; padding: 1rem; border-radius: var(--radius-md); background: var(--bg-soft); white-space: pre-wrap; overflow-wrap: anywhere; font: 0.85rem/1.6 var(--mono); }
+.zk-share-dialog button { margin: 0.5rem 0.75rem 0 0; padding: 0.62rem 1.05rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-2); color: var(--text); cursor: pointer; }
+.zk-share-dialog button:disabled { opacity: 0.5; cursor: not-allowed; }
 .zk-share-dialog button:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
-.lead { max-width: 62em; margin-bottom: 1.2rem; color: var(--text-2); font-size: 0.95rem; }
+.lead { max-width: 62em; margin-bottom: 1.05rem; color: var(--text-2); font-size: 0.92rem; line-height: 1.65; }
 
-/* ── 页底 SEO 说明区：所有工具页共用，与 .wrap 左右边缘对齐 ── */
+/* ── 页底 SEO 说明区：Bento 卡片化折叠说明 ── */
 .seo-notes {
-    margin: 2.6rem 0 0;
-    padding: 1.8rem 0.2rem 0;
+    margin: 2.4rem 0 0;
+    padding: 1.65rem 0.1rem 0;
     border-top: 1px solid var(--border);
     font-size: 0.88rem;
     line-height: 1.75;
 }
 
-/* 全屏应用型页面把 .seo-notes 挂在 body 下（不入 .wrap，避免挤压编辑区）；
-   此时用变量镜像该页 .wrap 的宽度与水平内边距，保证与上方内容对齐。
-   页面在自己的 <style> 里按需覆盖 --wrap-w / --wrap-px。 */
 body > .seo-notes {
     width: 100%;
-    max-width: var(--wrap-w, min(1320px, 100%));
+    max-width: var(--wrap-w, min(1260px, 100%));
     margin-left: auto;
     margin-right: auto;
     padding-left: calc(var(--wrap-px, clamp(1rem, 3vw, 1.75rem)) + env(safe-area-inset-left) + 0.2rem);
@@ -255,24 +513,26 @@ body > .seo-notes {
     padding-bottom: max(2.5rem, env(safe-area-inset-bottom));
 }
 
-.seo-notes h2 { margin: 0 0 0.5rem; color: var(--text); font-size: 0.95rem; }
+.seo-notes h2 { margin: 0 0 0.55rem; color: var(--text); font-size: 0.98rem; font-weight: 720; letter-spacing: -0.01em; }
 .seo-notes p { max-width: 68em; margin: 0 0 1.2rem; color: var(--text-2); }
 
 .seo-notes details {
-    margin-bottom: 0.5rem;
-    padding: 0.15rem 0.9rem;
+    margin-bottom: 0.55rem;
+    padding: 0.22rem 1.05rem;
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 14px;
     background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.2s;
 }
-
-.seo-notes summary { padding: 0.5rem 0; color: var(--text); font-size: 0.86rem; font-weight: 600; cursor: pointer; }
-.seo-notes details p { margin: 0.2rem 0 0.8rem; }
+.seo-notes details:hover { border-color: var(--border-hover); }
+.seo-notes summary { padding: 0.55rem 0; color: var(--text); font-size: 0.87rem; font-weight: 650; cursor: pointer; }
+.seo-notes details p { margin: 0.15rem 0 0.85rem; }
 
 @media (max-width: 860px) {
-    .wrap { padding-top: max(1rem, env(safe-area-inset-top)); }
-    .top { align-items: flex-start; }
-    .meta { width: 100%; }
+    .wrap { padding-top: max(0.75rem, env(safe-area-inset-top)); }
+    .top { border-radius: 20px; padding: 0.45rem 0.55rem; }
+    .meta { display: none; }
     h1 { align-items: flex-start; }
 }
 

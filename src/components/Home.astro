@@ -7,29 +7,33 @@ const { locale } = Astro.props;
 const isEnglish = locale === "en";
 const labels = isEnglish
     ? {
-        eyebrow: "ZKTOOL / LOCAL-FIRST TOOLS",
-        title: "Leave the complexity to the tools.",
-        intro: "A quiet, local-first toolkit for formatting, debugging, converting, and testing.",
-        searchPlaceholder: "Search tools by name, format, or keyword",
+        eyebrow: "LOCAL-FIRST TOOLKIT",
+        titleLead: "Leave the complexity to ",
+        titleTail: "the tools.",
+        intro: "A calm, local-first workbench for formatting, debugging, converting, and testing — right in your browser.",
+        searchPlaceholder: "Search tools by name, format, or keyword…",
         searchLabel: "Search all tools",
-        available: "tools available",
+        available: "tools ready",
         result: "matching tools",
         clear: "Clear search",
         emptyTitle: "No tools found",
         emptyText: "Try a different name, format, or keyword.",
-        local: "Runs locally",
-        privacy: "No account required",
+        local: "Runs 100% locally",
+        privacy: "No sign-in required",
         open: "Open tool",
-        external: "External service",
+        external: "External",
         browse: "All tools",
+        featuredDock: "Quick picks",
+        recentDock: "Recent",
     }
     : {
-        eyebrow: "ZKTOOL / LOCAL-FIRST TOOLS",
-        title: "把复杂，留给工具。",
-        intro: "一组本地运行的实用工具，覆盖格式化、调试、转换与测试。",
-        searchPlaceholder: "搜索工具名称、格式或关键词",
+        eyebrow: "LOCAL-FIRST TOOLKIT",
+        titleLead: "把复杂，留给",
+        titleTail: "工具。",
+        intro: "一组安静、温润的浏览器本地实用工具，覆盖格式化、调试、转换与测试。",
+        searchPlaceholder: "搜索工具名称、格式或拼音缩写（如 json / mgdz）…",
         searchLabel: "搜索全部工具",
-        available: "个工具可用",
+        available: "个工具就绪",
         result: "个匹配工具",
         clear: "清空搜索",
         emptyTitle: "没有找到相关工具",
@@ -39,39 +43,73 @@ const labels = isEnglish
         open: "打开工具",
         external: "外部服务",
         browse: "全部工具",
+        featuredDock: "常用推荐",
+        recentDock: "最近使用",
     };
 const totalTools = tools.length;
 const homePath = isEnglish ? "/en/" : "/";
+const defaultDockPaths = [
+    "tools/json-formatter/",
+    "tools/us-address-generator/",
+    "tools/timestamp-converter/",
+    "tools/regex-tester/",
+    "tools/base64-converter/",
+];
+const defaultDockTools = defaultDockPaths
+    .map((p) => tools.find((item) => item.path === p))
+    .filter((item): item is NonNullable<typeof item> => Boolean(item))
+    .map((source) => ({ source, tool: localizedTool(source, locale) }));
 ---
-<main class="home" data-home data-result-label={labels.result}>
+<main
+  class="home"
+  data-home
+  data-result-label={labels.result}
+  data-recent-label={labels.recentDock}
+  data-featured-label={labels.featuredDock}
+>
   <section class="home-hero" aria-labelledby="home-title">
+    <div class="hero-mesh" aria-hidden="true"></div>
     <div class="hero-inner">
       <div class="hero-topline">
-        <p class="eyebrow">{labels.eyebrow}</p>
-        <span class="hero-note"><span class="status-dot" aria-hidden="true"></span>{labels.local}</span>
+        <span class="hero-pill">
+          <span class="status-dot" aria-hidden="true"></span>
+          {labels.local} · {labels.privacy}
+        </span>
+        <span class="hero-count"><strong data-tool-count>{totalTools}</strong> {labels.available}</span>
       </div>
+
       <div class="hero-copy">
-        <h1 id="home-title">{isEnglish ? labels.title : <><span>把复杂，留给</span><span class="title-tail">工具。</span></>}</h1>
+        <h1 id="home-title">
+          <span>{labels.titleLead}</span><span class="title-tail">{labels.titleTail}</span>
+        </h1>
         <p class="hero-intro">{labels.intro}</p>
       </div>
+
       <div class="search-shell">
         <div class="search-wrap">
           <label class="sr-only" for="tool-search">{labels.searchLabel}</label>
           <span class="search-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
           </span>
           <input id="tool-search" data-tool-search type="search" autocomplete="off" aria-controls="tool-results" aria-describedby="search-help" placeholder={labels.searchPlaceholder} />
+          <kbd class="search-kbd" data-search-kbd aria-hidden="true">/</kbd>
           <button type="button" class="search-clear" data-search-clear aria-label={labels.clear} hidden>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
           </button>
         </div>
-        <span class="search-hint" id="search-help">{isEnglish ? "/ to search · ↓ results" : "/ 搜索 · ↓ 选择结果"}</span>
+        <span class="sr-only" id="search-help">{isEnglish ? "Press slash to search and Down arrow to browse results" : "按 / 搜索，按方向键选择结果"}</span>
       </div>
-      <div class="hero-meta">
-        <span><strong data-tool-count>{totalTools}</strong> {labels.available}</span>
-        <span class="meta-separator" aria-hidden="true">/</span>
-        <span>{labels.privacy}</span>
-        <a class="browse-link" href="#tools">{labels.browse}<span aria-hidden="true">&#8595;</span></a>
+
+      <div class="dock-bar" data-dock-bar>
+        <span class="dock-label" data-dock-label>{labels.featuredDock}</span>
+        <div class="dock-items" data-dock-items>
+          {defaultDockTools.map(({ source, tool }) => (
+            <a class="dock-pill" href={`${homePath}${source.path}`}>
+              <span class="dock-dot" style={`--c:${tool.c1}`} aria-hidden="true"></span>
+              <span>{tool.name}</span>
+            </a>
+          ))}
+        </div>
       </div>
     </div>
   </section>
@@ -97,7 +135,7 @@ const homePath = isEnglish ? "/en/" : "/";
       return <section class="tool-group" id={`group-${group.key}`} data-tool-group aria-labelledby={`group-title-${group.key}`}>
         <div class="group-heading">
           <h3 id={`group-title-${group.key}`}>{localized.title}</h3>
-          <span>{entries.length.toString().padStart(2, "0")}</span>
+          <span class="group-count">{entries.length.toString().padStart(2, "0")}</span>
         </div>
         <div class="tool-grid">
           {entries.map((source) => {
@@ -109,6 +147,9 @@ const homePath = isEnglish ? "/en/" : "/";
               class="tool-card"
               href={href}
               data-tool-card
+              data-tool-path={source.path}
+              data-tool-name={tool.name}
+              data-tool-color={tool.c1}
               data-search={searchText}
               data-external={external ? "true" : undefined}
               target={external ? "_blank" : undefined}
@@ -136,20 +177,55 @@ const homePath = isEnglish ? "/en/" : "/";
 </main>
 
 <script>
-  const home = document.querySelector("[data-home]");
+  const home = document.querySelector<HTMLElement>("[data-home]");
   const search = home?.querySelector<HTMLInputElement>("[data-tool-search]");
   const clear = home?.querySelector<HTMLButtonElement>("[data-search-clear]");
+  const kbd = home?.querySelector<HTMLElement>("[data-search-kbd]");
   const count = home?.querySelector<HTMLElement>("[data-result-count]");
   const empty = home?.querySelector<HTMLElement>("[data-search-empty]");
+  const dockBar = home?.querySelector<HTMLElement>("[data-dock-bar]");
+  const dockLabel = home?.querySelector<HTMLElement>("[data-dock-label]");
+  const dockItems = home?.querySelector<HTMLElement>("[data-dock-items]");
   const cards = home ? Array.from(home.querySelectorAll<HTMLAnchorElement>("[data-tool-card]")) : [];
   const groups = home ? Array.from(home.querySelectorAll<HTMLElement>("[data-tool-group]")) : [];
-  const availableLabel = {available: home?.querySelector(".result-count")?.textContent?.replace(/^\d+\s*/, "") || ""};
+  const availableLabel = { available: home?.querySelector(".result-count")?.textContent?.replace(/^\d+\s*/, "") || "" };
   const resultLabel = home?.getAttribute("data-result-label") || "";
+  const recentLabel = home?.getAttribute("data-recent-label") || "";
+
+  // Hydrate Recent Tools Dock from localStorage ("zktool.recents")
+  try {
+    const raw = JSON.parse(localStorage.getItem("zktool.recents") || "[]");
+    if (Array.isArray(raw) && raw.length && dockItems && dockLabel) {
+      const matched = raw
+        .map((path) => cards.find((card) => card.getAttribute("data-tool-path") === path))
+        .filter((card): card is HTMLAnchorElement => Boolean(card))
+        .slice(0, 6);
+      if (matched.length) {
+        dockLabel.textContent = recentLabel;
+        dockItems.innerHTML = "";
+        matched.forEach((card) => {
+          const pill = document.createElement("a");
+          pill.className = "dock-pill";
+          pill.href = card.href;
+          const dot = document.createElement("span");
+          dot.className = "dock-dot";
+          dot.setAttribute("aria-hidden", "true");
+          dot.style.setProperty("--c", card.getAttribute("data-tool-color") || "#0066ff");
+          const label = document.createElement("span");
+          label.textContent = card.getAttribute("data-tool-name") || "";
+          pill.appendChild(dot);
+          pill.appendChild(label);
+          dockItems.appendChild(pill);
+        });
+      }
+    }
+  } catch { /* ignore private browsing storage errors */ }
 
   function filterTools() {
     const query = search?.value.trim().toLowerCase() || "";
     const terms: string[] = query.split(/\s+/).filter(Boolean);
     home?.classList.toggle("is-searching", !!query);
+    if (dockBar) dockBar.hidden = !!query;
     let visible = 0;
     cards.forEach((card) => {
       const haystack = card.getAttribute("data-search") || "";
@@ -159,7 +235,7 @@ const homePath = isEnglish ? "/en/" : "/";
     });
     groups.forEach((group) => {
       group.hidden = !group.querySelector("[data-tool-card]:not([hidden])");
-      const badge = group.querySelector(".group-heading > span");
+      const badge = group.querySelector(".group-count");
       if (badge) badge.textContent = String(group.querySelectorAll("[data-tool-card]:not([hidden])").length).padStart(2, "0");
       const link = home?.querySelector<HTMLAnchorElement>(`.group-nav a[href="#${group.id}"]`);
       if (link) link.hidden = group.hidden;
@@ -167,6 +243,7 @@ const homePath = isEnglish ? "/en/" : "/";
     if (count) count.textContent = query ? `${visible} ${resultLabel}` : `${cards.length} ${availableLabel.available}`;
     if (empty) empty.hidden = visible > 0;
     if (clear) clear.hidden = !query;
+    if (kbd) kbd.hidden = !!query;
   }
 
   search?.addEventListener("input", filterTools);
@@ -200,75 +277,405 @@ const homePath = isEnglish ? "/en/" : "/";
 </script>
 
 <style>
-  :global(body) { background: var(--bg); }
-  .home { width: min(1180px, calc(100% - 2.5rem)); margin: 0 auto 5.5rem; color: var(--text); }
-  .home-hero { width: 100vw; margin-left: calc(50% - 50vw); overflow: hidden; background: var(--bg-soft); color: var(--text); }
-  .home-hero::before { display: block; height: 1px; background: var(--border); content: ""; }
-  .hero-inner { position: relative; width: min(1180px, calc(100% - 2.5rem)); margin: 0 auto; padding: clamp(2rem, 4vw, 3.5rem) 0 2rem; }
-  .hero-inner::before { position: absolute; top: 0; right: -12rem; width: 32rem; height: 32rem; border: 1px solid var(--border); border-radius: 50%; content: ""; opacity: .7; pointer-events: none; }
-  .hero-topline, .hero-copy, .search-shell, .hero-meta { position: relative; z-index: 1; }
-  .hero-topline { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-  .eyebrow { margin: 0 0 1.25rem; color: var(--text-2); font-size: .68rem; font-weight: 750; letter-spacing: .15em; }
-  .hero-note { display: inline-flex; align-items: center; gap: .45rem; margin-bottom: 1.25rem; color: var(--text-2); font-size: .72rem; }
-  .status-dot { width: .42rem; height: .42rem; border-radius: 50%; background: #37b581; box-shadow: var(--shadow-sm); }
-  h1 { max-width: 48rem; margin: 0; color: var(--text); font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 650; letter-spacing: -.025em; line-height: 1.03; }
-  .title-tail { white-space: nowrap; color: var(--text-2); }
-  .hero-intro { max-width: 36rem; margin: 1.25rem 0 2.15rem; color: var(--text-2); font-size: 1rem; line-height: 1.75; }
-  .search-shell { max-width: 49rem; padding: .55rem; border: 1px solid var(--border); border-radius: 11px; background: var(--bg-soft); box-shadow: var(--shadow-sm); }
-  .search-wrap { position: relative; display: flex; align-items: center; }
-  .search-wrap input { width: 100%; height: 3.75rem; padding: 0 3.5rem 0 3.35rem; border: 1px solid var(--border); border-radius: 7px; outline: none; background: var(--surface); color: var(--text); font: inherit; font-size: .98rem; box-shadow: var(--shadow-sm); transition: border-color .18s, box-shadow .18s, background .18s; }
-  .search-wrap input:focus { border-color: var(--border-hover); background: var(--surface); box-shadow: var(--shadow-sm); }
-  .search-wrap input::placeholder { color: var(--text-2); }
-  .search-icon { position: absolute; left: 1.15rem; z-index: 1; display: grid; color: var(--text-2); pointer-events: none; }
-  .search-icon svg, .search-clear svg { width: 1.1rem; height: 1.1rem; }
-  .search-clear { position: absolute; right: .75rem; display: grid; width: 2rem; height: 2rem; place-items: center; border: 0; border-radius: 5px; background: transparent; color: var(--text-2); cursor: pointer; }
-  .search-clear:hover, .search-clear:focus-visible { color: var(--text); background: var(--surface-2); outline: none; }
-  .search-hint { display: block; margin: .6rem .4rem .1rem; color: var(--text-2); font-size: .75rem; }
-  .hero-meta { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; margin-top: 1.35rem; color: var(--text-2); font-size: .74rem; }
-  .hero-meta strong { color: var(--text); font-weight: 700; }
-  .meta-separator { color: var(--border); }
-  .browse-link { display: inline-flex; align-items: center; gap: .45rem; margin-left: .25rem; color: var(--text); font-size: .74rem; font-weight: 700; text-decoration: none; }
-  .browse-link:hover { color: var(--brand); }
-  .browse-link span { font-size: .95rem; }
-  .group-nav { display: flex; gap: .2rem; overflow-x: auto; margin-top: 1.35rem; padding: .42rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-soft); box-shadow: var(--shadow-sm); scrollbar-width: none; }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .home {
+    width: min(1220px, calc(100% - 2rem));
+    margin: 1.15rem auto 4rem;
+    color: var(--text);
+  }
+  .home-hero {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+  }
+  .hero-mesh {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 55% 65% at 88% -10%, rgba(0, 102, 255, 0.1), transparent 62%),
+      radial-gradient(ellipse 45% 55% at 10% 110%, rgba(14, 165, 233, 0.08), transparent 60%);
+  }
+  .hero-inner {
+    position: relative;
+    z-index: 1;
+    padding: clamp(1.6rem, 3.5vw, 2.6rem) clamp(1.35rem, 3.5vw, 2.75rem);
+  }
+  .hero-topline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.15rem;
+  }
+  .hero-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.48rem;
+    padding: 0.32rem 0.78rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-soft);
+    color: var(--text-2);
+    font-size: 0.76rem;
+    font-weight: 600;
+  }
+  .status-dot {
+    width: 0.46rem;
+    height: 0.46rem;
+    border-radius: 50%;
+    background: var(--ok);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 18%, transparent);
+  }
+  .hero-count {
+    color: var(--text-3);
+    font-size: 0.78rem;
+  }
+  .hero-count strong {
+    color: var(--text);
+    font-weight: 700;
+  }
+  h1 {
+    max-width: 44rem;
+    margin: 0;
+    color: var(--text);
+    font-size: clamp(2.1rem, 4.4vw, 3.35rem);
+    font-weight: 760;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+  }
+  .title-tail {
+    color: var(--brand);
+    white-space: nowrap;
+  }
+  .hero-intro {
+    max-width: 38rem;
+    margin: 0.85rem 0 1.5rem;
+    color: var(--text-2);
+    font-size: 0.96rem;
+    line-height: 1.68;
+  }
+  .search-shell {
+    max-width: 46rem;
+    padding: 0.38rem;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--bg-soft);
+  }
+  .search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .search-wrap input {
+    width: 100%;
+    height: 3.2rem;
+    padding: 0 3.2rem 0 2.95rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    outline: none;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.94rem;
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  }
+  .search-wrap input:focus {
+    border-color: var(--brand-ring);
+    box-shadow: 0 0 0 3.5px var(--brand-ring-soft);
+  }
+  .search-wrap input::placeholder { color: var(--text-3); }
+  .search-wrap input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
+  .search-icon {
+    position: absolute;
+    left: 1rem;
+    z-index: 1;
+    display: grid;
+    color: var(--text-3);
+    pointer-events: none;
+  }
+  .search-icon svg, .search-clear svg { width: 1.05rem; height: 1.05rem; }
+  .search-kbd {
+    position: absolute;
+    right: 0.85rem;
+    padding: 0.16rem 0.48rem;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--bg-soft);
+    color: var(--text-3);
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    line-height: 1.2;
+    pointer-events: none;
+  }
+  .search-clear {
+    position: absolute;
+    right: 0.65rem;
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-2);
+    cursor: pointer;
+  }
+  .search-clear:hover, .search-clear:focus-visible {
+    color: var(--text);
+    background: var(--surface-2);
+    outline: none;
+  }
+
+  /* ── Craft Bento 最近使用 / 常用推荐胶囊 Dock ── */
+  .dock-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.05rem;
+  }
+  .dock-label {
+    color: var(--text-3);
+    font-size: 0.76rem;
+    font-weight: 650;
+    margin-right: 0.15rem;
+  }
+  .dock-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+  :global(.dock-pill) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+    padding: 0.32rem 0.72rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-soft);
+    color: var(--text);
+    font-size: 0.78rem;
+    font-weight: 560;
+    text-decoration: none;
+    transition: border-color 0.18s var(--ease), background 0.18s var(--ease), transform 0.18s var(--ease), box-shadow 0.18s var(--ease);
+  }
+  :global(.dock-pill:hover), :global(.dock-pill:focus-visible) {
+    border-color: var(--border-hover);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+    outline: none;
+  }
+  :global(.dock-dot) {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--c, var(--brand));
+  }
+
+  /* ── 分段胶囊分类导航 ── */
+  .group-nav {
+    display: flex;
+    gap: 0.28rem;
+    overflow-x: auto;
+    margin-top: 1.15rem;
+    padding: 0.38rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--glass);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+    backdrop-filter: saturate(180%) blur(16px);
+    box-shadow: var(--shadow-sm);
+    scrollbar-width: none;
+  }
   .group-nav::-webkit-scrollbar { display: none; }
-  .group-nav a { flex: 0 0 auto; padding: .58rem .75rem; border: 1px solid transparent; border-radius: 5px; color: var(--text-2); font-size: .76rem; text-decoration: none; transition: border-color .16s, color .16s, background .16s, box-shadow .16s; }
-  .group-nav a:hover, .group-nav a:focus-visible { border-color: var(--border); background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); outline: none; }
-  .collection-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: 1.75rem 0 .25rem; }
-  .collection-head h2 { margin: 0; color: var(--text); font-size: 1.35rem; font-weight: 720; letter-spacing: -.01em; }
-  .result-count { padding: .3rem .5rem; border: 1px solid var(--border); border-radius: 5px; background: var(--bg-soft); color: var(--text-2); font-size: .7rem; box-shadow: var(--shadow-sm); }
-  .tool-group { margin-top: 1.5rem; scroll-margin-top: 1.25rem; }
-  .group-heading { display: flex; align-items: center; gap: .65rem; margin-bottom: 1rem; }
-  .group-heading::after { height: 1px; flex: 1; background: var(--border); content: ""; }
-  .group-heading h3 { margin: 0; color: var(--text-2); font-size: .84rem; font-weight: 750; }
-  .group-heading span { color: var(--text-2); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .66rem; }
-  .tool-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .8rem; }
-  .tool-card { display: grid; grid-template-columns: 2.3rem minmax(0, 1fr); gap: .78rem; min-width: 0; min-height: 8.7rem; padding: .95rem; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--text); text-decoration: none; box-shadow: var(--shadow-sm); transition: border-color .18s, background .18s, box-shadow .18s, transform .18s; }
-  .tool-card:hover, .tool-card:focus-visible { border-color: var(--border-hover); background: var(--surface); box-shadow: var(--shadow-sm); transform: translateY(-2px); outline: none; }
-  .tool-icon { display: grid; width: 2.3rem; height: 2.3rem; place-items: center; border: 1px solid rgba(255, 255, 255, .45); border-radius: 6px; background: linear-gradient(135deg, var(--start), var(--end)); color: #fff; box-shadow: var(--shadow-sm); }
-  .tool-icon :global(svg) { width: 1.12rem; height: 1.12rem; }
+  .group-nav a {
+    flex: 0 0 auto;
+    padding: 0.48rem 0.9rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    color: var(--text-2);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.18s var(--ease), background 0.18s var(--ease), box-shadow 0.18s var(--ease), border-color 0.18s var(--ease);
+  }
+  .group-nav a:hover, .group-nav a:focus-visible {
+    border-color: var(--border);
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+    outline: none;
+  }
+
+  .collection-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.65rem 0.15rem 0.1rem;
+  }
+  .collection-head h2 {
+    margin: 0;
+    color: var(--text);
+    font-size: 1.2rem;
+    font-weight: 740;
+    letter-spacing: -0.015em;
+  }
+  .result-count {
+    padding: 0.28rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-2);
+    font-size: 0.74rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .tool-group {
+    margin-top: 1.5rem;
+    scroll-margin-top: 5.2rem;
+  }
+  .group-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.85rem;
+    padding: 0 0.15rem;
+  }
+  .group-heading h3 {
+    margin: 0;
+    color: var(--text);
+    font-size: 0.92rem;
+    font-weight: 720;
+    letter-spacing: -0.01em;
+  }
+  .group-count {
+    padding: 0.12rem 0.48rem;
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--text-3);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 650;
+  }
+
+  /* ── 18px Craft Bento 工具卡片 ── */
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.9rem;
+  }
+  .tool-card {
+    display: grid;
+    grid-template-columns: 2.65rem minmax(0, 1fr);
+    gap: 0.85rem;
+    min-width: 0;
+    min-height: 8.8rem;
+    padding: 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    text-decoration: none;
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.22s var(--ease), box-shadow 0.22s var(--ease), transform 0.22s var(--ease);
+  }
+  .tool-card:hover, .tool-card:focus-visible {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+    outline: none;
+  }
+  .tool-icon {
+    display: grid;
+    width: 2.65rem;
+    height: 2.65rem;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--start) 22%, transparent);
+    border-radius: 12px;
+    background: linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--start) 14%, var(--surface)),
+      color-mix(in srgb, var(--end) 10%, var(--surface))
+    );
+    color: color-mix(in srgb, var(--start) 78%, var(--text));
+  }
+  .tool-icon :global(svg) { width: 1.22rem; height: 1.22rem; }
   .tool-copy { display: flex; min-width: 0; flex-direction: column; }
-  .tool-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: .5rem; }
-  .tool-card-top b { color: var(--text); font-size: .95rem; font-weight: 700; line-height: 1.35; }
-  .tool-arrow { flex: none; color: var(--text-2); font-size: .88rem; line-height: 1.1; transition: color .18s, transform .18s; }
-  .tool-card:hover .tool-arrow, .tool-card:focus-visible .tool-arrow { color: var(--text); transform: translate(1px, -1px); }
-  .tool-copy small { display: -webkit-box; margin-top: .35rem; overflow: hidden; color: var(--text-2); font-size: .85rem; line-height: 1.5; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-  .tool-tag { align-self: flex-start; margin-top: .65rem; padding: .3rem .42rem; border: 1px solid var(--border); border-radius: 4px; background: var(--surface-2); color: var(--text-2); font-size: .75rem; line-height: 1; }
-  .search-empty { padding: 4.5rem 1rem; text-align: center; border-top: 1px solid var(--border); }
-  .empty-mark { display: inline-grid; width: 2.4rem; height: 2.4rem; place-items: center; border: 1px solid var(--border); border-radius: 50%; color: var(--text-2); font-weight: 700; }
-  .search-empty h2 { margin: 1rem 0 .35rem; color: var(--text); font-size: 1rem; }
-  .search-empty p { margin: 0; color: var(--text-2); font-size: .84rem; }
-  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-  .home [hidden] { display: none !important; }
-  @media (max-width: 1000px) { .tool-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-  @media (max-width: 760px) { .home { width: min(100% - 2rem, 42rem); } .hero-inner { width: min(100% - 2rem, 42rem); padding: 2.5rem 0 1.75rem; } .group-nav { width: calc(100% + 1rem); margin-left: -.5rem; } .tool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hero-inner::before { right: -18rem; } }
-  @media (max-width: 520px) { .home { width: min(100% - 1.25rem, 42rem); } .hero-inner { width: min(100% - 1.25rem, 42rem); padding: 2rem 0 1.5rem; } .hero-topline { align-items: flex-start; flex-direction: column; gap: 0; } .hero-note { margin-top: -.65rem; } h1 { font-size: clamp(2.65rem, 12vw, 3.5rem); } .hero-intro { margin-bottom: 1.7rem; font-size: .92rem; } .search-wrap input { height: 3.55rem; padding-right: 3.5rem; } .search-hint { display: none; } .hero-meta { gap: .5rem; } .browse-link { margin-left: 0; width: 100%; } .tool-grid { grid-template-columns: 1fr; } .tool-card { min-height: 7.8rem; } .collection-head { align-items: flex-start; flex-direction: column; gap: .3rem; } }
-  @media (prefers-reduced-motion: reduce) { .tool-card, .tool-arrow, .search-wrap input { transition: none; } }
-  .search-wrap input::-webkit-search-cancel-button { display: none; }
-  .tool-card:focus-visible, .group-nav a:focus-visible, .search-clear:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
-  .search-wrap input:focus { outline: 2px solid var(--brand); outline-offset: 2px; }
-  .is-searching .hero-meta, .is-searching .group-nav { display: none; }
-  .is-searching .hero-inner { padding-bottom: 1.2rem; }
-  .tool-copy small { -webkit-line-clamp: 3; }
-  @media (max-width: 520px) { .search-hint { display: block; } .hero-note { display: none; } h1 { font-size: 2.5rem; } .hero-intro { margin: 1rem 0; } .tool-card { min-height: 7rem; padding: 1rem; } }
+  .tool-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+  .tool-card-top b { color: var(--text); font-size: 0.94rem; font-weight: 680; line-height: 1.35; }
+  .tool-arrow { flex: none; color: var(--text-3); font-size: 0.86rem; line-height: 1.1; transition: color 0.18s, transform 0.18s; }
+  .tool-card:hover .tool-arrow, .tool-card:focus-visible .tool-arrow { color: var(--brand); transform: translate(2px, -2px); }
+  .tool-copy small {
+    display: -webkit-box;
+    margin-top: 0.35rem;
+    overflow: hidden;
+    color: var(--text-2);
+    font-size: 0.82rem;
+    line-height: 1.55;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  .tool-tag {
+    align-self: flex-start;
+    margin-top: auto;
+    padding: 0.24rem 0.58rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-soft);
+    color: var(--text-3);
+    font-size: 0.72rem;
+    font-weight: 560;
+    line-height: 1.2;
+  }
+
+  .search-empty {
+    margin-top: 1.5rem;
+    padding: 3.5rem 1.25rem;
+    text-align: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+  }
+  .empty-mark {
+    display: inline-grid;
+    width: 2.5rem;
+    height: 2.5rem;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--brand-soft);
+    color: var(--brand);
+    font-weight: 700;
+  }
+  .search-empty h2 { margin: 0.9rem 0 0.35rem; color: var(--text); font-size: 1.02rem; }
+  .search-empty p { margin: 0; color: var(--text-2); font-size: 0.85rem; }
+
+  @media (max-width: 1080px) { .tool-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 780px) { .tool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) {
+    .home { width: calc(100% - 1.25rem); margin-top: 0.85rem; }
+    .home-hero { border-radius: 20px; }
+    .group-nav { border-radius: 16px; }
+    .tool-grid { grid-template-columns: 1fr; gap: 0.7rem; }
+    .tool-card { min-height: auto; }
+  }
 </style>

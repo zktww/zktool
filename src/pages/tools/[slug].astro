@@ -7,7 +7,8 @@ export function getStaticPaths() {
     return tools.filter((tool) => tool.type === "tool").map((tool) => ({ params: { slug: toolSlug(tool) } }));
 }
 
-const document = loadLegacyDocument(legacyToolPath(Astro.params.slug!, "zh-CN"));
-const alternatePath = `/en/tools/${Astro.params.slug}/`;
+const slug = Astro.params.slug!;
+const document = loadLegacyDocument(legacyToolPath(slug, "zh-CN"));
+const alternatePath = `/en/tools/${slug}/`;
 ---
-<LegacyDocument {document} {alternatePath} />
+<LegacyDocument {document} {alternatePath} {slug} />

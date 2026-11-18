@@ -318,48 +318,91 @@ function setMetaContent(html, selector, value) {
     return html.replace(re, `$1${value}$2`);
 }
 
+const escapeHtml = (value) => String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+
+function getToolHelp(tool) {
+    const help = toolHelpEn[tool.path.split('/')[1]];
+    if (!help || !help.title || !help.intro || !Array.isArray(help.faqs) || !help.faqs.length) {
+        throw new Error(`Missing or incomplete English help: ${tool.path}`);
+    }
+    return help;
+}
+
 function englishSeoSection(tool) {
     const item = localizedItem(tool, "en");
-    const help = toolHelpEn[tool.path.split('/')[1]];
-    if (!help) throw new Error(`Missing English help: ${tool.path}`);
-    const escape = (value) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+    const help = getToolHelp(tool);
+    const detailsHtml = help.faqs
+        .map(([q, a]) => `        <details><summary>${escapeHtml(q)}</summary><p>${escapeHtml(a)}</p></details>`)
+        .join("\n");
     return `<section class="seo-notes">
-        <h2>About ${item.name}</h2>
-        <p>${escape(help[0])}</p>
-        <details><summary>${escape(help[1])}</summary><p>${escape(help[2])}</p></details>
+        <h2>About ${escapeHtml(item.name)}</h2>
+        <p>${escapeHtml(help.intro)}</p>
+        <h2>Frequently asked questions</h2>
+${detailsHtml}
     </section>`;
 }
 
 function localizeEnglishPage(html, tool, path) {
     const item = localizedItem(tool, "en");
+    const help = getToolHelp(tool);
+    const groupTitle = i18n.groups[tool.group] || tool.group;
     html = `<!-- Generated from /${path}; edit the Chinese source page and src/data/i18n.js instead. -->\n` + html;
     html = html.replace(/<html lang="[^"]+">/, '<html lang="en">');
-    html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${item.name} - Free Online Tool | zktool</title>`);
-    html = setMetaContent(html, 'name="description"', item.desc);
-    html = setMetaContent(html, 'property="og:title"', `${item.name} | zktool`);
-    html = setMetaContent(html, 'property="og:description"', item.desc);
+    html = html.replace(/<title>[\s\S]*?<\/title>/, () => `<title>${escapeHtml(help.title)}</title>`);
+    html = setMetaContent(html, 'name="description"', escapeHtml(item.desc));
+    html = setMetaContent(html, 'property="og:title"', escapeHtml(help.title));
+    html = setMetaContent(html, 'property="og:description"', escapeHtml(item.desc));
     html = setMetaContent(html, 'property="og:url"', localeUrl(tool.path, "en"));
-    html = html.replace(/<link rel="canonical" href="[^"]*"\s*\/>/, `<link rel="canonical" href="${localeUrl(tool.path, "en")}" />`);
-    html = html.replace(/(<h1[^>]*>[\s\S]*?<span class="(?:title|grad)">)[\s\S]*?(<\/span>[\s\S]*?<\/h1>)/, `$1${item.name}$2`);
-    html = html.replace(/<p class="lead">[\s\S]*?<\/p>/, `<p class="lead">${item.desc}</p>`);
-    html = html.replace(/<section class="seo-notes">[\s\S]*?<\/section>/, englishSeoSection(tool));
+    html = html.replace(/<link rel="canonical" href="[^"]*"\s*\/>/, () => `<link rel="canonical" href="${localeUrl(tool.path, "en")}" />`);
+    html = html.replace(/(<h1[^>]*>[\s\S]*?<span class="(?:title|grad)">)[\s\S]*?(<\/span>[\s\S]*?<\/h1>)/, (_, p1, p2) => `${p1}${escapeHtml(item.name)}${p2}`);
+    html = html.replace(/<p class="lead">[\s\S]*?<\/p>/, () => `<p class="lead">${escapeHtml(item.desc)}</p>`);
+    html = html.replace(/<section class="seo-notes">[\s\S]*?<\/section>/, () => englishSeoSection(tool));
     html = translateVisibleText(html, toolUiEn[tool.path.split('/')[1]]);
     const scriptText = { ...COMMON_SCRIPT_TEXT_EN, ...(toolScriptEn[tool.path.split('/')[1]] || {}), ...(SCRIPT_TEXT_EN[tool.path] || {}) };
     html = translateScriptText(html, scriptText);
-    // Keep only the generated application JSON-LD. The source breadcrumb JSON-LD
-    // contains Chinese labels and would otherwise leak into the English payload.
-    html = html.replace(/<script type="application\/ld\+json">[\s\S]*?BreadcrumbList[\s\S]*?<\/script>/g, "");
+    // Strip Chinese JSON-LD blocks and emit unified English @graph (WebApplication + BreadcrumbList + FAQPage).
+    html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g, "");
     html = html.replace(/<!--[\s\S]*?-->/g, "");
     html = html.replace(/(["'])\.\.\/\.\.\/(assets\/|favicon\.ico)/g, "$1../../../$2");
     html = html.replace(/href="\.\.\/\.\.\/"/g, 'href="../../../"');
-    html = html.replace(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g, (whole, body) => body.includes("BreadcrumbList") ? whole : "");
-    const appLd = JSON.stringify({
-        "@context": "https://schema.org", "@type": "WebApplication", name: item.name,
-        url: localeUrl(tool.path, "en"), applicationCategory: "DeveloperApplication",
-        operatingSystem: "Web", inLanguage: "en", description: item.desc,
-        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }
+    const enUrl = localeUrl(tool.path, "en");
+    const graphLd = JSON.stringify({
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "WebApplication",
+                name: item.name,
+                url: enUrl,
+                applicationCategory: "DeveloperApplication",
+                operatingSystem: "Web",
+                inLanguage: "en",
+                isAccessibleForFree: true,
+                description: item.desc,
+                offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }
+            },
+            {
+                "@type": "BreadcrumbList",
+                itemListElement: [
+                    { "@type": "ListItem", position: 1, name: "Home", item: `${ORIGIN}/en/` },
+                    { "@type": "ListItem", position: 2, name: groupTitle, item: `${ORIGIN}/en/#group-${tool.group}` },
+                    { "@type": "ListItem", position: 3, name: item.name, item: enUrl }
+                ]
+            },
+            {
+                "@type": "FAQPage",
+                mainEntity: help.faqs.map(([q, a]) => ({
+                    "@type": "Question",
+                    name: q,
+                    acceptedAnswer: { "@type": "Answer", text: a }
+                }))
+            }
+        ]
     });
-    html = html.replace("</head>", `    <script type="application/ld+json">${appLd}</script>\n</head>`);
+    html = html.replace("</head>", () => `    <script type="application/ld+json">${graphLd}</script>\n</head>`);
     return injectAlternates(ensureI18nScript(html), tool.path);
 }
 

@@ -32,9 +32,17 @@ function escapeXml(value) {
 }
 
 const sitemapEntries = ["", ...tools.map((tool) => tool.path)]
-    .flatMap((path) => [url(path), url(path, "en")])
-    .map((current) => `  <url>\n    <loc>${escapeXml(current)}</loc>\n  </url>`);
-const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapEntries.join("\n")}\n</urlset>\n`;
+    .flatMap((path) => {
+        const zhLoc = escapeXml(url(path, "zh-CN"));
+        const enLoc = escapeXml(url(path, "en"));
+        const alternates = [
+            `    <xhtml:link rel="alternate" hreflang="zh-CN" href="${zhLoc}" />`,
+            `    <xhtml:link rel="alternate" hreflang="en" href="${enLoc}" />`,
+            `    <xhtml:link rel="alternate" hreflang="x-default" href="${zhLoc}" />`
+        ].join("\n");
+        return [zhLoc, enLoc].map((loc) => `  <url>\n    <loc>${loc}</loc>\n${alternates}\n  </url>`);
+    });
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${sitemapEntries.join("\n")}\n</urlset>\n`;
 await Promise.all([
     writeFile(resolve(DIST, "sitemap.xml"), sitemap),
     writeFile(resolve(DIST, "sitemap-v2.xml"), sitemap)

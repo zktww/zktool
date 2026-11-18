@@ -37,10 +37,29 @@ for (const prefix of ['', 'en/']) for (const path of toolPaths) {
 }
 
 for (const page of pages) {
+    const rel = relative(DIST, page).replaceAll("\\", "/");
+    const is404 = rel.includes("404.html");
     const html = await readFile(page, "utf8");
+    if (is404) {
+        if (!/<meta\s+name="robots"\s+content="noindex,\s*nofollow"/i.test(html)) checks.push(`Expected noindex on 404 page: ${rel}`);
+        if (/<link\s+rel="canonical"/i.test(html)) checks.push(`Unexpected canonical on 404 page: ${rel}`);
+    } else {
+        const canonicals = [...html.matchAll(/<link\s+rel="canonical"\s+href="([^"]+)"/gi)];
+        if (canonicals.length !== 1) checks.push(`Expected exactly one canonical on ${rel}, found ${canonicals.length}`);
+        for (const lang of ["zh-CN", "en", "x-default"]) {
+            if (!new RegExp(`<link\\s+rel="alternate"\\s+hreflang="${lang}"`, "i").test(html)) {
+                checks.push(`Missing hreflang="${lang}" on ${rel}`);
+            }
+        }
+        if (!/<meta\s+property="og:image"/i.test(html)) checks.push(`Missing og:image on ${rel}`);
+        if (!/<meta\s+name="twitter:card"/i.test(html)) checks.push(`Missing twitter:card on ${rel}`);
+    }
     if (/[/\\]tools[/\\]/.test(page)) {
-        if ([...html.matchAll(/<a\b[^>]*class="[^"]*\bzk-lang-link\b/g)].length !== 1) checks.push(`Expected one language link: ${relative(DIST, page)}`);
-        if (html.includes('#domain-')) checks.push(`Legacy category anchor: ${relative(DIST, page)}`);
+        if ([...html.matchAll(/<a\b[^>]*class="[^"]*\bzk-lang-link\b/g)].length !== 1) checks.push(`Expected one language link: ${rel}`);
+        if (html.includes('#domain-')) checks.push(`Legacy category anchor: ${rel}`);
+        if (!/"WebApplication"/.test(html)) checks.push(`Missing WebApplication JSON-LD: ${rel}`);
+        if (!/"BreadcrumbList"/.test(html)) checks.push(`Missing BreadcrumbList JSON-LD: ${rel}`);
+        if (/class="seo-notes"/.test(html) && !/class="zk-related"/.test(html)) checks.push(`Missing static related tools mesh: ${rel}`);
     }
     if (relative(DIST, page).startsWith('en/tools/')) {
         const ui = html.replace(/<(script|style|textarea)\b[\s\S]*?<\/\1>/gi, '').replace(/<a\b[^>]*lang="zh-CN"[^>]*>[\s\S]*?<\/a>/g, '');

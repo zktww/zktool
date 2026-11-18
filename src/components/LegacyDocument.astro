@@ -1,16 +1,127 @@
 ---
 import type { LegacyDocument } from "../lib/legacy";
+import { groups, localizedGroup, localizedTool, tools, toolSlug } from "../data/catalog";
 import DevCacheReset from "./DevCacheReset.astro";
 
-interface Props { document: LegacyDocument; alternatePath: string; }
-const { document, alternatePath } = Astro.props;
-const language = document.lang.startsWith("en") ? "中文" : "EN";
-const languageCode = document.lang.startsWith("en") ? "zh-CN" : "en";
+interface Props {
+    document: LegacyDocument;
+    alternatePath: string;
+    slug: string;
+}
+
+const { document, alternatePath, slug } = Astro.props;
+const ORIGIN = "https://tools.zktww.cn";
+const isEn = document.lang.startsWith("en");
+const locale = isEn ? "en" : "zh-CN";
+const language = isEn ? "中文" : "EN";
+const languageCode = isEn ? "zh-CN" : "en";
+const homeHref = isEn ? "/en/" : "/";
+
+const sourceTool = tools.find((item) => item.type === "tool" && toolSlug(item) === slug);
+const currentTool = sourceTool ? localizedTool(sourceTool, locale) : null;
+const sourceGroup = sourceTool ? groups.find((g) => g.key === sourceTool.group) : null;
+const currentGroup = sourceGroup ? localizedGroup(sourceGroup, locale) : null;
+
+const escapeAttr = (value: string) => value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+
+const zhUrl = `${ORIGIN}/tools/${slug}/`;
+const enUrl = `${ORIGIN}/en/tools/${slug}/`;
+const canonicalUrl = isEn ? enUrl : zhUrl;
+
+// 1. Normalize <head>: authoritative canonical, bidirectional hreflang, OpenGraph/Twitter tags, and fallback JSON-LD
+let head = document.head
+    .replace(/<link\s+rel=["']canonical["'][^>]*>\s*/gi, "")
+    .replace(/<link\s+rel=["']alternate["']\s+hreflang=["'][^"']+["'][^>]*>\s*/gi, "");
+
+const pageTitle = (/<title>([\s\S]*?)<\/title>/i.exec(head)?.[1] || currentTool?.name || "zktool").trim();
+const pageDesc = (/<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i.exec(head)?.[1] || currentTool?.desc || "").trim();
+
+const headExtras: string[] = [
+    `<link rel="canonical" href="${canonicalUrl}" />`,
+    `<link rel="alternate" hreflang="zh-CN" href="${zhUrl}" />`,
+    `<link rel="alternate" hreflang="en" href="${enUrl}" />`,
+    `<link rel="alternate" hreflang="x-default" href="${zhUrl}" />`,
+];
+
+if (!/property=["']og:type["']/i.test(head)) headExtras.push(`<meta property="og:type" content="website" />`);
+if (!/property=["']og:site_name["']/i.test(head)) headExtras.push(`<meta property="og:site_name" content="zktool" />`);
+if (!/property=["']og:title["']/i.test(head)) headExtras.push(`<meta property="og:title" content="${escapeAttr(pageTitle)}" />`);
+if (!/property=["']og:description["']/i.test(head) && pageDesc) headExtras.push(`<meta property="og:description" content="${escapeAttr(pageDesc)}" />`);
+if (!/property=["']og:url["']/i.test(head)) headExtras.push(`<meta property="og:url" content="${canonicalUrl}" />`);
+if (!/property=["']og:image["']/i.test(head)) headExtras.push(`<meta property="og:image" content="${ORIGIN}/assets/og-card.jpg" />`);
+if (!/name=["']twitter:card["']/i.test(head)) headExtras.push(`<meta name="twitter:card" content="summary_large_image" />`);
+
+const combinedRaw = head + "\n" + document.body;
+const missingLdGraph: Record<string, unknown>[] = [];
+if (currentTool && !/"@type"\s*:\s*"WebApplication"/.test(combinedRaw)) {
+    missingLdGraph.push({
+        "@type": "WebApplication",
+        name: currentTool.name,
+        url: canonicalUrl,
+        applicationCategory: "DeveloperApplication",
+        operatingSystem: "Web",
+        inLanguage: locale,
+        isAccessibleForFree: true,
+        description: currentTool.desc,
+        offers: { "@type": "Offer", price: "0", priceCurrency: isEn ? "USD" : "CNY" }
+    });
+}
+if (currentTool && !/"@type"\s*:\s*"BreadcrumbList"/.test(combinedRaw)) {
+    missingLdGraph.push({
+        "@type": "BreadcrumbList",
+        itemListElement: [
+            { "@type": "ListItem", position: 1, name: isEn ? "Home" : "首页", item: `${ORIGIN}${homeHref}` },
+            ...(currentGroup ? [{ "@type": "ListItem", position: 2, name: currentGroup.title, item: `${ORIGIN}${homeHref}#group-${currentGroup.key}` }] : []),
+            { "@type": "ListItem", position: currentGroup ? 3 : 2, name: currentTool.name, item: canonicalUrl }
+        ]
+    });
+}
+if (missingLdGraph.length) {
+    const ldPayload = JSON.stringify({ "@context": "https://schema.org", "@graph": missingLdGraph });
+    headExtras.push(`<script type="application/ld+json">${ldPayload}</script>`);
+}
+head = head + "\n    " + headExtras.join("\n    ");
+
+// 2. Pre-render static breadcrumb & static related-tools internal link mesh in <body>
+let body = document.body;
+
+if (currentTool) {
+    const crumbLabel = isEn ? "Breadcrumb" : "面包屑";
+    const homeLabel = isEn ? "Home" : "首页";
+    const groupPart = currentGroup
+        ? `<span class="zk-crumb-sep" aria-hidden="true">›</span><a href="${homeHref}#group-${currentGroup.key}">${escapeAttr(currentGroup.title)}</a>`
+        : "";
+    const staticCrumb = `<nav class="zk-crumb" aria-label="${crumbLabel}"><a href="${homeHref}" class="zk-crumb-home"><span class="zk-brand-dot" aria-hidden="true">Z</span><span>${homeLabel}</span></a>${groupPart}<span class="zk-crumb-sep" aria-hidden="true">›</span><span class="zk-crumb-cur" aria-current="page">${escapeAttr(currentTool.name)}</span></nav>`;
+    body = body.replace(/<a\b[^>]*class=["'][^"']*\bback\b[^"']*["'][^>]*>[\s\S]*?<\/a>/i, () => staticCrumb);
+
+    if (/<section\s+class=["']seo-notes["']>/i.test(body) && !/class=["'][^"']*\bzk-related\b/i.test(body)) {
+        const localTools = tools.filter((it) => it.type === "tool" && toolSlug(it) !== slug);
+        const sameGroup = localTools.filter((it) => it.group === sourceTool!.group);
+        const otherGroup = localTools.filter((it) => it.group !== sourceTool!.group);
+        const relatedList = [...sameGroup, ...otherGroup].slice(0, 6).map((it) => ({
+            raw: it,
+            loc: localizedTool(it, locale),
+            href: `${homeHref}${it.path}`
+        }));
+        const relatedHeading = (currentGroup ? `${escapeAttr(currentGroup.title)} · ` : "") + (isEn ? "Related tools" : "相关工具");
+        const cardsHtml = relatedList.map(({ raw, loc, href }) =>
+            `<a href="${href}"><span class="zk-related-icon" style="--c1:${raw.c1};--c2:${raw.c2}" aria-hidden="true">${raw.icon}</span><span><b>${escapeAttr(loc.name)}</b><small>${escapeAttr(loc.desc)}</small></span></a>`
+        ).join("");
+        const relatedSection = `<section class="zk-related"><h2>${relatedHeading}</h2><nav class="zk-related-grid">${cardsHtml}</nav></section>\n    `;
+        body = body.replace(/<section\s+class=["']seo-notes["']>/i, (m) => `${relatedSection}${m}`);
+    }
+}
+
 const languageLink = `<a class="language-link zk-lang-link" href="${alternatePath}" lang="${languageCode}" hreflang="${languageCode}">${language}</a>`;
 const topContainer = /(<(?:div|header)\s+[^>]*class=["'][^"']*(?:\btop\b|\btopbar\b|\bshell-bar\b)[^"']*["'][^>]*>)/i;
-const body = topContainer.test(document.body)
-  ? document.body.replace(topContainer, `$1${languageLink}`)
-  : `<div class="legacy-language-fallback">${languageLink}</div>${document.body}`;
+body = topContainer.test(body)
+  ? body.replace(topContainer, (m) => `${m}${languageLink}`)
+  : `<div class="legacy-language-fallback">${languageLink}</div>${body}`;
+
 const languageStyle = `<style>
 .language-link { display:inline-flex; align-items:center; justify-content:center; min-width:2.25rem; height:2.25rem; padding:0 .72rem; border:1px solid var(--border,rgba(15,23,42,.085)); border-radius:999px; color:var(--text-2,#52627a); background:var(--surface,#fff); font:650 .78rem/1 system-ui,sans-serif; text-decoration:none; box-shadow:var(--shadow-sm); }
 .language-link:hover { border-color:var(--border-hover); color:var(--text); background:var(--surface-hover); }
@@ -22,7 +133,7 @@ const languageStyle = `<style>
 <html lang={document.lang}>
   <head>
     <meta name="google-site-verification" content="8a07Jc9svEOEYoohcRj644GSddCeBBikeKA0P9EmEXk" />
-    <Fragment set:html={document.head + languageStyle} />
+    <Fragment set:html={head + languageStyle} />
     <DevCacheReset />
   </head>
   <body {...document.bodyAttrs}>

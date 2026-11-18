@@ -1,5 +1,5 @@
 ---
-import { groups, localizedGroup, tools } from "../data/catalog";
+import { groups, localizedGroup, localizedTool, tools } from "../data/catalog";
 import DevCacheReset from "../components/DevCacheReset.astro";
 
 interface Props {
@@ -7,11 +7,13 @@ interface Props {
     description: string;
     locale: "zh-CN" | "en";
     path: string;
+    noindex?: boolean;
 }
 
-const { title, description, locale, path } = Astro.props;
+const { title, description, locale, path, noindex = false } = Astro.props;
 const origin = "https://tools.zktww.cn";
-const localTools = tools.filter((tool) => tool.type === "tool").length;
+const localToolEntries = tools.filter((tool) => tool.type === "tool");
+const localTools = localToolEntries.length;
 const externalTools = tools.filter((tool) => tool.type === "external").length;
 const alternate = locale === "en" ? (path.replace(/^\/en/, "") || "/") : (path === "/" ? "/en/" : `/en${path}`);
 const isHome = path === "/" || path === "/en/";
@@ -20,6 +22,35 @@ const navGroups = isHome
         .filter((group) => tools.some((tool) => (tool.type === "tool" || tool.type === "external") && tool.group === group.key))
         .map((group) => localizedGroup(group, locale))
     : [];
+const homeHref = locale === "en" ? "/en/" : "/";
+const siteJsonLd = isHome
+    ? JSON.stringify({
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "WebSite",
+                name: "zktool",
+                url: `${origin}${homeHref}`,
+                inLanguage: locale,
+                description
+            },
+            {
+                "@type": "ItemList",
+                name: locale === "en" ? "zktool Developer Tools" : "zktool 在线开发者工具集",
+                numberOfItems: localTools,
+                itemListElement: localToolEntries.map((source, index) => {
+                    const loc = localizedTool(source, locale);
+                    return {
+                        "@type": "ListItem",
+                        position: index + 1,
+                        name: loc.name,
+                        url: `${origin}${homeHref}${source.path}`
+                    };
+                })
+            }
+        ]
+    })
+    : null;
 ---
 <!doctype html>
 <html lang={locale}>
@@ -30,17 +61,28 @@ const navGroups = isHome
     <meta name="google-site-verification" content="8a07Jc9svEOEYoohcRj644GSddCeBBikeKA0P9EmEXk" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="stylesheet" href="/assets/tokens.css" />
     <script is:inline src="/assets/theme.js"></script>
     <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
     <link rel="manifest" href={locale === "en" ? "/en/manifest.webmanifest" : "/manifest.webmanifest"} />
-    <link rel="canonical" href={origin + path} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:url" content={origin + path} />
-    <link rel="alternate" hreflang="zh-CN" href={origin + (locale === "en" ? alternate : path)} />
-    <link rel="alternate" hreflang="en" href={origin + (locale === "en" ? path : alternate)} />
-    <link rel="alternate" hreflang="x-default" href={origin + (locale === "en" ? alternate : path)} />
+    {!noindex && (
+      <>
+        <link rel="canonical" href={origin + path} />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="zktool" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={origin + path} />
+        <meta property="og:image" content={`${origin}/assets/og-card.jpg`} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <link rel="alternate" hreflang="zh-CN" href={origin + (locale === "en" ? alternate : path)} />
+        <link rel="alternate" hreflang="en" href={origin + (locale === "en" ? path : alternate)} />
+        <link rel="alternate" hreflang="x-default" href={origin + (locale === "en" ? alternate : path)} />
+      </>
+    )}
+    {siteJsonLd && <script is:inline type="application/ld+json" set:html={siteJsonLd} />}
   </head>
   <body>
     <div class="site-ambient" aria-hidden="true"></div>

@@ -59,7 +59,8 @@
         "https://qc.zktww.cn/": ["QR Code Generator", "Generate QR codes for links, text, and sharing in a separate service.", "External"],
         "tools/css-length-unit/": ["CSS Length Unit Explorer", "Compare px, rem, vw, and other CSS length units with adjustable visual examples.", "CSS"],
         "tools/drag-and-drop-playground/": ["HTML Drag and Drop Playground", "Test native HTML drag and drop, list sorting, file drops, and live event logs.", "DnD"],
-        "tools/id-card-checker/": ["Chinese ID Checksum Calculator", "Calculate or verify the final checksum character of a mainland Chinese resident ID locally using GB 11643-1999. Input is not stored.", "Identity"]
+        "tools/id-card-checker/": ["Chinese ID Checksum Calculator", "Calculate or verify the final checksum character of a mainland Chinese resident ID locally using GB 11643-1999. Input is not stored.", "Identity"],
+        "tools/us-address-generator/": ["US Address Generator", "Generate realistic US street addresses across all 50 states and tax-free states with matched cities, counties, ZIP codes, area-code phone numbers, and JSON/CSV batch export.", "Address"]
     };
 
     var strings = {

@@ -146,3 +146,39 @@ test('scoped translation dictionaries have no duplicate keys', async () => {
     visit(source);
   }
 });
+
+test('US address generator covers 50 states + DC with valid ZIP/NANP rules and no SSN or card fields', async () => {
+  const html = await readFile(new URL('../src/tools/us-address-generator/index.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(html, /\bSSN\b|信用卡|CVV/i);
+  const inlineScripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
+  assert.equal(inlineScripts.length, 1);
+  const scriptBody = inlineScripts[0][1];
+
+  const statesMatch = scriptBody.match(/var STATES = (\{[\s\S]*?\n    \});/);
+  const poolMatch = scriptBody.match(/var ADDRESS_POOL = (\[[\s\S]*?\n    \]);/);
+  assert.ok(statesMatch && poolMatch, 'expected STATES and ADDRESS_POOL definitions');
+
+  const dataSandbox = {};
+  vm.runInNewContext(`STATES = ${statesMatch[1]}; ADDRESS_POOL = ${poolMatch[1]};`, dataSandbox);
+  const stateCodes = Object.keys(dataSandbox.STATES).sort();
+  assert.equal(stateCodes.length, 51, 'must include all 50 US states plus DC');
+
+  const taxFreeCodes = stateCodes.filter((code) => dataSandbox.STATES[code][2]);
+  assert.deepEqual(taxFreeCodes, ['AK', 'DE', 'MT', 'NH', 'OR']);
+
+  const counts = Object.fromEntries(stateCodes.map((code) => [code, 0]));
+  for (const row of dataSandbox.ADDRESS_POOL) {
+    assert.equal(row.length, 6);
+    const [street, city, county, state, zip, area] = row;
+    assert.match(street, /^\d+\s+\S+/);
+    assert.ok(city.length > 1 && county.length > 2);
+    assert.ok(dataSandbox.STATES[state], `unknown state ${state}`);
+    assert.match(zip, /^\d{5}$/);
+    assert.match(area, /^[2-9]\d{2}$/);
+    if (state === 'AK') assert.ok(['Anchorage', 'Fairbanks'].includes(city), 'AK entries must stay in local-tax-free cities');
+    counts[state]++;
+  }
+  for (const code of stateCodes) {
+    assert.ok(counts[code] >= 2, `expected at least 2 verified addresses for ${code}`);
+  }
+});

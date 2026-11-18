@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>美国地址生成器 - 免税州真实街区地址、邮编与电话在线生成 | zktool</title>
+    <meta name="description" content="免费在线美国地址生成器：浏览器本地生成全美 50 州与免税州（俄勒冈、特拉华、蒙大拿、新罕布什尔、阿拉斯加）真实街区级地址、ZIP 邮编、匹配区号电话与联系人信息，支持一键复制与 JSON/CSV 批量导出。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="美国地址生成器 - 免税州真实街区地址与邮编生成 | zktool" />
+    <meta property="og:description" content="浏览器本地生成全美 50 州与免税州真实街区级地址、ZIP 邮编、匹配区号电话与联系人信息，支持一键复制与批量导出。" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/us-address-generator/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/us-address-generator/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/theme.js"></script>
+    <script src="../../assets/clipboard.js"></script>
+    <script defer src="../../assets/registry.js"></script><script defer src="../../assets/i18n.js"></script>
+    <script defer src="../../assets/palette.js"></script>
+    <script defer src="../../assets/toolkit.js"></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://tools.zktww.cn/"},{"@type":"ListItem","position":2,"name":"生成与凭证","item":"https://tools.zktww.cn/#group-gen"},{"@type":"ListItem","position":3,"name":"美国地址生成器","item":"https://tools.zktww.cn/tools/us-address-generator/"}]}</script>
+    <style>
+        .controls-panel { margin-bottom: 1rem; }
+        .preset-bar { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 0.9rem; }
+        .preset-btn {
+            display: inline-flex; align-items: center; gap: 0.35rem;
+            padding: 0.34rem 0.72rem; border: 1px solid var(--border); border-radius: 999px;
+            background: var(--bg-soft); color: var(--text-2); font: 600 0.78rem/1.2 inherit;
+            cursor: pointer; transition: color 0.18s, border-color 0.18s, background 0.18s;
+        }
+        .preset-btn:hover, .preset-btn:focus-visible { color: var(--text); border-color: var(--border-hover); outline: none; }
+        .preset-btn.active { color: var(--brand); border-color: var(--brand-ring); background: var(--brand-soft); }
+        .opt-grid {
+            display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 0.65rem; margin-bottom: 0.85rem;
+        }
+        .opt-grid label { display: flex; flex-direction: column; font-size: 0.82rem; font-weight: 600; color: var(--text-2); }
+        .addr-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.85rem; }
+        .panel-head h2 { margin-bottom: 0; }
+        .tax-chip {
+            display: inline-flex; align-items: center; padding: 0.2rem 0.58rem;
+            border-radius: 999px; border: 1px solid var(--border); background: var(--bg-soft);
+            color: var(--text-2); font-size: 0.74rem; font-weight: 650; white-space: nowrap;
+        }
+        .tax-chip.free {
+            color: var(--ok);
+            border-color: color-mix(in srgb, var(--ok) 45%, var(--border));
+            background: color-mix(in srgb, var(--ok) 10%, var(--surface));
+        }
+        .kv-list { display: flex; flex-direction: column; gap: 0.42rem; }
+        .kv-row {
+            display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;
+            width: 100%; padding: 0.5rem 0.68rem; border: 1px solid var(--border); border-radius: 10px;
+            background: var(--bg-soft); color: var(--text); font: inherit; text-align: left;
+            cursor: pointer; transition: border-color 0.18s, background 0.18s;
+        }
+        .kv-row:hover, .kv-row:focus-visible { border-color: var(--brand-ring); background: var(--surface-hover); outline: none; }
+        .kv-row.copied { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 8%, var(--surface)); }
+        .kv-row .k { flex: 0 0 auto; color: var(--text-2); font-size: 0.82rem; }
+        .kv-row .v-wrap { display: inline-flex; align-items: center; gap: 0.45rem; min-width: 0; }
+        .kv-row .v { font-family: var(--mono); font-size: 0.86rem; font-weight: 600; color: var(--text); text-align: right; word-break: break-all; }
+        .kv-row .copy-tag {
+            flex: 0 0 auto; font-size: 0.72rem; color: var(--text-3);
+            padding: 0.1rem 0.38rem; border-radius: 5px; border: 1px solid transparent;
+        }
+        .kv-row:hover .copy-tag, .kv-row:focus-visible .copy-tag { color: var(--brand); border-color: var(--brand-ring-soft); background: var(--brand-soft); }
+        .kv-row.copied .copy-tag { color: var(--ok); border-color: transparent; background: transparent; font-weight: 700; }
+        .mailing-box { min-height: 6.4rem; max-height: 11rem; margin: 0; font-size: 0.84rem; line-height: 1.65; }
+        .batch-panel { margin-top: 1rem; }
+        .batch-box { min-height: 13rem; max-height: 28rem; }
+        .w-count { width: 7rem; }
+        @media (max-width: 980px) {
+            .opt-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 860px) {
+            .addr-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 520px) {
+            .opt-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body data-zk-manual>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">US Address / Mock</p></div>
+    <h1><span class="title">美国地址生成器</span></h1>
+    <p class="lead">本地生成全美 50 州真实商业与公共街区地址，街道、城市、县、州、ZIP 邮编与电话区号严格对应，支持免税州筛选、单字段复制与批量导出。</p>
+
+    <section class="panel controls-panel">
+        <h2>筛选与生成设置</h2>
+        <div class="preset-bar" role="group" aria-label="快捷地区筛选">
+            <button class="preset-btn" type="button" data-preset="ALL">全部随机</button>
+            <button class="preset-btn active" type="button" data-preset="TAX_FREE">免税州随机 (0% 税)</button>
+            <button class="preset-btn" type="button" data-preset="OR">OR 俄勒冈</button>
+            <button class="preset-btn" type="button" data-preset="DE">DE 特拉华</button>
+            <button class="preset-btn" type="button" data-preset="MT">MT 蒙大拿</button>
+            <button class="preset-btn" type="button" data-preset="NH">NH 新罕布什尔</button>
+            <button class="preset-btn" type="button" data-preset="AK">AK 阿拉斯加</button>
+            <button class="preset-btn" type="button" data-preset="CA">CA 加州</button>
+            <button class="preset-btn" type="button" data-preset="NY">NY 纽约</button>
+            <button class="preset-btn" type="button" data-preset="TX">TX 得州</button>
+        </div>
+        <div class="opt-grid">
+            <label>州 / 地区
+                <select id="stateSelect" aria-label="选择美国州或地区"></select>
+            </label>
+            <label>性别倾向
+                <select id="genderSelect" aria-label="选择性别倾向">
+                    <option value="any">随机</option>
+                    <option value="Female">女 (Female)</option>
+                    <option value="Male">男 (Male)</option>
+                </select>
+            </label>
+            <label>二级单元号
+                <select id="unitSelect" aria-label="二级单元号设置">
+                    <option value="suite">包含 Suite / Ste</option>
+                    <option value="none">不含单元号</option>
+                </select>
+            </label>
+            <label>号码规则
+                <select id="phoneMode" aria-label="电话号码生成规则">
+                    <option value="standard">标准号码 (过主流校验)</option>
+                    <option value="fictional">555-01XX (测试保留段)</option>
+                </select>
+            </label>
+            <label>邮箱域名
+                <select id="emailDomain" aria-label="选择邮箱域名">
+                    <option value="example.com">@example.com (测试域名)</option>
+                    <option value="gmail.com">@gmail.com</option>
+                    <option value="outlook.com">@outlook.com</option>
+                    <option value="icloud.com">@icloud.com</option>
+                </select>
+            </label>
+        </div>
+        <div class="row">
+            <button class="btn primary" id="genBtn" type="button">生成新地址</button>
+            <button class="btn" id="copyMailingBtn" type="button">复制邮寄地址</button>
+            <button class="btn" id="copyJsonBtn" type="button">复制 JSON</button>
+            <button class="btn" id="toggleBatchBtn" type="button" aria-expanded="false" aria-controls="batchPanel">批量生成</button>
+            <p class="hint" id="status" aria-live="polite">点击下方任意字段行即可一键复制对应内容。</p>
+        </div>
+    </section>
+
+    <div class="tool-grid addr-grid">
+        <section class="panel">
+            <div class="panel-head">
+                <h2>街道与邮寄地址</h2>
+                <span class="tax-chip free" id="taxBadge">免税州 · 0% 州销售税</span>
+            </div>
+            <div class="kv-list" id="addrList">
+                <button class="kv-row" type="button" data-field="street"><span class="k">街道地址 (Address Line 1)</span><span class="v-wrap"><span class="v" id="f-street">—</span><span class="copy-tag">复制</span></span></button>
+                <button class="kv-row" type="button" data-field="unit"><span class="k">单元号 (Address Line 2)</span><span class="v-wrap"><span class="v" id="f-unit">—</span><span class="copy-tag">复制</span></span></button>
+                <button class="kv-row" type="button" data-field="city"><span class="k">城市 (City)</span><span class="v-wrap"><span class="v" id="f-city">—</span><span class="copy-tag">复制</span></span></button>
+                <button class="kv-row" type="button" data-field="county"><span class="k">县 / 郡 (County)</span><span class="v-wrap"><span class="v" id="f-county">—</span><span class="copy-tag">复制</span></span></button>
+                <button class="kv-row" type="button" data-field="stateName"><span class="k">州全称 (State)</span><span class="v-wrap"><span class="v" id="f-stateName">—</span><span class="copy-tag">复制</span></span></button>
+                <button class="kv-row" type="button" data-field="state"><span class="k">州缩写 (State Code)</span><span class="v-wrap"><span class="v" id="f-state">—</span><span class="copy-tag">复制</span></span></button>
+                <button class="kv-row" type="button" data-field="zip"><span class="k">邮政编码 (ZIP Code)</span><span class="v-wrap"><span class="v" id="f-zip">—</span><span class="copy-tag">复制</span></span></button>
+                <button class="kv-row" type="button" data-field="zipPlus4"><span class="k">扩展邮编 (ZIP+4)</span><span class="v-wrap"><span class="v" id="f-zipPlus4">—</span><span class="copy-tag">复制</span></span></button>
+                <button class="kv-row" type="button" data-field="country"><span class="k">国家 / 地区 (Country)</span><span class="v-wrap"><span class="v" id="f-country">United States</span><span class="copy-tag">复制</span></span></button>
+            </div>
+        </section>
+
+        <aside>
+            <section class="panel">
+                <h2>联系人与区域信息</h2>
+                <div class="kv-list" id="contactList">
+                    <button class="kv-row" type="button" data-field="fullName"><span class="k">全名 (Full Name)</span><span class="v-wrap"><span class="v" id="f-fullName">—</span><span class="copy-tag">复制</span></span></button>
+                    <button class="kv-row" type="button" data-field="firstName"><span class="k">名 (First Name)</span><span class="v-wrap"><span class="v" id="f-firstName">—</span><span class="copy-tag">复制</span></span></button>
+                    <button class="kv-row" type="button" data-field="lastName"><span class="k">姓 (Last Name)</span><span class="v-wrap"><span class="v" id="f-lastName">—</span><span class="copy-tag">复制</span></span></button>
+                    <button class="kv-row" type="button" data-field="gender"><span class="k">性别 (Gender)</span><span class="v-wrap"><span class="v" id="f-gender">—</span><span class="copy-tag">复制</span></span></button>
+                    <button class="kv-row" type="button" data-field="birthday"><span class="k">出生日期 (MM/DD/YYYY)</span><span class="v-wrap"><span class="v" id="f-birthday">—</span><span class="copy-tag">复制</span></span></button>
+                    <button class="kv-row" type="button" data-field="phone"><span class="k">电话号码 (Phone)</span><span class="v-wrap"><span class="v" id="f-phone">—</span><span class="copy-tag">复制</span></span></button>
+                    <button class="kv-row" type="button" data-field="phoneDigits"><span class="k">纯数字电话 (10 Digits)</span><span class="v-wrap"><span class="v" id="f-phoneDigits">—</span><span class="copy-tag">复制</span></span></button>
+                    <button class="kv-row" type="button" data-field="email"><span class="k">电子邮箱 (Email)</span><span class="v-wrap"><span class="v" id="f-email">—</span><span class="copy-tag">复制</span></span></button>
+                    <button class="kv-row" type="button" data-field="timezone"><span class="k">时区 (Time Zone)</span><span class="v-wrap"><span class="v" id="f-timezone">—</span><span class="copy-tag">复制</span></span></button>
+                </div>
+            </section>
+            <section class="panel">
+                <h2>标准邮寄格式 (USPS)</h2>
+                <pre class="output mailing-box" id="mailingOutput"></pre>
+            </section>
+        </aside>
+    </div>
+
+    <section class="panel batch-panel" id="batchPanel" hidden>
+        <h2>批量生成与导出</h2>
+        <div class="row">
+            <label class="w-count">数量
+                <input id="batchCount" type="number" min="1" max="100" value="10" aria-label="批量生成条数" />
+            </label>
+            <label class="grow">导出格式
+                <select id="batchFormat" aria-label="批量导出格式">
+                    <option value="json">JSON 数组</option>
+                    <option value="csv">CSV 表格</option>
+                    <option value="usps">USPS 多行文本</option>
+                </select>
+            </label>
+            <button class="btn primary" id="batchGenBtn" type="button">生成批量数据</button>
+            <button class="btn" id="batchCopyBtn" type="button">复制批量结果</button>
+            <button class="btn" id="batchDownloadBtn" type="button">下载文件</button>
+        </div>
+        <pre class="output batch-box" id="batchOutput"></pre>
+    </section>
+
+    <section class="seo-notes">
+        <h2>关于美国地址生成器</h2>
+        <p>本工具在浏览器本地生成符合美国邮政（USPS）规范的真实街区级地址与配套联系人测试数据，覆盖美国全部 50 个州及华盛顿哥伦比亚特区，并针对五大免税州（俄勒冈 OR、特拉华 DE、蒙大拿 MT、新罕布什尔 NH、阿拉斯加 AK）提供专项快捷筛选。所有地址均选用真实存在的商业办公楼宇与公共商业中心街道门牌，确保街道、城市、所属县、两字母州缩写、5 位 ZIP 邮编与电话区号（Area Code）严格匹配，避免使用私人住宅地址。本工具生成的姓名、电话与邮箱均为合成测试数据，仅限软件开发调试、表单校验测试与产品原型演示，请勿用于欺诈、逃税或违反第三方平台服务条款的用途。</p>
+        <h2>常见问题</h2>
+        <details><summary>美国有哪些免消费税的州？</summary><p>美国共有 5 个不征收州级销售税（State Sales Tax）的州，常简称为 NOMAD 免税州：俄勒冈州（Oregon, OR）、特拉华州（Delaware, DE）、蒙大拿州（Montana, MT）、新罕布什尔州（New Hampshire, NH）和阿拉斯加州（Alaska, AK）。其中阿拉斯加州允许部分市县征收地方税，但安克雷奇（Anchorage）和费尔班克斯（Fairbanks）无地方销售税，本工具在阿拉斯加州仅收录免地方税城市。</p></details>
+        <details><summary>为什么街道地址拆分了 Line 1 和 Line 2？</summary><p>主流美国网站（调用 USPS 或 Google Places 地址校验接口）会对 Address Line 1 的门牌号与街道名称进行严格核验。将真实楼宇门牌放在 Line 1、可选的办公单元号（Suite / Ste）放在 Line 2，既符合美式账单与收货表单设计，又能顺畅通过自动化地址核验。</p></details>
+        <details><summary>生成的电话号码有什么区别？</summary><p>「标准号码」模式使用对应城市的真实地理区号（NPA）搭配符合北美编号计划（NANP / libphonenumber）规则的局号，可通过主流网站的号码有效性校验；「555-01XX」模式使用北美官方专门预留给虚构与自动化测试的号段，保证绝对不会对应任何真实电话订户。</p></details>
+    </section>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"美国地址生成器","url":"https://tools.zktww.cn/tools/us-address-generator/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"浏览器本地生成全美 50 州与免税州真实街区级地址、ZIP 邮编、匹配区号电话与联系人信息，支持一键复制与 JSON/CSV 批量导出。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"美国有哪些免消费税的州？","acceptedAnswer":{"@type":"Answer","text":"美国共有 5 个州级免销售税州：俄勒冈州（OR）、特拉华州（DE）、蒙大拿州（MT）、新罕布什尔州（NH）和阿拉斯加州（AK，其中安克雷奇与费尔班克斯无地方销售税）。"}},{"@type":"Question","name":"为什么街道地址拆分了 Line 1 和 Line 2？","acceptedAnswer":{"@type":"Answer","text":"主流网站会对 Address Line 1 的门牌号与街道名称进行 USPS / Google 地址库核验。将真实商业楼宇门牌放在 Line 1、可选的单元号放在 Line 2，能够稳定通过自动化地址核验。"}},{"@type":"Question","name":"生成的电话号码有什么区别？","acceptedAnswer":{"@type":"Answer","text":"标准号码模式使用城市真实区号搭配符合 libphonenumber 规则的局号；555-01XX 模式使用北美官方保留测试号段，确保绝不对应真实订户。"}}]}]}</script>
+</main>
+<script>
+(function () {
+    "use strict";
+    var isEn = document.documentElement.lang === "en";
+    function t(zh, en) { return isEn ? en : zh; }
+
+    // 50 州 + DC 元数据：[英文名, 中文名, 是否免州销售税, IANA 时区]
+    var STATES = {
+        AK: ["Alaska", "阿拉斯加州", true, "America/Anchorage"],
+        AL: ["Alabama", "亚拉巴马州", false, "America/Chicago"],
+        AR: ["Arkansas", "阿肯色州", false, "America/Chicago"],
+        AZ: ["Arizona", "亚利桑那州", false, "America/Phoenix"],
+        CA: ["California", "加利福尼亚州", false, "America/Los_Angeles"],
+        CO: ["Colorado", "科罗拉多州", false, "America/Denver"],
+        CT: ["Connecticut", "康涅狄格州", false, "America/New_York"],
+        DC: ["District of Columbia", "华盛顿哥伦比亚特区", false, "America/New_York"],
+        DE: ["Delaware", "特拉华州", true, "America/New_York"],
+        FL: ["Florida", "佛罗里达州", false, "America/New_York"],
+        GA: ["Georgia", "佐治亚州", false, "America/New_York"],
+        HI: ["Hawaii", "夏威夷州", false, "Pacific/Honolulu"],
+        IA: ["Iowa", "艾奥瓦州", false, "America/Chicago"],
+        ID: ["Idaho", "爱达荷州", false, "America/Boise"],
+        IL: ["Illinois", "伊利诺伊州", false, "America/Chicago"],
+        IN: ["Indiana", "印第安纳州", false, "America/Indiana/Indianapolis"],
+        KS: ["Kansas", "堪萨斯州", false, "America/Chicago"],
+        KY: ["Kentucky", "肯塔基州", false, "America/New_York"],
+        LA: ["Louisiana", "路易斯安那州", false, "America/Chicago"],
+        MA: ["Massachusetts", "马萨诸塞州", false, "America/New_York"],
+        MD: ["Maryland", "马里兰州", false, "America/New_York"],
+        ME: ["Maine", "缅因州", false, "America/New_York"],
+        MI: ["Michigan", "密歇根州", false, "America/Detroit"],
+        MN: ["Minnesota", "明尼苏达州", false, "America/Chicago"],
+        MO: ["Missouri", "密苏里州", false, "America/Chicago"],
+        MS: ["Mississippi", "密西西比州", false, "America/Chicago"],
+        MT: ["Montana", "蒙大拿州", true, "America/Denver"],
+        NC: ["North Carolina", "北卡罗来纳州", false, "America/New_York"],
+        ND: ["North Dakota", "北达科他州", false, "America/Chicago"],
+        NE: ["Nebraska", "内布拉斯加州", false, "America/Chicago"],
+        NH: ["New Hampshire", "新罕布什尔州", true, "America/New_York"],
+        NJ: ["New Jersey", "新泽西州", false, "America/New_York"],
+        NM: ["New Mexico", "新墨西哥州", false, "America/Denver"],
+        NV: ["Nevada", "内华达州", false, "America/Los_Angeles"],
+        NY: ["New York", "纽约州", false, "America/New_York"],
+        OH: ["Ohio", "俄亥俄州", false, "America/New_York"],
+        OK: ["Oklahoma", "俄克拉荷马州", false, "America/Chicago"],
+        OR: ["Oregon", "俄勒冈州", true, "America/Los_Angeles"],
+        PA: ["Pennsylvania", "宾夕法尼亚州", false, "America/New_York"],
+        RI: ["Rhode Island", "罗得岛州", false, "America/New_York"],
+        SC: ["South Carolina", "南卡罗来纳州", false, "America/New_York"],
+        SD: ["South Dakota", "南达科他州", false, "America/Chicago"],
+        TN: ["Tennessee", "田纳西州", false, "America/Chicago"],
+        TX: ["Texas", "得克萨斯州", false, "America/Chicago"],
+        UT: ["Utah", "犹他州", false, "America/Denver"],
+        VA: ["Virginia", "弗吉尼亚州", false, "America/New_York"],
+        VT: ["Vermont", "佛蒙特州", false, "America/New_York"],
+        WA: ["Washington", "华盛顿州", false, "America/Los_Angeles"],
+        WI: ["Wisconsin", "威斯康星州", false, "America/Chicago"],
+        WV: ["West Virginia", "西弗吉尼亚州", false, "America/New_York"],
+        WY: ["Wyoming", "怀俄明州", false, "America/Denver"]
+    };
+
+    // 真实商业与公共街区地址池：[街道门牌, 城市, 县/郡, 州代码, 5位邮编, 电话区号]
+    var ADDRESS_POOL = [
+        // OR - Oregon (免税)
+        ["700 SW 5th Ave", "Portland", "Multnomah County", "OR", "97204", "503"],
+        ["1120 NW Couch St", "Portland", "Multnomah County", "OR", "97209", "971"],
+        ["1000 SW Broadway", "Portland", "Multnomah County", "OR", "97205", "503"],
+        ["700 NE Multnomah St", "Portland", "Multnomah County", "OR", "97232", "503"],
+        ["9585 SW Washington Square Rd", "Tigard", "Washington County", "OR", "97223", "503"],
+        ["3800 SW Cedar Hills Blvd", "Beaverton", "Washington County", "OR", "97005", "503"],
+        ["400 High St SE", "Salem", "Marion County", "OR", "97301", "503"],
+        ["296 E 5th Ave", "Eugene", "Lane County", "OR", "97401", "541"],
+        ["450 SW Powerhouse Dr", "Bend", "Deschutes County", "OR", "97702", "541"],
+        ["1600 N Riverside Ave", "Medford", "Jackson County", "OR", "97501", "541"],
+        // DE - Delaware (免税)
+        ["1201 N Market St", "Wilmington", "New Castle County", "DE", "19801", "302"],
+        ["100 W 10th St", "Wilmington", "New Castle County", "DE", "19801", "302"],
+        ["300 Delaware Ave", "Wilmington", "New Castle County", "DE", "19801", "302"],
+        ["4720 Limestone Rd", "Wilmington", "New Castle County", "DE", "19808", "302"],
+        ["132 Christiana Mall", "Newark", "New Castle County", "DE", "19702", "302"],
+        ["200 E Main St", "Newark", "New Castle County", "DE", "19711", "302"],
+        ["1365 N Dupont Hwy", "Dover", "Kent County", "DE", "19901", "302"],
+        ["155 S State St", "Dover", "Kent County", "DE", "19901", "302"],
+        ["18999 Coastal Hwy", "Rehoboth Beach", "Sussex County", "DE", "19971", "302"],
+        // MT - Montana (免税)
+        ["401 N 31st St", "Billings", "Yellowstone County", "MT", "59101", "406"],
+        ["300 S 24th St W", "Billings", "Yellowstone County", "MT", "59102", "406"],
+        ["2901 Brooks St", "Missoula", "Missoula County", "MT", "59801", "406"],
+        ["201 W Main St", "Missoula", "Missoula County", "MT", "59802", "406"],
+        ["2825 W Main St", "Bozeman", "Gallatin County", "MT", "59718", "406"],
+        ["19 N Main St", "Helena", "Lewis and Clark County", "MT", "59601", "406"],
+        ["1200 10th Ave S", "Great Falls", "Cascade County", "MT", "59405", "406"],
+        ["20 N Main St", "Kalispell", "Flathead County", "MT", "59901", "406"],
+        // NH - New Hampshire (免税)
+        ["900 Elm St", "Manchester", "Hillsborough County", "NH", "03101", "603"],
+        ["1500 S Willow St", "Manchester", "Hillsborough County", "NH", "03103", "603"],
+        ["310 Daniel Webster Hwy", "Nashua", "Hillsborough County", "NH", "03060", "603"],
+        ["221 Main St", "Nashua", "Hillsborough County", "NH", "03060", "603"],
+        ["49 N Main St", "Concord", "Merrimack County", "NH", "03301", "603"],
+        ["99 Rockingham Park Blvd", "Salem", "Rockingham County", "NH", "03079", "603"],
+        ["100 Market St", "Portsmouth", "Rockingham County", "NH", "03801", "603"],
+        ["50 Fox Run Rd", "Newington", "Rockingham County", "NH", "03801", "603"],
+        // AK - Alaska (免税且无地方销售税城市)
+        ["3201 C St", "Anchorage", "Anchorage Municipality", "AK", "99503", "907"],
+        ["700 W 6th Ave", "Anchorage", "Anchorage Municipality", "AK", "99501", "907"],
+        ["800 E Dimond Blvd", "Anchorage", "Anchorage Municipality", "AK", "99515", "907"],
+        ["188 W Northern Lights Blvd", "Anchorage", "Anchorage Municipality", "AK", "99503", "907"],
+        ["32 College Rd", "Fairbanks", "Fairbanks North Star Borough", "AK", "99701", "907"],
+        ["250 Third St", "Fairbanks", "Fairbanks North Star Borough", "AK", "99701", "907"],
+        // 其余各州与特区
+        ["420 20th St N", "Birmingham", "Jefferson County", "AL", "35203", "205"],
+        ["2801 Memorial Pkwy SW", "Huntsville", "Madison County", "AL", "35801", "256"],
+        ["400 W Capitol Ave", "Little Rock", "Pulaski County", "AR", "72201", "501"],
+        ["4201 W New Hope Rd", "Rogers", "Benton County", "AR", "72758", "479"],
+        ["2 N Central Ave", "Phoenix", "Maricopa County", "AZ", "85004", "602"],
+        ["7014 E Camelback Rd", "Scottsdale", "Maricopa County", "AZ", "85251", "480"],
+        ["4500 N Oracle Rd", "Tucson", "Pima County", "AZ", "85705", "520"],
+        ["555 California St", "San Francisco", "San Francisco County", "CA", "94104", "415"],
+        ["865 Market St", "San Francisco", "San Francisco County", "CA", "94103", "415"],
+        ["633 W 5th St", "Los Angeles", "Los Angeles County", "CA", "90071", "213"],
+        ["10250 Santa Monica Blvd", "Los Angeles", "Los Angeles County", "CA", "90067", "310"],
+        ["2855 Stevens Creek Blvd", "Santa Clara", "Santa Clara County", "CA", "95050", "408"],
+        ["7007 Friars Rd", "San Diego", "San Diego County", "CA", "92108", "619"],
+        ["1801 California St", "Denver", "Denver County", "CO", "80202", "303"],
+        ["3000 E 1st Ave", "Denver", "Denver County", "CO", "80206", "303"],
+        ["1710 Briargate Blvd", "Colorado Springs", "El Paso County", "CO", "80920", "719"],
+        ["185 Asylum St", "Hartford", "Hartford County", "CT", "06103", "860"],
+        ["100 Greyrock Pl", "Stamford", "Fairfield County", "CT", "06901", "203"],
+        ["1300 I St NW", "Washington", "District of Columbia", "DC", "20005", "202"],
+        ["555 12th St NW", "Washington", "District of Columbia", "DC", "20004", "202"],
+        ["200 S Biscayne Blvd", "Miami", "Miami-Dade County", "FL", "33131", "305"],
+        ["701 Brickell Ave", "Miami", "Miami-Dade County", "FL", "33131", "305"],
+        ["4200 Conroy Rd", "Orlando", "Orange County", "FL", "32839", "407"],
+        ["2223 N Westshore Blvd", "Tampa", "Hillsborough County", "FL", "33607", "813"],
+        ["191 Peachtree St NE", "Atlanta", "Fulton County", "GA", "30303", "404"],
+        ["3393 Peachtree Rd NE", "Atlanta", "Fulton County", "GA", "30326", "404"],
+        ["7804 Abercorn St", "Savannah", "Chatham County", "GA", "31406", "912"],
+        ["1450 Ala Moana Blvd", "Honolulu", "Honolulu County", "HI", "96814", "808"],
+        ["1001 Bishop St", "Honolulu", "Honolulu County", "HI", "96813", "808"],
+        ["801 Grand Ave", "Des Moines", "Polk County", "IA", "50309", "515"],
+        ["1451 Coral Ridge Ave", "Coralville", "Johnson County", "IA", "52241", "319"],
+        ["800 W Main St", "Boise", "Ada County", "ID", "83702", "208"],
+        ["350 N Milwaukee St", "Boise", "Ada County", "ID", "83704", "208"],
+        ["233 S Wacker Dr", "Chicago", "Cook County", "IL", "60606", "312"],
+        ["875 N Michigan Ave", "Chicago", "Cook County", "IL", "60611", "312"],
+        ["5 Woodfield Mall", "Schaumburg", "Cook County", "IL", "60173", "847"],
+        ["111 Monument Cir", "Indianapolis", "Marion County", "IN", "46204", "317"],
+        ["8702 Keystone Crossing", "Indianapolis", "Marion County", "IN", "46240", "317"],
+        ["10000 W 75th St", "Overland Park", "Johnson County", "KS", "66204", "913"],
+        ["7700 E Kellogg Dr", "Wichita", "Sedgwick County", "KS", "67207", "316"],
+        ["400 W Market St", "Louisville", "Jefferson County", "KY", "40202", "502"],
+        ["3401 Nicholasville Rd", "Lexington", "Fayette County", "KY", "40503", "859"],
+        ["701 Poydras St", "New Orleans", "Orleans Parish", "LA", "70139", "504"],
+        ["6401 Bluebonnet Blvd", "Baton Rouge", "East Baton Rouge Parish", "LA", "70836", "225"],
+        ["800 Boylston St", "Boston", "Suffolk County", "MA", "02199", "617"],
+        ["200 Clarendon St", "Boston", "Suffolk County", "MA", "02116", "617"],
+        ["100 Cambridgeside Pl", "Cambridge", "Middlesex County", "MA", "02141", "617"],
+        ["100 E Pratt St", "Baltimore", "Baltimore City", "MD", "21202", "410"],
+        ["7101 Democracy Blvd", "Bethesda", "Montgomery County", "MD", "20817", "301"],
+        ["1 Monument Sq", "Portland", "Cumberland County", "ME", "04101", "207"],
+        ["364 Maine Mall Rd", "South Portland", "Cumberland County", "ME", "04106", "207"],
+        ["400 Renaissance Ctr", "Detroit", "Wayne County", "MI", "48243", "313"],
+        ["2800 W Big Beaver Rd", "Troy", "Oakland County", "MI", "48084", "248"],
+        ["80 S 8th St", "Minneapolis", "Hennepin County", "MN", "55402", "612"],
+        ["60 E Broadway", "Bloomington", "Hennepin County", "MN", "55425", "952"],
+        ["211 N Broadway", "St. Louis", "St. Louis City", "MO", "63102", "314"],
+        ["1201 Walnut St", "Kansas City", "Jackson County", "MO", "64106", "816"],
+        ["188 E Capitol St", "Jackson", "Hinds County", "MS", "39201", "601"],
+        ["1000 Turtle Creek Dr", "Hattiesburg", "Forrest County", "MS", "39402", "601"],
+        ["100 N Tryon St", "Charlotte", "Mecklenburg County", "NC", "28202", "704"],
+        ["4400 Sharon Rd", "Charlotte", "Mecklenburg County", "NC", "28211", "704"],
+        ["4325 Glenwood Ave", "Raleigh", "Wake County", "NC", "27612", "919"],
+        ["3902 13th Ave S", "Fargo", "Cass County", "ND", "58103", "701"],
+        ["600 S 3rd St", "Bismarck", "Burleigh County", "ND", "58504", "701"],
+        ["1601 Dodge St", "Omaha", "Douglas County", "NE", "68102", "402"],
+        ["10000 California St", "Omaha", "Douglas County", "NE", "68114", "402"],
+        ["30 Hudson St", "Jersey City", "Hudson County", "NJ", "07302", "201"],
+        ["1 Garden State Plaza", "Paramus", "Bergen County", "NJ", "07652", "201"],
+        ["1200 Morris Tpke", "Short Hills", "Essex County", "NJ", "07078", "973"],
+        ["6600 Menaul Blvd NE", "Albuquerque", "Bernalillo County", "NM", "87110", "505"],
+        ["500 Marquette Ave NW", "Albuquerque", "Bernalillo County", "NM", "87102", "505"],
+        ["3200 Las Vegas Blvd S", "Las Vegas", "Clark County", "NV", "89109", "702"],
+        ["3800 Howard Hughes Pkwy", "Las Vegas", "Clark County", "NV", "89169", "702"],
+        ["5000 Meadowood Mall Cir", "Reno", "Washoe County", "NV", "89502", "775"],
+        ["350 5th Ave", "New York", "New York County", "NY", "10118", "212"],
+        ["200 Vesey St", "New York", "New York County", "NY", "10281", "212"],
+        ["445 Albee Square W", "Brooklyn", "Kings County", "NY", "11201", "718"],
+        ["630 Old Country Rd", "Garden City", "Nassau County", "NY", "11530", "516"],
+        ["1 Walden Galleria", "Cheektowaga", "Erie County", "NY", "14225", "716"],
+        ["127 Public Sq", "Cleveland", "Cuyahoga County", "OH", "44114", "216"],
+        ["1500 Polaris Pkwy", "Columbus", "Delaware County", "OH", "43240", "614"],
+        ["7875 Montgomery Rd", "Cincinnati", "Hamilton County", "OH", "45236", "513"],
+        ["101 N Robinson Ave", "Oklahoma City", "Oklahoma County", "OK", "73102", "405"],
+        ["7021 S Memorial Dr", "Tulsa", "Tulsa County", "OK", "74133", "918"],
+        ["1700 Market St", "Philadelphia", "Philadelphia County", "PA", "19103", "215"],
+        ["160 N Gulph Rd", "King of Prussia", "Montgomery County", "PA", "19406", "610"],
+        ["600 Grant St", "Pittsburgh", "Allegheny County", "PA", "15219", "412"],
+        ["100 Westminster St", "Providence", "Providence County", "RI", "02903", "401"],
+        ["1 Providence Pl", "Providence", "Providence County", "RI", "02903", "401"],
+        ["1201 Main St", "Columbia", "Richland County", "SC", "29201", "803"],
+        ["700 Haywood Rd", "Greenville", "Greenville County", "SC", "29607", "864"],
+        ["4001 W 41st St", "Sioux Falls", "Minnehaha County", "SD", "57106", "605"],
+        ["2200 N Maple Ave", "Rapid City", "Pennington County", "SD", "57701", "605"],
+        ["501 Commerce St", "Nashville", "Davidson County", "TN", "37203", "615"],
+        ["2126 Abbott Martin Rd", "Nashville", "Davidson County", "TN", "37215", "615"],
+        ["901 Main St", "Dallas", "Dallas County", "TX", "75202", "214"],
+        ["13350 Dallas Pkwy", "Dallas", "Dallas County", "TX", "75240", "972"],
+        ["5085 Westheimer Rd", "Houston", "Harris County", "TX", "77056", "713"],
+        ["600 Congress Ave", "Austin", "Travis County", "TX", "78701", "512"],
+        ["15900 La Cantera Pkwy", "San Antonio", "Bexar County", "TX", "78256", "210"],
+        ["51 S Main St", "Salt Lake City", "Salt Lake County", "UT", "84111", "801"],
+        ["6191 S State St", "Murray", "Salt Lake County", "UT", "84107", "801"],
+        ["1961 Chain Bridge Rd", "Tysons", "Fairfax County", "VA", "22102", "703"],
+        ["919 E Main St", "Richmond", "Richmond City", "VA", "23219", "804"],
+        ["155 Dorset St", "South Burlington", "Chittenden County", "VT", "05403", "802"],
+        ["49 Church St", "Burlington", "Chittenden County", "VT", "05401", "802"],
+        ["701 5th Ave", "Seattle", "King County", "WA", "98104", "206"],
+        ["600 Pine St", "Seattle", "King County", "WA", "98101", "206"],
+        ["575 Bellevue Sq", "Bellevue", "King County", "WA", "98004", "425"],
+        ["777 E Wisconsin Ave", "Milwaukee", "Milwaukee County", "WI", "53202", "414"],
+        ["2500 N Mayfair Rd", "Wauwatosa", "Milwaukee County", "WI", "53226", "414"],
+        ["300 Capitol St", "Charleston", "Kanawha County", "WV", "25301", "304"],
+        ["9500 Mall Rd", "Morgantown", "Monongalia County", "WV", "26501", "304"],
+        ["1400 Dell Range Blvd", "Cheyenne", "Laramie County", "WY", "82009", "307"],
+        ["601 SE Wyoming Blvd", "Casper", "Natrona County", "WY", "82609", "307"]
+    ];
+
+    var FIRST_FEMALE = [
+        "Olivia", "Emma", "Charlotte", "Amelia", "Sophia", "Mia", "Isabella", "Ava", "Evelyn", "Luna",
+        "Harper", "Sofia", "Camila", "Eleanor", "Elizabeth", "Violet", "Scarlett", "Emily", "Hazel", "Lily",
+        "Gianna", "Aurora", "Penelope", "Aria", "Nora", "Chloe", "Ellie", "Mila", "Avery", "Layla",
+        "Abigail", "Ella", "Islay", "Madison", "Grace", "Hannah", "Natalie", "Zoe", "Victoria", "Audrey",
+        "Claire", "Lucy", "Savannah", "Anna", "Caroline", "kennedy", "Maya", "Sarah", "Madelyn", "Allison"
+    ];
+    FIRST_FEMALE[45] = "Kennedy";
+    FIRST_FEMALE[32] = "Isla";
+
+    var FIRST_MALE = [
+        "Liam", "Noah", "Oliver", "James", "Elijah", "William", "Henry", "Lucas", "Benjamin", "Theodore",
+        "Mateo", "Levi", "Sebastian", "Daniel", "Jack", "Michael", "Alexander", "Owen", "Asher", "Samuel",
+        "Ethan", "Leo", "Jackson", "Mason", "Ezra", "John", "Hudson", "Luca", "Aiden", "Joseph",
+        "David", "Jacob", "Logan", "Luke", "Julian", "Gabriel", "Grayson", "Wyatt", "Matthew", "Maverick",
+        "Dylan", "Isaac", "Elias", "Anthony", "Thomas", "Jayden", "Carter", "Charles", "Caleb", "Nathan"
+    ];
+
+    var LAST_NAMES = [
+        "Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "Wilson", "Anderson", "Taylor",
+        "Thomas", "Moore", "Jackson", "Martin", "Lee", "Thompson", "White", "Harris", "Clark", "Lewis",
+        "Robinson", "Walker", "Young", "Allen", "King", "Wright", "Scott", "Torres", "Nguyen", "Hill",
+        "Adams", "Nelson", "Baker", "Hall", "Rivera", "Campbell", "Mitchell", "Carter", "Roberts", "Turner",
+        "Phillips", "Evans", "Parker", "Edwards", "Collins", "Stewart", "Morris", "Murphy", "Cook", "Rogers",
+        "Morgan", "Peterson", "Cooper", "Reed", "Bailey", "Bell", "Howard", "Ward", "Brooks", "Bennett",
+        "Gray", "Price", "Hughes", "Sanders", "Ross", "Foster", "Powell", "Long", "Perry", "coleman"
+    ];
+    LAST_NAMES[69] = "Coleman";
+
+    function randInt(max) {
+        var limit = Math.floor(4294967296 / max) * max;
+        var buf = new Uint32Array(1);
+        do { crypto.getRandomValues(buf); } while (buf[0] >= limit);
+        return buf[0] % max;
+    }
+
+    function pick(arr) { return arr[randInt(arr.length)]; }
+    function pad2(n) { return n < 10 ? "0" + n : String(n); }
+    function pad4(n) { return String(10000 + n).slice(1); }
+
+    function generateExchangeCode() {
+        // 遵循 NANP / libphonenumber 规则：首数字 2-8，排除 N11、555、958/959、976
+        while (true) {
+            var d1 = 2 + randInt(7); // 2..8
+            var d2 = randInt(10);
+            var d3 = randInt(10);
+            if (d2 === 1 && d3 === 1) continue;
+            if (d1 === 5 && d2 === 5 && d3 === 5) continue;
+            var code = d1 * 100 + d2 * 10 + d3;
+            if (code === 958 || code === 959 || code === 976) continue;
+            return String(code);
+        }
+    }
+
+    function filterPool(filterVal) {
+        if (filterVal === "ALL") return ADDRESS_POOL;
+        if (filterVal === "TAX_FREE") {
+            return ADDRESS_POOL.filter(function (row) { return STATES[row[3]][2]; });
+        }
+        return ADDRESS_POOL.filter(function (row) { return row[3] === filterVal; });
+    }
+
+    var stateSelect = document.getElementById("stateSelect");
+    var genderSelect = document.getElementById("genderSelect");
+    var unitSelect = document.getElementById("unitSelect");
+    var phoneMode = document.getElementById("phoneMode");
+    var emailDomain = document.getElementById("emailDomain");
+    var statusEl = document.getElementById("status");
+    var taxBadge = document.getElementById("taxBadge");
+    var mailingOutput = document.getElementById("mailingOutput");
+    var batchPanel = document.getElementById("batchPanel");
+    var batchCount = document.getElementById("batchCount");
+    var batchFormat = document.getElementById("batchFormat");
+    var batchOutput = document.getElementById("batchOutput");
+    var toggleBatchBtn = document.getElementById("toggleBatchBtn");
+    var presetBtns = Array.prototype.slice.call(document.querySelectorAll(".preset-btn"));
+
+    function populateStates() {
+        var html = "";
+        html += '<option value="TAX_FREE">' + t("仅免税州随机 (OR / DE / MT / NH / AK)", "Tax-free states only (OR / DE / MT / NH / AK)") + "</option>";
+        html += '<option value="ALL">' + t("全部州随机 (50 州 + DC)", "All states & DC (Random)") + "</option>";
+        var taxGroup = '<optgroup label="' + t("免税州 (0% 州销售税)", "Tax-Free States (0% State Sales Tax)") + '">';
+        var allGroup = '<optgroup label="' + t("全部州与特区 (A–Z)", "All States & DC (A–Z)") + '">';
+        var codes = Object.keys(STATES).sort();
+        for (var i = 0; i < codes.length; i++) {
+            var code = codes[i];
+            var meta = STATES[code];
+            var label = isEn
+                ? (code + " · " + meta[0] + (meta[2] ? " (Tax-free)" : ""))
+                : (code + " · " + meta[1] + " " + meta[0] + (meta[2] ? " (免税)" : ""));
+            var opt = '<option value="' + code + '">' + label + "</option>";
+            if (meta[2]) taxGroup += opt;
+            allGroup += opt;
+        }
+        stateSelect.innerHTML = html + taxGroup + "</optgroup>" + allGroup + "</optgroup>";
+        stateSelect.value = "TAX_FREE";
+    }
+
+    function createRecord() {
+        var pool = filterPool(stateSelect.value);
+        var addr = pick(pool.length ? pool : ADDRESS_POOL);
+        var stateCode = addr[3];
+        var stateMeta = STATES[stateCode];
+        var gender = genderSelect.value === "any" ? (randInt(2) === 0 ? "Female" : "Male") : genderSelect.value;
+        var firstName = pick(gender === "Female" ? FIRST_FEMALE : FIRST_MALE);
+        var lastName = pick(LAST_NAMES);
+        var fullName = firstName + " " + lastName;
+
+        var hasUnit = unitSelect.value === "suite";
+        var floor = 2 + randInt(14);
+        var room = 1 + randInt(24);
+        var unitPrefix = randInt(3) === 0 ? "Ste " : "Suite ";
+        var unit = hasUnit ? (unitPrefix + floor + pad2(room)) : "";
+
+        var zip = addr[4];
+        var zip4 = zip + "-" + pad4(1000 + randInt(8999));
+
+        var area = addr[5];
+        var exch = phoneMode.value === "fictional" ? "555" : generateExchangeCode();
+        var lineNum = phoneMode.value === "fictional" ? ("01" + pad2(randInt(100))) : pad4(1000 + randInt(9000));
+        var phone = "(" + area + ") " + exch + "-" + lineNum;
+        var phoneDigits = area + exch + lineNum;
+
+        var year = 1968 + randInt(36); // 1968..2003
+        var month = 1 + randInt(12);
+        var day = 1 + randInt(28);
+        var birthday = pad2(month) + "/" + pad2(day) + "/" + year;
+
+        var emailNum = 10 + randInt(990);
+        var email = (firstName + "." + lastName + emailNum + "@" + emailDomain.value).toLowerCase();
+
+        var line1 = addr[0];
+        var mailingLines = [
+            fullName,
+            hasUnit ? (line1 + ", " + unit) : line1,
+            addr[1].toUpperCase() + ", " + stateCode + " " + zip,
+            "United States"
+        ];
+
+        return {
+            fullName: fullName,
+            firstName: firstName,
+            lastName: lastName,
+            gender: gender,
+            birthday: birthday,
+            street: line1,
+            unit: unit,
+            city: addr[1],
+            county: addr[2],
+            state: stateCode,
+            stateName: stateMeta[0],
+            stateNameZh: stateMeta[1],
+            taxFree: stateMeta[2],
+            zip: zip,
+            zipPlus4: zip4,
+            country: "United States",
+            phone: phone,
+            phoneDigits: phoneDigits,
+            email: email,
+            timezone: stateMeta[3],
+            mailing: mailingLines.join("\n")
+        };
+    }
+
+    var current = null;
+
+    function syncPresets() {
+        var val = stateSelect.value;
+        presetBtns.forEach(function (btn) {
+            btn.classList.toggle("active", btn.getAttribute("data-preset") === val);
+        });
+    }
+
+    function renderCurrent(rec) {
+        current = rec;
+        var fields = [
+            "street", "unit", "city", "county", "stateName", "state", "zip", "zipPlus4", "country",
+            "fullName", "firstName", "lastName", "gender", "birthday", "phone", "phoneDigits", "email", "timezone"
+        ];
+        fields.forEach(function (key) {
+            var el = document.getElementById("f-" + key);
+            if (!el) return;
+            var val = rec[key];
+            el.textContent = val ? val : "—";
+        });
+        mailingOutput.textContent = rec.mailing;
+        if (rec.taxFree) {
+            taxBadge.textContent = t("免税州 · 0% 州销售税", "Tax-Free · 0% State Sales Tax");
+            taxBadge.className = "tax-chip free";
+        } else {
+            taxBadge.textContent = isEn ? (rec.state + " · Standard Tax State") : (rec.stateNameZh + " · 含销售税州");
+            taxBadge.className = "tax-chip";
+        }
+    }
+
+    function setStatus(msg, ok) {
+        statusEl.textContent = msg;
+        statusEl.className = "hint " + (ok === false ? "bad" : "ok");
+    }
+
+    function doCopy(text, label, rowEl) {
+        if (!text || text === "—") {
+            setStatus(t("当前字段为空，无可复制内容。", "This field is empty."), false);
+            return;
+        }
+        var p = window.copyText ? window.copyText(text) : navigator.clipboard.writeText(text);
+        p.then(function () {
+            setStatus(t("已复制 ", "Copied ") + label + t("：", ": ") + (text.length > 36 ? text.slice(0, 36) + "…" : text), true);
+            if (rowEl) {
+                var tag = rowEl.querySelector(".copy-tag");
+                var prev = tag ? tag.textContent : "";
+                rowEl.classList.add("copied");
+                if (tag) tag.textContent = t("已复制", "Copied");
+                setTimeout(function () {
+                    rowEl.classList.remove("copied");
+                    if (tag) tag.textContent = prev;
+                }, 1100);
+            }
+        }, function () {
+            setStatus(t("复制失败，请手动选择复制。", "Copy failed. Please copy manually."), false);
+        });
+    }
+
+    function toCleanJson(rec) {
+        return {
+            fullName: rec.fullName,
+            firstName: rec.firstName,
+            lastName: rec.lastName,
+            gender: rec.gender,
+            birthday: rec.birthday,
+            addressLine1: rec.street,
+            addressLine2: rec.unit,
+            city: rec.city,
+            county: rec.county,
+            state: rec.state,
+            stateName: rec.stateName,
+            taxFree: rec.taxFree,
+            zipCode: rec.zip,
+            zipPlus4: rec.zipPlus4,
+            country: rec.country,
+            phone: rec.phone,
+            phoneDigits: rec.phoneDigits,
+            email: rec.email,
+            timezone: rec.timezone
+        };
+    }
+
+    function csvEscape(v) {
+        var s = String(v == null ? "" : v);
+        return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }
+
+    function generateBatch() {
+        var n = Math.max(1, Math.min(100, parseInt(batchCount.value, 10) || 10));
+        batchCount.value = String(n);
+        var list = [];
+        for (var i = 0; i < n; i++) list.push(createRecord());
+        var fmt = batchFormat.value;
+        if (fmt === "json") {
+            batchOutput.textContent = JSON.stringify(list.map(toCleanJson), null, 2);
+        } else if (fmt === "csv") {
+            var cols = ["fullName", "firstName", "lastName", "gender", "birthday", "addressLine1", "addressLine2", "city", "county", "state", "stateName", "taxFree", "zipCode", "zipPlus4", "phone", "phoneDigits", "email", "timezone"];
+            var lines = [cols.join(",")];
+            list.forEach(function (r) {
+                var clean = toCleanJson(r);
+                lines.push(cols.map(function (c) { return csvEscape(clean[c]); }).join(","));
+            });
+            batchOutput.textContent = lines.join("\n");
+        } else {
+            batchOutput.textContent = list.map(function (r) {
+                return r.mailing + "\nPhone: " + r.phone + " | Email: " + r.email;
+            }).join("\n\n---\n\n");
+        }
+        setStatus(t("已批量生成 " + n + " 条美国地址数据。", "Generated " + n + " US address records."), true);
+    }
+
+    function generateOne(announce) {
+        var rec = createRecord();
+        renderCurrent(rec);
+        syncPresets();
+        if (!batchPanel.hidden) generateBatch();
+        else if (announce) setStatus(t("已生成新的美国地址（" + rec.city + ", " + rec.state + " " + rec.zip + "）。", "Generated a new US address (" + rec.city + ", " + rec.state + " " + rec.zip + ")."), true);
+    }
+
+    document.querySelectorAll(".kv-row").forEach(function (row) {
+        row.addEventListener("click", function () {
+            if (!current) return;
+            var key = row.getAttribute("data-field");
+            var labelEl = row.querySelector(".k");
+            var label = labelEl ? labelEl.textContent.replace(/\s*\(.*?\)\s*$/, "") : key;
+            doCopy(current[key], label, row);
+        });
+    });
+
+    presetBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            stateSelect.value = btn.getAttribute("data-preset");
+            generateOne(true);
+        });
+    });
+
+    [stateSelect, genderSelect, unitSelect, phoneMode, emailDomain].forEach(function (sel) {
+        sel.addEventListener("change", function () { generateOne(true); });
+    });
+
+    document.getElementById("genBtn").addEventListener("click", function () { generateOne(true); });
+    document.getElementById("copyMailingBtn").addEventListener("click", function () {
+        if (current) doCopy(current.mailing, t("标准邮寄地址", "USPS Mailing Address"));
+    });
+    document.getElementById("copyJsonBtn").addEventListener("click", function () {
+        if (current) doCopy(JSON.stringify(toCleanJson(current), null, 2), "JSON");
+    });
+
+    toggleBatchBtn.addEventListener("click", function () {
+        var open = batchPanel.hidden;
+        batchPanel.hidden = !open;
+        toggleBatchBtn.setAttribute("aria-expanded", open ? "true" : "false");
+        toggleBatchBtn.classList.toggle("primary", open);
+        if (open) generateBatch();
+    });
+
+    document.getElementById("batchGenBtn").addEventListener("click", generateBatch);
+    batchFormat.addEventListener("change", generateBatch);
+    document.getElementById("batchCopyBtn").addEventListener("click", function () {
+        doCopy(batchOutput.textContent, t("批量结果", "Batch output"));
+    });
+    document.getElementById("batchDownloadBtn").addEventListener("click", function () {
+        var content = batchOutput.textContent || "";
+        if (!content) return;
+        var fmt = batchFormat.value;
+        var ext = fmt === "json" ? "json" : (fmt === "csv" ? "csv" : "txt");
+        var mime = fmt === "json" ? "application/json;charset=utf-8" : (fmt === "csv" ? "text/csv;charset=utf-8" : "text/plain;charset=utf-8");
+        var blob = new Blob([content], { type: mime });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "us-addresses." + ext;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        setStatus(t("已下载 us-addresses." + ext, "Downloaded us-addresses." + ext), true);
+    });
+
+    populateStates();
+    generateOne(false);
+})();
+</script>
+</body>
+</html>

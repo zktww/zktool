@@ -114,11 +114,11 @@ const defaultDockTools = defaultDockPaths
     </div>
   </section>
 
-  <nav class="group-nav" aria-label={labels.browse}>
+  <nav class="group-nav mobile-group-nav" aria-label={labels.browse}>
     {groups.map((group) => {
       const hasEntries = tools.some((tool) => (tool.type === "tool" || tool.type === "external") && tool.group === group.key);
       if (!hasEntries) return null;
-      return <a href={`#group-${group.key}`}>{localizedGroup(group, locale).title}</a>;
+      return <a href={`#group-${group.key}`} data-group-link={`group-${group.key}`}>{localizedGroup(group, locale).title}</a>;
     })}
   </nav>
 
@@ -188,6 +188,8 @@ const defaultDockTools = defaultDockPaths
   const dockItems = home?.querySelector<HTMLElement>("[data-dock-items]");
   const cards = home ? Array.from(home.querySelectorAll<HTMLAnchorElement>("[data-tool-card]")) : [];
   const groups = home ? Array.from(home.querySelectorAll<HTMLElement>("[data-tool-group]")) : [];
+  const allGroupLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-group-link]"));
+  const headerSearchBtn = document.querySelector<HTMLButtonElement>("[data-header-search]");
   const availableLabel = { available: home?.querySelector(".result-count")?.textContent?.replace(/^\d+\s*/, "") || "" };
   const resultLabel = home?.getAttribute("data-result-label") || "";
   const recentLabel = home?.getAttribute("data-recent-label") || "";
@@ -237,14 +239,58 @@ const defaultDockTools = defaultDockPaths
       group.hidden = !group.querySelector("[data-tool-card]:not([hidden])");
       const badge = group.querySelector(".group-count");
       if (badge) badge.textContent = String(group.querySelectorAll("[data-tool-card]:not([hidden])").length).padStart(2, "0");
-      const link = home?.querySelector<HTMLAnchorElement>(`.group-nav a[href="#${group.id}"]`);
-      if (link) link.hidden = group.hidden;
+      allGroupLinks.forEach((link) => {
+        if (link.getAttribute("data-group-link") === group.id) link.hidden = group.hidden;
+      });
     });
     if (count) count.textContent = query ? `${visible} ${resultLabel}` : `${cards.length} ${availableLabel.available}`;
     if (empty) empty.hidden = visible > 0;
     if (clear) clear.hidden = !query;
     if (kbd) kbd.hidden = !!query;
+    syncActiveCategory();
   }
+
+  // 滚动联动高亮顶栏与移动端分类胶囊 (Scrollspy)
+  let spyTicking = false;
+  function syncActiveCategory() {
+    const visibleGroups = groups.filter((g) => !g.hidden);
+    if (!visibleGroups.length || window.scrollY < 140) {
+      allGroupLinks.forEach((link) => link.classList.remove("is-active"));
+      return;
+    }
+    let currentId = visibleGroups[0].id;
+    const threshold = 135;
+    for (const group of visibleGroups) {
+      if (group.getBoundingClientRect().top <= threshold) currentId = group.id;
+      else break;
+    }
+    // 滚动到页面最底部时高亮最后一个可见分组
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 24) {
+      currentId = visibleGroups[visibleGroups.length - 1].id;
+    }
+    allGroupLinks.forEach((link) => {
+      const active = link.getAttribute("data-group-link") === currentId;
+      link.classList.toggle("is-active", active);
+      if (active && link.parentElement?.classList.contains("header-groups")) {
+        link.scrollIntoView({ block: "nearest", inline: "nearest" });
+      }
+    });
+  }
+
+  window.addEventListener("scroll", () => {
+    if (!spyTicking) {
+      spyTicking = true;
+      requestAnimationFrame(() => {
+        spyTicking = false;
+        syncActiveCategory();
+      });
+    }
+  }, { passive: true });
+
+  headerSearchBtn?.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setTimeout(() => search?.focus({ preventScroll: true }), 180);
+  });
 
   search?.addEventListener("input", filterTools);
   search?.addEventListener("keydown", (event) => {
@@ -290,7 +336,7 @@ const defaultDockTools = defaultDockPaths
   }
   .home {
     width: min(1220px, calc(100% - 2rem));
-    margin: 1.15rem auto 4rem;
+    margin: 0.65rem auto 4rem;
     color: var(--text);
   }
   .home-hero {
@@ -489,13 +535,13 @@ const defaultDockTools = defaultDockPaths
     background: var(--c, var(--brand));
   }
 
-  /* ── 分段胶囊分类导航 ── */
-  .group-nav {
-    display: flex;
+  /* ── 分段胶囊分类导航（桌面端已融合进顶栏，仅在 <=1020px 窄屏显示）── */
+  .mobile-group-nav {
+    display: none;
     gap: 0.28rem;
     overflow-x: auto;
-    margin-top: 1.15rem;
-    padding: 0.38rem;
+    margin-top: 1.05rem;
+    padding: 0.36rem;
     border: 1px solid var(--border);
     border-radius: 999px;
     background: var(--glass);
@@ -504,10 +550,10 @@ const defaultDockTools = defaultDockPaths
     box-shadow: var(--shadow-sm);
     scrollbar-width: none;
   }
-  .group-nav::-webkit-scrollbar { display: none; }
-  .group-nav a {
+  .mobile-group-nav::-webkit-scrollbar { display: none; }
+  .mobile-group-nav a {
     flex: 0 0 auto;
-    padding: 0.48rem 0.9rem;
+    padding: 0.46rem 0.85rem;
     border: 1px solid transparent;
     border-radius: 999px;
     color: var(--text-2);
@@ -516,12 +562,15 @@ const defaultDockTools = defaultDockPaths
     text-decoration: none;
     transition: color 0.18s var(--ease), background 0.18s var(--ease), box-shadow 0.18s var(--ease), border-color 0.18s var(--ease);
   }
-  .group-nav a:hover, .group-nav a:focus-visible {
+  .mobile-group-nav a:hover, .mobile-group-nav a:focus-visible, .mobile-group-nav a.is-active {
     border-color: var(--border);
     background: var(--surface);
-    color: var(--text);
+    color: var(--brand);
     box-shadow: var(--shadow-sm);
     outline: none;
+  }
+  @media (max-width: 1020px) {
+    .mobile-group-nav { display: flex; }
   }
 
   .collection-head {
@@ -672,9 +721,9 @@ const defaultDockTools = defaultDockPaths
   @media (max-width: 1080px) { .tool-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   @media (max-width: 780px) { .tool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 560px) {
-    .home { width: calc(100% - 1.25rem); margin-top: 0.85rem; }
+    .home { width: calc(100% - 1.25rem); margin-top: 0.5rem; }
     .home-hero { border-radius: 20px; }
-    .group-nav { border-radius: 16px; }
+    .mobile-group-nav { border-radius: 16px; }
     .tool-grid { grid-template-columns: 1fr; gap: 0.7rem; }
     .tool-card { min-height: auto; }
   }

@@ -1,5 +1,5 @@
 ---
-import { tools } from "../data/catalog";
+import { groups, localizedGroup, tools } from "../data/catalog";
 import DevCacheReset from "../components/DevCacheReset.astro";
 
 interface Props {
@@ -14,6 +14,12 @@ const origin = "https://tools.zktww.cn";
 const localTools = tools.filter((tool) => tool.type === "tool").length;
 const externalTools = tools.filter((tool) => tool.type === "external").length;
 const alternate = locale === "en" ? (path.replace(/^\/en/, "") || "/") : (path === "/" ? "/en/" : `/en${path}`);
+const isHome = path === "/" || path === "/en/";
+const navGroups = isHome
+    ? groups
+        .filter((group) => tools.some((tool) => (tool.type === "tool" || tool.type === "external") && tool.group === group.key))
+        .map((group) => localizedGroup(group, locale))
+    : [];
 ---
 <!doctype html>
 <html lang={locale}>
@@ -38,15 +44,35 @@ const alternate = locale === "en" ? (path.replace(/^\/en/, "") || "/") : (path =
   </head>
   <body>
     <div class="site-ambient" aria-hidden="true"></div>
-    <header class="site-header">
-      <a class="site-brand" href={locale === "en" ? "/en/" : "/"}>
-        <span class="brand-mark" aria-hidden="true">Z</span>
-        <span class="brand-name">zktool</span>
-      </a>
-      <nav class="zk-actions" aria-label={locale === "en" ? "Site settings" : "站点设置"}>
-        <a class="zk-lang-link" href={alternate} lang={locale === "en" ? "zh-CN" : "en"}>{locale === "en" ? "中文" : "EN"}</a>
-      </nav>
-    </header>
+    <div class="site-header-shell">
+      <header class="site-header">
+        <a class="site-brand" href={locale === "en" ? "/en/" : "/"}>
+          <span class="brand-mark" aria-hidden="true">Z</span>
+          <span class="brand-name">zktool</span>
+        </a>
+        {isHome && (
+          <nav class="header-groups" data-header-groups aria-label={locale === "en" ? "Tool categories" : "工具分类"}>
+            {navGroups.map((group) => (
+              <a href={`#group-${group.key}`} data-group-link={`group-${group.key}`}>{group.title}</a>
+            ))}
+          </nav>
+        )}
+        <nav class="zk-actions" aria-label={locale === "en" ? "Site settings" : "站点设置"}>
+          {isHome && (
+            <button
+              type="button"
+              class="zk-icon-btn header-search-btn"
+              data-header-search
+              title={locale === "en" ? "Search tools (/)" : "搜索工具 (/)"}
+              aria-label={locale === "en" ? "Search tools" : "搜索工具"}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+            </button>
+          )}
+          <a class="zk-lang-link" href={alternate} lang={locale === "en" ? "zh-CN" : "en"}>{locale === "en" ? "中文" : "EN"}</a>
+        </nav>
+      </header>
+    </div>
     <slot />
     <footer class="site-footer">
       <div class="footer-card">
@@ -87,16 +113,29 @@ body { margin: 0; min-width: 320px; position: relative; overflow-x: hidden; }
     radial-gradient(ellipse 50% 36% at 50% 106%, rgba(16, 185, 129, 0.05), transparent 65%),
     var(--bg);
 }
-.site-header {
+/* 顶部防透字渐隐遮罩层：吸顶在 top:0，让滚动内容平滑隐入毛玻璃胶囊下方 */
+.site-header-shell {
   position: sticky;
-  top: 0.85rem;
+  top: 0;
   z-index: 90;
+  padding: 0.75rem 0 0.35rem;
+  background: linear-gradient(
+    to bottom,
+    var(--bg) 52%,
+    color-mix(in srgb, var(--bg) 76%, transparent) 82%,
+    transparent
+  );
+  pointer-events: none;
+}
+.site-header {
+  pointer-events: auto;
   width: min(1220px, calc(100% - 2rem));
-  margin: 0.85rem auto 0;
-  padding: 0.45rem 0.55rem 0.45rem 0.85rem;
+  margin: 0 auto;
+  padding: 0.38rem 0.5rem 0.38rem 0.8rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.75rem;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--glass);
@@ -105,11 +144,12 @@ body { margin: 0; min-width: 320px; position: relative; overflow-x: hidden; }
   box-shadow: var(--shadow-sm);
 }
 .site-brand {
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.52rem;
   color: var(--text);
-  font-size: 0.98rem;
+  font-size: 0.96rem;
   font-weight: 750;
   letter-spacing: -0.01em;
   text-decoration: none;
@@ -127,6 +167,45 @@ body { margin: 0; min-width: 320px; position: relative; overflow-x: hidden; }
   line-height: 1;
   box-shadow: 0 3px 10px -2px rgba(0, 102, 255, 0.38);
 }
+/* 顶栏居中分类胶囊导航 */
+.header-groups {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.16rem;
+  overflow-x: auto;
+  padding: 0.18rem;
+  border-radius: 999px;
+  scrollbar-width: none;
+}
+.header-groups::-webkit-scrollbar { display: none; }
+.header-groups a {
+  flex: 0 0 auto;
+  padding: 0.38rem 0.72rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--text-2);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: color 0.18s var(--ease), background 0.18s var(--ease), border-color 0.18s var(--ease), box-shadow 0.18s var(--ease);
+}
+.header-groups a:hover,
+.header-groups a:focus-visible {
+  color: var(--text);
+  background: var(--surface-hover);
+  outline: none;
+}
+.header-groups a.is-active {
+  color: var(--brand);
+  border-color: var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.site-header .zk-actions { flex: 0 0 auto; }
 .site-footer {
   width: min(1220px, calc(100% - 2rem));
   margin: 2.5rem auto 2.2rem;
@@ -152,8 +231,12 @@ body { margin: 0; min-width: 320px; position: relative; overflow-x: hidden; }
 .site-footer details { margin-top: 0.55rem; }
 .site-footer summary { color: var(--text-3); font-size: 0.8rem; cursor: pointer; user-select: none; }
 .site-footer p { max-width: 52rem; margin: 0.45rem 0 0; color: var(--text-2); font-size: 0.8rem; line-height: 1.65; }
+@media (max-width: 1020px) {
+  .header-groups { display: none; }
+}
 @media (max-width: 560px) {
-  .site-header { width: calc(100% - 1.25rem); top: 0.55rem; margin-top: 0.55rem; }
+  .site-header-shell { padding-top: 0.5rem; }
+  .site-header { width: calc(100% - 1.25rem); }
   .site-footer { width: calc(100% - 1.25rem); }
 }
 </style>

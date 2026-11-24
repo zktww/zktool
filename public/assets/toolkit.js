@@ -326,18 +326,20 @@
             nbtn.title = text("All tools", "全部工具");
             nbtn.setAttribute("aria-label", text("All tools", "全部工具"));
             nbtn.setAttribute("aria-haspopup", "true");
+            nbtn.setAttribute("aria-expanded", "false");
             nbtn.innerHTML = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><rect x='3' y='3' width='7' height='7' rx='1'/><rect x='14' y='3' width='7' height='7' rx='1'/><rect x='3' y='14' width='7' height='7' rx='1'/><rect x='14' y='14' width='7' height='7' rx='1'/></svg>";
             nbtn.addEventListener("click", function () { toggleNavMenu(nbtn); });
             box.insertBefore(nbtn, box.firstChild);
         }
     }
 
-    var navMenu = null;
+    var dismissNav = null;
     function toggleNavMenu(anchor) {
-        if (navMenu) { closeNavMenu(); return; }
+        if (dismissNav) { dismissNav(); return; }
         var root = window.zkRoot || "../../";
         var localeRoot = root + (window.zkLocalePrefix || "");
-        navMenu = document.createElement("div");
+        var navMenu = document.createElement("div");
+        navMenu.id = "zk-nav-menu";
         navMenu.className = "zk-nav-menu";
         navMenu.setAttribute("role", "menu");
         var html = "";
@@ -351,14 +353,19 @@
             });
         });
         navMenu.innerHTML = html;
-        var wrap = anchor.parentElement;
-        wrap.style.position = "relative";
-        wrap.appendChild(navMenu);
+        // Anchor to the header, not the button group (which wraps on mobile).
+        anchor.closest(".top").appendChild(navMenu);
+        anchor.setAttribute("aria-expanded", "true");
+        anchor.setAttribute("aria-controls", navMenu.id);
+        dismissNav = closeNavMenu;
 
         function closeNavMenu() {
             if (!navMenu) return;
-            navMenu.remove(); navMenu = null;
+            navMenu.remove(); navMenu = null; dismissNav = null;
+            anchor.setAttribute("aria-expanded", "false");
+            anchor.removeAttribute("aria-controls");
             document.removeEventListener("click", onDoc);
+            document.removeEventListener("focusin", onDoc);
             document.removeEventListener("keydown", onKey);
         }
         function onDoc(e) {
@@ -371,16 +378,16 @@
             var idx = mis.indexOf(document.activeElement), to = null;
             if (e.key === "ArrowDown") to = mis[(idx + 1) % mis.length];
             else if (e.key === "ArrowUp") to = mis[(idx - 1 + mis.length) % mis.length];
-            if (to) { e.preventDefault(); to.focus(); to.scrollIntoView({ block: "nearest" }); }
+            else if (e.key === "Home") to = mis[0];
+            else if (e.key === "End") to = mis[mis.length - 1];
+            if (to) { e.preventDefault(); to.focus(); }
         }
         var first = navMenu.querySelector("[role=menuitem]");
         if (first) first.focus();
         document.addEventListener("keydown", onKey);
-        setTimeout(function () { document.addEventListener("click", onDoc); });
-        /* 复用 closeNavMenu 供 toggle 分支调用 */
-        toggleNavMenu._close = closeNavMenu;
+        document.addEventListener("click", onDoc);
+        document.addEventListener("focusin", onDoc);
     }
-    function closeNavMenu() { if (toggleNavMenu._close) toggleNavMenu._close(); }
 
     /* ── 相关工具：seo-notes 前注入同分组的其他工具卡片（内链 + 发现性） ── */
     function mountRelated() {
@@ -458,6 +465,8 @@
             pbtn.className = "zk-icon-btn zk-pipe-btn";
             pbtn.title = text("Send the result to another tool", "把结果发送到其他工具");
             pbtn.setAttribute("aria-label", pbtn.title);
+            pbtn.setAttribute("aria-haspopup", "menu");
+            pbtn.setAttribute("aria-expanded", "false");
             pbtn.innerHTML = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M22 2 11 13'/><path d='M22 2 15 22l-4-9-9-4Z'/></svg>";
             pbtn.addEventListener("click", function () { openPipeMenu(pbtn, src); });
             box.insertBefore(pbtn, box.firstChild);
@@ -577,15 +586,15 @@
         });
     }
 
-    var pipeMenu = null;
+    var dismissPipe = null;
     function openPipeMenu(anchor, src) {
-        if (pipeMenu) { closePipeMenu(); return; }
+        if (dismissPipe) { dismissPipe(); return; }
         var text = sourceText(src).trim();
         if (!text) { toast(EN ? "There is no result to send" : "当前没有可发送的内容"); return; }
         var items = window.ZKTOOL_REGISTRY.filter(function (it) {
             return it.type === "tool" && it.pipe !== false && PAGE.indexOf(it.path.replace(/\/$/, "")) === -1;
         });
-        pipeMenu = document.createElement("div");
+        var pipeMenu = document.createElement("div");
         pipeMenu.className = "zk-pipe-menu";
         pipeMenu.setAttribute("role", "menu");
         pipeMenu.style.cssText = "position:absolute;right:0;top:calc(100% + .4rem);z-index:1100;min-width:14rem;max-height:19rem;overflow-y:auto;" +
@@ -608,15 +617,19 @@
         var wrap = anchor.parentElement;
         wrap.style.position = "relative";
         wrap.appendChild(pipeMenu);
+        anchor.setAttribute("aria-expanded", "true");
+        dismissPipe = closePipeMenu;
 
         function closePipeMenu() {
             if (!pipeMenu) return;
-            pipeMenu.remove(); pipeMenu = null;
+            pipeMenu.remove(); pipeMenu = null; dismissPipe = null;
+            anchor.setAttribute("aria-expanded", "false");
             document.removeEventListener("click", onDoc);
+            document.removeEventListener("focusin", onDoc);
             document.removeEventListener("keydown", onKey);
         }
         function onDoc(e) {
-            if (pipeMenu && !pipeMenu.contains(e.target) && e.target !== anchor) closePipeMenu();
+            if (pipeMenu && !pipeMenu.contains(e.target) && !anchor.contains(e.target)) closePipeMenu();
         }
         /* 键盘：↑/↓ 循环移动焦点，Home/End 跳两端，Esc 关闭并回焦到按钮 */
         function onKey(e) {
@@ -635,7 +648,8 @@
         var first = pipeMenu.querySelector("[role=menuitem]");
         if (first) first.focus();
         document.addEventListener("keydown", onKey);
-        setTimeout(function () { document.addEventListener("click", onDoc); });
+        document.addEventListener("click", onDoc);
+        document.addEventListener("focusin", onDoc);
     }
 
     /* ── PWA：工具页也注册站点根的 service worker ──

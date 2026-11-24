@@ -45,6 +45,7 @@ body {
 
 /* ── 毛玻璃胶囊顶栏（与首页 .site-header 视觉同源）── */
 .top {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -131,14 +132,20 @@ body {
 @media (max-width: 560px) { .zk-crumb-cur { max-width: 10.5em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } }
 
 /* ── 全部工具下拉菜单（toolkit.js 注入）── */
+/* backdrop-filter makes the header a stacking context. Raise that context,
+   not just its child menu, above positioned form controls while a popup is open. */
+.top:has(.zk-nav-menu, .zk-pipe-menu, .zk-qr-tip) { z-index: 100; }
 .zk-nav-menu {
     position: absolute;
     right: 0;
     top: calc(100% + 0.5rem);
     z-index: 1200;
-    min-width: 15.5rem;
+    width: min(17rem, 100%);
     max-height: min(26rem, 70vh);
+    max-height: min(26rem, 65dvh);
     overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
     padding: 0.45rem;
     border: 1px solid var(--border);
     border-radius: 16px;

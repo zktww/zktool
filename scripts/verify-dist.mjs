@@ -32,6 +32,12 @@ const checks = [];
 const data = {};
 vm.runInNewContext(await readFile(resolve('src/data/registry.js'), 'utf8'), data);
 const toolPaths = data.ZKTOOL_REGISTRY.filter((item) => item.type === 'tool').map((item) => item.path);
+const expectedUrls = ['', ...toolPaths].flatMap(path =>
+    ['', 'en/'].map(prefix => `https://tools.zktww.cn/${prefix}${path}`));
+const textSitemap = await readFile(resolve(DIST, 'sitemap.txt'), 'utf8');
+if (new Set(expectedUrls).size !== expectedUrls.length || textSitemap !== expectedUrls.join('\n') + '\n') {
+    checks.push('sitemap.txt must list each Chinese and English home/tool URL once, one absolute URL per line');
+}
 for (const prefix of ['', 'en/']) for (const path of toolPaths) {
     if (!(await resolvesToPageOrFile(resolve(DIST, prefix + path)))) checks.push(`Missing route: ${prefix}${path}`);
 }

@@ -31,10 +31,11 @@ function escapeXml(value) {
     })[character]);
 }
 
-const sitemapEntries = ["", ...tools.map((tool) => tool.path)]
-    .flatMap((path) => {
-        const zhLoc = escapeXml(url(path, "zh-CN"));
-        const enLoc = escapeXml(url(path, "en"));
+const sitemapPairs = ["", ...tools.map((tool) => tool.path)]
+    .map((path) => [url(path, "zh-CN"), url(path, "en")]);
+const sitemapEntries = sitemapPairs
+    .flatMap((pair) => {
+        const [zhLoc, enLoc] = pair.map(escapeXml);
         const alternates = [
             `    <xhtml:link rel="alternate" hreflang="zh-CN" href="${zhLoc}" />`,
             `    <xhtml:link rel="alternate" hreflang="en" href="${enLoc}" />`,
@@ -45,7 +46,8 @@ const sitemapEntries = ["", ...tools.map((tool) => tool.path)]
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${sitemapEntries.join("\n")}\n</urlset>\n`;
 await Promise.all([
     writeFile(resolve(DIST, "sitemap.xml"), sitemap),
-    writeFile(resolve(DIST, "sitemap-v2.xml"), sitemap)
+    writeFile(resolve(DIST, "sitemap-v2.xml"), sitemap),
+    writeFile(resolve(DIST, "sitemap.txt"), sitemapPairs.flat().join("\n") + "\n", "utf8")
 ]);
 
 function list(locale) {

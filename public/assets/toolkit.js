@@ -275,7 +275,7 @@
         nav.className = "zk-crumb";
         nav.setAttribute("aria-label", text("Breadcrumb", "面包屑"));
         var localeRoot = root + (window.zkLocalePrefix || "");
-        var html = "<a href='" + localeRoot + "' class='zk-crumb-home'><span class='zk-brand-dot' aria-hidden='true'>Z</span><span>" + text("Home", "首页") + "</span></a>";
+        var html = "<a href='" + localeRoot + "' class='zk-crumb-home'><span class='zk-mark' aria-hidden='true'></span><span>" + text("Home", "首页") + "</span></a>";
         if (grp) html += "<span class='zk-crumb-sep' aria-hidden='true'>›</span>" +
             "<a href='" + localeRoot + "#group-" + grp.key + "'>" + grp.title + "</a>";
         html += "<span class='zk-crumb-sep' aria-hidden='true'>›</span>" +

@@ -2,6 +2,7 @@
 import { groups, localizedGroup, localizedTool, tools } from "../data/catalog";
 import DevCacheReset from "../components/DevCacheReset.astro";
 import GoogleAnalytics from "../components/GoogleAnalytics.astro";
+import BrandHead from "../components/BrandHead.astro";
 
 interface Props {
     title: string;
@@ -66,8 +67,7 @@ const siteJsonLd = isHome
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="stylesheet" href="/assets/tokens.css" />
     <script is:inline src="/assets/theme.js"></script>
-    <link rel="icon" href="/favicon.ico" sizes="any" />
-    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+    <BrandHead />
     <link rel="manifest" href={locale === "en" ? "/en/manifest.webmanifest" : "/manifest.webmanifest"} />
     {!noindex && (
       <>
@@ -90,9 +90,8 @@ const siteJsonLd = isHome
     <div class="site-ambient" aria-hidden="true"></div>
     <div class="site-header-shell">
       <header class="site-header">
-        <a class="site-brand" href={locale === "en" ? "/en/" : "/"}>
-          <span class="brand-mark" aria-hidden="true">Z</span>
-          <span class="brand-name">zktool</span>
+        <a class="site-brand" href={homeHref} aria-label={locale === "en" ? "zktool home" : "zktool 首页"}>
+          <span class="zk-mark" aria-hidden="true"></span>
         </a>
         {isHome && (
           <nav class="header-groups" data-header-groups aria-label={locale === "en" ? "Tool categories" : "工具分类"}>
@@ -192,26 +191,13 @@ body { margin: 0; min-width: 320px; position: relative; overflow-x: hidden; }
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  gap: 0.52rem;
+  justify-content: center;
+  min-width: 2.5rem;
+  min-height: 2.25rem;
   color: var(--text);
-  font-size: 0.96rem;
-  font-weight: 750;
-  letter-spacing: -0.01em;
   text-decoration: none;
 }
-.brand-mark {
-  display: grid;
-  width: 1.7rem;
-  height: 1.7rem;
-  place-items: center;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--brand), var(--brand-2));
-  color: #fff;
-  font-size: 0.8rem;
-  font-weight: 800;
-  line-height: 1;
-  box-shadow: 0 3px 10px -2px rgba(0, 102, 255, 0.38);
-}
+.site-brand .zk-mark { width: 2.1rem; height: 1.4rem; }
 /* 顶栏居中分类胶囊导航 */
 .header-groups {
   flex: 0 1 auto;

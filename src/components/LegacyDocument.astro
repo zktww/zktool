@@ -3,6 +3,7 @@ import type { LegacyDocument } from "../lib/legacy";
 import { groups, localizedGroup, localizedTool, tools, toolSlug } from "../data/catalog";
 import DevCacheReset from "./DevCacheReset.astro";
 import GoogleAnalytics from "./GoogleAnalytics.astro";
+import BrandHead from "./BrandHead.astro";
 
 interface Props {
     document: LegacyDocument;
@@ -35,6 +36,7 @@ const canonicalUrl = isEn ? enUrl : zhUrl;
 
 // 1. Normalize <head>: authoritative canonical, bidirectional hreflang, OpenGraph/Twitter tags, and fallback JSON-LD
 let head = document.head
+    .replace(/<link\s+rel=["'](?:icon|apple-touch-icon)["'][^>]*>\s*/gi, "")
     .replace(/<link\s+rel=["']canonical["'][^>]*>\s*/gi, "")
     .replace(/<link\s+rel=["']alternate["']\s+hreflang=["'][^"']+["'][^>]*>\s*/gi, "");
 
@@ -96,7 +98,7 @@ if (currentTool) {
     const groupPart = currentGroup
         ? `<span class="zk-crumb-sep" aria-hidden="true">›</span><a href="${homeHref}#group-${currentGroup.key}">${escapeAttr(currentGroup.title)}</a>`
         : "";
-    const staticCrumb = `<nav class="zk-crumb" aria-label="${crumbLabel}"><a href="${homeHref}" class="zk-crumb-home"><span class="zk-brand-dot" aria-hidden="true">Z</span><span>${homeLabel}</span></a>${groupPart}<span class="zk-crumb-sep" aria-hidden="true">›</span><span class="zk-crumb-cur" aria-current="page">${escapeAttr(currentTool.name)}</span></nav>`;
+    const staticCrumb = `<nav class="zk-crumb" aria-label="${crumbLabel}"><a href="${homeHref}" class="zk-crumb-home"><span class="zk-mark" aria-hidden="true"></span><span>${homeLabel}</span></a>${groupPart}<span class="zk-crumb-sep" aria-hidden="true">›</span><span class="zk-crumb-cur" aria-current="page">${escapeAttr(currentTool.name)}</span></nav>`;
     body = body.replace(/<a\b[^>]*class=["'][^"']*\bback\b[^"']*["'][^>]*>[\s\S]*?<\/a>/i, () => staticCrumb);
 
     if (/<section\s+class=["']seo-notes["']>/i.test(body) && !/class=["'][^"']*\bzk-related\b/i.test(body)) {
@@ -135,6 +137,7 @@ const languageStyle = `<style>
   <head>
     <meta name="google-site-verification" content="8a07Jc9svEOEYoohcRj644GSddCeBBikeKA0P9EmEXk" />
     <Fragment set:html={head + languageStyle} />
+    <BrandHead />
     <DevCacheReset />
     <GoogleAnalytics />
   </head>

@@ -1,0 +1,14 @@
+/* One silhouette, tinted by the page theme (including manual overrides). */
+.zk-mark {
+    display: inline-block;
+    width: 1.9rem;
+    height: 1.3rem;
+    flex: none;
+    vertical-align: middle;
+    background-color: var(--text, var(--color-text, #101a2c));
+    -webkit-mask: url("zk-mark.svg") center / contain no-repeat;
+    mask: url("zk-mark.svg") center / contain no-repeat;
+}
+@media (forced-colors: active) {
+    .zk-mark { forced-color-adjust: none; background-color: LinkText; }
+}

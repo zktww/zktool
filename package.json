@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "pnpm generate:i18n && astro dev",
     "generate:i18n": "node scripts/generate-en-tools.mjs",
+    "generate:brand": "node scripts/generate-brand.mjs",
     "build": "pnpm generate:i18n && astro build && node scripts/postbuild.mjs && node scripts/verify-dist.mjs",
     "preview": "astro preview",
     "check": "astro check",
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@types/node": "^22.20.1",
+    "sharp": "0.33.5",
     "typescript": "^5.6.3"
   }
 }

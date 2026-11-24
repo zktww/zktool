@@ -2,6 +2,7 @@
 import type { LegacyDocument } from "../lib/legacy";
 import { groups, localizedGroup, localizedTool, tools, toolSlug } from "../data/catalog";
 import DevCacheReset from "./DevCacheReset.astro";
+import GoogleAnalytics from "./GoogleAnalytics.astro";
 
 interface Props {
     document: LegacyDocument;
@@ -135,6 +136,7 @@ const languageStyle = `<style>
     <meta name="google-site-verification" content="8a07Jc9svEOEYoohcRj644GSddCeBBikeKA0P9EmEXk" />
     <Fragment set:html={head + languageStyle} />
     <DevCacheReset />
+    <GoogleAnalytics />
   </head>
   <body {...document.bodyAttrs}>
     <Fragment set:html={body} />

@@ -1,6 +1,7 @@
 ---
 import { groups, localizedGroup, localizedTool, tools } from "../data/catalog";
 import DevCacheReset from "../components/DevCacheReset.astro";
+import GoogleAnalytics from "../components/GoogleAnalytics.astro";
 
 interface Props {
     title: string;
@@ -58,6 +59,7 @@ const siteJsonLd = isHome
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <DevCacheReset />
+    {!noindex && <GoogleAnalytics />}
     <meta name="google-site-verification" content="8a07Jc9svEOEYoohcRj644GSddCeBBikeKA0P9EmEXk" />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -125,6 +127,7 @@ const siteJsonLd = isHome
         </div>
         <details>
           <summary>{locale === "en" ? "Privacy & local storage" : "隐私与本地存储说明"}</summary>
+          <p>{locale === "en" ? "We use Google Analytics 4 to measure visits to the home and tool pages on the production site." : "本站使用 Google Analytics 4 统计正式站中英文首页和工具页的访问情况。"}</p>
           <p>{locale === "en" ? "Tool inputs are processed locally. Some tools save drafts in this browser. Sensitive tools require opt-in; shared links may contain your input. Production tool pages use Baidu Analytics for visit statistics. External services have their own policies." : "工具输入在浏览器本地处理。部分工具会保存本地草稿，敏感工具需主动开启；分享链接可能包含输入内容。线上工具页使用百度统计记录访问情况，外部服务适用其自身隐私规则。"}</p>
         </details>
       </div>

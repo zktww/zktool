@@ -12,6 +12,26 @@ export const attributeUiEn = {
 };
 
 export const toolUiEn = {
+  'hash-tool': {
+    '试算 abc': 'Try abc',
+    '用已知输入核对结果': 'Check a known digest',
+    '输入小写 abc（UTF-8，不加换行），MD5 应为：': 'Enter lowercase abc in UTF-8 with no trailing newline. Its MD5 digest should be:',
+    '在末尾按一次回车再比较：看起来只多了一行，实际参与计算的字节已经变了。': 'Now press Enter after the c and compare. The newline adds a byte, so the digest changes.'
+  },
+  'cert-decoder': {
+    '怎样读这张示例证书？': 'How to read the sample certificate',
+    '点击「示例」载入公开的演示 PEM。SAN 列出了 demo.example.com、www.example.com 和 *.api.example.com；最后一个覆盖 v1.api.example.com，但不覆盖 api.example.com 本身。': 'Choose Example to load the public demo PEM. Its SANs are demo.example.com, www.example.com and *.api.example.com. The wildcard covers v1.api.example.com but not api.example.com itself.',
+    '到期时间是 2028-07-21 02:04:54 UTC，结果栏按你的本地时间显示。有效期只说明日期范围；本工具不验证信任链。': 'It expires at 2028-07-21 02:04:54 UTC. The results show your local time. Being within this interval does not establish trust; this decoder does not verify the chain.',
+    '证书指纹是对 DER 字节计算的摘要，直接对带有换行的 PEM 文本计算会得到不同结果。': 'The certificate fingerprint is a hash of the DER bytes. Hashing the PEM text with its line breaks produces a different digest.',
+    '比较文本与文件的 SHA-256 摘要': 'Compare SHA-256 digests of text and files'
+  },
+  'date-calculator': {
+    '从周五到周一，算几天？': 'How many days from Friday to Monday?',
+    '以 2024-03-01（周五）到 2024-03-04（周一）为例：不含周五、含周一是 3 个自然日、1 个工作日；两端都含则是 4 个自然日、2 个工作日。': 'From Friday, 2024-03-01 to Monday, 2024-03-04: exclude Friday and include Monday for 3 calendar days and 1 weekday. Include both for 4 calendar days and 2 weekdays.',
+    '试算跨周末日期': 'Try the weekend example',
+    '可切换上方两个选项核对结果。这里的工作日只按周一至周五计算，不套用任何地区的节假日或调休表。': 'Toggle the checkboxes above to compare. Business days here are Monday through Friday; regional holidays and substitute workdays are not applied.',
+    '需要比较不同时区的具体时刻？': 'Compare times across time zones'
+  },
   'aes-tool': {
     '输出格式：zkaes1: + Base64(salt ‖ iv ‖ 密文)，自包含参数，凭同一密码即可解密。': 'Output format: zkaes1: + Base64(salt ‖ iv ‖ ciphertext). All parameters are included; use the same password to decrypt.'
   },
@@ -137,6 +157,26 @@ export const toolUiEn = {
 // Runtime messages stay tool-scoped too; do not apply these short words to data
 // algorithms such as formal Chinese currency conversion.
 export const toolScriptEn = {
+  'cert-decoder': {
+    'DER 数据不完整（偏移 ': 'Incomplete DER data (offset ', '不支持多字节 tag': 'Multi-byte tags are not supported',
+    '非法的 length 编码': 'Invalid length encoding', '长度越界：声明 ': 'Length out of bounds: ', ' 字节超出数据范围': ' bytes exceed the input',
+    '（空）': '(empty)', '不是有效的 X.509 证书结构': 'Invalid X.509 certificate structure',
+    ' 位': ' bits', '曲线 ': 'Curve ', '已过期 ': 'Expired; days overdue: ', '尚未生效': 'Not yet valid',
+    '有效，剩余 ': 'Within validity period; days left: ', ' 天</b>': '</b>', '（主体与签发者同名）': ' (subject and issuer names match)',
+    '>证书 ': '>Certificate ', '概要': 'Overview', '主体 CN：': 'Subject CN: ', '签发者 CN：': 'Issuer CN: ',
+    '生效时间：': 'Not before: ', '到期时间：': 'Not after: ', '主体（Subject DN）': 'Subject DN', '签发者（Issuer DN）': 'Issuer DN',
+    'SAN 备用名称（': 'Subject alternative names (', ' 个）': ')', 'SAN 备用名称': 'Subject alternative names',
+    '未包含 subjectAltName 扩展': 'No subjectAltName extension', '公钥': 'Public key', '签名算法': 'Signature algorithm',
+    '（版本 v': ' (version v', '序列号': 'Serial number', ' 指纹': ' fingerprint', '计算中...': 'Calculating…',
+    '当前环境不支持 Web Crypto（需 HTTPS）': 'Web Crypto is unavailable (HTTPS required)', '指纹计算失败': 'Fingerprint calculation failed',
+    '请先粘贴 PEM 证书内容': 'Paste a PEM certificate first',
+    '检测到私钥内容——本工具只解析公开证书，请不要粘贴私钥': 'Private key detected. Paste public certificates only, never private keys.',
+    '未找到 -----BEGIN CERTIFICATE----- 块，请确认是 PEM 格式（DER 需先用 openssl 转 PEM）': 'No -----BEGIN CERTIFICATE----- block found. Convert binary DER to PEM first.',
+    '解析失败': 'Could not parse', '证书内容损坏或不是有效的 DER 编码': 'Invalid certificate or DER encoding',
+    '解析成功：共 ': 'Certificates parsed: ', ' 张证书': '', '解析完成：': 'Finished: ', ' 张成功，': ' parsed, ', ' 张失败': ' failed',
+    '粘贴证书后点击「解析」，或点「示例」查看效果。': 'Paste a certificate and choose Parse, or choose Example to load the demo.',
+    '）': ')', '，': ', '
+  },
   'json-formatter': {
     '检测到超出安全整数范围的大数，数值可能已丢失精度。': 'A number exceeds the safe-integer range and may have lost precision.',
     '请输入 JSON 文本。': 'Enter JSON text.', '解析失败（第 ': 'Parse failed (line ', ' 行，第 ': ', column ', ' 列）：': '): ', '\\n出错位置附近：…': '\\nNear the error: …',

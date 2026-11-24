@@ -101,7 +101,7 @@ export const toolHelpEn = {
   },
   'hash-tool': {
     title: 'Online Hash Calculator - MD5, SHA-1, SHA-256 & SHA-512 File Checksum | zktool',
-    intro: 'Compute MD5, SHA-1, SHA-256, and SHA-512 cryptographic digests for text strings or local files via drag-and-drop. File hashing runs directly against local ArrayBuffers in your browser without uploading a single byte.',
+    intro: 'A digest is a fingerprint, not encrypted text. To check a download, drop the original file into the calculator, choose the same algorithm as the publisher, and compare the entire checksum with the value from a trusted source. No file upload is required.',
     faqs: [
       ['Can a SHA-256 or MD5 hash be decrypted back to the original text?', 'No. Cryptographic hash functions are one-way digests—not encryption. Anyone matching a hash uses precomputed rainbow tables or brute-force guessing.'],
       ['Which hash algorithm should I use today?', 'Use SHA-256 or SHA-512 for file integrity verification and digital signatures. MD5 and SHA-1 suffer from practical collision attacks and should only be used for legacy checksums.'],

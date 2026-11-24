@@ -49,6 +49,13 @@
                 <button class="btn danger" id="clear">清空</button>
             </div>
             <p class="hint" id="status" aria-live="polite">支持粘贴多张证书（证书链），逐张解析展示。</p>
+            <details class="worked-example" open>
+                <summary>怎样读这张示例证书？</summary>
+                <p>点击「示例」载入公开的演示 PEM。SAN 列出了 demo.example.com、www.example.com 和 *.api.example.com；最后一个覆盖 v1.api.example.com，但不覆盖 api.example.com 本身。</p>
+                <p>到期时间是 2028-07-21 02:04:54 UTC，结果栏按你的本地时间显示。有效期只说明日期范围；本工具不验证信任链。</p>
+                <p>证书指纹是对 DER 字节计算的摘要，直接对带有换行的 PEM 文本计算会得到不同结果。</p>
+                <a href="../hash-tool/">比较文本与文件的 SHA-256 摘要</a>
+            </details>
         </section>
         <aside>
             <section class="panel">
@@ -305,8 +312,8 @@
         else state = "<b class='ok'>有效，剩余 " + days + " 天</b>";
         var subjectCN = cert.subject.map.CN || cert.subject.text;
         var issuerCN = cert.issuer.map.CN || cert.issuer.text;
-        var selfSigned = cert.subject.text === cert.issuer.text;
-        var html = "<div class='cert-head'><h3>证书 " + (idx + 1) + (total > 1 ? " / " + total : "") + "</h3><span class='idx'>" + esc(subjectCN) + (selfSigned ? "（自签名）" : "") + "</span></div>";
+        var sameName = cert.subject.text === cert.issuer.text;
+        var html = "<div class='cert-head'><h3>证书 " + (idx + 1) + (total > 1 ? " / " + total : "") + "</h3><span class='idx'>" + esc(subjectCN) + (sameName ? "（主体与签发者同名）" : "") + "</span></div>";
         html += field("概要", "<div>主体 CN：<span class='mono'>" + esc(subjectCN) + "</span></div>" +
             "<div>签发者 CN：<span class='mono'>" + esc(issuerCN) + "</span></div>" +
             "<div>生效时间：" + fmtTime(cert.notBefore) + "</div>" +

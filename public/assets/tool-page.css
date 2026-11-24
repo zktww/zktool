@@ -19,6 +19,21 @@
 }
 
 .tool-grid > aside { gap: 1.05rem; }
+.worked-example {
+    margin-top: 1rem;
+    padding: .8rem 1rem;
+    border-inline-start: 3px solid var(--brand);
+    background: var(--bg-soft);
+    color: var(--text-2);
+    border-radius: 6px;
+    font-size: .88rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+.worked-example summary { cursor: pointer; font-weight: 650; }
+.worked-example p { margin: .55rem 0; }
+.worked-example code { font-family: var(--mono); }
+.worked-example a { text-decoration: underline; }
 .tool-grid > aside > .panel + .panel { margin-top: 0; }
 
 .tool-grid > aside > .panel:first-child {

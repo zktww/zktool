@@ -48,6 +48,13 @@
                 <label><input id="includeEnd" type="checkbox" checked />包含结束日</label>
             </div>
             <p class="hint" id="status" aria-live="polite"></p>
+            <details class="worked-example" open>
+                <summary>从周五到周一，算几天？</summary>
+                <p>以 2024-03-01（周五）到 2024-03-04（周一）为例：不含周五、含周一是 3 个自然日、1 个工作日；两端都含则是 4 个自然日、2 个工作日。</p>
+                <button class="btn" type="button" id="weekendSample">试算跨周末日期</button>
+                <p>可切换上方两个选项核对结果。这里的工作日只按周一至周五计算，不套用任何地区的节假日或调休表。</p>
+                <a href="../timezone-planner/">需要比较不同时区的具体时刻？</a>
+            </details>
         </section>
         <aside>
             <section class="panel">
@@ -120,6 +127,7 @@
     }
     var now=today(),tomorrow=formatYmd(shiftDay(parseYmd(now),30));start.value=now;end.value=tomorrow;$("base").value=now;
     [start,end,includeStart,includeEnd].forEach(function(el){el.addEventListener("input",render);el.addEventListener("change",render);});
+    $("weekendSample").onclick=function(){start.value="2024-03-01";end.value="2024-03-04";includeStart.checked=false;includeEnd.checked=true;render();};
     $("swap").onclick=function(){var v=start.value;start.value=end.value;end.value=v;render();};$("add").onclick=function(){calculate(1);};$("subtract").onclick=function(){calculate(-1);};
     $("copy").onclick=function(){if(!lastAdd){calculate(1);}copyText(lastAdd).then(function(){status.textContent="推算结果已复制。";status.className="hint ok";},function(){status.textContent="复制失败，请手动复制。";status.className="hint bad";});};
     render();calculate(1);

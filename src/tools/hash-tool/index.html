@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>MD5在线加密 - 文件MD5校验与SHA256哈希计算 | zktool</title>
+    <title>哈希计算器：文本与文件的 MD5、SHA-256 校验 | zktool</title>
     <meta name="description" content="免费在线 MD5、SHA-1、SHA-256、SHA-512 哈希计算工具：支持文本和文件（拖拽即算），校验下载文件完整性，本地计算文件不上传。" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="zktool" />
-    <meta property="og:title" content="MD5在线加密 - 文件MD5校验与SHA256哈希计算 | zktool" />
+    <meta property="og:title" content="哈希计算器：文本与文件的 MD5、SHA-256 校验 | zktool" />
     <meta property="og:description" content="免费在线 MD5、SHA-1、SHA-256、SHA-512 哈希计算工具：支持文本和文件（拖拽即算），校验下载文件完整性，本地计算文件不上传。" />
     <meta property="og:url" content="https://tools.zktww.cn/tools/hash-tool/" />
     <link rel="canonical" href="https://tools.zktww.cn/tools/hash-tool/" />
@@ -50,33 +50,39 @@
                 <span class="mono" id="fileInfo"></span>
             </div>
             <input type="file" id="file" hidden />
-            <div class="row"><button class="btn danger" id="clear">清空</button><span class="hint" id="status" aria-live="polite"></span></div>
+            <div class="row"><button type="button" class="btn" id="sample">试算 abc</button><button class="btn danger" id="clear">清空</button><span class="hint" id="status" aria-live="polite"></span></div>
         </section>
         <aside>
             <section class="panel">
                 <h2>摘要结果</h2>
                 <div id="results" aria-live="polite"></div>
+                <details class="worked-example" open>
+                    <summary>用已知输入核对结果</summary>
+                    <p>输入小写 abc（UTF-8，不加换行），MD5 应为：</p>
+                    <code>900150983cd24fb0d6963f7d28e17f72</code>
+                    <p>在末尾按一次回车再比较：看起来只多了一行，实际参与计算的字节已经变了。</p>
+                </details>
                 <p class="hint">MD5 已不适合安全用途，仅用于校验与兼容旧系统。</p>
             </section>
         </aside>
     </div>
 
 <section class="seo-notes">
-    <h2>关于MD5在线加密</h2>
-    <p>哈希（Hash）把任意长度的数据变成固定长度的"指纹"，内容变一个字节指纹就完全不同，因此常用于校验文件完整性、生成缓存键和签名比对。本工具同时计算 MD5、SHA-1、SHA-256、SHA-512 四种摘要，支持直接输入文本或拖入文件（最大 256MB）；SHA 系列基于浏览器原生 Web Crypto，文件在本地读取计算，不会上传到任何服务器。</p>
+    <h2>哈希和加密有什么不同？</h2>
+    <p>加密可以用密钥解密；哈希生成的是摘要，没有解密步骤。要比对下载文件，请选择发布方提供的算法并核对完整的摘要。本工具同时计算 MD5、SHA-1、SHA-256、SHA-512 四种摘要，支持直接输入文本或拖入文件（最大 256MB）；SHA 系列基于浏览器原生 Web Crypto，文件在本地读取计算，不会上传到任何服务器。</p>
     <h2>常见问题</h2>
     <details><summary>如何校验下载的文件是否完整？</summary><p>把下载的文件拖入本工具，对比计算出的 SHA-256（或官网提供的对应算法）值与官网公布的校验值是否一致；一致说明文件完整未被篡改。</p></details>
     <details><summary>MD5 还能用吗？</summary><p>MD5 已被证实可以人为构造碰撞，不能再用于签名、证书等安全场景；但作为文件完整性校验、缓存键、去重标识等非对抗性用途仍然普遍且够用。安全场景请用 SHA-256 及以上。</p></details>
     <details><summary>同样的文本为什么算出的哈希和别人不一样？</summary><p>检查三点：是否混入了首尾空格或换行、编码是否一致（本工具按 UTF-8 处理）、对方是否对内容做过其他预处理（如加盐）。哈希对每个字节都敏感。</p></details>
 </section>
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"MD5在线加密","url":"https://tools.zktww.cn/tools/hash-tool/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 MD5、SHA-1、SHA-256、SHA-512 哈希计算工具：支持文本和文件（拖拽即算），校验下载文件完整性，本地计算文件不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"如何校验下载的文件是否完整？","acceptedAnswer":{"@type":"Answer","text":"把下载的文件拖入本工具，对比计算出的 SHA-256（或官网提供的对应算法）值与官网公布的校验值是否一致；一致说明文件完整未被篡改。"}},{"@type":"Question","name":"MD5 还能用吗？","acceptedAnswer":{"@type":"Answer","text":"MD5 已被证实可以人为构造碰撞，不能再用于签名、证书等安全场景；但作为文件完整性校验、缓存键、去重标识等非对抗性用途仍然普遍且够用。安全场景请用 SHA-256 及以上。"}},{"@type":"Question","name":"同样的文本为什么算出的哈希和别人不一样？","acceptedAnswer":{"@type":"Answer","text":"检查三点：是否混入了首尾空格或换行、编码是否一致（本工具按 UTF-8 处理）、对方是否对内容做过其他预处理（如加盐）。哈希对每个字节都敏感。"}}]}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"哈希计算器","url":"https://tools.zktww.cn/tools/hash-tool/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 MD5、SHA-1、SHA-256、SHA-512 哈希计算工具：支持文本和文件（拖拽即算），校验下载文件完整性，本地计算文件不上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"如何校验下载的文件是否完整？","acceptedAnswer":{"@type":"Answer","text":"把下载的文件拖入本工具，对比计算出的 SHA-256（或官网提供的对应算法）值与官网公布的校验值是否一致；一致说明文件完整未被篡改。"}},{"@type":"Question","name":"MD5 还能用吗？","acceptedAnswer":{"@type":"Answer","text":"MD5 已被证实可以人为构造碰撞，不能再用于签名、证书等安全场景；但作为文件完整性校验、缓存键、去重标识等非对抗性用途仍然普遍且够用。安全场景请用 SHA-256 及以上。"}},{"@type":"Question","name":"同样的文本为什么算出的哈希和别人不一样？","acceptedAnswer":{"@type":"Answer","text":"检查三点：是否混入了首尾空格或换行、编码是否一致（本工具按 UTF-8 处理）、对方是否对内容做过其他预处理（如加盐）。哈希对每个字节都敏感。"}}]}]}</script>
 </main>
 <script>
 (function () {
     "use strict";
     var input = document.getElementById("input"), drop = document.getElementById("drop"), file = document.getElementById("file"), fileInfo = document.getElementById("fileInfo"), results = document.getElementById("results"), status = document.getElementById("status");
     var ALGOS = ["MD5", "SHA-1", "SHA-256", "SHA-512"];
-    var currentFile = null, seq = 0;
+    var currentFile = null, seq = 0, workerJob = 0;
 
     /* MD5（Web Crypto 不含 MD5，内置精简实现，输入为 Uint8Array） */
     function md5(bytes) {
@@ -118,7 +124,7 @@
     function getMd5Worker() {
         if (md5Worker || md5Broken) return md5Worker;
         try {
-            var src = md5.toString() + "\nself.onmessage=function(e){self.postMessage(md5(e.data));};";
+            var src = md5.toString() + "\nself.onmessage=function(e){self.postMessage({id:e.data.id,hash:md5(e.data.bytes)});};";
             var url = URL.createObjectURL(new Blob([src], { type: "text/javascript" }));
             md5Worker = new Worker(url);
             URL.revokeObjectURL(url);
@@ -129,12 +135,13 @@
         var w = getMd5Worker();
         if (!w) return Promise.resolve(toHex(md5(bytes)));   // worker 不可用则回退主线程
         return new Promise(function (resolve, reject) {
-            function done(e) { cleanup(); resolve(toHex(e.data)); }
+            var id = ++workerJob;
+            function done(e) { if (e.data.id !== id) return; cleanup(); resolve(toHex(e.data.hash)); }
             function fail(e) { cleanup(); reject(new Error((e && e.message) || "MD5 计算出错")); }
             function cleanup() { w.removeEventListener("message", done); w.removeEventListener("error", fail); }
             w.addEventListener("message", done);
             w.addEventListener("error", fail);
-            w.postMessage(bytes);   // 结构化克隆，调用方 bytes 不受影响（SHA 仍可复用）
+            w.postMessage({id: id, bytes: bytes});
         });
     }
 
@@ -176,10 +183,12 @@
         if (f.size > 256 * 1024 * 1024) { status.textContent = "文件超过 256MB，请换小一点的文件"; status.className = "hint bad"; return; }
         currentFile = f;
         fileInfo.textContent = f.name + " · " + (f.size >= 1048576 ? (f.size / 1048576).toFixed(2) + " MB" : (f.size / 1024).toFixed(1) + " KB");
-        f.arrayBuffer().then(function (buf) { compute(new Uint8Array(buf), "文件 " + f.name); });
+        clearTimeout(input._t);
+        f.arrayBuffer().then(function (buf) { if (currentFile === f) compute(new Uint8Array(buf), "文件 " + f.name); });
     }
 
     input.addEventListener("input", function () { clearTimeout(input._t); input._t = setTimeout(fromText, 250); });
+    document.getElementById("sample").onclick = function () { clearTimeout(input._t); file.value = ""; input.value = "abc"; fromText(); input.focus(); };
     drop.onclick = function () { file.click(); };
     drop.onkeydown = function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); file.click(); } };
     file.onchange = function () { fromFile(file.files[0]); };

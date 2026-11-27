@@ -8,6 +8,11 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(300px, 0.88fr);
     gap: 1.05rem;
+    align-items: start;
+}
+
+/* 仅当左侧是纯主输入框面板（不含长教程块）且右侧只有单个结果面板时左右等高 */
+.tool-grid:has(> section.panel > textarea):not(:has(.worked-example)):has(> aside > .panel:only-child) {
     align-items: stretch;
 }
 
@@ -24,6 +29,7 @@
 }
 
 .tool-grid > aside { gap: 1.05rem; }
+.tool-grid > .panel + .panel,
 .tool-grid > aside > .panel + .panel { margin-top: 0; }
 
 .tool-grid > aside > .panel:first-child {
@@ -68,6 +74,7 @@
 }
 
 .row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.65rem; margin-bottom: 0.82rem; }
+.row:has(> label > input:not([type="checkbox"]):not([type="radio"]), > label > select, > label > .zk-select) { align-items: flex-end; }
 .row:last-child { margin-bottom: 0; }
 textarea + .drop { margin-top: 1rem; }
 .row .hint { margin-top: 0; }
@@ -78,6 +85,7 @@ textarea + .drop { margin-top: 1rem; }
 .panel > .row + .row { margin-top: 0; }
 
 .grow { flex: 1; min-width: 0; }
+.row > label.grow { min-width: 11rem; }
 .w-8 { width: 8rem; }
 
 label, .label { color: var(--text-2); font-size: 0.85rem; font-weight: 560; }
@@ -215,6 +223,14 @@ input:disabled, textarea:disabled, select:disabled, .btn:disabled {
     word-break: break-word;
 }
 
+.output:empty::before {
+    content: attr(data-empty);
+    color: var(--text-3);
+    font-family: var(--font);
+    font-size: 0.82rem;
+    font-weight: 450;
+}
+
 .min-h-4 { min-height: 4rem; }
 .min-h-5 { min-height: 5rem; }
 .min-h-6 { min-height: 6rem; }
@@ -246,12 +262,13 @@ th { color: var(--text-3); font-size: 0.72rem; letter-spacing: 0.08em; text-tran
 tr:last-child td { border-bottom: 0; }
 
 @media (max-width: 860px) {
-    .tool-grid { grid-template-columns: 1fr; }
+    .tool-grid,
+    .tool-grid--equal,
+    .tool-grid:not(:has(> aside)) { grid-template-columns: 1fr; }
     .tool-grid > aside > .panel:first-child { flex: none; }
     .tool-grid > aside > .panel:first-child > .output { flex: none; max-height: none; }
     .tool-grid > section.panel > textarea { flex: none; }
     .panel { padding: 1.05rem; border-radius: 16px; }
-    .btn { flex: 1 1 auto; }
-    .row { align-items: stretch; }
-    textarea { min-height: 12rem; }
+    .row:not(:has(input:not([type="file"]):not([type="checkbox"]):not([type="radio"]), select, textarea, .grow)) > .btn { flex: 1 1 auto; }
+    textarea { min-height: 10.5rem; }
 }

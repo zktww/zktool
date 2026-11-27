@@ -56,6 +56,10 @@
                 <label class="grow">自定义进制结果<input id="custom" class="mono" spellcheck="false" autocomplete="off" placeholder="在此按自定义进制输入或查看结果..." /></label>
                 <button class="btn" type="button" data-copy="custom">复制</button>
             </div>
+            <div class="row">
+                <button class="btn" type="button" id="sample">示例</button>
+                <button class="btn danger" type="button" id="clear">清空</button>
+            </div>
             <p class="hint" id="status" aria-live="polite">在任意一栏输入，其余进制实时联动换算；负数请在最前面加 -。</p>
         </section>
         <aside>
@@ -219,6 +223,18 @@
         var row = e.target.closest ? e.target.closest("[data-value]") : null;
         if (row) { e.preventDefault(); row.click(); }
     });
+    document.getElementById("sample").onclick = function () {
+        els.dec.value = "255";
+        onEdit("dec", 10);
+    };
+    document.getElementById("clear").onclick = function () {
+        fields.forEach(function (f) { els[f.id].value = ""; });
+        custom.value = "";
+        clearBad();
+        current = null;
+        updateBits();
+        setStatus(DEFAULT_HINT, "");
+    };
     updateBits();
 })();
 </script>

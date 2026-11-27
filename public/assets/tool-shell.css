@@ -365,7 +365,7 @@ select:not([multiple]):not([size]) {
     justify-content: space-between;
     gap: 0.55rem;
     width: 100%;
-    min-width: 0;
+    min-width: 6.2rem;
     min-height: 2.55rem;
     padding: 0.5rem 0.72rem 0.5rem 0.82rem;
     border: 1px solid var(--border);
@@ -383,6 +383,7 @@ select:not([multiple]):not([size]) {
 
 .toolbar .zk-select-btn,
 .opts .zk-select-btn {
+    min-width: 5.5rem;
     min-height: 2.2rem;
     padding: 0.36rem 0.64rem 0.36rem 0.72rem;
     font-size: 0.82rem;

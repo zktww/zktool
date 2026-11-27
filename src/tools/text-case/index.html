@@ -124,14 +124,22 @@ HTTPResponseCode</textarea>
         stats.innerHTML = "<span class='chip'>行 " + ls.length + "</span><span class='chip'>词 " + wordsCount + "</span><span class='chip'>字符 " + v.length + "</span><span class='chip'>去重后 " + new Set(ls).size + " 行</span>";
     }
 
-    Array.from(document.querySelectorAll("[data-case]")).forEach(function (b) {
-        b.onclick = function () {
+    var activeBtn = document.querySelector('[data-case="camel"]');
+    function runBtn(b) {
+        if (!b) return;
+        if (activeBtn) activeBtn.classList.remove("primary");
+        activeBtn = b;
+        b.classList.add("primary");
+        if (b.hasAttribute("data-case")) {
             var fn = cases[b.getAttribute("data-case")];
             setOut(lines().map(function (l) { return l.trim() ? fn(l.trim()) : l; }), b.textContent);
-        };
-    });
-    Array.from(document.querySelectorAll("[data-line]")).forEach(function (b) {
-        b.onclick = function () { setOut(lineOps[b.getAttribute("data-line")](lines()), b.textContent); };
+        } else if (b.hasAttribute("data-line")) {
+            setOut(lineOps[b.getAttribute("data-line")](lines()), b.textContent);
+        }
+    }
+
+    Array.from(document.querySelectorAll("[data-case],[data-line]")).forEach(function (b) {
+        b.onclick = function () { runBtn(b); };
     });
     document.getElementById("clear").onclick = function () { input.value = ""; output.textContent = ""; status.textContent = "已清空"; status.className = "hint"; updateStats(); };
     document.getElementById("use").onclick = function () { if (output.textContent) { input.value = output.textContent; updateStats(); status.textContent = "已替换输入，可继续叠加操作"; status.className = "hint ok"; } };
@@ -139,8 +147,11 @@ HTTPResponseCode</textarea>
         copyText(output.textContent || "").then(function () { status.textContent = "结果已复制"; status.className = "hint ok"; },
             function () { status.textContent = "复制失败，请手动选择复制"; status.className = "hint bad"; });
     };
-    input.addEventListener("input", updateStats);
-    updateStats();
+    input.addEventListener("input", function () {
+        if (input.value.trim()) runBtn(activeBtn);
+        else { output.textContent = ""; updateStats(); }
+    });
+    runBtn(activeBtn);
 })();
 </script>
 </body>

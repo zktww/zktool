@@ -62,6 +62,7 @@
         <aside>
             <section class="panel">
                 <h2>预览与对比</h2>
+                <p class="hint" id="emptyHint">选择或拖入图片后，这里会显示压缩预览与体积变化。</p>
                 <img class="preview" id="preview" hidden alt="转换结果预览" />
                 <div class="cmp" id="cmp" hidden>
                     <div class="box"><small>原图</small><div class="num" id="srcSize">-</div><small id="srcDim"></small></div>
@@ -127,6 +128,7 @@
             if (resultUrl) URL.revokeObjectURL(resultUrl);
             resultUrl = URL.createObjectURL(blob);
             preview.src = resultUrl; preview.hidden = false; cmp.hidden = false;
+            var eh = document.getElementById("emptyHint"); if (eh) eh.hidden = true;
             document.getElementById("dstSize").textContent = fmtSize(blob.size);
             document.getElementById("dstDim").textContent = w + "×" + h;
             var pct = (100 - blob.size / srcFile.size * 100);

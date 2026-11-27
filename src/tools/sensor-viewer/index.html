@@ -101,8 +101,9 @@
         .sv-y i { background: var(--ok); }
         .sv-z .lbl { color: var(--warn); }
         .sv-z i { background: var(--warn); }
-        /* 启动大按钮 */
-        .sv-start { width: 100%; min-height: 3.2rem; font-size: 1.02rem; justify-content: center; }
+        /* 启动按钮：桌面适中宽度，窄屏自适应铺满 */
+        .sv-start { min-width: 11.5rem; min-height: 2.85rem; font-size: 0.94rem; justify-content: center; }
+        @media (max-width: 640px) { .sv-start { width: 100%; } }
         /* 无传感器降级卡片：提示 + 本页二维码 */
         .sv-fallback { text-align: center; }
         .sv-fallback .qr {

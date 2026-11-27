@@ -104,8 +104,8 @@
 
         select:focus {
             outline: none;
-            border-color: rgba(99, 102, 241, 0.6);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+            border-color: var(--brand-ring);
+            box-shadow: 0 0 0 3px var(--brand-ring-soft);
         }
 
         .btn {
@@ -271,7 +271,7 @@
             transition: border-color 0.25s var(--ease);
         }
 
-        .pane:focus-within { border-color: rgba(99, 102, 241, 0.45); }
+        .pane:focus-within { border-color: var(--brand-ring); }
 
         .pane-head {
             flex-shrink: 0;

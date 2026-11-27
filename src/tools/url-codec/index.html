@@ -44,6 +44,7 @@
                 <button class="btn primary" id="btnEncode">编码</button>
                 <button class="btn" id="btnDecode">解码</button>
                 <button class="btn" id="btnParams">解析参数</button>
+                <button class="btn" id="btnSample" type="button">示例</button>
                 <button class="btn danger" id="btnClear">清空</button>
             </div>
             <div class="row"><label class="hint"><input type="checkbox" id="plusSpace" /> 解码时将 + 视为空格（表单查询字符串）</label></div>
@@ -138,6 +139,10 @@
         catch (e) { msg("解码失败：" + e.message, false); }
     };
     document.getElementById("btnParams").onclick = parseParams;
+    document.getElementById("btnSample").onclick = function () {
+        input.value = "https://tools.zktww.cn/tools/?q=hello%20world&lang=en&tag=json&tag=url";
+        parseParams();
+    };
     document.getElementById("btnClear").onclick = function () { input.value = ""; setOut(""); tableBox.textContent = "暂无参数"; status.className = "hint"; status.textContent = "已清空"; };
     document.getElementById("btnCopy").onclick = function () {
         copyText(output.textContent || "").then(function () { msg("结果已复制", true); },

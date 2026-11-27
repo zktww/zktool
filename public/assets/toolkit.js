@@ -1083,6 +1083,11 @@
         }
         if (!manual()) initDraft(fromShare);
         mountSelects();
+        Array.prototype.forEach.call(document.querySelectorAll(".output"), function (el) {
+            if (!el.hasAttribute("data-empty")) {
+                el.setAttribute("data-empty", text("Output will appear here…", "结果将显示在这里…"));
+            }
+        });
         mountPrivacyControls();
         mountButtons();
         mountNav();

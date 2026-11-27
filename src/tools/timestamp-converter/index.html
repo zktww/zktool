@@ -127,8 +127,8 @@
 
         input:focus, textarea:focus {
             outline: none;
-            border-color: rgba(99, 102, 241, 0.6);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+            border-color: var(--brand-ring);
+            box-shadow: 0 0 0 3px var(--brand-ring-soft);
         }
 
         input::placeholder, textarea::placeholder { color: var(--text-3); }
@@ -150,13 +150,13 @@
             background: transparent;
             color: var(--text-2);
             cursor: pointer;
-            transition: background 0.25s, color 0.25s;
+            transition: background 0.2s, color 0.2s;
         }
 
         .seg button[aria-pressed="true"] {
-            background: rgba(99, 102, 241, 0.18);
-            color: var(--brand-2);
-            font-weight: 600;
+            background: var(--brand-soft);
+            color: var(--brand);
+            font-weight: 650;
         }
 
         .seg button:hover:not([aria-pressed="true"]) { color: var(--text); }
@@ -167,19 +167,19 @@
             gap: 0.4rem;
             font: inherit;
             font-size: 0.85rem;
-            font-weight: 600;
+            font-weight: 620;
             padding: 0.55rem 1rem;
             border-radius: 10px;
-            border: 1px solid rgba(99, 102, 241, 0.35);
-            background: rgba(99, 102, 241, 0.14);
-            color: var(--brand-1);
+            border: 1px solid color-mix(in srgb, var(--brand) 32%, var(--border));
+            background: var(--brand-soft);
+            color: var(--brand);
             cursor: pointer;
-            transition: background 0.25s, border-color 0.25s, transform 0.25s var(--ease);
+            transition: background 0.2s, border-color 0.2s, transform 0.2s var(--ease);
         }
 
         .btn:hover, .btn:focus-visible {
-            background: rgba(99, 102, 241, 0.26);
-            border-color: rgba(99, 102, 241, 0.6);
+            background: color-mix(in srgb, var(--brand) 16%, var(--surface));
+            border-color: var(--brand-ring);
             outline: none;
         }
 

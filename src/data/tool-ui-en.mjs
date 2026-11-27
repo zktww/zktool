@@ -54,13 +54,23 @@ export const toolUiEn = {
     '计算式：请求权限 &amp; ~umask。此示例假设父目录没有默认 ACL。程序可以请求更少的权限；umask 不会修改已存在的文件。': 'Formula: requested mode &amp; ~umask. This assumes no default ACL on the parent directory. A program can request fewer permissions; umask does not change existing files.'
   },
   'cron-tool': { 'Cron 表达式（5 段）': 'Cron expression (5 fields)', 'Cron 表达式': 'Cron expression' },
-  'css-length-unit': { '单位对照表': 'Unit reference', '绝对单位': 'Absolute units', '相对单位': 'Relative units', '计算值 (px)': 'Computed value (px)', '英寸 (1in = 96px)': 'Inch (1in = 96px)', '派卡 (1pc = 16px)': 'Pica (1pc = 16px)', '我的博客：': 'My blog: ', '丿似锦': 'zktww' },
+  'css-length-unit': {
+    '单位对照表': 'Unit reference', '绝对单位': 'Absolute units', '相对单位': 'Relative units',
+    '计算值 (px)': 'Computed value (px)', '英寸 (1in = 96px)': 'Inch (1in = 96px)', '派卡 (1pc = 16px)': 'Pica (1pc = 16px)',
+    'CSS 长度单位探索器': 'CSS Length Unit Explorer',
+    '点击任意一行即可复制对应的像素换算值。': 'Click any row to copy its computed pixel value.'
+  },
   'device-info': { 'screen 尺寸': 'Screen dimensions', 'safe-area 安全区': 'Safe-area insets', '语言 language(s)': 'Languages', '触点数 maxTouchPoints': 'Maximum touch points', '网络 connection': 'Network connection' },
   'drag-and-drop-playground': {
+    '把左侧标签拖到右侧容器。关键点：': 'Drag a chip from the left into the target container. Key points: set ',
+    '中设置': ' in ',
+    '；': '; ',
+    '才能成为放置目标。': ' to become a valid drop target.',
     '上下拖动以重排。核心是用': 'Drag items to reorder. Use',
-    '计算光标相对每个兄弟元素的位置，\n            配合': 'to locate the pointer relative to each sibling, and',
+    '计算光标相对每个兄弟元素的位置，配合': 'to locate the pointer relative to each sibling, and',
     '排除自身，在': 'to exclude the dragged item. During', '中实时': 'events, reorder with',
-    '把任意文件拖入下方虚线区域，或点击选择。示例': 'Drop files below or click to select. This demonstrates'
+    '把任意文件拖入下方虚线区域，或点击选择。示例': 'Drop files below or click to select. This demonstrates',
+    '所有交互均在浏览器本地运行。拖动上方元素或文件即可观察实时事件触发顺序。': 'All interactions run locally in your browser. Drag items or files above to watch the live DragEvent sequence.'
   },
   'id-card-checker': {
     '身份证校验码计算器': 'Chinese ID Checksum Calculator',
@@ -83,6 +93,7 @@ export const toolUiEn = {
     '15 位号码不能直接计算 18 位校验码。请先按规则补齐出生年份和校验位后再核对，本工具不会替你推断或保存身份信息。': 'A 15-digit number cannot be used directly to calculate an 18-digit checksum. Expand it according to the applicable rules before checking; this tool will not infer or save identity information.'
   },
   'emoji-tool': { '收藏与最近使用保存在本机浏览器（localStorage）。': 'Favorites and recent emoji are saved in this browser (localStorage).' },
+  'image-compressor': { '选择或拖入图片后，这里会显示压缩预览与体积变化。': 'Choose or drop an image to see the compressed preview and size comparison.' },
   'http-reference': { '共': 'Total:', '条 · 点击条目复制': 'entries · Click an entry to copy' },
   'json-formatter': {
     '快捷键：': 'Shortcut: ', '美化当前输入 · 输入内容自动保存至本地，刷新不丢失。': 'Format input · Drafts are saved locally and survive a refresh.',
@@ -252,6 +263,12 @@ export const toolScriptEn = {
     '不支持': 'Unsupported', '未知': 'Unknown', ' 核': ' cores', ' GB（近似）': ' GB (approximate)', '精确（鼠标/触控板）': 'Fine (mouse/trackpad)', '粗糙（触屏）': 'Coarse (touch)', '无指针设备': 'No pointer device',
     '深色': 'Dark', '浅色': 'Light', ' / 省流量': ' / data saver', '在线': 'Online', '离线': 'Offline', '已启用': 'Enabled', '已禁用': 'Disabled', ' / 充电中': ' / charging', ' / 未充电': ' / not charging', '读取失败': 'Read failed', 'zktool 设备信息（': 'zktool device information (', '全部信息已复制到剪贴板': 'All information copied', '"是"': '"Yes"', '"否"': '"No"'
   },
+  'css-length-unit': {
+    '增大数值': 'Increase value', '减小数值': 'Decrease value', '计算错误': 'Calculation error',
+    '当前长度：': 'Current length: ', '（换算异常）': ' (conversion error)', '，折合约 ': ' ≈ ',
+    '比例: 均为 0': 'Ratio: both 0', '比例: 1 : ': 'Ratio: 1 : ', '比例: 无法计算': 'Ratio: unavailable', '已复制': 'Copied'
+  },
+  'drag-and-drop-playground': { '已复制': 'Copied' },
   'timezone-planner': {
     '北京': 'Beijing', '东京': 'Tokyo', '首尔': 'Seoul', '新加坡': 'Singapore', '新德里（印度）': 'New Delhi (India)', '迪拜': 'Dubai', '悉尼': 'Sydney', '奥克兰': 'Auckland', '莫斯科': 'Moscow', '柏林': 'Berlin', '巴黎': 'Paris', '伦敦': 'London', '圣保罗': 'São Paulo', '纽约': 'New York', '芝加哥': 'Chicago', '多伦多': 'Toronto', '旧金山': 'San Francisco',
     '周日': 'Sun', '周一': 'Mon', '周二': 'Tue', '周三': 'Wed', '周四': 'Thu', '周五': 'Fri', '周六': 'Sat', '工作时间': 'Working hours', '边缘时间': 'Outside core hours', '休息时间': 'Off hours',

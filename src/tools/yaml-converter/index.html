@@ -48,6 +48,7 @@
             <div class="row">
                 <button class="btn" id="toYaml">JSON → YAML</button>
                 <button class="btn" id="validate">校验 YAML</button>
+                <button class="btn" id="sample" type="button">示例</button>
                 <button class="btn danger" id="clear">清空</button>
             </div>
         </section>
@@ -113,6 +114,10 @@
             output.textContent = "✓ YAML 语法正确\n顶层类型：" + typeName(obj);
             ok("校验通过，顶层为 " + typeName(obj));
         } catch (e) { output.textContent = ""; bad("校验失败：" + yamlErrMsg(e)); }
+    };
+    document.getElementById("sample").onclick = function () {
+        input.value = "service: zktool\nport: 8080\nfeatures:\n  - json\n  - yaml\ntls:\n  enabled: true\n";
+        document.getElementById("toJson").click();
     };
     document.getElementById("clear").onclick = function () { input.value = ""; output.textContent = ""; plain("已清空"); };
     document.getElementById("copy").onclick = function () {

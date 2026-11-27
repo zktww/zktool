@@ -2,611 +2,572 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>HTML5 拖拽交互测试器 - Drag and Drop API 在线调试与事件日志 | zktool</title>
     <meta name="description" content="免费在线 HTML5 Drag and Drop 交互测试器：涵盖基础元素拖放、拖拽列表重排与本地文件拖入识别三大示例，附实时拖拽事件日志面板。" />
-    <meta name="theme-color" content="#f6f8fb" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="zktool" />
+    <meta property="og:title" content="HTML5 拖拽交互测试器 - Drag and Drop API 在线调试与事件日志 | zktool" />
+    <meta property="og:description" content="免费在线 HTML5 Drag and Drop 交互测试器：涵盖基础元素拖放、拖拽列表重排与本地文件拖入识别三大示例，附实时拖拽事件日志面板。" />
+    <meta property="og:url" content="https://tools.zktww.cn/tools/drag-and-drop-playground/" />
+    <link rel="canonical" href="https://tools.zktww.cn/tools/drag-and-drop-playground/" />
+    <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
+    <link rel="stylesheet" href="../../assets/tool-page.css" />
+    <script src="../../assets/analytics.js"></script>
+    <script src="../../assets/theme.js"></script>
+    <script src="../../assets/clipboard.js"></script>
+    <script defer src="../../assets/registry.js"></script><script defer src="../../assets/i18n.js"></script>
+    <script defer src="../../assets/palette.js"></script>
+    <script defer src="../../assets/toolkit.js"></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://tools.zktww.cn/"},{"@type":"ListItem","position":2,"name":"图表与图像","item":"https://tools.zktww.cn/#group-visual"},{"@type":"ListItem","position":3,"name":"HTML 拖拽交互测试器","item":"https://tools.zktww.cn/tools/drag-and-drop-playground/"}]}</script>
+    <link rel="alternate" hreflang="zh-CN" href="https://tools.zktww.cn/tools/drag-and-drop-playground/" /><link rel="alternate" hreflang="en" href="https://tools.zktww.cn/en/tools/drag-and-drop-playground/" /><link rel="alternate" hreflang="x-default" href="https://tools.zktww.cn/tools/drag-and-drop-playground/" />
     <style>
-        :root {
-            --bg: #f6f8fb;
-            --surface: #ffffff;
-            --surface-2: #f1f5f9;
-            --text: #1e293b;
-            --muted: #5b6b81;
-            --primary: #2563eb;
-            --secondary: #64748b;
-            --accent: #0ea5e9;
-            --warn: #d97706;
-            --border: rgba(15, 23, 42, 0.10);
-            --glow: 0 10px 28px rgba(15, 23, 42, 0.08);
-            --radius: 12px;
-            --ease: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            line-height: 1.6;
-            background-image:
-                    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(37, 99, 235, 0.08), transparent),
-                    radial-gradient(circle at 100% 100%, rgba(14, 165, 233, 0.05), transparent 40%);
-        }
-
-        .wrap {
-            max-width: 1120px;
-            margin: 0 auto;
-            padding: clamp(1.25rem, 4vw, 2.25rem) clamp(1rem, 3vw, 1.5rem) 3.5rem;
-        }
-
-        .topbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            font-size: 0.85rem;
-            color: var(--muted);
-        }
-
-        .topbar a {
-            color: var(--primary);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .topbar a:hover { text-decoration: underline; }
-
-        header { text-align: center; margin-bottom: 2.5rem; }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.75rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--muted);
-            margin-bottom: 1rem;
-        }
-
-        .badge i { color: var(--primary); }
-
-        h1 {
-            font-size: clamp(1.75rem, 5vw, 2.5rem);
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            margin-bottom: 0.75rem;
-            background: linear-gradient(120deg, var(--text) 0%, var(--primary) 45%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .lead {
-            color: var(--muted);
-            font-size: clamp(0.95rem, 2.2vw, 1.05rem);
-            max-width: 42em;
-            margin: 0 auto;
-        }
-
-        .section {
-            margin-top: 2.5rem;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1.5rem clamp(1rem, 3vw, 1.75rem);
-        }
-
-        .section h2 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.55rem;
-            margin-bottom: 0.4rem;
-        }
-
-        .section h2 i { color: var(--primary); }
-
-        .section p.hint {
-            color: var(--muted);
-            font-size: 0.9rem;
-            margin-bottom: 1.2rem;
-        }
-
-        /* ---------- Demo 1: basic drag ---------- */
-        .basic-grid {
+        .dnd-bento {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 1.05rem;
+            align-items: stretch;
+        }
+        .dnd-bento > .panel {
+            display: flex;
+            flex-direction: column;
+            margin-top: 0;
+        }
+        .panel-desc {
+            margin: -0.35rem 0 0.9rem;
+            color: var(--text-2);
+            font-size: 0.83rem;
+            line-height: 1.6;
+        }
+        .panel-desc code, .lead code {
+            padding: 0.1rem 0.35rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg-soft);
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 0.82em;
         }
 
-        @media (max-width: 640px) {
-            .basic-grid { grid-template-columns: 1fr; }
+        /* 案例一：基础拖放 */
+        .basic-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 0.75rem;
         }
-
         .drop-zone {
-            min-height: 160px;
-            border: 2px dashed rgba(37, 99, 235, 0.28);
-            border-radius: 10px;
-            padding: 1rem;
+            position: relative;
+            min-height: 9.5rem;
+            padding: 2rem 0.8rem 0.8rem;
+            border: 1.5px dashed var(--border-hover);
+            border-radius: var(--radius-md);
+            background: var(--bg-soft);
             display: flex;
             flex-wrap: wrap;
             align-content: flex-start;
-            gap: 0.6rem;
-            transition: all 0.2s ease;
-            background: rgba(37, 99, 235, 0.025);
+            gap: 0.5rem;
+            transition: border-color 0.18s var(--ease), background 0.18s var(--ease), box-shadow 0.18s var(--ease);
         }
-
         .drop-zone::before {
             content: attr(data-label);
-            width: 100%;
-            font-size: 0.78rem;
-            color: var(--muted);
-            letter-spacing: 0.05em;
+            position: absolute;
+            top: 0.55rem;
+            left: 0.75rem;
+            color: var(--text-3);
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            font-weight: 650;
+            letter-spacing: 0.04em;
             text-transform: uppercase;
         }
-
         .drop-zone.drag-over {
-            border-color: var(--accent);
-            background: rgba(14, 165, 233, 0.08);
-            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+            border-color: var(--brand);
+            background: var(--brand-soft);
+            box-shadow: 0 0 0 3px var(--brand-ring-soft);
         }
-
-        .chip {
+        .dnd-chip {
             display: inline-flex;
             align-items: center;
-            gap: 0.45rem;
-            background: var(--surface-2);
+            gap: 0.38rem;
+            padding: 0.4rem 0.78rem;
             border: 1px solid var(--border);
             border-radius: 999px;
-            padding: 0.45rem 0.9rem;
-            font-size: 0.88rem;
+            background: var(--surface);
+            color: var(--text);
+            font-size: 0.83rem;
+            font-weight: 620;
+            box-shadow: var(--shadow-sm);
             cursor: grab;
             user-select: none;
-            transition: transform 0.15s ease, border-color 0.15s ease;
+            transition: border-color 0.16s, transform 0.16s, opacity 0.16s;
         }
-
-        .chip:hover {
-            border-color: rgba(37, 99, 235, 0.45);
+        .dnd-chip:hover {
+            border-color: var(--border-hover);
             transform: translateY(-1px);
         }
-
-        .chip.dragging {
-            opacity: 0.45;
-            cursor: grabbing;
+        .dnd-chip:active { cursor: grabbing; }
+        .dnd-chip.dragging { opacity: 0.4; }
+        .dnd-chip svg {
+            width: 0.88rem;
+            height: 0.88rem;
+            color: var(--brand);
+            flex-shrink: 0;
         }
 
-        .chip i { color: var(--secondary); font-size: 0.85rem; }
-
-        /* ---------- Demo 2: sortable ---------- */
+        /* 案例二：列表排序 */
         .sortable {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 0.55rem;
+            gap: 0.48rem;
         }
-
         .sortable li {
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 0.85rem 1rem;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.65rem;
+            padding: 0.62rem 0.85rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--bg-soft);
+            color: var(--text);
+            font-size: 0.85rem;
+            font-weight: 550;
             cursor: grab;
             user-select: none;
-            transition: border-color 0.15s ease;
+            transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
         }
-
-        .sortable li:hover { border-color: rgba(37, 99, 235, 0.45); }
-
+        .sortable li:hover {
+            border-color: var(--border-hover);
+            background: var(--surface);
+            box-shadow: var(--shadow-sm);
+        }
         .sortable li.dragging {
-            opacity: 0.35;
-            background: rgba(37, 99, 235, 0.08);
+            opacity: 0.4;
+            border-color: var(--brand);
+            background: var(--brand-soft);
         }
-
-        .sortable .grip {
-            color: var(--muted);
-            font-size: 0.95rem;
+        .grip {
+            width: 0.95rem;
+            height: 0.95rem;
+            color: var(--text-3);
+            flex-shrink: 0;
         }
-
-        .sortable .count {
+        .prio {
             margin-left: auto;
-            font-size: 0.75rem;
-            color: var(--muted);
-            background: rgba(37, 99, 235, 0.08);
-            padding: 0.15rem 0.55rem;
+            padding: 0.12rem 0.5rem;
+            border: 1px solid var(--border);
             border-radius: 999px;
+            background: var(--surface);
+            color: var(--brand);
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            font-weight: 650;
         }
 
-        /* ---------- Demo 3: file upload ---------- */
+        /* 案例三：文件拖拽 */
         .file-zone {
-            min-height: 180px;
-            border: 2px dashed rgba(37, 99, 235, 0.28);
-            border-radius: 10px;
+            flex: 1;
+            min-height: 9.5rem;
+            padding: 1.25rem;
+            border: 1.5px dashed var(--border-hover);
+            border-radius: var(--radius-md);
+            background: var(--bg-soft);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            gap: 0.45rem;
             text-align: center;
-            padding: 1.5rem;
-            transition: all 0.2s ease;
             cursor: pointer;
+            transition: border-color 0.18s var(--ease), background 0.18s var(--ease), box-shadow 0.18s var(--ease);
         }
-
+        .file-zone:hover,
         .file-zone.drag-over {
-            border-color: var(--accent);
-            background: rgba(14, 165, 233, 0.08);
+            border-color: var(--brand);
+            background: var(--brand-soft);
         }
-
-        .file-zone i.big {
-            font-size: 2.2rem;
-            color: var(--primary);
-            margin-bottom: 0.75rem;
+        .file-zone.drag-over { box-shadow: 0 0 0 3px var(--brand-ring-soft); }
+        .file-zone svg {
+            width: 1.85rem;
+            height: 1.85rem;
+            color: var(--brand);
         }
-
-        .file-zone p { color: var(--muted); font-size: 0.9rem; }
-
+        .file-zone p {
+            margin: 0;
+            color: var(--text-2);
+            font-size: 0.85rem;
+        }
+        .file-zone strong { color: var(--text); font-weight: 650; }
         .file-zone input[type="file"] { display: none; }
-
         .file-list {
             list-style: none;
-            margin-top: 1rem;
             display: flex;
             flex-direction: column;
             gap: 0.4rem;
+            margin-top: 0.75rem;
+            max-height: 8.5rem;
+            overflow-y: auto;
         }
-
+        .file-list:empty { display: none; }
         .file-list li {
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 0.55rem 0.85rem;
-            font-size: 0.88rem;
             display: flex;
             align-items: center;
-            gap: 0.6rem;
-        }
-
-        .file-list li i { color: var(--accent); }
-        .file-list li .size { margin-left: auto; color: var(--muted); font-size: 0.78rem; }
-
-        /* ---------- Event log ---------- */
-        .log-panel {
-            position: sticky;
-            bottom: 1rem;
-            margin-top: 2.5rem;
-            background: rgba(241, 245, 249, 0.94);
-            backdrop-filter: blur(8px);
+            gap: 0.55rem;
+            padding: 0.48rem 0.75rem;
             border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            background: var(--bg-soft);
+            font-size: 0.82rem;
+        }
+        .file-list li svg {
+            width: 0.95rem;
+            height: 0.95rem;
+            color: var(--brand);
+            flex-shrink: 0;
+        }
+        .file-list li .fname {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .file-list li .size {
+            color: var(--text-3);
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            flex-shrink: 0;
         }
 
+        /* 事件日志面板 */
         .log-head {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 0.4rem;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
         }
-
-        .log-head h3 {
-            font-size: 0.85rem;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--muted);
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .log-head h3 i { color: var(--secondary); }
-
-        .log-head button {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--muted);
-            padding: 0.25rem 0.7rem;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: color 0.15s, border-color 0.15s;
-        }
-
-        .log-head button:hover { color: var(--primary); border-color: var(--primary); }
-
-        .log {
-            max-height: 120px;
-            overflow-y: auto;
-            font-family: "SFMono-Regular", Consolas, monospace;
+        .log-head h2 { margin-bottom: 0; }
+        .log-actions { display: inline-flex; gap: 0.45rem; }
+        .btn.sm {
+            min-height: 2rem;
+            padding: 0.28rem 0.72rem;
             font-size: 0.78rem;
-            line-height: 1.55;
-            color: var(--muted);
+            border-radius: 999px;
         }
-
-        .log .entry { display: flex; gap: 0.6rem; }
-        .log .entry .t { color: var(--primary); flex-shrink: 0; }
-        .log .entry .e { color: var(--accent); flex-shrink: 0; min-width: 6.5rem; }
-        .log .entry .d { color: var(--text); opacity: 0.85; }
-
-        .log::-webkit-scrollbar { width: 6px; }
-        .log::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-        footer {
-            margin-top: 3rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--border);
-            text-align: center;
-            font-size: 0.82rem;
-            color: var(--muted);
+        .log-box {
+            flex: 1;
+            min-height: 11.5rem;
+            max-height: 15.5rem;
+            padding: 0.75rem 0.85rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--bg-soft);
+            overflow-y: auto;
+            font-family: var(--mono);
+            font-size: 0.78rem;
+            line-height: 1.65;
+        }
+        .log-box .entry {
+            display: flex;
+            align-items: baseline;
+            gap: 0.55rem;
+            padding: 0.1rem 0;
+        }
+        .log-box .entry .t { color: var(--text-3); flex-shrink: 0; }
+        .log-box .entry .e {
+            color: var(--brand);
+            font-weight: 650;
+            min-width: 5.4rem;
+            flex-shrink: 0;
+        }
+        .log-box .entry .d {
+            color: var(--text-2);
+            overflow-wrap: anywhere;
         }
 
         [draggable="true"] { -webkit-user-drag: element; }
+
+        @media (max-width: 860px) {
+            .dnd-bento { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 520px) {
+            .basic-grid { grid-template-columns: 1fr; }
+        }
     </style>
-    <script src="../../assets/analytics.js?v=3b95695b"></script>
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://tools.zktww.cn/"},{"@type":"ListItem","position":2,"name":"图表与图像","item":"https://tools.zktww.cn/#domain-visual"},{"@type":"ListItem","position":3,"name":"HTML 拖拽交互测试器","item":"https://tools.zktww.cn/tools/drag-and-drop-playground/"}]}</script>
-    <link rel="alternate" hreflang="zh-CN" href="https://tools.zktww.cn/tools/drag-and-drop-playground/" /><link rel="alternate" hreflang="en" href="https://tools.zktww.cn/en/tools/drag-and-drop-playground/" /><link rel="alternate" hreflang="x-default" href="https://tools.zktww.cn/tools/drag-and-drop-playground/" />
 </head>
-<body>
-<div class="wrap">
-    <div class="topbar">
-        <a href="../../index.html"><span class="zk-mark" aria-hidden="true"></span> 返回索引</a>
-        <span>基于 HTML5 原生 Drag and Drop API</span>
+<body data-zk-manual>
+<div class="bg-fx" aria-hidden="true"></div>
+<main class="wrap">
+    <div class="top">
+        <a class="back" href="../../">← 返回主页</a>
+        <p class="meta">Drag &amp; Drop</p>
     </div>
 
-    <header>
-        <p class="badge"><i class="fa-solid fa-hand-pointer"></i> Interactive tool</p>
-        <h1><span class="title">HTML5 拖拽 API 工具</span></h1>
-        <p class="lead">
-            三个循序渐进的案例：<strong>基础拖放</strong>、<strong>列表排序</strong>、<strong>文件拖拽上传</strong>。
-            右下方日志面板实时显示触发的事件，便于理解 <code>dragstart → dragover → drop</code> 事件流。
-        </p>
-    </header>
+    <h1><span class="title">HTML5 拖拽 API 工具</span></h1>
+    <p class="lead">三个循序渐进的案例：<strong>基础拖放</strong>、<strong>列表排序</strong>、<strong>文件拖拽上传</strong>。右下方日志面板实时显示触发的事件，便于理解 <code>dragstart → dragover → drop</code> 事件流。</p>
 
-    <!-- Demo 1: basic -->
-    <section class="section">
-        <h2><i class="fa-solid fa-arrows-left-right-to-line"></i> 案例一：基础拖放</h2>
-        <p class="hint">
-            把左侧标签拖到右侧容器。关键点：<code>dragstart</code> 中设置 <code>effectAllowed</code> 与 <code>setData</code>；
-            <code>dragover</code> 必须 <code>preventDefault()</code> 才能成为放置目标。
-        </p>
-        <div class="basic-grid">
-            <div id="basicSource" class="drop-zone" data-label="源区域 (source)">
-                <span class="chip" draggable="true" data-id="1"><i class="fa-solid fa-star"></i>React</span>
-                <span class="chip" draggable="true" data-id="2"><i class="fa-solid fa-star"></i>Vue</span>
-                <span class="chip" draggable="true" data-id="3"><i class="fa-solid fa-star"></i>Svelte</span>
-                <span class="chip" draggable="true" data-id="4"><i class="fa-solid fa-star"></i>Solid</span>
+    <div class="dnd-bento">
+        <section class="panel">
+            <h2>案例一：基础拖放</h2>
+            <p class="panel-desc">把左侧标签拖到右侧容器。关键点：<code>dragstart</code> 中设置 <code>effectAllowed</code> 与 <code>setData</code>；<code>dragover</code> 必须 <code>preventDefault()</code> 才能成为放置目标。</p>
+            <div class="basic-grid">
+                <div id="basicSource" class="drop-zone" data-label="源区域 (source)">
+                    <span class="dnd-chip" draggable="true" data-id="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>React</span>
+                    <span class="dnd-chip" draggable="true" data-id="2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>Vue</span>
+                    <span class="dnd-chip" draggable="true" data-id="3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>Svelte</span>
+                    <span class="dnd-chip" draggable="true" data-id="4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>Solid</span>
+                </div>
+                <div id="basicTarget" class="drop-zone" data-label="目标区域 (target)"></div>
             </div>
-            <div id="basicTarget" class="drop-zone" data-label="目标区域 (target)"></div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Demo 2: sortable -->
-    <section class="section">
-        <h2><i class="fa-solid fa-list-ol"></i> 案例二：列表排序</h2>
-        <p class="hint">
-            上下拖动以重排。核心是用 <code>getBoundingClientRect()</code> 计算光标相对每个兄弟元素的位置，
-            配合 <code>:not(.dragging)</code> 排除自身，在 <code>dragover</code> 中实时 <code>insertBefore</code>。
-        </p>
-        <ul id="sortableList" class="sortable">
-            <li draggable="true"><i class="fa-solid fa-grip-vertical grip"></i> 需求评审 <span class="count">P0</span></li>
-            <li draggable="true"><i class="fa-solid fa-grip-vertical grip"></i> 技术方案设计 <span class="count">P0</span></li>
-            <li draggable="true"><i class="fa-solid fa-grip-vertical grip"></i> 接口联调 <span class="count">P1</span></li>
-            <li draggable="true"><i class="fa-solid fa-grip-vertical grip"></i> 自测与回归 <span class="count">P1</span></li>
-            <li draggable="true"><i class="fa-solid fa-grip-vertical grip"></i> 灰度上线 <span class="count">P2</span></li>
-        </ul>
-    </section>
+        <section class="panel">
+            <h2>案例二：列表排序</h2>
+            <p class="panel-desc">上下拖动以重排。核心是用 <code>getBoundingClientRect()</code> 计算光标相对每个兄弟元素的位置，配合 <code>:not(.dragging)</code> 排除自身，在 <code>dragover</code> 中实时 <code>insertBefore</code>。</p>
+            <ul id="sortableList" class="sortable">
+                <li draggable="true"><svg class="grip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>需求评审<span class="prio">P0</span></li>
+                <li draggable="true"><svg class="grip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>技术方案设计<span class="prio">P0</span></li>
+                <li draggable="true"><svg class="grip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>接口联调<span class="prio">P1</span></li>
+                <li draggable="true"><svg class="grip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>自测与回归<span class="prio">P1</span></li>
+                <li draggable="true"><svg class="grip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>灰度上线<span class="prio">P2</span></li>
+            </ul>
+        </section>
 
-    <!-- Demo 3: file upload -->
-    <section class="section">
-        <h2><i class="fa-solid fa-cloud-arrow-up"></i> 案例三：文件拖拽上传</h2>
-        <p class="hint">
-            把任意文件拖入下方虚线区域，或点击选择。示例 <code>DataTransfer.files</code> 的读取与展示
-            （不会上传到服务器，仅本地显示）。
-        </p>
-        <label id="fileDropZone" class="file-zone" for="fileInput">
-            <i class="fa-solid fa-upload big"></i>
-            <p><strong>拖放文件到此处</strong> 或点击选择</p>
-            <input id="fileInput" type="file" multiple />
-        </label>
-        <ul id="fileList" class="file-list"></ul>
-    </section>
+        <section class="panel">
+            <h2>案例三：文件拖拽上传</h2>
+            <p class="panel-desc">把任意文件拖入下方虚线区域，或点击选择。示例 <code>DataTransfer.files</code> 的读取与展示（不会上传到服务器，仅本地显示）。</p>
+            <label id="fileDropZone" class="file-zone" for="fileInput">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                <p><strong>拖放文件到此处</strong> 或点击选择</p>
+                <input id="fileInput" type="file" multiple />
+            </label>
+            <ul id="fileList" class="file-list"></ul>
+        </section>
 
-    <!-- Event log -->
-    <div class="log-panel">
-        <div class="log-head">
-            <h3><i class="fa-solid fa-terminal"></i> 事件日志</h3>
-            <button id="clearLog" type="button">清空</button>
-        </div>
-        <div id="log" class="log" aria-live="polite"></div>
+        <section class="panel">
+            <div class="log-head">
+                <h2>事件日志</h2>
+                <div class="log-actions">
+                    <button id="copyLog" class="btn sm" type="button">复制</button>
+                    <button id="clearLog" class="btn sm danger" type="button">清空</button>
+                </div>
+            </div>
+            <p class="panel-desc">所有交互均在浏览器本地运行。拖动上方元素或文件即可观察实时事件触发顺序。</p>
+            <div id="log" class="log-box" aria-live="polite"></div>
+        </section>
     </div>
 
-    <footer>
-        <p>所有交互均在浏览器本地运行。工具源码由 Astro 项目统一构建。</p>
-    </footer>
-</div>
+    <section class="seo-notes">
+        <h2>关于 HTML5 拖拽交互测试器</h2>
+        <p>HTML5 原生 Drag and Drop API 通过 draggable 属性与 dragstart、dragenter、dragover、dragleave、drop、dragend 一组事件协同完成元素移动、列表重排与本地文件读取。本工具将三类高频开发场景集成在同一实验面板中，配合实时时间戳事件流日志，方便前端开发者调试事件顺序与 DataTransfer 行为，文件仅在本地读取元数据，不会上传服务器。</p>
+        <h2>常见问题</h2>
+        <details><summary>为什么绑定了 drop 事件却无法触发放置？</summary><p>浏览器默认禁止大多数元素接收拖放内容。必须同时在目标元素的 dragover（以及需要高亮反馈时的 dragenter）事件中调用 event.preventDefault()，浏览器才会允许在该容器上触发 drop 事件。</p></details>
+        <details><summary>为什么 HTML5 原生拖拽在手机触屏上不生效？</summary><p>桌面浏览器完整支持鼠标拖放，但移动端浏览器对原生 HTML5 Drag and Drop API 支持有限且手势与页面滚动冲突。如果需要在移动端实现看板或列表拖拽排序，建议结合 Pointer Events（pointerdown / pointermove / pointerup）做触屏兼容。</p></details>
+        <details><summary>拖入本工具的文件会上传到服务器吗？</summary><p>不会。案例三仅在当前浏览器标签页内读取 File 对象的名称与字节大小用于演示 DataTransfer.files，不会发起任何网络上传请求。</p></details>
+    </section>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"HTML5 拖拽交互测试器","url":"https://tools.zktww.cn/tools/drag-and-drop-playground/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线 HTML5 Drag and Drop 交互测试器：涵盖基础元素拖放、拖拽列表重排与本地文件拖入识别三大示例，附实时拖拽事件日志面板。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"为什么绑定了 drop 事件却无法触发放置？","acceptedAnswer":{"@type":"Answer","text":"浏览器默认禁止大多数元素接收拖放内容。必须同时在目标元素的 dragover（以及需要高亮反馈时的 dragenter）事件中调用 event.preventDefault()，浏览器才会允许在该容器上触发 drop 事件。"}},{"@type":"Question","name":"为什么 HTML5 原生拖拽在手机触屏上不生效？","acceptedAnswer":{"@type":"Answer","text":"桌面浏览器完整支持鼠标拖放，但移动端浏览器对原生 HTML5 Drag and Drop API 支持有限且手势与页面滚动冲突。如果需要在移动端实现看板或列表拖拽排序，建议结合 Pointer Events（pointerdown / pointermove / pointerup）做触屏兼容。"}},{"@type":"Question","name":"拖入本工具的文件会上传到服务器吗？","acceptedAnswer":{"@type":"Answer","text":"不会。案例三仅在当前浏览器标签页内读取 File 对象的名称与字节大小用于演示 DataTransfer.files，不会发起任何网络上传请求。"}}]}]}</script>
+</main>
 
 <script>
-    // ---------- Event logger ----------
-    const logEl = document.getElementById('log');
-    const MAX_LOG = 60;
+(function () {
+    "use strict";
 
-    function log(eventName, detail = '') {
-        const now = new Date();
-        const t = now.toTimeString().slice(0, 8) + '.' + String(now.getMilliseconds()).padStart(3, '0');
-        const entry = document.createElement('div');
-        entry.className = 'entry';
-        entry.innerHTML = `<span class="t">${t}</span><span class="e">${eventName}</span><span class="d">${detail}</span>`;
+    var logEl = document.getElementById("log");
+    var MAX_LOG = 60;
+    var FILE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>';
+
+    function log(eventName, detail) {
+        var now = new Date();
+        var t = now.toTimeString().slice(0, 8) + "." + String(now.getMilliseconds()).padStart(3, "0");
+        var entry = document.createElement("div");
+        entry.className = "entry";
+        entry.innerHTML = '<span class="t">' + t + '</span><span class="e">' + eventName + '</span><span class="d">' + (detail || "") + "</span>";
         logEl.appendChild(entry);
         while (logEl.children.length > MAX_LOG) logEl.removeChild(logEl.firstChild);
         logEl.scrollTop = logEl.scrollHeight;
     }
 
-    document.getElementById('clearLog').addEventListener('click', () => { logEl.innerHTML = ''; });
+    document.getElementById("clearLog").addEventListener("click", function () {
+        logEl.innerHTML = "";
+    });
+
+    document.getElementById("copyLog").addEventListener("click", function () {
+        var lines = Array.prototype.map.call(logEl.children, function (row) {
+            return Array.prototype.map.call(row.children, function (c) { return c.textContent; }).join("  ");
+        }).join("\n");
+        if (!lines) return;
+        if (window.copyText) {
+            copyText(lines).then(function () {
+                if (window.zkToast) zkToast("已复制");
+            });
+        }
+    });
 
     // ---------- Demo 1: basic drag ----------
-    const basicSource = document.getElementById('basicSource');
-    const basicTarget = document.getElementById('basicTarget');
+    var basicSource = document.getElementById("basicSource");
+    var basicTarget = document.getElementById("basicTarget");
 
     function bindChip(chip) {
-        chip.addEventListener('dragstart', (e) => {
-            e.dataTransfer.setData('text/plain', chip.dataset.id);
-            e.dataTransfer.setData('text/html', chip.outerHTML);
-            e.dataTransfer.effectAllowed = 'move';
-            chip.classList.add('dragging');
-            log('dragstart', `chip id=${chip.dataset.id} (${chip.textContent.trim()})`);
+        chip.addEventListener("dragstart", function (e) {
+            e.dataTransfer.setData("text/plain", chip.dataset.id);
+            e.dataTransfer.setData("text/html", chip.outerHTML);
+            e.dataTransfer.effectAllowed = "move";
+            chip.classList.add("dragging");
+            log("dragstart", "chip id=" + chip.dataset.id + " (" + chip.textContent.trim() + ")");
         });
-        chip.addEventListener('dragend', () => {
-            chip.classList.remove('dragging');
-            log('dragend', `chip id=${chip.dataset.id}`);
+        chip.addEventListener("dragend", function () {
+            chip.classList.remove("dragging");
+            log("dragend", "chip id=" + chip.dataset.id);
         });
     }
 
-    basicSource.querySelectorAll('.chip').forEach(bindChip);
+    basicSource.querySelectorAll(".dnd-chip").forEach(bindChip);
 
-    [basicSource, basicTarget].forEach((zone) => {
-        zone.addEventListener('dragenter', (e) => {
+    [basicSource, basicTarget].forEach(function (zone) {
+        zone.addEventListener("dragenter", function (e) {
             e.preventDefault();
-            zone.classList.add('drag-over');
-            log('dragenter', `zone=${zone.id}`);
+            zone.classList.add("drag-over");
+            log("dragenter", "zone=" + zone.id);
         });
-        zone.addEventListener('dragover', (e) => {
+        zone.addEventListener("dragover", function (e) {
             e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
+            e.dataTransfer.dropEffect = "move";
         });
-        zone.addEventListener('dragleave', (e) => {
+        zone.addEventListener("dragleave", function (e) {
             if (!zone.contains(e.relatedTarget)) {
-                zone.classList.remove('drag-over');
-                log('dragleave', `zone=${zone.id}`);
+                zone.classList.remove("drag-over");
+                log("dragleave", "zone=" + zone.id);
             }
         });
-        zone.addEventListener('drop', (e) => {
+        zone.addEventListener("drop", function (e) {
             e.preventDefault();
-            zone.classList.remove('drag-over');
-            const html = e.dataTransfer.getData('text/html');
-            const id = e.dataTransfer.getData('text/plain');
+            zone.classList.remove("drag-over");
+            var html = e.dataTransfer.getData("text/html");
+            var id = e.dataTransfer.getData("text/plain");
             if (!id) return;
-            const existing = document.querySelector(`.chip[data-id="${id}"]`);
+            var existing = document.querySelector('.dnd-chip[data-id="' + id + '"]');
             if (existing && existing.parentElement !== zone) {
                 zone.appendChild(existing);
-                log('drop', `id=${id} → ${zone.id}`);
+                log("drop", "id=" + id + " → " + zone.id);
             } else if (!existing && html) {
-                const tmp = document.createElement('div');
+                var tmp = document.createElement("div");
                 tmp.innerHTML = html;
-                const chip = tmp.firstElementChild;
+                var chip = tmp.firstElementChild;
                 bindChip(chip);
                 zone.appendChild(chip);
-                log('drop', `id=${id} → ${zone.id} (recreated)`);
+                log("drop", "id=" + id + " → " + zone.id + " (recreated)");
             }
         });
     });
 
     // ---------- Demo 2: sortable ----------
-    const list = document.getElementById('sortableList');
-    let draggedItem = null;
+    var list = document.getElementById("sortableList");
+    var draggedItem = null;
 
-    list.addEventListener('dragstart', (e) => {
-        const item = e.target.closest('li');
+    function itemLabel(li) {
+        var prio = li.querySelector(".prio");
+        var txt = li.textContent.trim();
+        return prio ? txt.slice(0, txt.length - prio.textContent.length).trim() : txt;
+    }
+
+    list.addEventListener("dragstart", function (e) {
+        var item = e.target.closest("li");
         if (!item) return;
         draggedItem = item;
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', item.textContent.trim());
-        requestAnimationFrame(() => item.classList.add('dragging'));
-        log('dragstart', `item="${item.textContent.trim().split(' ')[0]}…"`);
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", itemLabel(item));
+        requestAnimationFrame(function () { item.classList.add("dragging"); });
+        log("dragstart", 'item="' + itemLabel(item) + '"');
     });
 
-    list.addEventListener('dragover', (e) => {
+    list.addEventListener("dragover", function (e) {
         e.preventDefault();
         if (!draggedItem) return;
-        const after = getDragAfterElement(list, e.clientY);
+        var after = getDragAfterElement(list, e.clientY);
         if (after == null) list.appendChild(draggedItem);
         else if (after !== draggedItem) list.insertBefore(draggedItem, after);
     });
 
-    list.addEventListener('dragend', () => {
+    list.addEventListener("dragend", function () {
         if (draggedItem) {
-            log('dragend', `new order: ${[...list.children].map(li => li.textContent.trim().split(' ')[0]).join(' > ')}`);
-            draggedItem.classList.remove('dragging');
+            var order = Array.prototype.map.call(list.children, itemLabel).join(" > ");
+            log("dragend", "order: " + order);
+            draggedItem.classList.remove("dragging");
         }
         draggedItem = null;
     });
 
     function getDragAfterElement(container, y) {
-        const items = [...container.querySelectorAll('li:not(.dragging)')];
-        return items.reduce((closest, child) => {
-            const box = child.getBoundingClientRect();
-            const offset = y - box.top - box.height / 2;
-            if (offset < 0 && offset > closest.offset) {
-                return { offset, element: child };
-            }
+        var items = Array.prototype.slice.call(container.querySelectorAll("li:not(.dragging)"));
+        return items.reduce(function (closest, child) {
+            var box = child.getBoundingClientRect();
+            var offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
             return closest;
         }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
     }
 
     // ---------- Demo 3: file upload ----------
-    const fileDropZone = document.getElementById('fileDropZone');
-    const fileInput = document.getElementById('fileInput');
-    const fileListEl = document.getElementById('fileList');
+    var fileDropZone = document.getElementById("fileDropZone");
+    var fileInput = document.getElementById("fileInput");
+    var fileListEl = document.getElementById("fileList");
 
-    ['dragenter', 'dragover'].forEach((evt) => {
-        fileDropZone.addEventListener(evt, (e) => {
+    ["dragenter", "dragover"].forEach(function (evt) {
+        fileDropZone.addEventListener(evt, function (e) {
             e.preventDefault();
-            e.dataTransfer.dropEffect = 'copy';
-            fileDropZone.classList.add('drag-over');
+            e.dataTransfer.dropEffect = "copy";
+            fileDropZone.classList.add("drag-over");
         });
     });
 
-    ['dragleave', 'drop'].forEach((evt) => {
-        fileDropZone.addEventListener(evt, (e) => {
+    ["dragleave", "drop"].forEach(function (evt) {
+        fileDropZone.addEventListener(evt, function (e) {
             e.preventDefault();
-            if (evt === 'dragleave' && fileDropZone.contains(e.relatedTarget)) return;
-            fileDropZone.classList.remove('drag-over');
+            if (evt === "dragleave" && fileDropZone.contains(e.relatedTarget)) return;
+            fileDropZone.classList.remove("drag-over");
         });
     });
 
-    fileDropZone.addEventListener('drop', (e) => {
-        const files = [...e.dataTransfer.files];
-        log('drop', `${files.length} file(s)`);
+    fileDropZone.addEventListener("drop", function (e) {
+        var files = Array.prototype.slice.call(e.dataTransfer.files);
+        log("drop", files.length + " file(s)");
         renderFiles(files);
     });
 
-    fileInput.addEventListener('change', (e) => {
-        const files = [...e.target.files];
-        log('input', `${files.length} file(s) via picker`);
+    fileInput.addEventListener("change", function (e) {
+        var files = Array.prototype.slice.call(e.target.files);
+        log("input", files.length + " file(s) via picker");
         renderFiles(files);
     });
 
     function renderFiles(files) {
-        files.forEach((file) => {
-            const li = document.createElement('li');
-            li.innerHTML = `
-          <i class="fa-regular fa-file"></i>
-          <span>${escapeHtml(file.name)}</span>
-          <span class="size">${formatSize(file.size)}</span>
-        `;
+        files.forEach(function (file) {
+            var li = document.createElement("li");
+            li.innerHTML = FILE_ICON + '<span class="fname">' + escapeHtml(file.name) + '</span><span class="size">' + formatSize(file.size) + "</span>";
             fileListEl.appendChild(li);
         });
     }
 
     function formatSize(bytes) {
-        if (bytes < 1024) return bytes + ' B';
-        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-        return (bytes / 1024 / 1024).toFixed(2) + ' MB';
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+        return (bytes / 1024 / 1024).toFixed(2) + " MB";
     }
 
     function escapeHtml(s) {
-        return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        return s.replace(/[&<>"']/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
     }
 
-    log('ready', 'tool initialized');
+    log("ready", "tool initialized");
+})();
 </script>
 </body>
 </html>

@@ -39,6 +39,7 @@
             <div class="row">
                 <button class="btn primary" id="enc">Base64 编码</button>
                 <button class="btn" id="dec">Base64 解码</button>
+                <button class="btn" id="sample" type="button">示例</button>
                 <button class="btn danger" id="clear">清空</button>
             </div>
             <div class="row">
@@ -121,6 +122,7 @@
     document.getElementById("unhex").onclick = function () { try { set(fromHex(input.value), "Hex 解码完成"); } catch (e) { fail(e); } };
     document.getElementById("uni").onclick = function () { set(Array.from(input.value).map(function (ch) { return "\\u{" + ch.codePointAt(0).toString(16).toUpperCase() + "}"; }).join(""), "Unicode escape 转换完成"); };
     document.getElementById("ununi").onclick = function () { try { set(fromUnicode(input.value), "Unicode 解码完成"); } catch (e) { fail(e); } };
+    document.getElementById("sample").onclick = function () { input.value = "Hello, zktool! UTF-8 Base64"; document.getElementById("enc").click(); };
     document.getElementById("clear").onclick = function () { input.value = ""; output.textContent = ""; updateStats(); status.textContent = "已清空"; status.className = "hint"; };
     document.getElementById("copy").onclick = function () {
         copyText(output.textContent || "").then(function () { status.textContent = "结果已复制"; status.className = "hint ok"; },

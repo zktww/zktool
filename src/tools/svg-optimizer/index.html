@@ -21,7 +21,7 @@
     <script src="../../assets/theme.js?v=a8b19431"></script>
     <script src="../../assets/clipboard.js?v=51b0c84d"></script>
     <style>
-        .preview-box { display:flex; align-items:center; justify-content:center; min-height:12rem; max-height:20rem; padding:0.8rem; border:1px solid var(--border); border-radius:10px; overflow:auto; }
+        .preview-box { display:flex; align-items:center; justify-content:center; min-height:8.5rem; max-height:16rem; padding:0.8rem; border:1px solid var(--border); border-radius:10px; overflow:auto; }
         .preview-box svg { max-width:100%; max-height:18rem; }
         .preview-box.bg-checker { background:repeating-conic-gradient(rgba(128,128,128,0.25) 0% 25%, transparent 0% 50%) 0 0/16px 16px; }
         .preview-box.bg-white { background:#ffffff; }
@@ -56,8 +56,8 @@
             </div>
             <div class="row">
                 <label><input type="checkbox" id="rmTitle" checked />移除 &lt;title&gt;/&lt;desc&gt;</label>
-                <label>小数精度
-                    <select id="precision" class="w-8" style="width:5rem;display:inline-block;margin-left:0.3rem;">
+                <label style="display:inline-flex;align-items:center;gap:0.45rem;">小数精度
+                    <select id="precision">
                         <option value="1">1 位</option>
                         <option value="2" selected>2 位</option>
                         <option value="3">3 位</option>

@@ -7,10 +7,9 @@ const { locale } = Astro.props;
 const isEnglish = locale === "en";
 const labels = isEnglish
     ? {
-        eyebrow: "LOCAL-FIRST TOOLKIT",
-        titleLead: "Leave the complexity to ",
-        titleTail: "the tools.",
-        intro: "A calm, local-first workbench for formatting, debugging, converting, and testing — right in your browser.",
+        titleLead: "Browser-based ",
+        titleTail: "developer tools",
+        intro: "Leave the complexity to the tools. Format data, debug code, and convert values in your browser.",
         searchPlaceholder: "Search tools by name, format, or keyword…",
         searchLabel: "Search all tools",
         available: "tools ready",
@@ -23,14 +22,13 @@ const labels = isEnglish
         open: "Open tool",
         external: "External",
         browse: "All tools",
-        featuredDock: "Quick picks",
+        tasks: "Common tasks",
         recentDock: "Recent",
     }
     : {
-        eyebrow: "LOCAL-FIRST TOOLKIT",
-        titleLead: "把复杂，留给",
-        titleTail: "工具。",
-        intro: "一组安静、温润的浏览器本地实用工具，覆盖格式化、调试、转换与测试。",
+        titleLead: "开发者",
+        titleTail: "在线工具箱",
+        intro: "把复杂，留给工具。在浏览器里格式化数据、调试代码、转换时间与编码。",
         searchPlaceholder: "搜索工具名称、格式或拼音缩写（如 json / mgdz）…",
         searchLabel: "搜索全部工具",
         available: "个工具就绪",
@@ -43,29 +41,21 @@ const labels = isEnglish
         open: "打开工具",
         external: "外部服务",
         browse: "全部工具",
-        featuredDock: "常用推荐",
+        tasks: "常见任务",
         recentDock: "最近使用",
     };
 const totalTools = tools.length;
 const homePath = isEnglish ? "/en/" : "/";
-const defaultDockPaths = [
-    "tools/json-formatter/",
-    "tools/us-address-generator/",
-    "tools/timestamp-converter/",
-    "tools/regex-tester/",
-    "tools/base64-converter/",
+const tasks = [
+    { slug: "docker-compose-converter", "zh-CN": "把 docker run 命令转成 Compose", en: "Convert docker run to Compose" },
+    { slug: "hash-tool", "zh-CN": "排查 SHA-256 校验值不一致", en: "Troubleshoot a SHA-256 mismatch" },
+    { slug: "timestamp-converter", "zh-CN": "判断时间戳是秒还是毫秒", en: "Identify seconds vs. milliseconds" },
 ];
-const defaultDockTools = defaultDockPaths
-    .map((p) => tools.find((item) => item.path === p))
-    .filter((item): item is NonNullable<typeof item> => Boolean(item))
-    .map((source) => ({ source, tool: localizedTool(source, locale) }));
 ---
 <main
   class="home"
   data-home
   data-result-label={labels.result}
-  data-recent-label={labels.recentDock}
-  data-featured-label={labels.featuredDock}
 >
   <section class="home-hero" aria-labelledby="home-title">
     <div class="hero-mesh" aria-hidden="true"></div>
@@ -100,16 +90,19 @@ const defaultDockTools = defaultDockPaths
         <span class="sr-only" id="search-help">{isEnglish ? "Press slash to search and Down arrow to browse results" : "按 / 搜索，按方向键选择结果"}</span>
       </div>
 
-      <div class="dock-bar" data-dock-bar>
-        <span class="dock-label" data-dock-label>{labels.featuredDock}</span>
-        <div class="dock-items" data-dock-items>
-          {defaultDockTools.map(({ source, tool }) => (
-            <a class="dock-pill" href={`${homePath}${source.path}`}>
-              <span class="dock-dot" style={`--c:${tool.c1}`} aria-hidden="true"></span>
-              <span>{tool.name}</span>
+      <nav class="dock-bar" aria-label={labels.tasks}>
+        <span class="dock-label" aria-hidden="true">{labels.tasks}</span>
+        <div class="dock-items">
+          {tasks.map(task => (
+            <a class="dock-pill task-link" href={`${homePath}tools/${task.slug}/`}>
+              {task[locale]} <span aria-hidden="true">→</span>
             </a>
           ))}
         </div>
+      </nav>
+      <div class="dock-bar" data-dock-bar hidden>
+        <span class="dock-label">{labels.recentDock}</span>
+        <div class="dock-items" data-dock-items></div>
       </div>
     </div>
   </section>
@@ -184,7 +177,6 @@ const defaultDockTools = defaultDockPaths
   const count = home?.querySelector<HTMLElement>("[data-result-count]");
   const empty = home?.querySelector<HTMLElement>("[data-search-empty]");
   const dockBar = home?.querySelector<HTMLElement>("[data-dock-bar]");
-  const dockLabel = home?.querySelector<HTMLElement>("[data-dock-label]");
   const dockItems = home?.querySelector<HTMLElement>("[data-dock-items]");
   const cards = home ? Array.from(home.querySelectorAll<HTMLAnchorElement>("[data-tool-card]")) : [];
   const groups = home ? Array.from(home.querySelectorAll<HTMLElement>("[data-tool-group]")) : [];
@@ -192,19 +184,17 @@ const defaultDockTools = defaultDockPaths
   const headerSearchBtn = document.querySelector<HTMLButtonElement>("[data-header-search]");
   const availableLabel = { available: home?.querySelector(".result-count")?.textContent?.replace(/^\d+\s*/, "") || "" };
   const resultLabel = home?.getAttribute("data-result-label") || "";
-  const recentLabel = home?.getAttribute("data-recent-label") || "";
 
   // Hydrate Recent Tools Dock from localStorage ("zktool.recents")
   try {
     const raw = JSON.parse(localStorage.getItem("zktool.recents") || "[]");
-    if (Array.isArray(raw) && raw.length && dockItems && dockLabel) {
+    if (Array.isArray(raw) && raw.length && dockItems && dockBar) {
       const matched = raw
         .map((path) => cards.find((card) => card.getAttribute("data-tool-path") === path))
         .filter((card): card is HTMLAnchorElement => Boolean(card))
         .slice(0, 6);
       if (matched.length) {
-        dockLabel.textContent = recentLabel;
-        dockItems.innerHTML = "";
+        dockBar.hidden = false;
         matched.forEach((card) => {
           const pill = document.createElement("a");
           pill.className = "dock-pill";
@@ -227,7 +217,6 @@ const defaultDockTools = defaultDockPaths
     const query = search?.value.trim().toLowerCase() || "";
     const terms: string[] = query.split(/\s+/).filter(Boolean);
     home?.classList.toggle("is-searching", !!query);
-    if (dockBar) dockBar.hidden = !!query;
     let visible = 0;
     cards.forEach((card) => {
       const haystack = card.getAttribute("data-search") || "";
@@ -488,7 +477,10 @@ const defaultDockTools = defaultDockPaths
     outline: none;
   }
 
-  /* ── Craft Bento 最近使用 / 常用推荐胶囊 Dock ── */
+  /* 常见任务静态输出；最近使用仅在有本地记录时显示。 */
+  .is-searching .dock-bar { display: none; }
+  .task-link { min-height: 2.25rem; }
+  .task-link span { color: var(--brand); }
   .dock-bar {
     display: flex;
     flex-wrap: wrap;

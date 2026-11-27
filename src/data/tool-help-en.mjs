@@ -32,7 +32,7 @@ export const toolHelpEn = {
     intro: 'Write and preview Mermaid diagrams in real time, including flowcharts, sequence diagrams, class diagrams, state machines, ER models, Gantt charts, and mind maps. Includes starter templates, pan-and-zoom canvas controls, URL state sharing, and crisp SVG or high-DPI PNG export.',
     faqs: [
       ['Should I export SVG or PNG for documentation?', 'Export SVG for web pages, wikis, and PDFs where infinite vector sharpness matters; export PNG when pasting into slide decks, chat apps, or issue trackers that block inline SVG.'],
-      ['What information is stored in a shared link?', 'Shared URLs Base64-encode your Mermaid source inside the URL hash (#zk=...). Nothing is stored on a server, but anyone with the link can read the diagram text.'],
+      ['What information is stored in a shared link?', 'The editor stores a Base64-encoded copy of the source in the #code= fragment. Anyone with that link can read the diagram. To share an unmodified worked template, copy its template page URL instead.'],
       ['Why did a node label with parentheses cause a syntax error?', 'Parentheses and brackets have special shape meanings in Mermaid flowcharts. Wrap labels containing special characters in double quotes, such as A["Step (Optional)"].']
     ]
   },
@@ -253,7 +253,7 @@ export const toolHelpEn = {
     ]
   },
   'chmod-calculator': {
-    title: 'chmod Calculator - Linux 755, 644, Octal & rwx Permission Converter | zktool',
+    title: 'chmod Calculator & umask Simulator - Linux File Permissions | zktool',
     intro: 'Convert Linux and macOS file permissions interactively between owner/group/others rwx checkboxes, 3-digit or 4-digit octal modes (such as 755, 644, 600, 4755), symbolic notation (-rwxr-xr-x), and ready-to-copy chmod CLI commands including setuid, setgid, and sticky bits.',
     faqs: [
       ['What is the difference between chmod 644 and chmod 755?', '644 (rw-r--r--) lets the owner read/write and everyone else read—the standard for regular files. 755 (rwxr-xr-x) adds execute permission, which directories need so users can cd into them and scripts/binaries need to run.'],

@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>chmod计算器 - Linux文件权限755/644在线换算 | zktool</title>
-    <meta name="description" content="免费在线 chmod 权限计算器：勾选、八进制数字与符号表示（-rwxr-xr-x）三向实时换算，支持 setuid/setgid/sticky 特殊位，内置 644/755 等常用权限速查表。" />
+    <title>chmod 权限计算器与 umask 模拟器 | zktool</title>
+    <meta name="description" content="换算 Linux 和 macOS 的 chmod 权限，模拟 umask 022、077 等掩码，并排查看新建普通文件和目录的八进制与 rwx 权限。" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="zktool" />
-    <meta property="og:title" content="chmod计算器 - Linux文件权限755/644在线换算 | zktool" />
-    <meta property="og:description" content="免费在线 chmod 权限计算器：勾选、八进制数字与符号表示（-rwxr-xr-x）三向实时换算，支持 setuid/setgid/sticky 特殊位，内置 644/755 等常用权限速查表。" />
+    <meta property="og:title" content="chmod 权限计算器与 umask 模拟器 | zktool" />
+    <meta property="og:description" content="换算 Linux 和 macOS 的 chmod 权限，模拟 umask 022、077 等掩码，并排查看新建普通文件和目录的八进制与 rwx 权限。" />
     <meta property="og:url" content="https://tools.zktww.cn/tools/chmod-calculator/" />
     <link rel="canonical" href="https://tools.zktww.cn/tools/chmod-calculator/" />
     <meta property="og:image" content="https://tools.zktww.cn/assets/og-card.jpg" />
@@ -29,6 +29,8 @@
         .preset-table .mono { white-space: nowrap; }
         .cmd-chip { cursor: pointer; font-size: 0.95rem; padding: 0.45rem 0.9rem; user-select: all; }
         .cmd-chip:hover { border-color: var(--brand-ring); color: var(--text); }
+        #umask { margin-top: 1.05rem; scroll-margin-top: 5rem; }
+        #mask-input { width: 6rem; }
     </style>
     <script defer src="../../assets/registry.js?v=7910a398"></script><script defer src="../../assets/i18n.js?v=b7a21dd2"></script>
     <script defer src="../../assets/palette.js?v=1f6efcdf"></script>
@@ -42,6 +44,7 @@
     <div class="top"><a class="back" href="../../">← 返回主页</a><p class="meta">Linux / chmod</p></div>
     <h1><span class="title">chmod 权限计算器</span></h1>
     <p class="lead">勾选权限矩阵、输入八进制数字或符号表示（-rwxr-xr-x），三处任改一处其余实时同步，并生成可复制的 chmod 命令。</p>
+    <p class="row"><a href="#umask">试算 umask：新建文件与目录</a></p>
     <div class="tool-grid">
         <section class="panel">
             <h2>权限矩阵</h2>
@@ -94,6 +97,22 @@
         </aside>
     </div>
 
+<section class="panel" id="umask" aria-labelledby="mask-title">
+    <h2 id="mask-title">umask 模拟器：新建文件和目录的默认权限</h2>
+    <p>为什么同一个 022 会得到 644 和 755？普通文件通常请求 666，没有执行位；目录通常请求 777。umask 只移除权限位，不会添加执行权限，也不是八进制减法。</p>
+    <div class="row">
+        <label>umask <input id="mask-input" class="mono" value="022" inputmode="numeric" spellcheck="false" aria-describedby="mask-error" /></label>
+        <button type="button" class="btn" data-mask="022">022</button>
+        <button type="button" class="btn" data-mask="077">077</button>
+    </div>
+    <p id="mask-error" class="hint bad" role="status" hidden>请输入三位八进制数字（0–7），也可加前导零，如 0022。</p>
+    <table aria-live="polite">
+        <thead><tr><th>新建对象</th><th>请求权限</th><th>实际权限</th></tr></thead>
+        <tbody><tr><th scope="row">普通文件</th><td>666</td><td><code id="mask-file">644 · -rw-r--r--</code></td></tr>
+        <tr><th scope="row">目录</th><td>777</td><td><code id="mask-dir">755 · drwxr-xr-x</code></td></tr></tbody>
+    </table>
+    <p class="hint">计算式：请求权限 &amp; ~umask。此示例假设父目录没有默认 ACL。程序可以请求更少的权限；umask 不会修改已存在的文件。</p>
+</section>
 <section class="seo-notes">
     <h2>关于chmod权限计算器</h2>
     <p>chmod 是 Linux / macOS 修改文件权限的命令，权限由所有者、所属组、其他人三组，各自的读（4）、写（2）、执行（1）组合而成，累加即得 755、644 这类八进制数字。本工具在勾选矩阵、八进制数字、符号表示（-rwxr-xr-x）之间三向实时换算，支持 setuid、setgid、sticky 特殊位（4 位写法如 4755），并内置常用权限速查表与一键复制的 chmod 命令，全部在浏览器本地完成。</p>
@@ -215,6 +234,25 @@
         octal.value = tr.getAttribute("data-octal");
         octal.dispatchEvent(new Event("input"));
     });
+
+    var maskInput = document.getElementById("mask-input");
+    function showMask() {
+        var value = maskInput.value.trim(), valid = /^0?[0-7]{3}$/.test(value);
+        maskInput.setAttribute("aria-invalid", String(!valid));
+        document.getElementById("mask-error").hidden = valid;
+        function format(request, type) {
+            if (!valid) return "—";
+            var mode = (request & ~parseInt(value, 8)).toString(8).padStart(3, "0");
+            return mode + " · " + type + toSymbolic([0, +mode[0], +mode[1], +mode[2]]).slice(1);
+        }
+        document.getElementById("mask-file").textContent = format(0o666, "-");
+        document.getElementById("mask-dir").textContent = format(0o777, "d");
+    }
+    maskInput.addEventListener("input", showMask);
+    document.querySelectorAll("[data-mask]").forEach(function (button) {
+        button.addEventListener("click", function () { maskInput.value = button.dataset.mask; showMask(); });
+    });
+    showMask();
 
     /* 初始值：755 */
     octal.value = "755";

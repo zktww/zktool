@@ -44,7 +44,7 @@
         "tools/date-calculator/": ["Date Difference Calculator", "Calculate calendar days, business days, and calendar-unit differences, or add and subtract dates.", "Dates"],
         "tools/docker-compose-converter/": ["Docker Run to Compose", "Parse a docker run command and generate modern Docker Compose YAML for common runtime options.", "Docker"],
         "tools/rmb-uppercase/": ["Chinese RMB Uppercase Converter", "Convert numeric RMB amounts to formal Chinese uppercase notation and convert them back to numbers.", "Currency"],
-        "tools/chmod-calculator/": ["chmod Permission Calculator", "Convert Linux file permissions between checkboxes, octal values, symbolic notation, and chmod commands.", "Linux"],
+        "tools/chmod-calculator/": ["chmod Permission Calculator", "Convert Linux file permissions between octal and rwx modes, or simulate a umask for new files and directories.", "Linux"],
         "tools/svg-optimizer/": ["SVG Optimizer & Preview", "Optimize SVG markup locally, preview the result, and generate encoded or Base64 data URIs.", "SVG"],
         "tools/qr-scanner/": ["QR Code Scanner", "Scan QR codes with a camera or image file entirely in your browser.", "Scanner"],
         "tools/exif-viewer/": ["EXIF Viewer & Remover", "Inspect photo metadata such as capture time, device, exposure, and GPS, then export a clean copy.", "EXIF"],

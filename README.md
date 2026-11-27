@@ -41,6 +41,8 @@ scripts/
 
 ## 工具维护
 
+Mermaid 实战模板的双语文案和图表定义在 `src/data/mermaid-templates.mjs`。每个模板生成中英文静态页，并自动加入站点地图。模板交互仅在正式站发出 GTM dataLayer 事件：`template_open_editor`、`template_copy_source`、`template_share`；参数仅含模板标识和语言，不发送图表内容。需在 GTM 配置对应的 GA4 事件标签后才能在报告中查看。
+
 工具元数据维护在 `src/data/registry.js`，英文名称、简介和标签维护在 `src/data/i18n.js`。
 构建会将这两份数据同步到 `public/assets/`，供传统工具页的命令面板和语言运行时使用。
 

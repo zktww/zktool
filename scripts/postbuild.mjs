@@ -2,6 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import vm from "node:vm";
 import { versionAssets } from "./version-assets.mjs";
+import { templatePaths } from "../src/data/mermaid-templates.mjs";
 
 const ROOT = resolve(process.cwd());
 const DIST = resolve(ROOT, "dist");
@@ -31,7 +32,7 @@ function escapeXml(value) {
     })[character]);
 }
 
-const sitemapPairs = ["", ...tools.map((tool) => tool.path)]
+const sitemapPairs = ["", ...tools.map((tool) => tool.path), ...templatePaths]
     .map((path) => [url(path, "zh-CN"), url(path, "en")]);
 const sitemapEntries = sitemapPairs
     .flatMap((pair) => {

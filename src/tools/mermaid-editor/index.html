@@ -610,6 +610,9 @@
                 <option value="pie">饼图</option>
                 <option value="mindmap">思维导图</option>
                 <option value="git">Git 图</option>
+                <option value="guide-login">登录时序图 ↗</option>
+                <option value="guide-release">CI/CD 发布流程 ↗</option>
+                <option value="guide-agent">AI Agent 工具调用 ↗</option>
             </select>
         </label>
         <label class="field">
@@ -704,6 +707,11 @@
     </div>
 
     <footer>
+        <nav aria-label="实战模板">实战模板 ·
+            <a id="guide-login" href="../../templates/mermaid/login-sequence/">登录时序图</a> ·
+            <a id="guide-release" href="../../templates/mermaid/ci-cd-release/">CI/CD 发布流程</a> ·
+            <a id="guide-agent" href="../../templates/mermaid/agent-tool-call/">AI Agent 工具调用</a>
+        </nav>
         <span>基于 <code>mermaid.js</code>，支持流程图、时序图、类图、状态图、ER 图、甘特图、饼图、思维导图等。</span>
         <span><kbd>Ctrl</kbd>+<kbd>Enter</kbd> 立即渲染 · <kbd>Ctrl</kbd>+<kbd>S</kbd> 下载 SVG · <kbd>Tab</kbd> 缩进 · 滚轮缩放预览 · 拖拽平移</span>
     </footer>
@@ -1198,6 +1206,11 @@
 
         $("exampleSel").addEventListener("change", function () {
             var val = this.value;
+            if (val.startsWith("guide-") && $(val)) {
+                this.value = "";
+                location.assign($(val).href);
+                return;
+            }
             if (val && EXAMPLES[val]) {
                 editor.value = EXAMPLES[val];
                 editor.dispatchEvent(new Event("input"));
@@ -1270,7 +1283,7 @@
 
             if (fromHash !== null) {
                 editor.value = fromHash;
-                try { localStorage.setItem(STORAGE_KEY, fromHash); } catch (e) { /* ignore */ }
+                // Opening a template/shared link should not overwrite a local draft until the user edits it.
             } else if (saved !== null && saved.trim() !== "") {
                 editor.value = saved;
             } else {

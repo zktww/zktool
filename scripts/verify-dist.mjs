@@ -2,6 +2,7 @@ import { access, readdir, readFile, stat } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
 import { createHash } from "node:crypto";
 import vm from "node:vm";
+import { templatePaths } from "../src/data/mermaid-templates.mjs";
 
 const DIST = resolve(process.cwd(), "dist");
 
@@ -32,13 +33,13 @@ const checks = [];
 const data = {};
 vm.runInNewContext(await readFile(resolve('src/data/registry.js'), 'utf8'), data);
 const toolPaths = data.ZKTOOL_REGISTRY.filter((item) => item.type === 'tool').map((item) => item.path);
-const expectedUrls = ['', ...toolPaths].flatMap(path =>
+const expectedUrls = ['', ...toolPaths, ...templatePaths].flatMap(path =>
     ['', 'en/'].map(prefix => `https://tools.zktww.cn/${prefix}${path}`));
 const textSitemap = await readFile(resolve(DIST, 'sitemap.txt'), 'utf8');
 if (new Set(expectedUrls).size !== expectedUrls.length || textSitemap !== expectedUrls.join('\n') + '\n') {
     checks.push('sitemap.txt must list each Chinese and English home/tool URL once, one absolute URL per line');
 }
-for (const prefix of ['', 'en/']) for (const path of toolPaths) {
+for (const prefix of ['', 'en/']) for (const path of [...toolPaths, ...templatePaths]) {
     if (!(await resolvesToPageOrFile(resolve(DIST, prefix + path)))) checks.push(`Missing route: ${prefix}${path}`);
 }
 

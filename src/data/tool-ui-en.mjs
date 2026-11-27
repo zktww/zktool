@@ -44,7 +44,15 @@ export const toolUiEn = {
   'aes-tool': {
     '输出格式：zkaes1: + Base64(salt ‖ iv ‖ 密文)，自包含参数，凭同一密码即可解密。': 'Output format: zkaes1: + Base64(salt ‖ iv ‖ ciphertext). All parameters are included; use the same password to decrypt.'
   },
-  'chmod-calculator': { '读 r (4)': 'Read r (4)', '写 w (2)': 'Write w (2)', '执行 x (1)': 'Execute x (1)' },
+  'chmod-calculator': {
+    '试算 umask：新建文件与目录': 'Try umask for new files and directories',
+    '读 r (4)': 'Read r (4)', '写 w (2)': 'Write w (2)', '执行 x (1)': 'Execute x (1)',
+    'umask 模拟器：新建文件和目录的默认权限': 'umask simulator: permissions for new files and directories',
+    '为什么同一个 022 会得到 644 和 755？普通文件通常请求 666，没有执行位；目录通常请求 777。umask 只移除权限位，不会添加执行权限，也不是八进制减法。': 'Why does 022 give both 644 and 755? Regular files usually start with 666 (no execute bits); directories usually start with 777. A umask clears bits. It never adds execute permission and is not octal subtraction.',
+    '请输入三位八进制数字（0–7），也可加前导零，如 0022。': 'Enter three octal digits (0–7), optionally with a leading zero, such as 0022.',
+    '新建对象': 'New object', '请求权限': 'Requested mode', '实际权限': 'Result', '普通文件': 'Regular file', '目录': 'Directory',
+    '计算式：请求权限 &amp; ~umask。此示例假设父目录没有默认 ACL。程序可以请求更少的权限；umask 不会修改已存在的文件。': 'Formula: requested mode &amp; ~umask. This assumes no default ACL on the parent directory. A program can request fewer permissions; umask does not change existing files.'
+  },
   'cron-tool': { 'Cron 表达式（5 段）': 'Cron expression (5 fields)', 'Cron 表达式': 'Cron expression' },
   'css-length-unit': { '单位对照表': 'Unit reference', '绝对单位': 'Absolute units', '相对单位': 'Relative units', '计算值 (px)': 'Computed value (px)', '英寸 (1in = 96px)': 'Inch (1in = 96px)', '派卡 (1pc = 16px)': 'Pica (1pc = 16px)', '我的博客：': 'My blog: ', '丿似锦': 'zktww' },
   'device-info': { 'screen 尺寸': 'Screen dimensions', 'safe-area 安全区': 'Safe-area insets', '语言 language(s)': 'Languages', '触点数 maxTouchPoints': 'Maximum touch points', '网络 connection': 'Network connection' },
@@ -83,6 +91,7 @@ export const toolUiEn = {
   'jwt-decoder': { '复制 Header': 'Copy header', '复制 Payload': 'Copy payload' },
   'keypair-generator': { '选择算法后点击「生成密钥对」。': 'Choose an algorithm, then click Generate key pair.' },
   'mermaid-editor': {
+    '实战模板': 'Worked templates', '登录时序图': 'Login sequence diagram', 'CI/CD 发布流程': 'CI/CD release pipeline', 'AI Agent 工具调用': 'AI agent tool call',
     'default（浅色）': 'default (light)', 'dark（深色）': 'dark (dark)', '也可以从上方模板库选择一个示例': 'Or choose an example from the templates above.',
     '，支持流程图、时序图、类图、状态图、ER 图、甘特图、饼图、思维导图等。': 'Supports flowcharts, sequence, class, state and ER diagrams, Gantt charts, pie charts, mind maps, and more.',
     '缩进 · 滚轮缩放预览 · 拖拽平移': 'Indent · Mouse wheel to zoom · Drag to pan'

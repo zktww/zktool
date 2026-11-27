@@ -1,0 +1,8 @@
+---
+import TemplatePage from '../../../components/MermaidTemplate.astro';
+import { mermaidTemplates } from '../../../data/mermaid-templates.mjs';
+export function getStaticPaths() {
+    return mermaidTemplates.map(template => ({ params: { slug: template.slug }, props: { template } }));
+}
+---
+<TemplatePage locale="zh-CN" template={Astro.props.template} />

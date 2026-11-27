@@ -1,0 +1,85 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { mermaidTemplates } from '../data/mermaid-templates.mjs';
+
+interface Props {
+    locale: 'en' | 'zh-CN';
+    template: (typeof mermaidTemplates)[number];
+}
+const { locale, template } = Astro.props;
+const en = locale === 'en';
+const [title, description, tip] = template[locale];
+const root = en ? '/en/' : '/';
+const path = root + 'templates/mermaid/' + template.slug + '/';
+const editor = root + 'tools/mermaid-editor/';
+const code = template.diagram(en);
+const editUrl = editor + '#code=' + Buffer.from(code, 'utf8').toString('base64url');
+---
+<SiteLayout title={`${title} · Mermaid ${en ? 'Template' : '实战模板'} | zktool`} description={description} {locale} {path}>
+  <main class="guide" data-template={template.slug}>
+    <a href={editor}>← {en ? 'Mermaid editor' : 'Mermaid 编辑器'}</a>
+    <h1>{title}</h1>
+    <p>{description}</p>
+    <div class="actions">
+      <a class="primary" href={editUrl} id="open-template">{en ? 'Open in editor' : '在编辑器中打开'}</a>
+      <button id="copy-template" type="button">{en ? 'Copy source' : '复制源码'}</button>
+      <button id="share-template" type="button">{en ? 'Copy template link' : '复制模板链接'}</button>
+      <span id="copy-status" role="status"></span>
+    </div>
+    <figure aria-label={title}><div id="diagram" role="img" aria-label={title}></div><figcaption>{tip}</figcaption></figure>
+    <h2>{en ? 'Mermaid source' : 'Mermaid 源码'}</h2>
+    <pre tabindex="0"><code id="source">{code}</code></pre>
+    <nav aria-label={en ? 'Other templates' : '其他模板'}>
+      {mermaidTemplates.filter(t => t.slug !== template.slug).map(t => <a href={root + 'templates/mermaid/' + t.slug + '/'}>{t[locale][0]} →</a>)}
+    </nav>
+  </main>
+  <script is:inline src="/assets/clipboard.js"></script>
+  <script is:inline defer src="/assets/vendor/mermaid.min.js"></script>
+  <script is:inline>
+    (() => {
+      const byId = id => document.getElementById(id);
+      const code = byId('source').textContent, en = document.documentElement.lang === 'en';
+      const track = event => {
+        if (location.origin === 'https://tools.zktww.cn' && window.dataLayer) {
+          window.dataLayer.push({event, template_id: document.querySelector('[data-template]').dataset.template, language: document.documentElement.lang});
+        }
+      };
+      const copy = async (value, event) => {
+        try {
+          await window.copyText(value);
+          byId('copy-status').textContent = en ? 'Copied.' : '已复制。';
+          track(event);
+        } catch {
+          byId('copy-status').textContent = en ? 'Copy manually from the page or address bar.' : '请从页面或地址栏手动复制。';
+        }
+      };
+      byId('copy-template').onclick = () => copy(code, 'template_copy_source');
+      byId('share-template').onclick = () => copy(location.origin + location.pathname, 'template_share');
+      byId('open-template').onclick = () => track('template_open_editor');
+      document.addEventListener('DOMContentLoaded', async () => {
+        try {
+          mermaid.initialize({startOnLoad:false, securityLevel:'strict', theme:'neutral', flowchart:{htmlLabels:false}});
+          const {svg} = await mermaid.render('template-svg', code);
+          byId('diagram').innerHTML = svg;
+        } catch {
+          byId('diagram').textContent = en ? 'Preview unavailable. The source is below.' : '暂时无法预览，可查看下方源码。';
+        }
+      });
+    })();
+  </script>
+</SiteLayout>
+<style>
+  .guide { width:min(58rem, calc(100% - 2rem)); margin:2rem auto; color:var(--text); }
+  .guide > a, nav a { color:var(--brand); }
+  h1 { margin:1rem 0 .45rem; font-size:clamp(1.7rem,4vw,2.6rem); }
+  h2 { font-size:1.15rem; }
+  p, figcaption { color:var(--text-2); line-height:1.6; }
+  .actions, nav { display:flex; align-items:center; flex-wrap:wrap; gap:.65rem; margin:1rem 0; }
+  button, .primary { font:inherit; padding:.55rem .85rem; border:1px solid var(--border); border-radius:.65rem; cursor:pointer; color:var(--text); background:var(--surface); }
+  .primary { background:var(--brand); color:white; text-decoration:none; }
+  figure, pre { margin:1rem 0; border:1px solid var(--border); border-radius:var(--radius); background:var(--surface); overflow:hidden; }
+  #diagram { background:white; color:#20242a; padding:1rem; overflow:auto; text-align:center; }
+  #diagram :global(svg) { max-width:100%; height:auto; }
+  figcaption, pre { padding:1rem; }
+  pre { overflow:auto; line-height:1.6; font: .9rem/1.6 var(--mono); }
+</style>

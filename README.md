@@ -11,7 +11,7 @@ pnpm build
 ```
 
 `pnpm build` 会生成中文与英文静态页面、站点地图、llms.txt、双语 Manifest 和 Service Worker。发布时仅上传 `dist/`。
-主站点地图为 `/sitemap.xml`，`/sitemap-v2.xml` 为其副本；`/sitemap.txt` 从同一份网址清单生成，每行一个完整网址，可在 Search Console 单独提交作对照。
+主站点地图为 `/sitemap.txt`，每行一个完整网址，也是 `robots.txt` 唯一声明的站点地图。原有 `/sitemap.xml` 和 `/sitemap-v2.xml` 继续从同一份网址清单生成，保留中英文页面的对应关系。
 
 ## 目录
 

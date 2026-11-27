@@ -78,6 +78,11 @@
         </div>
         <div class="row" style="margin-top:.9rem"><button class="btn" id="subtract" type="button">向前推算</button><button class="btn primary" id="add" type="button">向后推算</button><button class="btn" id="copy" type="button">复制结果</button></div>
         <div class="output min-h-4" id="addResult" aria-live="polite"></div>
+        <details class="worked-example">
+            <summary>月末排期：加一个月等于加 30 天吗？</summary>
+            <p>从 2024-01-31 向后加一个月，二月没有 31 日，结果是闰年的 2024-02-29。改为加 30 天，结果是 2024-03-01。</p>
+            <button class="btn" type="button" id="monthEndSample">试算月末日期</button>
+        </details>
     </section>
     <section class="seo-notes">
         <h2>关于日期间隔计算</h2>
@@ -128,6 +133,7 @@
     var now=today(),tomorrow=formatYmd(shiftDay(parseYmd(now),30));start.value=now;end.value=tomorrow;$("base").value=now;
     [start,end,includeStart,includeEnd].forEach(function(el){el.addEventListener("input",render);el.addEventListener("change",render);});
     $("weekendSample").onclick=function(){start.value="2024-03-01";end.value="2024-03-04";includeStart.checked=false;includeEnd.checked=true;render();};
+    $("monthEndSample").onclick=function(){$("base").value="2024-01-31";$("amount").value="1";$("unit").value="month";$("unit").dispatchEvent(new Event("change",{bubbles:true}));calculate(1);};
     $("swap").onclick=function(){var v=start.value;start.value=end.value;end.value=v;render();};$("add").onclick=function(){calculate(1);};$("subtract").onclick=function(){calculate(-1);};
     $("copy").onclick=function(){if(!lastAdd){calculate(1);}copyText(lastAdd).then(function(){status.textContent="推算结果已复制。";status.className="hint ok";},function(){status.textContent="复制失败，请手动复制。";status.className="hint bad";});};
     render();calculate(1);

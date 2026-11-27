@@ -13,12 +13,18 @@ export const attributeUiEn = {
 
 export const toolUiEn = {
   'hash-tool': {
+    '排查 SHA-256 不一致：末尾换行': 'Diagnose a SHA-256 mismatch: the trailing newline',
+    '点击「试算 abc」，对照下面两行。只在 c 后按一次回车，不要添加空格。': 'Choose Try abc and compare the two digests below. Press Enter once after the c without adding spaces.',
+    '核对文件时请拖入原文件；把内容复制到文本框可能会改变换行符。': 'To check a file, drop the original file here. Copying its contents into a text box can change the line endings.',
     '试算 abc': 'Try abc',
     '用已知输入核对结果': 'Check a known digest',
     '输入小写 abc（UTF-8，不加换行），MD5 应为：': 'Enter lowercase abc in UTF-8 with no trailing newline. Its MD5 digest should be:',
     '在末尾按一次回车再比较：看起来只多了一行，实际参与计算的字节已经变了。': 'Now press Enter after the c and compare. The newline adds a byte, so the digest changes.'
   },
   'cert-decoder': {
+    '用 OpenSSL 复核示例证书的指纹': 'Verify the sample fingerprint with OpenSSL',
+    '点击「示例」，将完整 PEM 保存为 demo.pem，运行以下命令。它对解码后的证书计算指纹，而不是对文本文件求摘要。': 'Choose Example, save the entire PEM as demo.pem, and run this command. It fingerprints the decoded certificate, not the text file.',
+    '示例证书的 SHA-256 指纹应为：': 'Expected SHA-256 fingerprint for the sample certificate:',
     '怎样读这张示例证书？': 'How to read the sample certificate',
     '点击「示例」载入公开的演示 PEM。SAN 列出了 demo.example.com、www.example.com 和 *.api.example.com；最后一个覆盖 v1.api.example.com，但不覆盖 api.example.com 本身。': 'Choose Example to load the public demo PEM. Its SANs are demo.example.com, www.example.com and *.api.example.com. The wildcard covers v1.api.example.com but not api.example.com itself.',
     '到期时间是 2028-07-21 02:04:54 UTC，结果栏按你的本地时间显示。有效期只说明日期范围；本工具不验证信任链。': 'It expires at 2028-07-21 02:04:54 UTC. The results show your local time. Being within this interval does not establish trust; this decoder does not verify the chain.',
@@ -26,6 +32,9 @@ export const toolUiEn = {
     '比较文本与文件的 SHA-256 摘要': 'Compare SHA-256 digests of text and files'
   },
   'date-calculator': {
+    '月末排期：加一个月等于加 30 天吗？': 'Month-end scheduling: is one month the same as 30 days?',
+    '从 2024-01-31 向后加一个月，二月没有 31 日，结果是闰年的 2024-02-29。改为加 30 天，结果是 2024-03-01。': 'Add one month to 2024-01-31. February has no 31st, so the result is leap day, 2024-02-29. Adding 30 days instead gives 2024-03-01.',
+    '试算月末日期': 'Try the month-end example',
     '从周五到周一，算几天？': 'How many days from Friday to Monday?',
     '以 2024-03-01（周五）到 2024-03-04（周一）为例：不含周五、含周一是 3 个自然日、1 个工作日；两端都含则是 4 个自然日、2 个工作日。': 'From Friday, 2024-03-01 to Monday, 2024-03-04: exclude Friday and include Monday for 3 calendar days and 1 weekday. Include both for 4 calendar days and 2 weekdays.',
     '试算跨周末日期': 'Try the weekend example',

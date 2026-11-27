@@ -62,6 +62,13 @@
                     <code>900150983cd24fb0d6963f7d28e17f72</code>
                     <p>在末尾按一次回车再比较：看起来只多了一行，实际参与计算的字节已经变了。</p>
                 </details>
+                <details class="worked-example">
+                    <summary>排查 SHA-256 不一致：末尾换行</summary>
+                    <p>点击「试算 abc」，对照下面两行。只在 c 后按一次回车，不要添加空格。</p>
+                    <p>abc · 3 bytes (UTF-8)<br><code>ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad</code></p>
+                    <p>abc + LF · 4 bytes (UTF-8)<br><code>edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb</code></p>
+                    <p>核对文件时请拖入原文件；把内容复制到文本框可能会改变换行符。</p>
+                </details>
                 <p class="hint">MD5 已不适合安全用途，仅用于校验与兼容旧系统。</p>
             </section>
         </aside>

@@ -56,6 +56,13 @@
                 <p>证书指纹是对 DER 字节计算的摘要，直接对带有换行的 PEM 文本计算会得到不同结果。</p>
                 <a href="../hash-tool/">比较文本与文件的 SHA-256 摘要</a>
             </details>
+            <details class="worked-example">
+                <summary>用 OpenSSL 复核示例证书的指纹</summary>
+                <p>点击「示例」，将完整 PEM 保存为 demo.pem，运行以下命令。它对解码后的证书计算指纹，而不是对文本文件求摘要。</p>
+                <code>openssl x509 -in demo.pem -noout -sha256 -fingerprint</code>
+                <p>示例证书的 SHA-256 指纹应为：</p>
+                <code>36:8F:4E:E8:0F:83:D0:60:3D:13:A8:CD:5F:F0:C2:0D:3D:9C:0B:93:B6:34:F4:B3:6A:28:95:71:65:C3:5D:42</code>
+            </details>
         </section>
         <aside>
             <section class="panel">

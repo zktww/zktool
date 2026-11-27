@@ -31,6 +31,30 @@
         .cmd-chip:hover { border-color: var(--brand-ring); color: var(--text); }
         #umask { margin-top: 1.05rem; scroll-margin-top: 5rem; }
         #mask-input { width: 6rem; }
+        .wrap > p.row { margin-bottom: 0.95rem; }
+        .wrap > p.row > a[href="#umask"] {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.34rem 0.78rem;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: var(--surface);
+            color: var(--brand);
+            font-size: 0.82rem;
+            font-weight: 620;
+            text-decoration: none;
+            box-shadow: var(--shadow-sm);
+            transition: border-color 0.18s var(--ease), background 0.18s var(--ease), transform 0.18s var(--ease);
+        }
+        .wrap > p.row > a[href="#umask"]::after { content: "↓"; font-size: 0.78rem; opacity: 0.8; }
+        .wrap > p.row > a[href="#umask"]:hover,
+        .wrap > p.row > a[href="#umask"]:focus-visible {
+            border-color: var(--border-hover);
+            background: var(--brand-soft);
+            transform: translateY(-1px);
+            outline: none;
+        }
     </style>
     <script defer src="../../assets/registry.js?v=7910a398"></script><script defer src="../../assets/i18n.js?v=b7a21dd2"></script>
     <script defer src="../../assets/palette.js?v=1f6efcdf"></script>

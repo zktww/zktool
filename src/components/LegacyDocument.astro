@@ -19,6 +19,37 @@ const language = isEn ? "中文" : "EN";
 const languageCode = isEn ? "zh-CN" : "en";
 const homeHref = isEn ? "/en/" : "/";
 
+const COMPACT_TOOLS = new Set([
+    "id-card-checker",
+    "rmb-uppercase",
+    "radix-converter",
+    "cidr-calculator",
+    "date-calculator",
+    "cron-tool",
+    "random-generator",
+    "keypair-generator",
+    "color-tool",
+    "http-reference",
+    "qr-scanner",
+    "exif-viewer",
+]);
+const WORKBENCH_TOOLS = new Set([
+    "json-formatter",
+    "mermaid-editor",
+    "markdown-preview",
+    "text-diff",
+    "json-diff",
+]);
+const layoutTier = COMPACT_TOOLS.has(slug)
+    ? "compact"
+    : WORKBENCH_TOOLS.has(slug)
+        ? "workbench"
+        : "standard";
+const bodyAttrs = {
+    "data-layout": layoutTier,
+    ...document.bodyAttrs,
+};
+
 const sourceTool = tools.find((item) => item.type === "tool" && toolSlug(item) === slug);
 const currentTool = sourceTool ? localizedTool(sourceTool, locale) : null;
 const sourceGroup = sourceTool ? groups.find((g) => g.key === sourceTool.group) : null;
@@ -129,7 +160,7 @@ const languageStyle = `<style>
 .language-link { display:inline-flex; align-items:center; justify-content:center; min-width:2.25rem; height:2.25rem; padding:0 .72rem; border:1px solid var(--border,rgba(15,23,42,.085)); border-radius:999px; color:var(--text-2,#52627a); background:var(--surface,#fff); font:650 .78rem/1 system-ui,sans-serif; text-decoration:none; box-shadow:var(--shadow-sm); }
 .language-link:hover { border-color:var(--border-hover); color:var(--text); background:var(--surface-hover); }
 .language-link:focus-visible { outline:2px solid var(--brand); outline-offset:3px; }
-.legacy-language-fallback { width:min(1260px,calc(100% - 2rem)); margin:.75rem auto 0; display:flex; justify-content:flex-end; }
+.legacy-language-fallback { width:min(1220px,calc(100% - 2rem)); margin:.75rem auto 0; display:flex; justify-content:flex-end; }
 </style>`;
 ---
 <!doctype html>
@@ -141,7 +172,7 @@ const languageStyle = `<style>
     <DevCacheReset />
     <GoogleAnalytics />
   </head>
-  <body {...document.bodyAttrs}>
+  <body {...bodyAttrs}>
     <Fragment set:html={body} />
   </body>
 </html>

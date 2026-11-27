@@ -319,6 +319,29 @@
             box.appendChild(gh);
         }
 
+        if (document.body && document.body.getAttribute("data-layout") === "workbench" && !box.querySelector(".zk-wide-btn")) {
+            var wbtn = document.createElement("button");
+            wbtn.type = "button";
+            wbtn.className = "zk-icon-btn zk-wide-btn";
+            var EXPAND_IC = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><polyline points='15 3 21 3 21 9'/><polyline points='9 21 3 21 3 15'/><line x1='21' y1='3' x2='14' y2='10'/><line x1='3' y1='21' x2='10' y2='14'/></svg>";
+            var SHRINK_IC = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><polyline points='4 14 10 14 10 20'/><polyline points='20 10 14 10 14 4'/><line x1='14' y1='10' x2='21' y2='3'/><line x1='3' y1='21' x2='10' y2='14'/></svg>";
+            function syncWide() {
+                var on = document.body.classList.contains("zk-wide");
+                var lbl = on ? text("Standard width", "恢复标准宽度") : text("Wide workspace", "切换宽屏工作区");
+                wbtn.classList.toggle("is-active", on);
+                wbtn.setAttribute("aria-pressed", on ? "true" : "false");
+                wbtn.setAttribute("aria-label", lbl);
+                wbtn.title = lbl;
+                wbtn.innerHTML = on ? SHRINK_IC : EXPAND_IC;
+            }
+            wbtn.addEventListener("click", function () {
+                document.body.classList.toggle("zk-wide");
+                syncWide();
+            });
+            syncWide();
+            box.insertBefore(wbtn, box.firstChild);
+        }
+
         if (window.ZKTOOL_REGISTRY && window.ZKTOOL_GROUPS && !box.querySelector(".zk-nav-btn")) {
             var nbtn = document.createElement("button");
             nbtn.type = "button";

@@ -6,9 +6,14 @@
 
 .tool-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 0.88fr);
     gap: 1.05rem;
     align-items: stretch;
+}
+
+.tool-grid--equal,
+.tool-grid:not(:has(> aside)) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 
 .tool-grid > section.panel,
@@ -34,9 +39,9 @@
     max-height: 60vh;
 }
 
-.tool-grid > section.panel > textarea {
+.tool-grid > section.panel > textarea:not([rows]):not([class*="min-h-"]) {
     flex: 1;
-    min-height: 14rem;
+    min-height: 11.5rem;
 }
 
 .panel {
@@ -74,10 +79,6 @@ textarea + .drop { margin-top: 1rem; }
 
 .grow { flex: 1; min-width: 0; }
 .w-8 { width: 8rem; }
-.min-h-4 { min-height: 4rem; }
-.min-h-5 { min-height: 5rem; }
-.min-h-6 { min-height: 6rem; }
-.min-h-8 { min-height: 8rem; }
 
 label, .label { color: var(--text-2); font-size: 0.85rem; font-weight: 560; }
 label > input, label > select, label > .zk-select, label > textarea { margin-top: 0.34rem; }
@@ -126,12 +127,16 @@ input[type="color"] {
 }
 
 textarea {
-    min-height: 14rem;
+    min-height: 11.5rem;
     padding: 0.8rem 0.9rem;
     resize: vertical;
     font-family: var(--mono);
     font-size: 0.87rem;
     line-height: 1.68;
+}
+
+textarea[rows] {
+    min-height: 0;
 }
 
 input:focus, textarea:focus, select:focus {
@@ -196,7 +201,7 @@ input:disabled, textarea:disabled, select:disabled, .btn:disabled {
 .btn.danger:hover, .btn.danger:focus-visible { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, var(--surface)); }
 
 .output {
-    min-height: 10rem;
+    min-height: 8.5rem;
     padding: 0.85rem 0.95rem;
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
@@ -209,6 +214,11 @@ input:disabled, textarea:disabled, select:disabled, .btn:disabled {
     overflow: auto;
     word-break: break-word;
 }
+
+.min-h-4 { min-height: 4rem; }
+.min-h-5 { min-height: 5rem; }
+.min-h-6 { min-height: 6rem; }
+.min-h-8 { min-height: 8rem; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 0.45rem; }
 .chip {

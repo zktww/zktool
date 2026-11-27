@@ -3,23 +3,56 @@
 
 .worked-example {
     margin-top: 1rem;
-    padding: .8rem 1rem;
+    padding: 0.82rem 1rem;
+    border: 1px solid var(--border);
     border-inline-start: 3px solid var(--brand);
     background: var(--bg-soft);
     color: var(--text-2);
-    border-radius: 6px;
-    font-size: .88rem;
-    line-height: 1.6;
+    border-radius: 14px;
+    font-size: 0.86rem;
+    line-height: 1.65;
     overflow-wrap: anywhere;
 }
-.worked-example summary { cursor: pointer; font-weight: 650; }
-.worked-example p { margin: .55rem 0; }
-.worked-example code { font-family: var(--mono); }
-.worked-example a { text-decoration: underline; }
-.worked-example pre { margin: .65rem 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.worked-example summary { cursor: pointer; color: var(--text); font-weight: 650; }
+.worked-example p { margin: 0.55rem 0; }
+.worked-example code {
+    font-family: var(--mono);
+    font-size: 0.84em;
+    padding: 0.1rem 0.36rem;
+    border-radius: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+.worked-example pre {
+    margin: 0.65rem 0;
+    padding: 0.68rem 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.worked-example pre code {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-size: 0.82rem;
+}
+.worked-example a { color: var(--brand); text-decoration: underline; }
 
 /* zktool 工具页公共骨架（Craft Bento 温润便当盒体系）：
-   毛玻璃胶囊顶栏、柔和弥散背景、紧凑标题与底部相关工具/FAQ 卡片。 */
+   毛玻璃胶囊顶栏、三档自适应工作区宽度、紧凑标题与底部相关工具/FAQ 卡片。 */
+
+:root {
+    --shell-w: 1220px;
+    --work-w: 1120px;
+    --wrap-px: clamp(1rem, 2.5vw, 1.5rem);
+}
+
+body[data-layout="compact"] { --work-w: 960px; }
+body[data-layout="workbench"] { --work-w: 1220px; }
+body.zk-wide { --shell-w: 1640px; --work-w: 1640px; }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 [hidden] { display: none !important; }
@@ -50,14 +83,41 @@ body {
 
 .wrap {
     width: 100%;
-    max-width: min(1260px, 100%);
-    min-height: 100vh;
-    min-height: 100dvh;
+    max-width: var(--wrap-w, calc(var(--work-w) + 2 * var(--wrap-px)));
     margin: 0 auto;
-    padding: clamp(0.85rem, 2.5vw, 1.35rem)
-        calc(clamp(1rem, 3vw, 1.75rem) + env(safe-area-inset-right))
-        max(2.5rem, env(safe-area-inset-bottom))
-        calc(clamp(1rem, 3vw, 1.75rem) + env(safe-area-inset-left));
+    padding: clamp(0.75rem, 2vw, 1.1rem)
+        calc(var(--wrap-px) + env(safe-area-inset-right))
+        max(2.25rem, env(safe-area-inset-bottom))
+        calc(var(--wrap-px) + env(safe-area-inset-left));
+    transition: max-width 0.24s var(--ease);
+}
+
+body:has(> .zk-related, > .seo-notes) > .wrap {
+    padding-bottom: 0.5rem;
+}
+
+@media (min-width: 1180px) and (max-width: 1279px) {
+    body[data-layout="compact"]:not(.zk-wide) .wrap > .top {
+        width: 1120px;
+        margin-left: calc(50% - 560px);
+    }
+}
+
+@media (min-width: 1280px) {
+    body:not(.zk-wide) .wrap > .top {
+        width: var(--shell-w);
+        margin-left: calc(50% - var(--shell-w) / 2);
+    }
+}
+
+.zk-icon-btn.is-active {
+    color: var(--brand);
+    border-color: color-mix(in srgb, var(--brand) 38%, var(--border));
+    background: var(--brand-soft);
+}
+
+@media (max-width: 1279px) {
+    .zk-wide-btn { display: none !important; }
 }
 
 /* ── 毛玻璃胶囊顶栏（与首页 .site-header 视觉同源）── */
@@ -188,8 +248,14 @@ body {
 .zk-related h2 { margin: 0 0 0.8rem; font-size: 0.98rem; font-weight: 720; color: var(--text); letter-spacing: -0.01em; }
 .zk-related-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.75rem;
+}
+@media (max-width: 920px) {
+    .zk-related-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+    .zk-related-grid { grid-template-columns: 1fr; }
 }
 .zk-related-grid a {
     display: flex;
@@ -239,11 +305,12 @@ body {
 
 body > .zk-related {
     width: 100%;
-    max-width: var(--wrap-w, min(1260px, 100%));
+    max-width: var(--wrap-w, calc(var(--work-w) + 2 * var(--wrap-px)));
     margin-left: auto;
     margin-right: auto;
-    padding-left: calc(var(--wrap-px, clamp(1rem, 3vw, 1.75rem)) + env(safe-area-inset-left) + 0.2rem);
-    padding-right: calc(var(--wrap-px, clamp(1rem, 3vw, 1.75rem)) + env(safe-area-inset-right) + 0.2rem);
+    padding-left: calc(var(--wrap-px) + env(safe-area-inset-left));
+    padding-right: calc(var(--wrap-px) + env(safe-area-inset-right));
+    transition: max-width 0.24s var(--ease);
 }
 
 h1 {
@@ -515,12 +582,13 @@ select:not([multiple]):not([size]) {
 
 body > .seo-notes {
     width: 100%;
-    max-width: var(--wrap-w, min(1260px, 100%));
+    max-width: var(--wrap-w, calc(var(--work-w) + 2 * var(--wrap-px)));
     margin-left: auto;
     margin-right: auto;
-    padding-left: calc(var(--wrap-px, clamp(1rem, 3vw, 1.75rem)) + env(safe-area-inset-left) + 0.2rem);
-    padding-right: calc(var(--wrap-px, clamp(1rem, 3vw, 1.75rem)) + env(safe-area-inset-right) + 0.2rem);
+    padding-left: calc(var(--wrap-px) + env(safe-area-inset-left));
+    padding-right: calc(var(--wrap-px) + env(safe-area-inset-right));
     padding-bottom: max(2.5rem, env(safe-area-inset-bottom));
+    transition: max-width 0.24s var(--ease);
 }
 
 .seo-notes h2 { margin: 0 0 0.55rem; color: var(--text); font-size: 0.98rem; font-weight: 720; letter-spacing: -0.01em; }

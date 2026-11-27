@@ -18,18 +18,8 @@
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-shell.css?v=bf28c565" />
     <style>
-        /* 骨架（reset/body/bg-fx/top/back/h1 基础）由 tool-shell.css 提供，
-           本页只保留时间工具特有的组件样式与少量布局覆盖。 */
-
-        /* 供 tool-shell 的 body > .seo-notes 对齐本页 .wrap（宽度与水平内边距镜像） */
-        body { --wrap-w: min(1520px, 100%); --wrap-px: clamp(1rem, 3vw, 2rem); }
-        .wrap {
-            max-width: min(1520px, 100%);
-            padding: clamp(1rem, 4vw, 2.4rem)
-                calc(clamp(1rem, 3vw, 2rem) + env(safe-area-inset-right))
-                3.5rem
-                calc(clamp(1rem, 3vw, 2rem) + env(safe-area-inset-left));
-        }
+        /* 骨架（reset/body/bg-fx/top/back/h1/wrap 宽度）由 tool-shell.css 提供，
+           本页只保留时间工具特有的组件样式。 */
 
         svg.icon {
             width: 1em;
@@ -39,7 +29,7 @@
         }
 
         /* ===== 顶部 ===== */
-        .top { margin-bottom: 2rem; }
+        .top { margin-bottom: 1.2rem; }
 
         .live {
             font-family: var(--mono);
@@ -51,9 +41,9 @@
         .live strong { color: var(--brand-2); font-weight: 600; }
 
         h1 {
-            font-size: clamp(1.5rem, 4.5vw, 2.1rem);
-            font-weight: 700;
-            margin-bottom: 0.45rem;
+            font-size: clamp(1.42rem, 3.2vw, 1.9rem);
+            font-weight: 760;
+            margin-bottom: 0.35rem;
         }
 
         h1 .grad {
@@ -64,8 +54,8 @@
 
         .lead {
             color: var(--text-2);
-            font-size: 0.95rem;
-            margin-bottom: 2rem;
+            font-size: 0.92rem;
+            margin-bottom: 1.2rem;
         }
 
         /* ===== 卡片 ===== */
@@ -75,16 +65,14 @@
             border-radius: var(--radius);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
-            padding: 1.35rem 1.45rem;
-            margin-bottom: 1.35rem;
+            padding: 1.25rem 1.35rem;
+            margin-bottom: 1.05rem;
             box-shadow: var(--shadow-sm);
-            transition: transform 0.4s var(--ease), border-color 0.4s var(--ease), background 0.4s var(--ease);
+            transition: border-color 0.22s var(--ease), box-shadow 0.22s var(--ease);
         }
 
         .panel:hover {
-            transform: translateY(-4px);
             border-color: var(--border-hover);
-            background: var(--surface-hover);
         }
 
         .panel h2 {

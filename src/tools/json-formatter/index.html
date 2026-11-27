@@ -18,36 +18,22 @@
     <meta name="theme-color" content="#0e1420" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="../../assets/tool-shell.css?v=bf28c565" />
     <style>
-        /* 骨架（reset/背景/返回条/标题基础）由 tool-shell.css 提供，
-           本页保留全高 flex 布局与 JSON 工具特有的组件样式。 */
-
-        html { height: 100%; }
+        /* 骨架（reset/背景/返回条/标题基础/三档宽度）由 tool-shell.css 提供，
+           本页保留双栏工作台与 JSON 工具特有的组件样式。 */
 
         body {
-            min-height: 100%;
             line-height: 1.55;
-            display: flex;
-            flex-direction: column;
         }
 
-        /* 供 tool-shell 的 body > .seo-notes 对齐本页 .wrap（宽度与水平内边距镜像） */
-        body { --wrap-w: min(1480px, 100%); --wrap-px: clamp(1rem, 3vw, 1.5rem); }
         .wrap {
-            flex: 1;
             display: flex;
             flex-direction: column;
-            min-height: 0;
-            max-width: min(1480px, 100%);
-            padding: clamp(1rem, 3.5vw, 1.75rem)
-                calc(clamp(1rem, 3vw, 1.5rem) + env(safe-area-inset-right))
-                clamp(1rem, 2.5vw, 1.5rem)
-                calc(clamp(1rem, 3vw, 1.5rem) + env(safe-area-inset-left));
         }
 
         /* ---------- 顶部 ---------- */
         .top {
             flex-shrink: 0;
-            margin-bottom: 1.35rem;
+            margin-bottom: 1.1rem;
         }
 
         .back svg { flex-shrink: 0; }
@@ -181,12 +167,42 @@
 
         /* ---------- 双栏 ---------- */
         .split {
-            flex: 1;
-            min-height: 0;
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
             gap: 1rem;
+            height: clamp(25rem, 60dvh, 36rem);
+            min-height: 25rem;
             align-items: stretch;
+        }
+
+        .btn[aria-pressed="true"] {
+            border-color: rgba(0, 102, 255, 0.42);
+            background: var(--brand-soft);
+            color: var(--brand);
+        }
+
+        body.jf-fullscreen { overflow: hidden; }
+        body.jf-fullscreen .wrap {
+            position: fixed;
+            inset: 0;
+            z-index: 900;
+            max-width: none;
+            height: 100dvh;
+            padding: 0.85rem clamp(0.9rem, 2vw, 1.4rem);
+            background: var(--bg);
+            overflow: hidden;
+        }
+        body.jf-fullscreen .top,
+        body.jf-fullscreen h1,
+        body.jf-fullscreen .lead,
+        body.jf-fullscreen .hint,
+        body.jf-fullscreen footer {
+            display: none;
+        }
+        body.jf-fullscreen .split {
+            flex: 1;
+            height: auto;
+            min-height: 0;
         }
 
         .pane {
@@ -519,8 +535,7 @@
         @media (max-width: 860px) {
             body { height: auto; }
             .wrap {
-                min-height: 100dvh;
-                padding-top: max(1rem, env(safe-area-inset-top));
+                padding-top: max(0.85rem, env(safe-area-inset-top));
                 padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
             }
             .top { align-items: flex-start; }
@@ -529,9 +544,9 @@
             .toolbar .grow { display: none; }
             .btn, .field, .chk { flex: 1 1 8rem; justify-content: center; }
             .field select { flex: 1; min-width: 0; }
-            .split { grid-template-columns: 1fr; }
-            .pane { min-height: 320px; }
-            textarea, pre.out-text, .out-tree { min-height: 260px; }
+            .split { grid-template-columns: 1fr; height: auto; min-height: 0; }
+            .pane { min-height: 300px; }
+            textarea, pre.out-text, .out-tree { min-height: 240px; }
         }
     </style>
     <script src="../../assets/analytics.js?v=3b95695b"></script>
@@ -601,6 +616,10 @@
         <button type="button" class="btn" id="btnClear">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             清空
+        </button>
+        <button type="button" class="btn" id="btnFull" aria-pressed="false">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></svg>
+            全屏编辑
         </button>
     </div>
 
@@ -1286,7 +1305,20 @@
             if (!tabTree.disabled) setView("tree");
         });
 
+        var btnFull = document.getElementById("btnFull");
+        function setFull(on) {
+            document.body.classList.toggle("jf-fullscreen", on);
+            btnFull.setAttribute("aria-pressed", on ? "true" : "false");
+        }
+        btnFull.addEventListener("click", function () {
+            setFull(!document.body.classList.contains("jf-fullscreen"));
+        });
+
         document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape" && document.body.classList.contains("jf-fullscreen")) {
+                setFull(false);
+                return;
+            }
             if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
                 if (document.activeElement === input) {
                     e.preventDefault();

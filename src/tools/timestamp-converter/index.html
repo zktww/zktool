@@ -747,6 +747,16 @@
             </div>
         </div>
         <p class="hint">自动模式：纯数字按位数识别（≤11 位当秒、≥12 位当毫秒），日期字符串反向转时间戳。</p>
+        <details class="worked-example" open>
+            <summary>为什么时间戳会被转成 1970 年？</summary>
+            <p>1704067200 秒和 1704067200000 毫秒是同一时刻：2024-01-01 00:00:00 UTC。两者相差的是单位，不是时区。</p>
+            <p>如果把 1704067200 当成毫秒，它只比 Unix 起点晚约 20 天，结果是 1970-01-20 17:21:07.200 UTC。点击下面三个例子，对照上方的 ISO 8601 结果。</p>
+            <div class="row">
+                <button type="button" class="btn btn--ghost" data-epoch-sample="1704067200" data-unit="sec">按秒试算</button>
+                <button type="button" class="btn btn--ghost" data-epoch-sample="1704067200000" data-unit="ms">按毫秒试算</button>
+                <button type="button" class="btn btn--ghost" data-epoch-sample="1704067200" data-unit="ms">复现单位误选</button>
+            </div>
+        </details>
     </section>
 
     <!-- 时区对照 -->
@@ -1080,6 +1090,12 @@
         unitAuto.addEventListener("click", function () { setUnit("auto"); });
         unitSec.addEventListener("click", function () { setUnit("sec"); });
         unitMs.addEventListener("click", function () { setUnit("ms"); });
+        document.querySelectorAll("[data-epoch-sample]").forEach(function (button) {
+            button.addEventListener("click", function () {
+                unixInput.value = button.dataset.epochSample;
+                setUnit(button.dataset.unit);
+            });
+        });
 
         /* ---------- 智能转换渲染 ---------- */
 
@@ -1487,10 +1503,10 @@
     <h2>关于时间戳转换</h2>
     <p>时间戳（Unix Timestamp）是从 1970 年 1 月 1 日 00:00:00 UTC 起经过的秒数或毫秒数，广泛用于日志、数据库和接口传输。本工具在浏览器本地完成时间戳与可读日期的互转，自动识别 10 位（秒）和 13 位（毫秒）时间戳，支持批量转换、本地时区与 UTC 对照，适合排查日志时间、调试接口返回和数据库时间字段。</p>
     <h2>常见问题</h2>
-    <details><summary>时间戳 10 位和 13 位有什么区别？</summary><p>10 位时间戳精确到秒（如 1720000000），13 位精确到毫秒（如 1720000000000）。Java、JavaScript 默认使用毫秒，Unix/Linux 系统和 PHP 默认使用秒。本工具会根据位数自动识别，无需手动选择。</p></details>
+    <details><summary>时间戳 10 位和 13 位有什么区别？</summary><p>现代日期常见 10 位秒值和 13 位毫秒值，但位数不是单位本身。自动模式将不超过 11 位的整数按秒处理，12 位及以上按毫秒处理。较早的毫秒值也可能很短，已知单位时应手动选择。</p></details>
     <details><summary>时间戳转换会有时区问题吗？</summary><p>时间戳本身不带时区，表示的是全球统一的绝对时刻；同一个时间戳在北京显示 20:00，在伦敦显示 12:00。本工具默认按你浏览器的本地时区显示日期，并同时给出 UTC 时间对照。</p></details>
     <details><summary>2038 年问题是什么？</summary><p>使用 32 位有符号整数存储秒级时间戳的系统，在 2038-01-19 03:14:07 UTC 之后会溢出。现代 64 位系统和主流语言已不受影响，但排查老系统时间异常时值得留意。</p></details>
 </section>
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"时间戳转换","url":"https://tools.zktww.cn/tools/timestamp-converter/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线时间戳转换工具：Unix 时间戳与北京时间日期互转，自动识别秒/毫秒，支持批量转换、UTC 与多时区对照，浏览器本地处理无需上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"时间戳 10 位和 13 位有什么区别？","acceptedAnswer":{"@type":"Answer","text":"10 位时间戳精确到秒（如 1720000000），13 位精确到毫秒（如 1720000000000）。Java、JavaScript 默认使用毫秒，Unix/Linux 系统和 PHP 默认使用秒。本工具会根据位数自动识别，无需手动选择。"}},{"@type":"Question","name":"时间戳转换会有时区问题吗？","acceptedAnswer":{"@type":"Answer","text":"时间戳本身不带时区，表示的是全球统一的绝对时刻；同一个时间戳在北京显示 20:00，在伦敦显示 12:00。本工具默认按你浏览器的本地时区显示日期，并同时给出 UTC 时间对照。"}},{"@type":"Question","name":"2038 年问题是什么？","acceptedAnswer":{"@type":"Answer","text":"使用 32 位有符号整数存储秒级时间戳的系统，在 2038-01-19 03:14:07 UTC 之后会溢出。现代 64 位系统和主流语言已不受影响，但排查老系统时间异常时值得留意。"}}]}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"时间戳转换","url":"https://tools.zktww.cn/tools/timestamp-converter/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"免费在线时间戳转换工具：Unix 时间戳与北京时间日期互转，自动识别秒/毫秒，支持批量转换、UTC 与多时区对照，浏览器本地处理无需上传。"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"时间戳 10 位和 13 位有什么区别？","acceptedAnswer":{"@type":"Answer","text":"现代日期常见 10 位秒值和 13 位毫秒值，但位数不是单位本身。自动模式将不超过 11 位的整数按秒处理，12 位及以上按毫秒处理。较早的毫秒值也可能很短，已知单位时应手动选择。"}},{"@type":"Question","name":"时间戳转换会有时区问题吗？","acceptedAnswer":{"@type":"Answer","text":"时间戳本身不带时区，表示的是全球统一的绝对时刻；同一个时间戳在北京显示 20:00，在伦敦显示 12:00。本工具默认按你浏览器的本地时区显示日期，并同时给出 UTC 时间对照。"}},{"@type":"Question","name":"2038 年问题是什么？","acceptedAnswer":{"@type":"Answer","text":"使用 32 位有符号整数存储秒级时间戳的系统，在 2038-01-19 03:14:07 UTC 之后会溢出。现代 64 位系统和主流语言已不受影响，但排查老系统时间异常时值得留意。"}}]}]}</script>
 </body>
 </html>

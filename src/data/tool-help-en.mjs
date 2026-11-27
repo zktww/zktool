@@ -4,7 +4,7 @@ export const toolHelpEn = {
     title: 'Unix Timestamp Converter - Epoch to Date & Time Zone Tool | zktool',
     intro: 'Convert Unix epoch timestamps (seconds or milliseconds) to human-readable ISO 8601 and local dates, or convert calendar dates back to Unix timestamps. Supports batch line-by-line conversion, live current epoch readout, and instant comparison across global IANA time zones — 100% locally in your browser.',
     faqs: [
-      ['How do I tell Unix seconds apart from milliseconds?', 'A 10-digit integer (such as 1731900000) represents seconds since 1970-01-01T00:00:00Z, while a 13-digit integer represents milliseconds. Auto-detect mode inspects the digit count automatically.'],
+      ['How do I tell Unix seconds apart from milliseconds?', 'Check the source field first. Auto mode treats up to 11 digits as seconds and 12 or more as milliseconds. That works for typical modern dates, but an early millisecond timestamp can be short too. Set the unit explicitly if you know it.'],
       ['Does a Unix timestamp depend on my time zone?', 'No. Unix epoch time always counts elapsed seconds from UTC midnight on January 1, 1970. Only the formatted calendar date and clock time change depending on the selected time zone.'],
       ['What is the Year 2038 problem?', 'Legacy 32-bit signed integers overflow on 2038-01-19T03:14:07Z (2,147,483,647 seconds). Modern 64-bit systems and JavaScript numbers safely handle dates far beyond 2038.']
     ]
@@ -236,7 +236,7 @@ export const toolHelpEn = {
   },
   'docker-compose-converter': {
     title: 'Docker Run to Docker Compose Converter - Online YAML Generator | zktool',
-    intro: 'Convert long docker run CLI commands into clean, modern Docker Compose YAML service definitions, mapping published ports (-p), bind mounts and volumes (-v, --mount), environment variables (-e, --env-file), networks, restart policies, capabilities, and health flags locally.',
+    intro: 'Convert a docker run command into a Compose service locally. The worked Nginx example shows how to preserve a loopback-only port binding and a read-only bind mount. Check any warnings before using the generated YAML.',
     faqs: [
       ['Are secrets passed via -e MYSQL_ROOT_PASSWORD=... safe here?', 'Commands are parsed 100% locally in your browser and draft persistence is off by default for privacy. For production Compose files, move inline secrets into a .env file or Docker secrets.'],
       ['Why does --rm show a warning during conversion?', 'docker run --rm deletes a one-off container on exit, which has no direct permanent field in a long-running Compose service; run one-off tasks with docker compose run --rm instead.'],

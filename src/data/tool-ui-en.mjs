@@ -89,7 +89,20 @@ export const toolUiEn = {
   },
   'radix-converter': { '八进制 (Base 8)': 'Octal (Base 8)', '自定义进制结果': 'Custom base result' },
   'sensor-viewer': { '方向 DeviceOrientation': 'Orientation · DeviceOrientation', '加速度 DeviceMotion': 'Acceleration · DeviceMotion', '含重力 x / y / z（m/s²）': 'Including gravity x / y / z (m/s²)', '不含重力 x / y / z（m/s²）': 'Excluding gravity x / y / z (m/s²)' },
-  'timestamp-converter': { '一': 'Mon', '二': 'Tue', '三': 'Wed', '四': 'Thu', '五': 'Fri', '六': 'Sat', '日': 'Sun' },
+  'timestamp-converter': {
+    '一': 'Mon', '二': 'Tue', '三': 'Wed', '四': 'Thu', '五': 'Fri', '六': 'Sat', '日': 'Sun',
+    '为什么时间戳会被转成 1970 年？': 'Why does my timestamp convert to a date in 1970?',
+    '1704067200 秒和 1704067200000 毫秒是同一时刻：2024-01-01 00:00:00 UTC。两者相差的是单位，不是时区。': '1704067200 seconds and 1704067200000 milliseconds represent the same instant: 2024-01-01 00:00:00 UTC. The difference is the unit, not the time zone.',
+    '如果把 1704067200 当成毫秒，它只比 Unix 起点晚约 20 天，结果是 1970-01-20 17:21:07.200 UTC。点击下面三个例子，对照上方的 ISO 8601 结果。': 'Read 1704067200 as milliseconds instead, and it falls less than 20 days after the Unix epoch: 1970-01-20 17:21:07.200 UTC. Try each example and compare the ISO 8601 results above.',
+    '按秒试算': 'Try seconds', '按毫秒试算': 'Try milliseconds', '复现单位误选': 'Try the wrong unit'
+  },
+  'docker-compose-converter': {
+    '试算端口与挂载': 'Try ports and mounts',
+    '怎样把本机端口和只读目录写进 Compose？': 'How do I map a local port and a read-only directory in Compose?',
+    '核对 ports：本机 127.0.0.1 的 8080 端口转发到容器的 80 端口。去掉 127.0.0.1 会改变绑定范围。': 'Check ports: port 8080 on the host loopback address forwards to port 80 in the container. Removing 127.0.0.1 changes which interfaces the port binds to.',
+    '核对 volumes：左边是主机目录，右边是容器内目录；末尾的 ro 使容器只能读取该挂载。': 'Check volumes: the host directory is on the left, the container directory on the right. The ro suffix makes this mount read-only inside the container.',
+    '-d 控制后台运行，不是 YAML 字段。将输出保存为 compose.yaml 后，可用 docker compose config --quiet 校验配置，无需启动容器。': 'The -d flag runs the container in the background; it is not a YAML field. Save the output as compose.yaml and validate it with docker compose config --quiet without starting a container.'
+  },
   'timezone-planner': { '边缘 7:00-9:00 / 18:00-22:00': 'Outside core hours 7:00–9:00 / 18:00–22:00' },
   'touch-tester': { 'pressure 压力': 'Pressure', 'tiltX / tiltY 倾角': 'Tilt X / Y', 'twist 旋转': 'Twist' },
   'us-address-generator': {

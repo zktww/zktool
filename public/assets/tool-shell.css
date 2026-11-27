@@ -1,6 +1,23 @@
 @charset "UTF-8";
 @import url("tokens.css");
 
+.worked-example {
+    margin-top: 1rem;
+    padding: .8rem 1rem;
+    border-inline-start: 3px solid var(--brand);
+    background: var(--bg-soft);
+    color: var(--text-2);
+    border-radius: 6px;
+    font-size: .88rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+.worked-example summary { cursor: pointer; font-weight: 650; }
+.worked-example p { margin: .55rem 0; }
+.worked-example code { font-family: var(--mono); }
+.worked-example a { text-decoration: underline; }
+.worked-example pre { margin: .65rem 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+
 /* zktool 工具页公共骨架（Craft Bento 温润便当盒体系）：
    毛玻璃胶囊顶栏、柔和弥散背景、紧凑标题与底部相关工具/FAQ 卡片。 */
 

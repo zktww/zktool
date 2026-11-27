@@ -27,8 +27,26 @@
         <section class="panel">
             <h2>Docker Run 命令</h2>
             <textarea id="input" spellcheck="false" aria-label="Docker Run 命令" placeholder="docker run -d --name web -p 8080:80 nginx:alpine"></textarea>
-            <div class="row"><button class="btn primary" id="convert" type="button">转换</button><button class="btn" id="example" type="button">示例</button><button class="btn danger" id="clear" type="button">清空</button></div>
+            <div class="row"><button class="btn primary" id="convert" type="button">转换</button><button class="btn" id="example" type="button">试算端口与挂载</button><button class="btn danger" id="clear" type="button">清空</button></div>
             <p class="hint" id="status" aria-live="polite">支持 shell 引号、反斜杠转义和多行续写，命令不会上传。</p>
+            <details class="worked-example" open>
+                <summary>怎样把本机端口和只读目录写进 Compose？</summary>
+                <pre><code id="portMountCommand">docker run -d --name web \
+  -p 127.0.0.1:8080:80 \
+  -v /srv/site:/usr/share/nginx/html:ro \
+  nginx:alpine</code></pre>
+                <p>核对 ports：本机 127.0.0.1 的 8080 端口转发到容器的 80 端口。去掉 127.0.0.1 会改变绑定范围。</p>
+                <p>核对 volumes：左边是主机目录，右边是容器内目录；末尾的 ro 使容器只能读取该挂载。</p>
+                <p>-d 控制后台运行，不是 YAML 字段。将输出保存为 compose.yaml 后，可用 docker compose config --quiet 校验配置，无需启动容器。</p>
+                <pre><code>services:
+  web:
+    image: nginx:alpine
+    container_name: web
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - "/srv/site:/usr/share/nginx/html:ro"</code></pre>
+            </details>
         </section>
         <aside>
             <section class="panel">
@@ -92,7 +110,7 @@
     }
     function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
     function run(){var cmd=input.value.trim();if(!cmd){output.textContent="";summary.innerHTML="";status.textContent="支持 shell 引号、反斜杠转义和多行续写，命令不会上传。";status.className="hint";return;}try{var r=parse(cmd);output.textContent=jsyaml.dump(r.doc,{indent:2,lineWidth:-1,noRefs:true,quotingType:"'",forceQuotes:false});summary.innerHTML="<span class='chip'>服务 "+esc(r.name)+"</span><span class='chip'>镜像 "+esc(r.image)+"</span>";status.textContent=r.warnings.length?"转换完成；"+r.warnings.join("；"):"转换完成，建议再运行 docker compose config 校验。";status.className="hint "+(r.warnings.length?"warn":"ok");}catch(e){output.textContent="";summary.innerHTML="";status.textContent="转换失败："+e.message;status.className="hint bad";}}
-    function example(){input.value="docker run -d --name web-app \\\n  --restart unless-stopped \\\n  -p 8080:80 -p 8443:443 \\\n  -v ./html:/usr/share/nginx/html:ro \\\n  -e NGINX_HOST=example.com \\\n  --network frontend \\\n  nginx:alpine";run();}
+    function example(){input.value=document.getElementById("portMountCommand").textContent.trim();run();}
     document.getElementById("convert").onclick=run;document.getElementById("example").onclick=example;document.getElementById("clear").onclick=function(){input.value="";run();input.focus();};
     document.getElementById("copy").onclick=function(){if(!output.textContent){status.textContent="没有可复制的 YAML。";status.className="hint bad";return;}copyText(output.textContent).then(function(){status.textContent="Compose YAML 已复制。";status.className="hint ok";},function(){status.textContent="复制失败，请手动选择复制。";status.className="hint bad";});};
     document.getElementById("download").onclick=function(){if(!output.textContent)return;var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([output.textContent],{type:"text/yaml;charset=utf-8"}));a.download="compose.yaml";a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},0);};
